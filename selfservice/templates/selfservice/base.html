@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- 좌측 메뉴 -->
+        <div class="col-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">내 메뉴</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'dashboard' in request.path %}active{% endif %}" 
+                               href="{% url 'selfservice:dashboard' %}">
+                                <i class="fas fa-tachometer-alt"></i> 대시보드
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'profile' in request.path %}active{% endif %}" 
+                               href="{% url 'selfservice:profile_update' %}">
+                                <i class="fas fa-user"></i> 내 정보 수정
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'password' in request.path %}active{% endif %}" 
+                               href="{% url 'selfservice:password_change' %}">
+                                <i class="fas fa-key"></i> 비밀번호 변경
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'evaluations' in request.path %}active{% endif %}" 
+                               href="{% url 'selfservice:evaluation_history' %}">
+                                <i class="fas fa-chart-line"></i> 평가 이력
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'compensation' in request.path %}active{% endif %}" 
+                               href="{% url 'selfservice:compensation_statement' %}">
+                                <i class="fas fa-money-bill-wave"></i> 보상 명세서
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 메인 콘텐츠 -->
+        <div class="col-md-10">
+            {% block selfservice_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

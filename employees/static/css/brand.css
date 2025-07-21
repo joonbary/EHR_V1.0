@@ -1,0 +1,321 @@
+:root {
+  --primary: #2563eb;
+  --secondary: #64748b;
+  --bg-light: #f1f5f9;
+  --white: #fff;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+}
+
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', 'Inter', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background: var(--bg-light);
+  color: var(--secondary);
+}
+
+.navbar {
+  background: var(--white) !important;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  margin: 24px 0;
+}
+
+.navbar .navbar-brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary) !important;
+  letter-spacing: -1px;
+}
+
+.navbar .nav-link {
+  color: var(--secondary) !important;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.navbar .nav-link.active, .navbar .nav-link:hover {
+  color: var(--primary) !important;
+  background: var(--bg-light);
+}
+
+.card {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--white);
+  padding: 32px;
+  margin-bottom: 24px;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--primary) !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: #1d4ed8 !important;
+}
+
+.btn-secondary {
+  background: var(--secondary) !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--white) !important;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.footer {
+  background: var(--white);
+  color: var(--secondary);
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--secondary);
+}
+
+input, select, textarea {
+  border-radius: 8px !important;
+  border: 1px solid #e5e7eb !important;
+  font-size: 1rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.1) !important;
+}
+
+.alert {
+  border-radius: 8px;
+  font-size: 1rem;
+} 
+
+/* === OK금융그룹 브랜딩 오버라이드 === */
+:root {
+  --primary: #F55000;
+  --secondary: #55474A;
+  --warning: #FFAA00;
+}
+
+body {
+  color: var(--secondary);
+}
+
+.navbar, .navbar.bg-white {
+  background: var(--primary) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 12px rgba(245,80,0,0.08);
+}
+
+.navbar .navbar-brand, .navbar .nav-link, .navbar .nav-link:visited {
+  color: #fff !important;
+}
+
+.navbar .navbar-brand {
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: -1px;
+}
+
+.navbar .nav-link.active, .navbar .nav-link:hover {
+  color: var(--warning) !important;
+  background: rgba(255,255,255,0.08);
+}
+
+/* 헤더 타이틀 강조 ::before 제거 */
+.navbar .navbar-brand::before {
+  content: none !important;
+}
+
+/* 네비게이션 폰트/여백/정렬 개선 */
+.navbar .navbar-brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-right: 2rem;
+}
+
+.navbar .nav-link {
+  font-size: 1.08rem;
+  font-weight: 600;
+  padding: 0.7em 1.1em;
+}
+
+/* 카드 상단 오렌지 보더 */
+.card {
+  border-top: 4px solid var(--primary) !important;
+}
+
+/* 버튼 스타일 및 hover 개선 */
+.btn-primary {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(245,80,0,0.08);
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--warning) !important;
+  color: var(--secondary) !important;
+  box-shadow: 0 4px 16px rgba(255,170,0,0.15);
+}
+
+.btn-secondary {
+  background: var(--secondary) !important;
+  color: #fff !important;
+}
+
+h1, h2, h3, h4, h5 {
+  color: var(--primary) !important;
+}
+
+.footer {
+  background: #fff;
+  color: var(--secondary);
+  border-top: 1px solid #eee;
+} 
+
+/* === 가독성 및 컬러 개선 === */
+
+.navbar, .navbar.bg-white {
+  background: var(--primary) !important;
+  color: #fff !important;
+}
+
+.navbar .navbar-brand, .navbar .nav-link, .navbar .nav-link:visited {
+  color: #fff !important;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.navbar .nav-link.active, .navbar .nav-link:hover {
+  color: var(--warning) !important;
+  background: rgba(255,255,255,0.08);
+}
+
+.card-title, h2.card-title {
+  color: var(--secondary) !important;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* 직원목록 테이블 가독성 개선 */
+.table th, .table thead th {
+  background: #fff7f0 !important;
+  color: var(--secondary) !important;
+  font-size: 1.08rem;
+  font-weight: 700;
+  border-bottom: 2px solid #ffd6b3;
+}
+.table td {
+  font-size: 1.04rem;
+  color: var(--secondary);
+  vertical-align: middle;
+  background: #fff;
+}
+.table-hover tbody tr:hover {
+  background: #fff2e0 !important;
+}
+.table .employee-name-link {
+  color: var(--primary) !important;
+  font-weight: 700;
+  font-size: 1.08rem;
+}
+
+/* 네비게이션 active 배경 강조 */
+.navbar .nav-link.active {
+  background: #fff2e0 !important;
+  color: var(--primary) !important;
+  border-radius: 8px;
+}
+
+/* 부서: 진한 회색 배경, 흰색 글씨 */
+.badge-dept {
+  background: var(--secondary) !important;
+  color: #fff !important;
+}
+/* 직급: 오렌지 배경, 진한 글씨 */
+.badge-pos {
+  background: var(--primary) !important;
+  color: #222 !important;
+  font-weight: 700;
+}
+/* 기본 badge 대비 강화 */
+.badge {
+  border-radius: 6px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  padding: 0.45em 0.9em;
+  color: #333 !important;
+  background: #ffe5d0 !important;
+}
+
+/* 직원 이름(목록/상세) 검은색 + 언더라인 제거 */
+.employee-name-link {
+  color: #222 !important;
+  font-weight: 700;
+  font-size: 1.08rem;
+  text-decoration: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+.employee-name-link:hover {
+  color: #111 !important;
+  text-decoration: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* 근무정보(상세) 기간 굵기 제거 */
+.card-body.text-center h5,
+.card-body.text-center .work-period-text {
+  color: #222 !important;
+  font-weight: 400 !important;
+}
+
+/* 버튼 크기, 폰트, hover 개선 */
+.btn, .btn-group .btn {
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn-primary {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border: none;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--warning) !important;
+  color: var(--secondary) !important;
+}
+
+.btn-secondary {
+  background: var(--secondary) !important;
+  color: #fff !important;
+  border: none;
+}
+
+.btn-danger {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border: none;
+}
+
+/* 푸터 폰트 크기 통일 */
+.footer {
+  font-size: 1rem;
+} 

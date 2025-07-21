@@ -1,0 +1,270 @@
+{% extends 'employees/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load tz %}
+{% load custom_filters %}
+{% block title %}직원 일괄 업로드{% endblock %}
+{% block content %}
+<div class="container" style="max-width:800px;">
+    <h2 class="mb-4"><i class="fas fa-upload me-2"></i>직원 일괄 업로드</h2>
+    <!-- 단계별 진행바 -->
+    <div class="progress mb-4" style="height: 28px;">
+      <div id="step-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 25%; font-size:1.1em;" aria-valuenow="1" aria-valuemin="0" aria-valuemax="4">1단계: 파일 선택</div>
+    </div>
+    <!-- 1단계: 파일 선택/드래그앤드롭 -->
+    <div id="step1" class="card mb-4 step-card">
+      <div class="card-body">
+        <form id="bulk-upload-form" enctype="multipart/form-data" autocomplete="off">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="file" class="form-label">업로드 파일 (Excel .xlsx, .xls 또는 CSV)</label>
+            <div id="drop-area" class="border border-2 border-primary rounded-3 p-4 text-center bg-light" style="cursor:pointer;">
+              <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-primary"></i><br>
+              <span id="drop-text">여기로 파일을 드래그하거나 클릭하여 선택하세요</span>
+              <input type="file" id="file" name="file" accept=".xlsx,.xls,.csv" class="d-none">
+            </div>
+            <div id="file-info" class="mt-2 text-secondary small"></div>
+            <div id="file-error" class="text-danger mt-2"></div>
+          </div>
+          <div class="mb-3">
+            <a href="{% url 'employees:employee_download_template' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-download me-1"></i>샘플 양식 다운로드</a>
+          </div>
+          <button type="button" id="btn-preview" class="btn btn-primary" disabled>미리보기</button>
+        </form>
+      </div>
+    </div>
+    <!-- 2단계: 데이터 미리보기 -->
+    <div id="step2" class="card mb-4 step-card d-none">
+      <div class="card-header bg-light fw-bold">2단계: 데이터 미리보기</div>
+      <div class="card-body p-0">
+        <div id="preview-table-area"></div>
+        <button type="button" id="btn-to-errors" class="btn btn-primary mt-3">오류 확인 및 수정</button>
+      </div>
+    </div>
+    <!-- 3단계: 오류 확인 및 수정 -->
+    <div id="step3" class="card mb-4 step-card d-none">
+      <div class="card-header bg-light fw-bold">3단계: 오류 확인 및 수정</div>
+      <div class="card-body p-0">
+        <div id="error-table-area"></div>
+        <button type="button" id="btn-save" class="btn btn-success mt-3">최종 저장</button>
+      </div>
+    </div>
+    <!-- 4단계: 최종 저장 결과 -->
+    <div id="step4" class="card mb-4 step-card d-none">
+      <div class="card-header bg-light fw-bold">4단계: 업로드 결과</div>
+      <div class="card-body">
+        <div id="result-area"></div>
+        <a href="" class="btn btn-outline-primary mt-3" id="btn-restart">다시 업로드</a>
+      </div>
+    </div>
+    <div class="alert alert-info mb-4">
+      <b>업로드 규칙 안내</b><br>
+      - 파일 형식: <b>Excel(.xlsx, .xls), CSV</b>만 지원<br>
+      - <b>이름, 이메일, 부서, 직급, 입사일</b>은 필수, <b>이메일 중복 불가</b><br>
+      - <b>입사일</b>은 <code>YYYY-MM-DD</code> 형식<br>
+      - 샘플 파일을 참고하여 컬럼명/순서 일치<br>
+    </div>
+    <div class="card mb-4">
+      <div class="card-header bg-light fw-bold">파일 양식 안내</div>
+      <div class="card-body">
+        <ul class="mb-0">
+          {% for h in sample_headers %}
+          <li><b>{{ h }}</b></li>
+          {% endfor %}
+        </ul>
+        <div class="text-muted mt-2">* 이름, 이메일, 부서, 직급, 입사일은 필수입니다. 이메일은 중복 불가</div>
+      </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_head %}
+<style>
+#drop-area { transition: background 0.2s, border-color 0.2s; }
+#drop-area.dragover { background: #e3f2fd; border-color: #1976d2; }
+.step-card { box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+tr.error-row { background: #fff3cd !important; }
+td.error-cell { color: #d32f2f; font-weight: bold; }
+.progress-bar { transition: width 0.4s; }
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+// 단계별 UI 상태 관리
+let currentStep = 1;
+function setStep(step) {
+  currentStep = step;
+  document.querySelectorAll('.step-card').forEach((el, idx) => {
+    el.classList.toggle('d-none', idx+1 !== step);
+  });
+  // 진행바
+  const progress = document.getElementById('step-progress');
+  const stepNames = ['1단계: 파일 선택', '2단계: 데이터 미리보기', '3단계: 오류 확인 및 수정', '4단계: 최종 저장'];
+  progress.style.width = (step*25) + '%';
+  progress.innerText = stepNames[step-1];
+  progress.setAttribute('aria-valuenow', step);
+  progress.className = 'progress-bar progress-bar-striped progress-bar-animated bg-' + (step===4?'success':step===3?'warning':step===2?'info':'primary');
+}
+setStep(1);
+
+// 드래그 앤 드롭 구현
+const dropArea = document.getElementById('drop-area');
+const fileInput = document.getElementById('file');
+dropArea.addEventListener('click', () => fileInput.click());
+dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.classList.add('dragover'); });
+dropArea.addEventListener('dragleave', e => { e.preventDefault(); dropArea.classList.remove('dragover'); });
+dropArea.addEventListener('drop', e => {
+  e.preventDefault(); dropArea.classList.remove('dragover');
+  if (e.dataTransfer.files.length) {
+    fileInput.files = e.dataTransfer.files;
+    handleFileChange();
+  }
+});
+fileInput.addEventListener('change', handleFileChange);
+
+function handleFileChange() {
+  const file = fileInput.files[0];
+  const info = document.getElementById('file-info');
+  const error = document.getElementById('file-error');
+  info.innerText = error.innerText = '';
+  if (!file) return;
+  // 확장자/크기 체크
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!["xlsx","xls","csv"].includes(ext)) {
+    error.innerText = '지원하지 않는 파일 형식입니다.';
+    document.getElementById('btn-preview').disabled = true;
+    return;
+  }
+  if (file.size > 2*1024*1024) {
+    error.innerText = '2MB 이하 파일만 업로드 가능합니다.';
+    document.getElementById('btn-preview').disabled = true;
+    return;
+  }
+  info.innerText = `선택된 파일: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+  document.getElementById('btn-preview').disabled = false;
+}
+
+// 미리보기 ajax
+const btnPreview = document.getElementById('btn-preview');
+btnPreview.addEventListener('click', function() {
+  const file = fileInput.files[0];
+  if (!file) return;
+  setStep(2);
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('preview', '1');
+  fetch(window.location.pathname, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    renderPreviewTable(data.columns, data.preview, data.errors);
+    window._previewData = data;
+  })
+  .catch(() => {
+    document.getElementById('preview-table-area').innerHTML = '<div class="alert alert-danger">미리보기 중 오류가 발생했습니다.</div>';
+  });
+});
+
+function renderPreviewTable(columns, rows, errors) {
+  let html = '<div class="table-responsive"><table class="table table-bordered table-sm mb-0"><thead><tr>';
+  columns.forEach(col => html += `<th>${col}</th>`);
+  html += '</tr></thead><tbody>';
+  rows.forEach((row, i) => {
+    const rowError = errors.find(e => e.row-2 === i);
+    html += `<tr${rowError ? ' class="error-row"' : ''}>`;
+    columns.forEach(col => {
+      html += `<td${rowError && rowError.errors.some(err => err.includes(col)) ? ' class="error-cell"' : ''}>${row[col]||''}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  if (errors.length) {
+    html += `<div class="alert alert-warning mt-2">오류 행이 있습니다. <b>다음 단계에서 수정</b>할 수 있습니다.</div>`;
+  } else {
+    html += `<div class="alert alert-success mt-2">오류 없이 업로드 가능합니다.</div>`;
+  }
+  document.getElementById('preview-table-area').innerHTML = html;
+}
+
+// 2단계 → 3단계
+const btnToErrors = document.getElementById('btn-to-errors');
+btnToErrors.addEventListener('click', function() {
+  setStep(3);
+  renderErrorTable(window._previewData.columns, window._previewData.preview, window._previewData.errors);
+});
+
+// 오류 테이블(수정 가능)
+function renderErrorTable(columns, rows, errors) {
+  let html = '<div class="table-responsive"><table class="table table-bordered table-sm mb-0"><thead><tr>';
+  columns.forEach(col => html += `<th>${col}</th>`);
+  html += '</tr></thead><tbody>';
+  rows.forEach((row, i) => {
+    const rowError = errors.find(e => e.row-2 === i);
+    html += `<tr${rowError ? ' class="error-row"' : ''}>`;
+    columns.forEach(col => {
+      html += `<td contenteditable="${rowError?true:false}"${rowError && rowError.errors.some(err => err.includes(col)) ? ' class="error-cell"' : ''}>${row[col]||''}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  if (errors.length) {
+    html += `<div class="alert alert-warning mt-2">오류가 있는 셀을 수정 후 <b>최종 저장</b>을 눌러주세요.</div>`;
+  } else {
+    html += `<div class="alert alert-success mt-2">모든 데이터가 정상입니다. 바로 저장할 수 있습니다.</div>`;
+  }
+  document.getElementById('error-table-area').innerHTML = html;
+}
+
+// 3단계 → 4단계(최종 저장)
+const btnSave = document.getElementById('btn-save');
+btnSave.addEventListener('click', function() {
+  // 테이블에서 데이터 추출
+  const table = document.querySelector('#error-table-area table');
+  const columns = Array.from(table.querySelectorAll('thead th')).map(th=>th.innerText);
+  const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr=>{
+    const cells = Array.from(tr.querySelectorAll('td'));
+    const obj = {};
+    columns.forEach((col, idx) => obj[col] = cells[idx].innerText.trim());
+    return obj;
+  });
+  fetch(window.location.pathname, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value, 'Content-Type': 'application/json' },
+    body: JSON.stringify({save:1, columns, rows})
+  })
+  .then(res => res.json())
+  .then(data => {
+    setStep(4);
+    renderResult(data);
+  })
+  .catch(()=>{
+    document.getElementById('result-area').innerHTML = '<div class="alert alert-danger">저장 중 오류가 발생했습니다.</div>';
+  });
+});
+
+function renderResult(data) {
+  let html = `<div class="mb-2">성공: <span class="text-success fw-bold">${data.success_count}</span>건, 실패: <span class="text-danger fw-bold">${data.fail_count}</span>건</div>`;
+  if (data.created && data.created.length) {
+    html += `<div class="mb-2">등록된 이메일: <span class="text-success">${data.created.join(', ')}</span></div>`;
+  }
+  if (data.errors && data.errors.length) {
+    html += `<div class="alert alert-warning"><b>실패 내역</b><ul class="mb-0">`;
+    data.errors.forEach(e => {
+      html += `<li>행 ${e.row} (${e.name} / ${e.email}): ${e.errors.join(', ')}</li>`;
+    });
+    html += `</ul></div>`;
+  }
+  document.getElementById('result-area').innerHTML = html;
+}
+
+// 다시 업로드
+const btnRestart = document.getElementById('btn-restart');
+btnRestart.addEventListener('click', function(e) {
+  e.preventDefault();
+  window.location.reload();
+});
+</script>
+{% endblock %} 

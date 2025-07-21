@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}전문성 평가 - {{ employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-graduation-cap"></i> 전문성 평가
+                    </h4>
+                    <p class="text-muted mb-0">{{ employee.name }} - {{ active_period }}</p>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- 평가 정보 -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6>평가 정보</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">요구 레벨</label>
+                                                <input type="text" class="form-control" 
+                                                       value="{{ evaluation.required_level }}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">전문성 초점</label>
+                                                <select class="form-select" name="expertise_focus">
+                                                    <option value="hard_skill" {% if evaluation.expertise_focus == 'hard_skill' %}selected{% endif %}>
+                                                        Hard Skill Focused
+                                                    </option>
+                                                    <option value="balanced" {% if evaluation.expertise_focus == 'balanced' %}selected{% endif %}>
+                                                        Balanced
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6>평가 기준</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li><strong>4점 (창의):</strong> 새로운 해결방안 창출</li>
+                                            <li><strong>3점 (자문):</strong> 전문적 조언 제공</li>
+                                            <li><strong>2점 (적용):</strong> 기존 지식 적용</li>
+                                            <li><strong>1점 (이해):</strong> 기본 개념 이해</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 10개 체크리스트 -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>전문성 체크리스트 (10개 항목)</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th width="30%">평가 항목</th>
+                                                <th width="15%">1점 (이해)</th>
+                                                <th width="15%">2점 (적용)</th>
+                                                <th width="15%">3점 (자문)</th>
+                                                <th width="15%">4점 (창의)</th>
+                                                <th width="10%">점수</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>창의적 해결방안 제시</strong></td>
+                                                <td><input type="radio" name="creative_solution" value="1" {% if evaluation.creative_solution == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="creative_solution" value="2" {% if evaluation.creative_solution == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="creative_solution" value="3" {% if evaluation.creative_solution == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="creative_solution" value="4" {% if evaluation.creative_solution == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="creative_solution">{{ evaluation.creative_solution|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>기술적 혁신</strong></td>
+                                                <td><input type="radio" name="technical_innovation" value="1" {% if evaluation.technical_innovation == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="technical_innovation" value="2" {% if evaluation.technical_innovation == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="technical_innovation" value="3" {% if evaluation.technical_innovation == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="technical_innovation" value="4" {% if evaluation.technical_innovation == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="technical_innovation">{{ evaluation.technical_innovation|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>프로세스 개선</strong></td>
+                                                <td><input type="radio" name="process_improvement" value="1" {% if evaluation.process_improvement == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="process_improvement" value="2" {% if evaluation.process_improvement == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="process_improvement" value="3" {% if evaluation.process_improvement == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="process_improvement" value="4" {% if evaluation.process_improvement == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="process_improvement">{{ evaluation.process_improvement|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>지식 공유</strong></td>
+                                                <td><input type="radio" name="knowledge_sharing" value="1" {% if evaluation.knowledge_sharing == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="knowledge_sharing" value="2" {% if evaluation.knowledge_sharing == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="knowledge_sharing" value="3" {% if evaluation.knowledge_sharing == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="knowledge_sharing" value="4" {% if evaluation.knowledge_sharing == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="knowledge_sharing">{{ evaluation.knowledge_sharing|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>멘토링</strong></td>
+                                                <td><input type="radio" name="mentoring" value="1" {% if evaluation.mentoring == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="mentoring" value="2" {% if evaluation.mentoring == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="mentoring" value="3" {% if evaluation.mentoring == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="mentoring" value="4" {% if evaluation.mentoring == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="mentoring">{{ evaluation.mentoring|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>크로스펑셔널 협업</strong></td>
+                                                <td><input type="radio" name="cross_functional" value="1" {% if evaluation.cross_functional == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="cross_functional" value="2" {% if evaluation.cross_functional == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="cross_functional" value="3" {% if evaluation.cross_functional == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="cross_functional" value="4" {% if evaluation.cross_functional == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="cross_functional">{{ evaluation.cross_functional|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>전략적 사고</strong></td>
+                                                <td><input type="radio" name="strategic_thinking" value="1" {% if evaluation.strategic_thinking == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="strategic_thinking" value="2" {% if evaluation.strategic_thinking == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="strategic_thinking" value="3" {% if evaluation.strategic_thinking == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="strategic_thinking" value="4" {% if evaluation.strategic_thinking == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="strategic_thinking">{{ evaluation.strategic_thinking|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>비즈니스 감각</strong></td>
+                                                <td><input type="radio" name="business_acumen" value="1" {% if evaluation.business_acumen == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="business_acumen" value="2" {% if evaluation.business_acumen == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="business_acumen" value="3" {% if evaluation.business_acumen == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="business_acumen" value="4" {% if evaluation.business_acumen == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="business_acumen">{{ evaluation.business_acumen|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>산업 트렌드 파악</strong></td>
+                                                <td><input type="radio" name="industry_trend" value="1" {% if evaluation.industry_trend == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="industry_trend" value="2" {% if evaluation.industry_trend == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="industry_trend" value="3" {% if evaluation.industry_trend == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="industry_trend" value="4" {% if evaluation.industry_trend == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="industry_trend">{{ evaluation.industry_trend|default:"-" }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>지속적 학습</strong></td>
+                                                <td><input type="radio" name="continuous_learning" value="1" {% if evaluation.continuous_learning == 1 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="continuous_learning" value="2" {% if evaluation.continuous_learning == 2 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="continuous_learning" value="3" {% if evaluation.continuous_learning == 3 %}checked{% endif %}></td>
+                                                <td><input type="radio" name="continuous_learning" value="4" {% if evaluation.continuous_learning == 4 %}checked{% endif %}></td>
+                                                <td><span class="badge bg-primary expertise-score" data-field="continuous_learning">{{ evaluation.continuous_learning|default:"-" }}</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 평가 결과 -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6>평가 결과</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="form-label">종합 점수</label>
+                                                <input type="text" class="form-control" id="total-score" 
+                                                       value="{{ evaluation.total_score|default:'-' }}" readonly>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">달성 여부</label>
+                                                <input type="text" class="form-control" id="achievement-status" 
+                                                       value="{% if evaluation.is_achieved %}달성{% else %}미달성{% endif %}" readonly>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">평가일</label>
+                                                <input type="text" class="form-control" 
+                                                       value="{{ evaluation.evaluated_date|default:'-' }}" readonly>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">평가자</label>
+                                                <input type="text" class="form-control" 
+                                                       value="{{ evaluation.evaluator.name|default:'-' }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 평가 의견 -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">평가 의견</label>
+                                    <textarea class="form-control" rows="4" name="comments" 
+                                              placeholder="평가 의견을 입력하세요...">{{ evaluation.comments|default:'' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 버튼 -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> 저장
+                                </button>
+                                <a href="{% url 'evaluations:dashboard' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> 돌아가기
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 실시간 점수 계산
+function calculateExpertiseScore() {
+    const fields = [
+        'creative_solution', 'technical_innovation', 'process_improvement',
+        'knowledge_sharing', 'mentoring', 'cross_functional',
+        'strategic_thinking', 'business_acumen', 'industry_trend', 'continuous_learning'
+    ];
+    
+    let totalScore = 0;
+    let validScores = 0;
+    
+    fields.forEach(field => {
+        const selectedRadio = document.querySelector(`input[name="${field}"]:checked`);
+        const scoreSpan = document.querySelector(`[data-field="${field}"]`);
+        
+        if (selectedRadio) {
+            const score = parseInt(selectedRadio.value);
+            totalScore += score;
+            validScores++;
+            scoreSpan.textContent = score;
+            scoreSpan.className = 'badge bg-primary expertise-score';
+        } else {
+            scoreSpan.textContent = '-';
+            scoreSpan.className = 'badge bg-secondary expertise-score';
+        }
+    });
+    
+    // 평균 점수 계산
+    const avgScore = validScores > 0 ? (totalScore / validScores).toFixed(1) : '-';
+    document.getElementById('total-score').value = avgScore;
+    
+    // 달성 여부 판정
+    const achievementStatus = document.getElementById('achievement-status');
+    if (avgScore !== '-') {
+        const isAchieved = parseFloat(avgScore) >= 3.0;
+        achievementStatus.value = isAchieved ? '달성' : '미달성';
+        achievementStatus.className = isAchieved ? 'form-control text-success' : 'form-control text-danger';
+    }
+}
+
+// 이벤트 리스너 등록
+document.addEventListener('DOMContentLoaded', function() {
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', calculateExpertiseScore);
+    });
+    
+    // 초기 계산
+    calculateExpertiseScore();
+});
+</script>
+{% endblock %} 

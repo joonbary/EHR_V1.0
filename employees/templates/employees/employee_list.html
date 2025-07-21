@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}직원 목록 - OK금융그룹 e-HR{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <!-- 브레드크럼 -->
+        <nav class="breadcrumb">
+            <ul class="breadcrumb-list">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'home' %}" class="breadcrumb-link">홈</a>
+                </li>
+                <li class="breadcrumb-item">직원 목록</li>
+            </ul>
+        </nav>
+
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-users"></i>
+                    직원 목록
+                </h1>
+                <p class="page-description">전체 직원 정보를 조회하고 관리할 수 있습니다</p>
+            </div>
+            <div class="page-header-actions">
+                <a href="{% url 'employees:employee_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    새 직원 등록
+                </a>
+            </div>
+        </div>
+
+        <!-- 콘텐츠 영역 -->
+        <div class="content-area">
+            {% if employees %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3>전체 직원 ({{ employees|length }}명)</h3>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'employees:employee_bulk_upload' %}" class="btn btn-ghost btn-sm">
+                                    <i class="fas fa-upload"></i>
+                                    일괄 등록
+                                </a>
+                                <a href="{% url 'employees:employee_download_template' %}" class="btn btn-ghost btn-sm">
+                                    <i class="fas fa-download"></i>
+                                    템플릿
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>이름</th>
+                                        <th>이메일</th>
+                                        <th>부서</th>
+                                        <th>직급</th>
+                                        <th>성장레벨</th>
+                                        <th>입사일</th>
+                                        <th>전화번호</th>
+                                        <th>작업</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for employee in employees %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar-sm me-2">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div>
+                                                    <a href="{% url 'employees:employee_detail' employee.pk %}" 
+                                                       class="employee-name">
+                                                        {{ employee.name }}
+                                                    </a>
+                                                    {% if employee.employment_status != '재직' %}
+                                                        <span class="status-badge">{{ employee.get_employment_status_display }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="mailto:{{ employee.email }}" class="text-link">
+                                                {{ employee.email }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="department-badge">{{ employee.get_department_display }}</span>
+                                        </td>
+                                        <td>{{ employee.get_position_display }}</td>
+                                        <td>
+                                            <span class="level-badge">Level {{ employee.growth_level }}</span>
+                                        </td>
+                                        <td>{{ employee.hire_date|date:"Y-m-d" }}</td>
+                                        <td>
+                                            <a href="tel:{{ employee.phone }}" class="text-link">
+                                                {{ employee.phone }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <a href="{% url 'employees:employee_detail' employee.pk %}" 
+                                                   class="action-btn" 
+                                                   title="상세보기">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'employees:employee_update' employee.pk %}" 
+                                                   class="action-btn" 
+                                                   title="수정">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'employees:employee_delete' employee.pk %}" 
+                                                   class="action-btn delete-btn" 
+                                                   title="삭제"
+                                                   onclick="return confirm('정말로 이 직원을 삭제하시겠습니까?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 페이지네이션 -->
+                        {% if is_paginated %}
+                        <div class="card-footer">
+                            <nav aria-label="페이지 네비게이션">
+                                <ul class="pagination justify-content-center mb-0">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                                <i class="fas fa-angle-left"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                                <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-users fa-4x mb-4"></i>
+                            <h3 class="text-muted mb-3">등록된 직원이 없습니다</h3>
+                            <p class="text-muted mb-4">새로운 직원을 등록하여 시작해보세요.</p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <a href="{% url 'employees:employee_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    첫 번째 직원 등록
+                                </a>
+                                <a href="{% url 'employees:employee_bulk_upload' %}" class="btn btn-ghost">
+                                    <i class="fas fa-upload"></i>
+                                    일괄 등록
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.empty-state {
+    padding: var(--spacing-2xl) 0;
+}
+
+.empty-state i {
+    color: var(--gray-300);
+}
+
+.user-avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background-color: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    font-size: var(--font-size-sm);
+}
+
+.employee-name {
+    color: var(--gray-900);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition-normal);
+}
+
+.employee-name:hover {
+    color: var(--primary-orange);
+}
+
+.text-link {
+    color: var(--gray-600);
+    text-decoration: none;
+    transition: color var(--transition-normal);
+}
+
+.text-link:hover {
+    color: var(--primary-orange);
+}
+
+.status-badge {
+    display: inline-block;
+    font-size: var(--font-size-xs);
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    background-color: var(--warning);
+    color: white;
+    margin-left: var(--spacing-xs);
+    font-weight: 500;
+}
+
+.department-badge {
+    display: inline-block;
+    font-size: var(--font-size-xs);
+    padding: 4px 8px;
+    border-radius: var(--radius-full);
+    background-color: var(--primary-orange-light);
+    color: var(--primary-orange);
+    font-weight: 500;
+}
+
+.level-badge {
+    display: inline-block;
+    font-size: var(--font-size-xs);
+    padding: 4px 8px;
+    border-radius: var(--radius-full);
+    background-color: var(--gray-100);
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-md);
+    background-color: var(--gray-100);
+    color: var(--gray-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    font-size: var(--font-size-sm);
+}
+
+.action-btn:hover {
+    background-color: var(--gray-200);
+    color: var(--gray-800);
+}
+
+.action-btn.delete-btn:hover {
+    background-color: var(--error);
+    color: white;
+}
+
+.pagination .page-link {
+    color: var(--gray-600);
+    border-color: var(--gray-200);
+    transition: all var(--transition-normal);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-orange);
+    border-color: var(--primary-orange);
+    color: white;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--primary-orange-light);
+    border-color: var(--primary-orange);
+    color: var(--primary-orange);
+}
+
+.table th {
+    background-color: var(--gray-50);
+    border-bottom: 2px solid var(--gray-200);
+    color: var(--gray-700);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+    padding: var(--spacing-md);
+}
+
+.table tbody tr:hover {
+    background-color: var(--gray-50);
+}
+
+.card-header {
+    background-color: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    padding: var(--spacing-lg);
+}
+
+.card-header h3 {
+    margin: 0;
+    color: var(--gray-800);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+</style>
+{% endblock %} 

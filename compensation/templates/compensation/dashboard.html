@@ -1,0 +1,584 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}보상 대시보드 - OK금융그룹 e-HR 시스템{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+    <span class="breadcrumb-text">보상관리</span>
+</li>
+<li class="breadcrumb-item">
+    <span class="breadcrumb-text">대시보드</span>
+</li>
+{% endblock %}
+
+{% block page_title %}보상 대시보드{% endblock %}
+{% block page_desc %}직원 보상 현황 및 통계를 한눈에 확인하세요{% endblock %}
+
+{% block page_actions %}
+<a href="#" class="btn btn-primary">
+    <i data-lucide="file-text" class="w-4 h-4"></i>
+    급여명세서
+</a>
+<a href="#" class="btn btn-secondary">
+    <i data-lucide="download" class="w-4 h-4"></i>
+    리포트 다운로드
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- 통계 카드 섹션 -->
+<div class="stats-section mb-5">
+    <div class="row">
+        <div class="col-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-content">
+                        <div class="stat-icon bg-primary">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ total_employees|floatformat:0 }}</h3>
+                            <p class="stat-label">전체 직원</p>
+                        </div>
+                    </div>
+                    <div class="stat-change positive">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>+2.5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-content">
+                        <div class="stat-icon bg-success">
+                            <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ avg_salary|floatformat:0 }}만원</h3>
+                            <p class="stat-label">평균 연봉</p>
+                        </div>
+                    </div>
+                    <div class="stat-change positive">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>+5.2%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-content">
+                        <div class="stat-icon bg-warning">
+                            <i data-lucide="award" class="w-6 h-6"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ total_bonus|floatformat:0 }}억원</h3>
+                            <p class="stat-label">총 보너스</p>
+                        </div>
+                    </div>
+                    <div class="stat-change positive">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>+8.1%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-content">
+                        <div class="stat-icon bg-info">
+                            <i data-lucide="percent" class="w-6 h-6"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ salary_growth|floatformat:1 }}%</h3>
+                            <p class="stat-label">연봉 증가율</p>
+                        </div>
+                    </div>
+                    <div class="stat-change positive">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>+1.2%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 차트 섹션 -->
+<div class="charts-section mb-5">
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">연봉 분포</h4>
+                    <p class="card-subtitle">직원별 연봉 분포 현황</p>
+                </div>
+                <div class="card-body">
+                    <canvas id="salaryDistributionChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">부서별 평균 연봉</h4>
+                    <p class="card-subtitle">부서별 평균 연봉 비교</p>
+                </div>
+                <div class="card-body">
+                    <canvas id="departmentSalaryChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 보상 구성 분석 -->
+<div class="compensation-analysis mb-5">
+    <div class="row">
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">보상 구성 분석</h4>
+                    <p class="card-subtitle">기본급, 성과급, 복리후생비 구성 비율</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="compensation-item">
+                                <div class="compensation-circle primary">
+                                    <span class="compensation-percentage">65%</span>
+                                </div>
+                                <h5>기본급</h5>
+                                <p class="text-muted">고정 보상</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="compensation-item">
+                                <div class="compensation-circle success">
+                                    <span class="compensation-percentage">25%</span>
+                                </div>
+                                <h5>성과급</h5>
+                                <p class="text-muted">변동 보상</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="compensation-item">
+                                <div class="compensation-circle warning">
+                                    <span class="compensation-percentage">10%</span>
+                                </div>
+                                <h5>복리후생</h5>
+                                <p class="text-muted">간접 보상</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">최근 보상 이벤트</h4>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker success"></div>
+                            <div class="timeline-content">
+                                <h6>연봉 인상</h6>
+                                <p class="text-sm text-muted">2024년 연봉 인상 완료</p>
+                                <span class="timeline-date">2024.01.15</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker info"></div>
+                            <div class="timeline-content">
+                                <h6>성과급 지급</h6>
+                                <p class="text-sm text-muted">2023년 성과급 지급</p>
+                                <span class="timeline-date">2023.12.20</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker warning"></div>
+                            <div class="timeline-content">
+                                <h6>복리후생 개선</h6>
+                                <p class="text-sm text-muted">의료보험료 지원 확대</p>
+                                <span class="timeline-date">2023.11.10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 상위 연봉자 테이블 -->
+<div class="top-salaries mb-5">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">상위 연봉자</h4>
+            <p class="card-subtitle">연봉 기준 상위 10명</p>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>순위</th>
+                            <th>이름</th>
+                            <th>부서</th>
+                            <th>직급</th>
+                            <th>연봉</th>
+                            <th>성장레벨</th>
+                            <th>변화</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in top_salaries %}
+                        <tr>
+                            <td>
+                                <span class="rank-badge rank-{{ forloop.counter }}">
+                                    {{ forloop.counter }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar">
+                                        <i data-lucide="user" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="employee-name">{{ employee.name }}</h6>
+                                        <p class="employee-id">{{ employee.employee_id }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ employee.department }}</td>
+                            <td>{{ employee.position }}</td>
+                            <td>
+                                <span class="salary-amount">{{ employee.salary|floatformat:0 }}만원</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-primary">Lv.{{ employee.growth_level }}</span>
+                            </td>
+                            <td>
+                                <span class="change-indicator positive">
+                                    <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                    +{{ employee.salary_change|floatformat:1 }}%
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* 통계 카드 스타일 */
+.stat-card {
+    border: none;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    margin: 0;
+    color: var(--gray-900);
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    margin: 0;
+}
+
+.stat-change {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.stat-change.positive {
+    color: var(--success);
+}
+
+.stat-change.negative {
+    color: var(--error);
+}
+
+/* 차트 컨테이너 */
+.card-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin: 0 0 var(--spacing-xs) 0;
+    color: var(--gray-900);
+}
+
+.card-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--gray-500);
+    margin: 0;
+}
+
+/* 보상 구성 분석 */
+.compensation-item {
+    text-align: center;
+    padding: var(--spacing-lg);
+}
+
+.compensation-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-md);
+    color: white;
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+}
+
+.compensation-circle.primary {
+    background-color: var(--primary-orange);
+}
+
+.compensation-circle.success {
+    background-color: var(--success);
+}
+
+.compensation-circle.warning {
+    background-color: var(--warning);
+}
+
+.compensation-item h5 {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-weight: 600;
+}
+
+/* 타임라인 */
+.timeline {
+    position: relative;
+}
+
+.timeline-item {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+}
+
+.timeline-marker {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.timeline-marker.success {
+    background-color: var(--success);
+}
+
+.timeline-marker.info {
+    background-color: var(--info);
+}
+
+.timeline-marker.warning {
+    background-color: var(--warning);
+}
+
+.timeline-content h6 {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-weight: 600;
+}
+
+.timeline-date {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+}
+
+/* 테이블 스타일 */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    color: white;
+}
+
+.rank-1 { background-color: #FFD700; }
+.rank-2 { background-color: #C0C0C0; }
+.rank-3 { background-color: #CD7F32; }
+.rank-4, .rank-5 { background-color: var(--gray-500); }
+
+.employee-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.employee-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--primary-orange-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-orange);
+}
+
+.employee-name {
+    margin: 0;
+    font-weight: 600;
+}
+
+.employee-id {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+}
+
+.salary-amount {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.change-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.change-indicator.positive {
+    color: var(--success);
+}
+
+.change-indicator.negative {
+    color: var(--error);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 연봉 분포 차트
+const salaryCtx = document.getElementById('salaryDistributionChart').getContext('2d');
+const salaryChart = new Chart(salaryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['3,000만원 미만', '3,000-5,000만원', '5,000-7,000만원', '7,000만원 이상'],
+        datasets: [{
+            data: [25, 35, 30, 10],
+            backgroundColor: [
+                '#FF6B00',
+                '#4A90E2',
+                '#7ED321',
+                '#F59E0B'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true
+                }
+            }
+        }
+    }
+});
+
+// 부서별 평균 연봉 차트
+const deptCtx = document.getElementById('departmentSalaryChart').getContext('2d');
+const deptChart = new Chart(deptCtx, {
+    type: 'bar',
+    data: {
+        labels: ['IT개발', '마케팅', '영업', '인사', '재무'],
+        datasets: [{
+            label: '평균 연봉 (만원)',
+            data: [5500, 4800, 5200, 4500, 5000],
+            backgroundColor: '#FF6B00',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: '#E5E7EB'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ employee.name }} - 직원 상세정보 - OK금융그룹 eHR 시스템{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <div class="page-title">
+                    <h2>
+                        <i class="fas fa-user text-primary"></i>
+                        직원 상세정보
+                    </h2>
+                    <p class="text-muted">{{ employee.name }}님의 상세 정보를 확인합니다.</p>
+                </div>
+                <div class="page-actions">
+                    <a href="{% url 'employees:employee_update' employee.pk %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        수정
+                    </a>
+                    <a href="{% url 'employees:employee_delete' employee.pk %}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                        삭제
+                    </a>
+                    <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        목록으로
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="row">
+            <!-- 직원 기본 정보 -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-user-circle text-primary"></i>
+                            {{ employee.name }}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-section">
+                                    <h6 class="section-title">
+                                        <i class="fas fa-info-circle text-muted"></i>
+                                        개인 정보
+                                    </h6>
+                                    <div class="info-item">
+                                        <span class="info-label">이름</span>
+                                        <span class="info-value">{{ employee.name }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">이메일</span>
+                                        <span class="info-value">
+                                            <a href="mailto:{{ employee.email }}" class="text-primary">
+                                                {{ employee.email }}
+                                            </a>
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">전화번호</span>
+                                        <span class="info-value">
+                                            <a href="tel:{{ employee.phone }}" class="text-primary">
+                                                {{ employee.phone }}
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-section">
+                                    <h6 class="section-title">
+                                        <i class="fas fa-briefcase text-muted"></i>
+                                        직무 정보
+                                    </h6>
+                                    <div class="info-item">
+                                        <span class="info-label">부서</span>
+                                        <span class="info-value">
+                                            <span class="badge bg-primary">{{ employee.get_department_display }}</span>
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">직급</span>
+                                        <span class="info-value">
+                                            <span class="badge bg-success">{{ employee.get_position_display }}</span>
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">입사일</span>
+                                        <span class="info-value">{{ employee.hire_date|date:"Y년 m월 d일" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 사이드바 정보 -->
+            <div class="col-lg-4">
+                <!-- 시스템 정보 -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="card-title">
+                            <i class="fas fa-cog text-muted"></i>
+                            시스템 정보
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <span class="info-label">등록일</span>
+                            <span class="info-value">{{ employee.created_at|date:"Y-m-d H:i" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">수정일</span>
+                            <span class="info-value">{{ employee.updated_at|date:"Y-m-d H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 근무 정보 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title">
+                            <i class="fas fa-calendar-alt text-muted"></i>
+                            근무 정보
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="work-period">
+                            <h5 class="work-period-text">
+                                {{ employee.hire_date|date:"Y년 m월 d일" }} ~ {{ today|date:"Y년 m월 d일" }}
+                            </h5>
+                            <p class="text-muted mb-3">근무기간: {{ work_period_text }}</p>
+                            <span class="badge bg-success fs-6">재직중</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.page-header {
+    background: white;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.page-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title h2 {
+    color: var(--ok-dark-brown);
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-title p {
+    margin: 0.5rem 0 0 0;
+    color: #6c757d;
+}
+
+.page-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+.card-title {
+    color: var(--ok-dark-brown);
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.info-section {
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    color: var(--ok-dark-brown);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 500;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    color: var(--ok-dark-brown);
+    font-weight: 500;
+}
+
+.info-value a {
+    text-decoration: none;
+    color: var(--ok-orange);
+}
+
+.info-value a:hover {
+    text-decoration: underline;
+}
+
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.bg-primary {
+    background-color: var(--ok-orange) !important;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.work-period {
+    padding: 1rem 0;
+}
+
+.work-period-text {
+    color: var(--ok-dark-brown);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--ok-orange);
+    border-color: var(--ok-orange);
+}
+
+.btn-primary:hover {
+    background-color: #e67e00;
+    border-color: #e67e00;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .page-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .page-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+</style>
+{% endblock %} 

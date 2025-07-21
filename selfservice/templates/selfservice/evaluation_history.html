@@ -1,0 +1,425 @@
+{% extends 'selfservice/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .evaluation-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .grade-badge {
+        font-size: 2rem;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 50px;
+    }
+    .grade-S { background: #FFD700; color: #000; }
+    .grade-A-plus { background: #4CAF50; color: white; }
+    .grade-A { background: #8BC34A; color: white; }
+    .grade-B-plus { background: #03A9F4; color: white; }
+    .grade-B { background: #2196F3; color: white; }
+    .grade-C { background: #FF9800; color: white; }
+    .grade-D { background: #F44336; color: white; }
+    
+    .peer-comparison-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    
+    .growth-analysis-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    
+    .score-progress {
+        height: 25px;
+        border-radius: 12px;
+        background: #e9ecef;
+        overflow: hidden;
+    }
+    
+    .score-progress .progress-bar {
+        height: 100%;
+        border-radius: 12px;
+        transition: width 0.6s ease;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block selfservice_content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-line text-primary"></i>
+                나의 평가 이력
+            </h2>
+        </div>
+    </div>
+    
+    {% if current_evaluation %}
+    <!-- 현재 평가 요약 -->
+    <div class="evaluation-card">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <h5 class="text-muted mb-2">{{ current_evaluation.evaluation_period.year }}년 평가등급</h5>
+                <span class="grade-badge grade-{{ current_evaluation.final_grade }}">
+                    {{ current_evaluation.get_final_grade_display }}
+                </span>
+            </div>
+            <div class="col-md-3">
+                <h6 class="text-muted">기여도</h6>
+                <div class="score-progress">
+                    {% if current_evaluation.contribution_evaluation %}
+                    <div class="progress-bar bg-success" style="width: {{ current_evaluation.contribution_evaluation.contribution_score|floatformat:1 }}%">
+                        {{ current_evaluation.contribution_evaluation.contribution_score }}점
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h6 class="text-muted">전문성</h6>
+                <div class="score-progress">
+                    {% if current_evaluation.expertise_evaluation %}
+                    <div class="progress-bar bg-info" style="width: {{ current_evaluation.expertise_evaluation.total_score|floatformat:1 }}%">
+                        {{ current_evaluation.expertise_evaluation.total_score }}점
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h6 class="text-muted">영향력</h6>
+                <div class="score-progress">
+                    {% if current_evaluation.impact_evaluation %}
+                    <div class="progress-bar bg-warning" style="width: {{ current_evaluation.impact_evaluation.total_score|floatformat:1 }}%">
+                        {{ current_evaluation.impact_evaluation.total_score }}점
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- 동료 대비 분석 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="peer-comparison-card">
+                <h5><i class="fas fa-users"></i> 동료 대비 나의 위치</h5>
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="mb-0">{{ peer_comparison.percentile }}%</h3>
+                        <small>상위 백분위</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="mb-0">{{ peer_comparison.rank }}위</h3>
+                        <small>총 {{ peer_comparison.total_peers }}명 중</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <canvas id="peerChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 성장 추이 분석 -->
+        <div class="col-md-6">
+            <div class="growth-analysis-card">
+                <h5><i class="fas fa-trending-up"></i> 성장 추이 분석</h5>
+                <div class="row">
+                    <div class="col-4">
+                        <h4 class="mb-0">{{ growth_analysis.trend }}</h4>
+                        <small>트렌드</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="mb-0">{{ growth_analysis.improvement }}</h4>
+                        <small>개선도</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="mb-0">{{ growth_analysis.consistency }}</h4>
+                        <small>일관성</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 평가 추이 차트 -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> 평가등급 추이</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="gradeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-radar"></i> 항목별 점수 추이</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="scoreChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 연도별 상세 이력 -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-history"></i> 연도별 상세 평가 이력</h5>
+        </div>
+        <div class="card-body">
+            {% if evaluations %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>평가년도</th>
+                            <th>종합등급</th>
+                            <th>기여도</th>
+                            <th>전문성</th>
+                            <th>영향력</th>
+                            <th>평가자 피드백</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eval in evaluations %}
+                        <tr>
+                            <td><strong>{{ eval.evaluation_period.year }}년</strong></td>
+                            <td>
+                                {% if eval.final_grade %}
+                                <span class="badge grade-{{ eval.final_grade }} px-3 py-2">
+                                    {{ eval.get_final_grade_display }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if eval.contribution_evaluation %}
+                                <span class="badge bg-success">{{ eval.contribution_evaluation.contribution_score }}점</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if eval.expertise_evaluation %}
+                                <span class="badge bg-info">{{ eval.expertise_evaluation.total_score }}점</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if eval.impact_evaluation %}
+                                <span class="badge bg-warning">{{ eval.impact_evaluation.total_score }}점</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if eval.manager_comments %}
+                                <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#feedback{{ eval.id }}">
+                                    <i class="fas fa-comment"></i> 피드백
+                                </button>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if eval.status == 'COMPLETED' %}success{% elif eval.status == 'IN_REVIEW' %}warning{% else %}secondary{% endif %}">
+                                    {{ eval.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">평가 이력이 없습니다</h5>
+                <p class="text-muted">아직 평가가 진행되지 않았거나 평가 데이터가 없습니다.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 피드백 모달 -->
+{% for eval in evaluations %}
+{% if eval.manager_comments %}
+<div class="modal fade" id="feedback{{ eval.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ eval.evaluation_period.year }}년 평가 피드백</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <strong>1차 평가자:</strong> {{ eval.manager.name|default:"-" }}
+                </div>
+                <div class="mb-3">
+                    <strong>평가의견:</strong>
+                    <div class="border rounded p-3 mt-2 bg-light">
+                        {{ eval.manager_comments|linebreaks }}
+                    </div>
+                </div>
+                {% if eval.calibration_comments %}
+                <div class="mb-3">
+                    <strong>조정의견:</strong>
+                    <div class="border rounded p-3 mt-2 bg-light">
+                        {{ eval.calibration_comments|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<script>
+// 차트 데이터
+const chartData = {{ chart_data|safe }};
+
+// 평가등급 추이 차트
+if (chartData.years.length > 0) {
+    const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+    new Chart(gradeCtx, {
+        type: 'line',
+        data: {
+            labels: chartData.years,
+            datasets: [{
+                label: '평가등급',
+                data: chartData.grades.map(grade => {
+                    const gradeMap = {'S': 7, 'A+': 6, 'A': 5, 'B+': 4, 'B': 3, 'C': 2, 'D': 1};
+                    return gradeMap[grade] || 0;
+                }),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 7,
+                    ticks: {
+                        callback: function(value) {
+                            const grades = ['', 'D', 'C', 'B', 'B+', 'A', 'A+', 'S'];
+                            return grades[value] || '';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// 항목별 점수 추이 차트
+if (chartData.years.length > 0) {
+    const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+    new Chart(scoreCtx, {
+        type: 'radar',
+        data: {
+            labels: ['기여도', '전문성', '영향력'],
+            datasets: chartData.years.map((year, index) => ({
+                label: year + '년',
+                data: [
+                    chartData.contribution_scores[index] || 0,
+                    chartData.expertise_scores[index] || 0,
+                    chartData.impact_scores[index] || 0
+                ],
+                borderColor: `hsl(${index * 60}, 70%, 50%)`,
+                backgroundColor: `hsla(${index * 60}, 70%, 50%, 0.2)`,
+                pointBackgroundColor: `hsl(${index * 60}, 70%, 50%)`
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 4,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 동료 대비 차트
+const peerCtx = document.getElementById('peerChart').getContext('2d');
+new Chart(peerCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['나의 위치', '동료들'],
+        datasets: [{
+            data: [{{ peer_comparison.percentile }}, {{ 100|add:"-"|add:peer_comparison.percentile }}],
+            backgroundColor: [
+                'rgba(255, 255, 255, 0.8)',
+                'rgba(255, 255, 255, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 255, 255, 1)',
+                'rgba(255, 255, 255, 0.5)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

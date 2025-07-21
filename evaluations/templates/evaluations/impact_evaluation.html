@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}영향력 평가 - {{ employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-bullseye"></i> 영향력 평가
+                    </h4>
+                    <p class="text-muted mb-0">{{ employee.name }} - {{ active_period }}</p>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- 영향력 범위 및 핵심가치/리더십 평가 -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6>영향력 범위</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">영향력 범위 선택</label>
+                                            <select class="form-select" name="impact_scope" id="impact-scope">
+                                                <option value="market" {% if evaluation.impact_scope == 'market' %}selected{% endif %}>
+                                                    조직외 (Market)
+                                                </option>
+                                                <option value="corp" {% if evaluation.impact_scope == 'corp' %}selected{% endif %}>
+                                                    조직간 (Corporate)
+                                                </option>
+                                                <option value="org" {% if evaluation.impact_scope == 'org' %}selected{% endif %}>
+                                                    조직내 (Organization)
+                                                </option>
+                                                <option value="individual" {% if evaluation.impact_scope == 'individual' %}selected{% endif %}>
+                                                    개인간 (Individual)
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6>Scoring Chart</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-bordered">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th>영향력 범위</th>
+                                                        <th>핵심가치 모범</th>
+                                                        <th>핵심가치 제한</th>
+                                                        <th>리더십 모범</th>
+                                                        <th>리더십 제한</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><strong>조직외</strong></td>
+                                                        <td class="text-warning">3.0</td>
+                                                        <td class="text-info">2.0</td>
+                                                        <td class="text-success">4.0</td>
+                                                        <td class="text-success">4.0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>조직간</strong></td>
+                                                        <td class="text-warning">3.0</td>
+                                                        <td class="text-info">2.0</td>
+                                                        <td class="text-warning">3.0</td>
+                                                        <td class="text-success">4.0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>조직내</strong></td>
+                                                        <td class="text-warning">3.0</td>
+                                                        <td class="text-warning">3.0</td>
+                                                        <td class="text-info">2.0</td>
+                                                        <td class="text-warning">3.0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>개인간</strong></td>
+                                                        <td class="text-info">2.0</td>
+                                                        <td class="text-info">2.0</td>
+                                                        <td class="text-danger">1.0</td>
+                                                        <td class="text-info">2.0</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 핵심가치 실천 및 리더십 발휘 평가 -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>핵심가치 실천</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="core_values_practice" 
+                                                   id="exemplary_values" value="exemplary_values" 
+                                                   {% if evaluation.core_values_practice == 'exemplary_values' %}checked{% endif %}>
+                                            <label class="form-check-label" for="exemplary_values">
+                                                <strong>핵심가치 모범 실천</strong>
+                                            </label>
+                                            <small class="form-text text-muted d-block">
+                                                OK금융그룹의 핵심가치를 모범적으로 실천하고 타의 모범이 됨
+                                            </small>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="core_values_practice" 
+                                                   id="limited_values" value="limited_values" 
+                                                   {% if evaluation.core_values_practice == 'limited_values' %}checked{% endif %}>
+                                            <label class="form-check-label" for="limited_values">
+                                                <strong>핵심가치 제한적 실천</strong>
+                                            </label>
+                                            <small class="form-text text-muted d-block">
+                                                기본적인 핵심가치 실천은 하지만 모범적이지는 않음
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>리더십 발휘</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="leadership_demonstration" 
+                                                   id="exemplary_leadership" value="exemplary_leadership" 
+                                                   {% if evaluation.leadership_demonstration == 'exemplary_leadership' %}checked{% endif %}>
+                                            <label class="form-check-label" for="exemplary_leadership">
+                                                <strong>리더십 모범 발휘</strong>
+                                            </label>
+                                            <small class="form-text text-muted d-block">
+                                                상황에 맞는 적절한 리더십을 모범적으로 발휘함
+                                            </small>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="leadership_demonstration" 
+                                                   id="limited_leadership" value="limited_leadership" 
+                                                   {% if evaluation.leadership_demonstration == 'limited_leadership' %}checked{% endif %}>
+                                            <label class="form-check-label" for="limited_leadership">
+                                                <strong>리더십 제한적 발휘</strong>
+                                            </label>
+                                            <small class="form-text text-muted d-block">
+                                                기본적인 리더십은 발휘하지만 모범적이지는 않음
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 기존 평가 항목들 (하위 호환성) -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5>세부 평가 항목 (1-4점)</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">고객중심</label>
+                                            <select class="form-select" name="customer_focus">
+                                                <option value="1" {% if evaluation.customer_focus == 1 %}selected{% endif %}>1점 - 기본</option>
+                                                <option value="2" {% if evaluation.customer_focus == 2 %}selected{% endif %}>2점 - 보통</option>
+                                                <option value="3" {% if evaluation.customer_focus == 3 %}selected{% endif %}>3점 - 우수</option>
+                                                <option value="4" {% if evaluation.customer_focus == 4 %}selected{% endif %}>4점 - 탁월</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">협업</label>
+                                            <select class="form-select" name="collaboration">
+                                                <option value="1" {% if evaluation.collaboration == 1 %}selected{% endif %}>1점 - 기본</option>
+                                                <option value="2" {% if evaluation.collaboration == 2 %}selected{% endif %}>2점 - 보통</option>
+                                                <option value="3" {% if evaluation.collaboration == 3 %}selected{% endif %}>3점 - 우수</option>
+                                                <option value="4" {% if evaluation.collaboration == 4 %}selected{% endif %}>4점 - 탁월</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">혁신</label>
+                                            <select class="form-select" name="innovation">
+                                                <option value="1" {% if evaluation.innovation == 1 %}selected{% endif %}>1점 - 기본</option>
+                                                <option value="2" {% if evaluation.innovation == 2 %}selected{% endif %}>2점 - 보통</option>
+                                                <option value="3" {% if evaluation.innovation == 3 %}selected{% endif %}>3점 - 우수</option>
+                                                <option value="4" {% if evaluation.innovation == 4 %}selected{% endif %}>4점 - 탁월</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">팀 리더십</label>
+                                            <select class="form-select" name="team_leadership">
+                                                <option value="1" {% if evaluation.team_leadership == 1 %}selected{% endif %}>1점 - 기본</option>
+                                                <option value="2" {% if evaluation.team_leadership == 2 %}selected{% endif %}>2점 - 보통</option>
+                                                <option value="3" {% if evaluation.team_leadership == 3 %}selected{% endif %}>3점 - 우수</option>
+                                                <option value="4" {% if evaluation.team_leadership == 4 %}selected{% endif %}>4점 - 탁월</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">조직 영향력</label>
+                                            <select class="form-select" name="organizational_impact">
+                                                <option value="1" {% if evaluation.organizational_impact == 1 %}selected{% endif %}>1점 - 기본</option>
+                                                <option value="2" {% if evaluation.organizational_impact == 2 %}selected{% endif %}>2점 - 보통</option>
+                                                <option value="3" {% if evaluation.organizational_impact == 3 %}selected{% endif %}>3점 - 우수</option>
+                                                <option value="4" {% if evaluation.organizational_impact == 4 %}selected{% endif %}>4점 - 탁월</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">대외 네트워킹</label>
+                                            <select class="form-select" name="external_networking">
+                                                <option value="1" {% if evaluation.external_networking == 1 %}selected{% endif %}>1점 - 기본</option>
+                                                <option value="2" {% if evaluation.external_networking == 2 %}selected{% endif %}>2점 - 보통</option>
+                                                <option value="3" {% if evaluation.external_networking == 3 %}selected{% endif %}>3점 - 우수</option>
+                                                <option value="4" {% if evaluation.external_networking == 4 %}selected{% endif %}>4점 - 탁월</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 평가 결과 -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6>평가 결과</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="form-label">종합 점수</label>
+                                                <input type="text" class="form-control" id="total-score" 
+                                                       value="{{ evaluation.total_score|default:'-' }}" readonly>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">달성 여부</label>
+                                                <input type="text" class="form-control" id="achievement-status" 
+                                                       value="{% if evaluation.is_achieved %}달성{% else %}미달성{% endif %}" readonly>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">평가일</label>
+                                                <input type="text" class="form-control" 
+                                                       value="{{ evaluation.evaluated_date|default:'-' }}" readonly>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">평가자</label>
+                                                <input type="text" class="form-control" 
+                                                       value="{{ evaluation.evaluator.name|default:'-' }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 평가 의견 -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">평가 의견</label>
+                                    <textarea class="form-control" rows="4" name="comments" 
+                                              placeholder="평가 의견을 입력하세요...">{{ evaluation.comments|default:'' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 버튼 -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> 저장
+                                </button>
+                                <a href="{% url 'evaluations:dashboard' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> 돌아가기
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 실시간 점수 계산
+function calculateImpactScore() {
+    const scope = document.getElementById('impact-scope').value;
+    const valuesPractice = document.querySelector('input[name="core_values_practice"]:checked')?.value;
+    const leadership = document.querySelector('input[name="leadership_demonstration"]:checked')?.value;
+    
+    // Scoring Chart 데이터
+    const scoringChart = {
+        'market': {'exemplary_leadership': 4, 'limited_leadership': 4, 
+                   'exemplary_values': 3, 'limited_values': 2},
+        'corp': {'exemplary_leadership': 3, 'limited_leadership': 4, 
+                 'exemplary_values': 3, 'limited_values': 2},
+        'org': {'exemplary_leadership': 2, 'limited_leadership': 3, 
+                'exemplary_values': 3, 'limited_values': 3},
+        'individual': {'exemplary_leadership': 1, 'limited_leadership': 2, 
+                       'exemplary_values': 2, 'limited_values': 2}
+    };
+    
+    let finalScore = 2.0; // 기본값
+    
+    if (scope in scoringChart && valuesPractice && leadership) {
+        const scopeChart = scoringChart[scope];
+        const valuesScore = scopeChart[valuesPractice] || 2;
+        const leadershipScore = scopeChart[leadership] || 2;
+        finalScore = (valuesScore + leadershipScore) / 2;
+    }
+    
+    document.getElementById('total-score').value = finalScore.toFixed(1);
+    
+    // 달성 여부 판정
+    const achievementStatus = document.getElementById('achievement-status');
+    const isAchieved = finalScore >= 3.0;
+    achievementStatus.value = isAchieved ? '달성' : '미달성';
+    achievementStatus.className = isAchieved ? 'form-control text-success' : 'form-control text-danger';
+}
+
+// 이벤트 리스너 등록
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('select, input[type="radio"]');
+    inputs.forEach(input => {
+        input.addEventListener('change', calculateImpactScore);
+    });
+    
+    // 초기 계산
+    calculateImpactScore();
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 | OK금융그룹 eHR 시스템</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin-custom.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body>
+    <div class="admin-container" x-data="adminDashboard()">
+        {% csrf_token %}
+        <!-- 헤더 -->
+        <header class="admin-header">
+            <div class="header-content">
+                <div class="header-brand">
+                    <div class="brand-logo">
+                        <div class="logo-shape"></div>
+                    </div>
+                    <div class="brand-text">
+                        <h1>OK금융그룹 eHR</h1>
+                        <span>시스템 관리자</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="user-menu">
+                        <span class="user-greeting">환영합니다, ADMIN</span>
+                        <div class="action-links">
+                            <a href="/" class="action-link">사이트 보기</a>
+                            <a href="/django-admin/password_change/" class="action-link">비밀번호 변경</a>
+                            <a href="/django-admin/logout/" class="action-link logout">로그아웃</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 메인 콘텐츠 -->
+        <main class="admin-main">
+            <div class="dashboard-container">
+                <!-- 대시보드 헤더 -->
+                <div class="dashboard-header">
+                    <div class="header-content">
+                        <div class="header-title">
+                            <h2>시스템 관리</h2>
+                            <p>중앙 집중식 관리 및 데이터 제어</p>
+                        </div>
+                        <div class="header-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">{{ app_list|length }}</span>
+                                <span class="stat-label">관리 앱</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ app_list|length|add:"5" }}</span>
+                                <span class="stat-label">총 모델</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 대시보드 콘텐츠 -->
+                <div class="dashboard-content">
+                    <div class="content-grid">
+                        <!-- 메인 섹션 -->
+                        <div class="main-sections">
+                            {% for app in app_list %}
+                            <div class="section-card">
+                                <div class="card-header">
+                                    <h3>{{ app.name }}</h3>
+                                    <div class="card-actions">
+                                        <span class="model-count">{{ app.models|length }}개 모델</span>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="model-grid">
+                                        {% for model in app.models %}
+                                        <div class="model-item" 
+                                             x-data="{ 
+                                                 showModal: false,
+                                                 loading: false,
+                                                 data: [],
+                                                 currentPage: 1,
+                                                 totalPages: 1,
+                                                 appLabel: '{{ model.model.app_label|default:'' }}',
+                                                 modelName: '{{ model.model.model_name|default:'' }}',
+                                                 showCreateForm: false,
+                                                 newObject: { name: '', description: '' }
+                                             }"
+                                             x-init="console.log('Model initialized:', { appLabel, modelName })">
+                                            <div class="model-info">
+                                                <div class="model-name">{{ model.name }}</div>
+                                                <div class="model-meta">
+                                                    {% if model.count > 0 %}
+                                                        <span class="data-count">{{ model.count }}개 데이터</span>
+                                                    {% else %}
+                                                        <span class="data-count empty">데이터 없음</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="model-actions">
+                                                {% if model.add_url %}
+                                                <button class="action-button primary" 
+                                                        @click="showModal = true; loadModelData(appLabel, modelName)">
+                                                    <span class="button-text">추가</span>
+                                                </button>
+                                                {% endif %}
+                                                {% if model.admin_url %}
+                                                <button class="action-button secondary" 
+                                                        @click="showModal = true; loadModelData(appLabel, modelName)">
+                                                    <span class="button-text">보기</span>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- 모달 -->
+                                            <div x-show="showModal" 
+                                                 x-transition:enter="transition ease-out duration-300"
+                                                 x-transition:enter-start="opacity-0"
+                                                 x-transition:enter-end="opacity-100"
+                                                 x-transition:leave="transition ease-in duration-200"
+                                                 x-transition:leave-start="opacity-100"
+                                                 x-transition:leave-end="opacity-0"
+                                                 class="modal-overlay"
+                                                 @click.away="showModal = false"
+                                                 @keydown.escape.window="showModal = false"
+                                                 x-init="$watch('showModal', value => {
+                                                     if (value) {
+                                                         document.body.style.overflow = 'hidden';
+                                                         // 다른 요소들의 z-index를 낮춤
+                                                         document.querySelectorAll('.section-card, .model-item, .sidebar-content').forEach(el => {
+                                                             el.style.zIndex = '1';
+                                                             el.style.position = 'relative';
+                                                         });
+                                                     } else {
+                                                         document.body.style.overflow = '';
+                                                         // z-index 복원
+                                                         document.querySelectorAll('.section-card, .model-item, .sidebar-content').forEach(el => {
+                                                             el.style.zIndex = '';
+                                                             el.style.position = '';
+                                                         });
+                                                     }
+                                                 })">
+                                                <div class="modal-content" @click.stop style="z-index: 1000000;">
+                                                    <div class="modal-header" style="z-index: 1000001;">
+                                                        <h3>{{ model.name }} 관리</h3>
+                                                        <button @click="showModal = false" class="modal-close" type="button" style="z-index: 1000002;">&times;</button>
+                                                    </div>
+                                                    <div class="modal-body" style="z-index: 1000000;">
+                                                        <div x-show="loading" class="loading-spinner">로딩 중...</div>
+                                                        <div x-show="!loading" class="data-table" style="z-index: 1000002;">
+                                                            <div class="table-header" style="z-index: 1000003;">
+                                                                <h4>데이터 목록</h4>
+                                                                <div class="header-actions" style="z-index: 1000004;">
+                                                                    <button class="action-button secondary" @click="showCreateForm = !showCreateForm" type="button" style="z-index: 1000005;">
+                                                                        <span x-text="showCreateForm ? '목록 보기' : '새로 만들기'"></span>
+                                                                    </button>
+                                                                    <button class="action-button primary" @click="createNew(appLabel, modelName)" type="button" style="z-index: 1000005;">Django 관리자에서 추가</button>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <!-- 새로 만들기 폼 -->
+                                                            <div x-show="showCreateForm" class="create-form" style="z-index: 1000006;">
+                                                                <h4>새 {{ model.name }} 추가</h4>
+                                                                <form @submit.prevent="submitCreateForm()">
+                                                                    <div class="form-group" style="z-index: 1000007;">
+                                                                        <label for="new-object-name">이름</label>
+                                                                        <input type="text" id="new-object-name" x-model="newObject.name" required class="form-input" placeholder="이름을 입력하세요" style="z-index: 1000008;">
+                                                                    </div>
+                                                                    <div class="form-group" style="z-index: 1000007;">
+                                                                        <label for="new-object-description">설명</label>
+                                                                        <textarea id="new-object-description" x-model="newObject.description" class="form-input" placeholder="설명을 입력하세요" style="z-index: 1000008;"></textarea>
+                                                                    </div>
+                                                                    <div class="form-actions" style="z-index: 1000007;">
+                                                                        <button type="submit" class="action-button primary" style="z-index: 1000008;">저장</button>
+                                                                        <button type="button" @click="showCreateForm = false" class="action-button secondary" style="z-index: 1000008;">취소</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                            
+                                                            <!-- 데이터 목록 -->
+                                                            <div x-show="!showCreateForm" class="table-content" style="z-index: 1000003;">
+                                                                <template x-for="item in data" :key="item.id">
+                                                                    <div class="table-row" style="z-index: 1000004;">
+                                                                        <span x-text="item.str"></span>
+                                                                        <div class="row-actions" style="z-index: 1000005;">
+                                                                            <button class="action-button secondary" type="button" style="z-index: 1000006;">수정</button>
+                                                                            <button class="action-button danger" type="button" style="z-index: 1000006;">삭제</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                            
+                                                            <!-- 페이지네이션 -->
+                                                            <div x-show="!showCreateForm" class="table-pagination" style="z-index: 1000003;">
+                                                                <button @click="changePage(currentPage - 1, appLabel, modelName)" 
+                                                                        :disabled="currentPage <= 1"
+                                                                        class="action-button secondary" type="button" style="z-index: 1000004;">이전</button>
+                                                                <span x-text="`${currentPage} / ${totalPages}`"></span>
+                                                                <button @click="changePage(currentPage + 1, appLabel, modelName)" 
+                                                                        :disabled="currentPage >= totalPages"
+                                                                        class="action-button secondary" type="button" style="z-index: 1000004;">다음</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- 사이드바 -->
+                        <div class="sidebar-content">
+                            <!-- 사용자 프로필 카드 -->
+                            <div class="profile-card">
+                                <div class="profile-header">
+                                    <div class="profile-avatar">
+                                        <div class="avatar-placeholder"></div>
+                                    </div>
+                                    <div class="profile-info">
+                                        <div class="profile-name">ADMIN</div>
+                                        <div class="profile-role">시스템 관리자</div>
+                                    </div>
+                                </div>
+                                <div class="profile-stats">
+                                    <div class="stat-row">
+                                        <span class="stat-label">마지막 로그인</span>
+                                        <span class="stat-value">오늘</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">권한 레벨</span>
+                                        <span class="stat-value">최고 관리자</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 시스템 상태 카드 -->
+                            <div class="system-card">
+                                <div class="card-header">
+                                    <h4>시스템 상태</h4>
+                                </div>
+                                <div class="card-content">
+                                    <div class="status-item">
+                                        <div class="status-indicator active"></div>
+                                        <div class="status-info">
+                                            <span class="status-label">데이터베이스</span>
+                                            <span class="status-value">정상</span>
+                                        </div>
+                                    </div>
+                                    <div class="status-item">
+                                        <div class="status-indicator active"></div>
+                                        <div class="status-info">
+                                            <span class="status-label">인증 시스템</span>
+                                            <span class="status-value">정상</span>
+                                        </div>
+                                    </div>
+                                    <div class="status-item">
+                                        <div class="status-indicator active"></div>
+                                        <div class="status-info">
+                                            <span class="status-label">백업 시스템</span>
+                                            <span class="status-value">정상</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 빠른 액션 카드 -->
+                            <div class="quick-actions-card">
+                                <div class="card-header">
+                                    <h4>빠른 액션</h4>
+                                </div>
+                                <div class="card-content">
+                                    <a href="/admin/dashboard/" class="quick-action">
+                                        <span class="action-text">관리자 홈</span>
+                                    </a>
+                                    <a href="/django-admin/auth/user/" class="quick-action">
+                                        <span class="action-text">사용자 관리</span>
+                                    </a>
+                                    <a href="/django-admin/employees/employee/" class="quick-action">
+                                        <span class="action-text">직원 관리</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function adminDashboard() {
+            return {
+                loadModelData(appLabel, modelName) {
+                    this.loading = true;
+                    fetch(`/api/model/${appLabel}/${modelName}/?page=1&per_page=10`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.data = data.data;
+                                this.currentPage = data.page;
+                                this.totalPages = data.pages;
+                            } else {
+                                console.error('데이터 로드 실패:', data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('API 요청 실패:', error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                },
+                
+                changePage(page, appLabel, modelName) {
+                    if (page >= 1 && page <= this.totalPages) {
+                        this.currentPage = page;
+                        this.loadModelData(appLabel, modelName);
+                    }
+                },
+                
+                createNew(appLabel, modelName) {
+                    // 새 객체 생성 로직
+                    console.log('새 객체 생성:', appLabel, modelName);
+                    
+                    // 로딩 상태 표시
+                    this.loading = true;
+                    
+                    try {
+                        // Django 관리자 추가 페이지로 리다이렉트
+                        const url = `/django-admin/${appLabel}/${modelName}/add/`;
+                        console.log('리다이렉트 URL:', url);
+                        
+                        // 새 창에서 열기
+                        const newWindow = window.open(url, '_blank');
+                        
+                        if (newWindow) {
+                            // 성공적으로 창이 열렸을 때
+                            console.log('새 창이 성공적으로 열렸습니다.');
+                            
+                            // 모달 닫기
+                            this.showModal = false;
+                            
+                            // 사용자에게 알림
+                            alert('새로 만들기 페이지가 새 창에서 열렸습니다.');
+                        } else {
+                            // 팝업이 차단된 경우
+                            alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
+                            
+                            // 현재 창에서 열기
+                            window.location.href = url;
+                        }
+                    } catch (error) {
+                        console.error('새로 만들기 오류:', error);
+                        alert('새로 만들기 페이지를 열 수 없습니다. 다시 시도해주세요.');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                submitCreateForm() {
+                    // 폼 제출 처리
+                    console.log('폼 제출:', this.newObject);
+                    
+                    this.loading = true;
+                    
+                    fetch(`/api/create/${this.appLabel}/${this.modelName}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                        },
+                        body: JSON.stringify(this.newObject)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('성공적으로 생성되었습니다!');
+                            // 폼 초기화
+                            this.newObject = { name: '', description: '' };
+                            this.showCreateForm = false;
+                            // 데이터 새로고침
+                            this.loadModelData(this.appLabel, this.modelName);
+                        } else {
+                            alert('생성 실패: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('API 요청 실패:', error);
+                        alert('생성 중 오류가 발생했습니다.');
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

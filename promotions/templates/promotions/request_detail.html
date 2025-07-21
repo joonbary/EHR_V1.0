@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}승진 요청 상세보기 - {{ promotion_request.employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 페이지 헤더 -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-plus"></i> 승진 요청 상세보기
+        </h1>
+        <a href="{% url 'promotions:dashboard' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> 목록으로
+        </a>
+    </div>
+
+    <!-- 승진 요청 정보 -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">승진 요청 정보</h6>
+                    <span class="badge badge-{{ promotion_request.status|lower }}">
+                        {{ promotion_request.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="120">직원명:</th>
+                                    <td>{{ promotion_request.employee.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>사번:</th>
+                                    <td>{{ promotion_request.employee.employee_id }}</td>
+                                </tr>
+                                <tr>
+                                    <th>부서:</th>
+                                    <td>{{ promotion_request.employee.department }}</td>
+                                </tr>
+                                <tr>
+                                    <th>직책:</th>
+                                    <td>{{ promotion_request.employee.position }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="120">현재 레벨:</th>
+                                    <td>Level {{ promotion_request.current_level }}</td>
+                                </tr>
+                                <tr>
+                                    <th>목표 레벨:</th>
+                                    <td>Level {{ promotion_request.target_level }}</td>
+                                </tr>
+                                <tr>
+                                    <th>요청일:</th>
+                                    <td>{{ promotion_request.created_at|date:"Y-m-d" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>재직기간:</th>
+                                    <td>{{ promotion_request.years_of_service }}년</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 승진 요건 충족 여부 -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">승진 요건 충족 여부</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="h4 mb-0 {% if promotion_request.years_requirement_met %}text-success{% else %}text-danger{% endif %}">
+                                    <i class="fas {% if promotion_request.years_requirement_met %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                </div>
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">재직기간</div>
+                                <div class="h5 mb-0">{{ promotion_request.years_of_service }}년</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="h4 mb-0 {% if promotion_request.grades_requirement_met %}text-success{% else %}text-danger{% endif %}">
+                                    <i class="fas {% if promotion_request.grades_requirement_met %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                </div>
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">연속 A등급</div>
+                                <div class="h5 mb-0">{{ promotion_request.consecutive_a_grades }}회</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="h4 mb-0 {% if promotion_request.performance_requirement_met %}text-success{% else %}text-danger{% endif %}">
+                                    <i class="fas {% if promotion_request.performance_requirement_met %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                </div>
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">평균 성과점수</div>
+                                <div class="h5 mb-0">{{ promotion_request.average_performance_score }}점</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 평가 이력 -->
+            {% if promotion_request.evaluation_results %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">최근 평가 이력</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>연도</th>
+                                    <th>등급</th>
+                                    <th>기여도</th>
+                                    <th>전문성</th>
+                                    <th>영향력</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for year, result in promotion_request.evaluation_results.items %}
+                                <tr>
+                                    <td>{{ year }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ result.grade|lower }}">
+                                            {{ result.grade }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if result.contribution_achieved %}
+                                            <i class="fas fa-check text-success"></i> 달성
+                                        {% else %}
+                                            <i class="fas fa-times text-danger"></i> 미달성
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if result.expertise_achieved %}
+                                            <i class="fas fa-check text-success"></i> 달성
+                                        {% else %}
+                                            <i class="fas fa-times text-danger"></i> 미달성
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if result.impact_achieved %}
+                                            <i class="fas fa-check text-success"></i> 달성
+                                        {% else %}
+                                            <i class="fas fa-times text-danger"></i> 미달성
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 직원 의견 -->
+            {% if promotion_request.employee_comments %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">직원 의견</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ promotion_request.employee_comments }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 심사 진행 상황 -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">심사 진행 상황</h6>
+                </div>
+                <div class="card-body">
+                    <!-- 부서장 추천 -->
+                    <div class="mb-4">
+                        <h6 class="font-weight-bold">부서장 추천</h6>
+                        {% if promotion_request.department_recommendation %}
+                            <div class="text-success">
+                                <i class="fas fa-check-circle"></i> 추천 완료
+                                <small class="d-block text-muted">{{ promotion_request.department_recommendation_date|date:"Y-m-d" }}</small>
+                            </div>
+                            {% if promotion_request.department_comments %}
+                                <small class="text-muted">{{ promotion_request.department_comments }}</small>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-warning">
+                                <i class="fas fa-clock"></i> 대기 중
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- HR위원회 심사 -->
+                    <div class="mb-4">
+                        <h6 class="font-weight-bold">HR위원회 심사</h6>
+                        {% if promotion_request.hr_committee_decision %}
+                            <div class="text-success">
+                                <i class="fas fa-check-circle"></i> 심사 완료
+                                <small class="d-block text-muted">{{ promotion_request.hr_committee_date|date:"Y-m-d" }}</small>
+                                <span class="badge badge-{{ promotion_request.hr_committee_decision|lower }}">
+                                    {{ promotion_request.get_hr_committee_decision_display }}
+                                </span>
+                            </div>
+                            {% if promotion_request.hr_comments %}
+                                <small class="text-muted">{{ promotion_request.hr_comments }}</small>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-warning">
+                                <i class="fas fa-clock"></i> 대기 중
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 최종 결정 -->
+                    {% if promotion_request.final_decision %}
+                    <div class="mb-4">
+                        <h6 class="font-weight-bold">최종 결정</h6>
+                        <div class="text-{{ promotion_request.final_decision|lower }}">
+                            <i class="fas fa-gavel"></i> 
+                            {{ promotion_request.get_final_decision_display }}
+                            <small class="d-block text-muted">{{ promotion_request.final_decision_date|date:"Y-m-d" }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 심사 액션 -->
+            {% if promotion_request.status == 'PENDING' %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">심사 액션</h6>
+                </div>
+                <div class="card-body">
+                    <!-- 부서장 추천 -->
+                    {% if not promotion_request.department_recommendation %}
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="department_recommend">
+                        <div class="form-group">
+                            <label>추천 의견</label>
+                            <textarea name="comments" class="form-control" rows="3" placeholder="추천 의견을 입력하세요"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-thumbs-up"></i> 추천
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <!-- HR위원회 심사 -->
+                    {% if promotion_request.department_recommendation and not promotion_request.hr_committee_decision %}
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="hr_committee">
+                        <div class="form-group">
+                            <label>심사 결정</label>
+                            <select name="decision" class="form-control">
+                                <option value="APPROVED">승인</option>
+                                <option value="REJECTED">반려</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>심사 의견</label>
+                            <textarea name="comments" class="form-control" rows="3" placeholder="심사 의견을 입력하세요"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-gavel"></i> 심사 완료
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <!-- 최종 승인/반려 -->
+                    {% if promotion_request.hr_committee_decision %}
+                    <div class="btn-group-vertical w-100">
+                        <form method="post" class="mb-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="btn btn-success btn-block">
+                                <i class="fas fa-check"></i> 승인
+                            </button>
+                        </form>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn-danger btn-block">
+                                <i class="fas fa-times"></i> 반려
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.badge-pending { background-color: #f6c23e; color: #fff; }
+.badge-under_review { background-color: #17a2b8; color: #fff; }
+.badge-approved { background-color: #28a745; color: #fff; }
+.badge-rejected { background-color: #dc3545; color: #fff; }
+</style>
+{% endblock %} 

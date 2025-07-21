@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}대시보드 - OK금융그룹 e-HR{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <!-- 브레드크럼 -->
+        <nav class="breadcrumb">
+            <ul class="breadcrumb-list">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'home' %}" class="breadcrumb-link">홈</a>
+                </li>
+                <li class="breadcrumb-item">대시보드</li>
+            </ul>
+        </nav>
+
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-tachometer-alt"></i>
+                    대시보드
+                </h1>
+                <p class="page-description">OK금융그룹 e-HR 시스템의 주요 현황을 한눈에 확인하세요</p>
+            </div>
+        </div>
+
+        <!-- 대시보드 카드 그리드 -->
+        <div class="content-area">
+            <div class="row">
+                <!-- 직원 현황 카드 -->
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-users"></i> 전체 직원</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="stat-number">{{ total_employees }}</div>
+                            <div class="stat-label">명</div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'employees:employee_list' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> 상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 부서별 현황 카드 -->
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-building"></i> 부서</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="stat-number">{{ total_departments }}</div>
+                            <div class="stat-label">개</div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'employees:employee_list' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> 상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 평가 현황 카드 -->
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-star"></i> 평가 완료</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="stat-number">{{ completed_evaluations }}</div>
+                            <div class="stat-label">건</div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'evaluations:dashboard' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> 상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 보상 현황 카드 -->
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-money-bill-wave"></i> 평균 연봉</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="stat-number">{{ avg_salary|floatformat:0 }}</div>
+                            <div class="stat-label">만원</div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'compensation:dashboard' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> 상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 최근 활동 섹션 -->
+            <div class="row mt-4">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> 최근 등록된 직원</h3>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_employees %}
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>이름</th>
+                                                <th>부서</th>
+                                                <th>직급</th>
+                                                <th>입사일</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for employee in recent_employees %}
+                                            <tr>
+                                                <td>{{ employee.name }}</td>
+                                                <td>{{ employee.department }}</td>
+                                                <td>{{ employee.position }}</td>
+                                                <td>{{ employee.hire_date|date:"Y-m-d" }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">최근 등록된 직원이 없습니다.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> 부서별 인원 현황</h3>
+                        </div>
+                        <div class="card-body">
+                            {% if department_stats %}
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>부서</th>
+                                                <th>인원</th>
+                                                <th>비율</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for dept in department_stats %}
+                                            <tr>
+                                                <td>{{ dept.department }}</td>
+                                                <td>{{ dept.count }}명</td>
+                                                <td>{{ dept.percentage|floatformat:1 }}%</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">부서별 현황 데이터가 없습니다.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 빠른 액션 섹션 -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bolt"></i> 빠른 액션</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-3">
+                                    <a href="{% url 'employees:employee_create' %}" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-user-plus"></i><br>
+                                        직원 등록
+                                    </a>
+                                </div>
+                                <div class="col-3">
+                                    <a href="{% url 'evaluations:dashboard' %}" class="btn btn-success btn-lg w-100">
+                                        <i class="fas fa-star"></i><br>
+                                        평가 관리
+                                    </a>
+                                </div>
+                                <div class="col-3">
+                                    <a href="{% url 'compensation:dashboard' %}" class="btn btn-warning btn-lg w-100">
+                                        <i class="fas fa-money-bill"></i><br>
+                                        보상 관리
+                                    </a>
+                                </div>
+                                <div class="col-3">
+                                    <a href="{% url 'reports:dashboard' %}" class="btn btn-info btn-lg w-100">
+                                        <i class="fas fa-chart-bar"></i><br>
+                                        리포트 보기
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-orange);
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: var(--gray-600);
+    text-align: center;
+    font-weight: 500;
+}
+
+.card-footer {
+    background-color: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    padding: var(--spacing-md);
+}
+
+.btn-lg {
+    padding: var(--spacing-lg);
+    font-size: var(--font-size-lg);
+    line-height: 1.2;
+}
+
+.btn-lg i {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+    display: block;
+}
+</style>
+{% endblock %} 
