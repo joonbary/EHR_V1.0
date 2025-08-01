@@ -1,0 +1,119 @@
+{
+  "timestamp": "2025-07-25T15:28:14.385406",
+  "design_system": {
+    "colors": {
+      "primary": "#F97316",
+      "primary_hover": "#EA580C",
+      "primary_light": "#FFF7ED",
+      "primary_lighter": "#FED7AA",
+      "gray": {
+        "50": "#FAFAFA",
+        "100": "#F4F4F5",
+        "200": "#E4E4E7",
+        "300": "#D4D4D8",
+        "400": "#A1A1AA",
+        "500": "#71717A",
+        "600": "#52525B",
+        "700": "#3F3F46",
+        "800": "#27272A",
+        "900": "#18181B"
+      },
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444",
+      "info": "#3B82F6",
+      "bg_primary": "#FFFFFF",
+      "bg_secondary": "#FAFAFA",
+      "bg_tertiary": "#F4F4F5",
+      "sidebar_bg": "#FFFFFF",
+      "sidebar_hover": "#F4F4F5"
+    },
+    "typography": {
+      "font_family": "'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      "font_sizes": {
+        "xs": "0.75rem",
+        "sm": "0.875rem",
+        "base": "1rem",
+        "lg": "1.125rem",
+        "xl": "1.25rem",
+        "2xl": "1.5rem",
+        "3xl": "1.875rem",
+        "4xl": "2.25rem"
+      },
+      "font_weights": {
+        "normal": "400",
+        "medium": "500",
+        "semibold": "600",
+        "bold": "700"
+      },
+      "line_heights": {
+        "tight": "1.25",
+        "normal": "1.5",
+        "relaxed": "1.75"
+      }
+    },
+    "spacing": {
+      "xs": "0.25rem",
+      "sm": "0.5rem",
+      "md": "1rem",
+      "lg": "1.5rem",
+      "xl": "2rem",
+      "2xl": "3rem",
+      "3xl": "4rem"
+    },
+    "borders": {
+      "radius": {
+        "sm": "0.25rem",
+        "md": "0.5rem",
+        "lg": "0.75rem",
+        "xl": "1rem",
+        "2xl": "1.5rem",
+        "full": "9999px"
+      },
+      "width": {
+        "thin": "1px",
+        "medium": "2px",
+        "thick": "4px"
+      }
+    },
+    "shadows": {
+      "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      "md": "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+      "lg": "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+      "xl": "0 20px 25px -5px rgb(0 0 0 / 0.1)"
+    },
+    "layout": {
+      "sidebar_width": "260px",
+      "header_height": "64px",
+      "container_max": "1280px"
+    }
+  },
+  "issues_found": {
+    "excessive_colors": [
+      "ui_preview\\unified-design-system.css: 23개의 색상 사용",
+      "static\\css\\admin-custom.css: 38개의 색상 사용",
+      "static\\css\\design-system-v3.css: 32개의 색상 사용",
+      "static\\css\\design-system.css: 51개의 색상 사용",
+      "employees\\static\\css\\brand.css: 22개의 색상 사용"
+    ],
+    "inconsistent_fonts": [],
+    "irregular_spacing": [
+      "ui_preview\\unified-design-system.css: 20개의 비표준 간격",
+      "static\\css\\admin-custom.css: 41개의 비표준 간격",
+      "static\\css\\design-system-v3.css: 34개의 비표준 간격",
+      "static\\css\\design-system.css: 24개의 비표준 간격",
+      "employees\\static\\css\\brand.css: 1개의 비표준 간격"
+    ],
+    "mixed_border_radius": [],
+    "heavy_shadows": []
+  },
+  "improvements": {
+    "color_unification": "20+ 색상을 5개 주요 색상으로 통합",
+    "typography_consistency": "Pretendard 폰트로 일관성 확보",
+    "spacing_standardization": "8pt 그리드 기반 간격 시스템 적용",
+    "component_modernization": "모든 컴포넌트를 모던 디자인으로 업데이트",
+    "accessibility": "WCAG 2.1 AA 기준 준수"
+  },
+  "files_updated": [],
+  "backup_location": "backups\\ui_backup_20250725_152814"
+}

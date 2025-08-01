@@ -1,0 +1,1001 @@
+{
+  "timestamp": "2025-07-26T14:28:41.109476",
+  "files": [
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_direct_url.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_direct_url.py",
+      "size": 732
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\__pycache__\\urls.cpython-313.pyc",
+      "size": 961
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\__pycache__\\models.cpython-313.pyc",
+      "size": 10750
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_training_recommendations.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_training_recommendations.py",
+      "size": 21149
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_department_skill_score_api.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_department_skill_score_api.py",
+      "size": 6620
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\__pycache__\\urls.cpython-313.pyc",
+      "size": 1109
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\__pycache__\\admin.cpython-313.pyc",
+      "size": 6998
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_api_endpoints.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_api_endpoints.py",
+      "size": 7105
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__pycache__\\ai_views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\ehr_system\\__pycache__\\ai_views.cpython-313.pyc",
+      "size": 4770
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\__pycache__\\urls.cpython-313.pyc",
+      "size": 1071
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_view.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_job_view.py",
+      "size": 659
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__pycache__\\apps.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\__pycache__\\apps.cpython-313.pyc",
+      "size": 531
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 3118
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\management\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\management\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 169
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\migrations\\__pycache__\\0002_expertiseevaluation_business_acumen_and_more.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\migrations\\__pycache__\\0002_expertiseevaluation_business_acumen_and_more.cpython-313.pyc",
+      "size": 6129
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\__pycache__\\admin.cpython-313.pyc",
+      "size": 3967
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\__pycache__\\models.cpython-313.pyc",
+      "size": 5816
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\__pycache__\\urls.cpython-313.pyc",
+      "size": 1277
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\tests.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\tests.py",
+      "size": 63
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\ess_leader_api.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\ess_leader_api.cpython-313.pyc",
+      "size": 21945
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\__pycache__\\urls.cpython-313.pyc",
+      "size": 1024
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_evaluation_urls.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_evaluation_urls.py",
+      "size": 635
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\server.log",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\server.log",
+      "size": 57583
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\__pycache__\\models.cpython-313.pyc",
+      "size": 5937
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 4861
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\docs\\test_data_creation.md",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\docs\\test_data_creation.md",
+      "size": 16750
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 159
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__pycache__\\forms.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\__pycache__\\forms.cpython-313.pyc",
+      "size": 2548
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__pycache__\\views_tasks.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\ehr_system\\__pycache__\\views_tasks.cpython-313.pyc",
+      "size": 9321
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\__pycache__\\urls.cpython-313.pyc",
+      "size": 1684
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 8422
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\tests.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\performance_new\\tests.py",
+      "size": 63
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\management\\commands\\create_test_data.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\management\\commands\\create_test_data.py",
+      "size": 6656
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__pycache__\\views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\__pycache__\\views.cpython-313.pyc",
+      "size": 6041
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\leader_services.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\leader_services.cpython-313.pyc",
+      "size": 25974
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\__pycache__\\skillmap_dashboard_improved.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\__pycache__\\skillmap_dashboard_improved.cpython-313.pyc",
+      "size": 21702
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\static\\fonts\\OKBold.otf",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\static\\fonts\\OKBold.otf",
+      "size": 647444
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_ess_leader_api.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_ess_leader_api.py",
+      "size": 20115
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 169
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_leader_recommendation.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_leader_recommendation.py",
+      "size": 23025
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_urls.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_urls.py",
+      "size": 477
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\static\\fonts\\OKBold.ttf",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\static\\fonts\\OKBold.ttf",
+      "size": 818956
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\tests.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\tests.py",
+      "size": 63
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 156
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 167
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\admin.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\performance_new\\admin.py",
+      "size": 66
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__pycache__\\models.cpython-313.pyc",
+      "size": 24047
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\growth_path_recommender.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\growth_path_recommender.cpython-313.pyc",
+      "size": 22340
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\evaluation_matcher.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\evaluation_matcher.cpython-313.pyc",
+      "size": 14943
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_leader_report_generation.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_leader_report_generation.py",
+      "size": 15935
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\matching_engine.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\matching_engine.cpython-313.pyc",
+      "size": 13104
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_growth_path.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_growth_path.py",
+      "size": 19918
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__pycache__\\apps.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\__pycache__\\apps.cpython-313.pyc",
+      "size": 537
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\views_test.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\views_test.cpython-313.pyc",
+      "size": 384
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 172
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\__pycache__\\ui_sidebar_style_unify.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\__pycache__\\ui_sidebar_style_unify.cpython-313.pyc",
+      "size": 40877
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\__pycache__\\models.cpython-313.pyc",
+      "size": 11034
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__pycache__\\views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\__pycache__\\views.cpython-313.pyc",
+      "size": 15284
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 174
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\evaluation_services.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\evaluation_services.cpython-313.pyc",
+      "size": 18407
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\management\\commands\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\management\\commands\\__init__.py",
+      "size": 29
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\__pycache__\\urls.cpython-313.pyc",
+      "size": 1143
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 6142
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_evaluation_matching.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_evaluation_matching.py",
+      "size": 11812
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\project_cleanup.log",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\project_cleanup.log",
+      "size": 9565
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_dashboard_backup_20241231.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\skillmap_dashboard_backup_20241231.py",
+      "size": 58330
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__pycache__\\0003_alter_employee_hire_date.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\migrations\\__pycache__\\0003_alter_employee_hire_date.cpython-313.pyc",
+      "size": 959
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\performance_new\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\views.cpython-313.pyc",
+      "size": 12242
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__pycache__\\apps.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\__pycache__\\apps.cpython-313.pyc",
+      "size": 534
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__pycache__\\dashboard_views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\ehr_system\\__pycache__\\dashboard_views.cpython-313.pyc",
+      "size": 5107
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__pycache__\\mixins.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\__pycache__\\mixins.cpython-313.pyc",
+      "size": 7140
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__pycache__\\admin.cpython-313.pyc",
+      "size": 6056
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\templatetags\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\templatetags\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 171
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__pycache__\\views_advanced.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__pycache__\\views_advanced.cpython-313.pyc",
+      "size": 13936
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_skillmap_improvements.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_skillmap_improvements.py",
+      "size": 6102
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\performance_new\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles\\css\\brand.css",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\staticfiles\\css\\brand.css",
+      "size": 7319
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__pycache__\\0004_employee_address_employee_emergency_contact_and_more.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\migrations\\__pycache__\\0004_employee_address_employee_emergency_contact_and_more.cpython-313.pyc",
+      "size": 1423
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__pycache__\\settings.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\ehr_system\\__pycache__\\settings.cpython-313.pyc",
+      "size": 3007
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\report_services.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\report_services.cpython-313.pyc",
+      "size": 19918
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\__pycache__\\models.cpython-313.pyc",
+      "size": 2865
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__pycache__\\certification_api.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\__pycache__\\certification_api.cpython-313.pyc",
+      "size": 13057
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__pycache__\\views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\__pycache__\\views.cpython-313.pyc",
+      "size": 21370
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__pycache__\\views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\__pycache__\\views.cpython-313.pyc",
+      "size": 13755
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_view_direct.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_view_direct.py",
+      "size": 1468
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\__pycache__\\admin.cpython-313.pyc",
+      "size": 1343
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\__pycache__\\models.cpython-313.pyc",
+      "size": 201
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__pycache__\\apps.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\__pycache__\\apps.cpython-313.pyc",
+      "size": 534
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__pycache__\\training_services.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\__pycache__\\training_services.cpython-313.pyc",
+      "size": 19285
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 171
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_skillmap_dashboard.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_skillmap_dashboard.py",
+      "size": 14431
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 2074
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\models.cpython-313.pyc",
+      "size": 9179
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__pycache__\\certification_engine.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\__pycache__\\certification_engine.cpython-313.pyc",
+      "size": 14700
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\services.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\services.cpython-313.pyc",
+      "size": 12102
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_upload_scenarios.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_upload_scenarios.py",
+      "size": 11771
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\__pycache__\\admin.cpython-313.pyc",
+      "size": 4897
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__pycache__\\views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__pycache__\\views.cpython-313.pyc",
+      "size": 37935
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\templates\\dashboard_backup.html",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\templates\\dashboard_backup.html",
+      "size": 41102
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\__pycache__\\file_manager.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\utils\\__pycache__\\file_manager.cpython-313.pyc",
+      "size": 13437
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\__pycache__\\forms.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\__pycache__\\forms.cpython-313.pyc",
+      "size": 1495
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\recommendation_comment_generator.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\recommendation_comment_generator.cpython-313.pyc",
+      "size": 20146
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__pycache__\\training_recommender.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\__pycache__\\training_recommender.cpython-313.pyc",
+      "size": 15274
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\templates\\evaluations\\test_navigation.html",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\templates\\evaluations\\test_navigation.html",
+      "size": 1615
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 6443
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 172
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\__pycache__\\0002_alter_employeecompensation_pi_amount.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\migrations\\__pycache__\\0002_alter_employeecompensation_pi_amount.cpython-313.pyc",
+      "size": 908
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 10093
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\__pycache__\\evaluation_processor.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\utils\\__pycache__\\evaluation_processor.cpython-313.pyc",
+      "size": 22738
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_ui_fixes.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_ui_fixes.py",
+      "size": 3476
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\__pycache__\\views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\__pycache__\\views.cpython-313.pyc",
+      "size": 25820
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_recommendation_comment.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_recommendation_comment.py",
+      "size": 14164
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 170
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\embedding_matcher.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\embedding_matcher.cpython-313.pyc",
+      "size": 13285
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 158
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__pycache__\\apps.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__pycache__\\apps.cpython-313.pyc",
+      "size": 534
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles\\fonts\\OKBold.ttf",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\staticfiles\\fonts\\OKBold.ttf",
+      "size": 818956
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 160
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_search_api.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_job_search_api.py",
+      "size": 11093
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\ehr_system\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 160
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\__pycache__\\apps.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\__pycache__\\apps.cpython-313.pyc",
+      "size": 528
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\ehr_system\\__pycache__\\urls.cpython-313.pyc",
+      "size": 13224
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\__pycache__\\admin.cpython-313.pyc",
+      "size": 204
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 14805
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\ehr_system\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 159
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\apps.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\apps.cpython-313.pyc",
+      "size": 536
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\tests.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\tests.py",
+      "size": 63
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\__pycache__\\models.cpython-313.pyc",
+      "size": 10074
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_certification_check.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_certification_check.py",
+      "size": 15220
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\views_test.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\views_test.py",
+      "size": 117
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__pycache__\\utils.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\__pycache__\\utils.cpython-313.pyc",
+      "size": 5580
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 160
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\templatetags\\__pycache__\\custom_filters.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\templatetags\\__pycache__\\custom_filters.cpython-313.pyc",
+      "size": 512
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_test_data_new.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\create_test_data_new.py",
+      "size": 10353
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\__pycache__\\0003_alter_performanceincentiverate_options_and_more.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\migrations\\__pycache__\\0003_alter_performanceincentiverate_options_and_more.cpython-313.pyc",
+      "size": 1874
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_import.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_import.py",
+      "size": 882
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_matching.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_job_matching.py",
+      "size": 10519
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\__pycache__\\background_tasks.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\utils\\__pycache__\\background_tasks.cpython-313.pyc",
+      "size": 22579
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__pycache__\\training_api.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\__pycache__\\training_api.cpython-313.pyc",
+      "size": 13078
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\__pycache__\\job_search_recommend_api.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\__pycache__\\job_search_recommend_api.cpython-313.pyc",
+      "size": 56686
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\tests.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\tests.py",
+      "size": 63
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\growth_services.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\growth_services.cpython-313.pyc",
+      "size": 24293
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\migrations\\__pycache__\\0001_initial.cpython-313.pyc",
+      "size": 8687
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 169
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 171
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 161
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\__pycache__\\admin.cpython-313.pyc",
+      "size": 3713
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 158
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\admin.cpython-313.pyc",
+      "size": 4723
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__pycache__\\wsgi.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\ehr_system\\__pycache__\\wsgi.cpython-313.pyc",
+      "size": 653
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\__pycache__\\admin.cpython-313.pyc",
+      "size": 1568
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\integrated_test_system.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\integrated_test_system.py",
+      "size": 17823
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__pycache__\\admin.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\__pycache__\\admin.cpython-313.pyc",
+      "size": 2660
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\migrations\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\models.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\performance_new\\models.py",
+      "size": 60
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\forms.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\forms.cpython-313.pyc",
+      "size": 8099
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__pycache__\\0002_alter_employee_options_employee_employment_status_and_more.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\migrations\\__pycache__\\0002_alter_employee_options_employee_employment_status_and_more.cpython-313.pyc",
+      "size": 3598
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles\\css\\admin-custom.css",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\staticfiles\\css\\admin-custom.css",
+      "size": 30088
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles\\fonts\\OKBold.otf",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\staticfiles\\fonts\\OKBold.otf",
+      "size": 647444
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__pycache__\\views_debug.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__pycache__\\views_debug.cpython-313.pyc",
+      "size": 848
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\trainings\\__init__.py",
+      "size": 0
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\__pycache__\\skillmap_dashboard.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\__pycache__\\skillmap_dashboard.cpython-313.pyc",
+      "size": 73261
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\tests.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\tests.py",
+      "size": 63
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__pycache__\\apps.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\__pycache__\\apps.cpython-313.pyc",
+      "size": 522
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\tests.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\selfservice\\tests.py",
+      "size": 63
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\migrations\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 171
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_full_test_data.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\create_full_test_data.py",
+      "size": 8798
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\evaluations\\__pycache__\\urls.cpython-313.pyc",
+      "size": 2802
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\leader_report_generator.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\leader_report_generator.cpython-313.pyc",
+      "size": 36472
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__pycache__\\0005_employee_user.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\employees\\migrations\\__pycache__\\0005_employee_user.cpython-313.pyc",
+      "size": 1282
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\urls.cpython-313.pyc",
+      "size": 1428
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 163
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__pycache__\\urls.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\__pycache__\\urls.cpython-313.pyc",
+      "size": 825
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__pycache__\\leader_recommender.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\job_profiles\\__pycache__\\leader_recommender.cpython-313.pyc",
+      "size": 27293
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__pycache__\\views.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\reports\\__pycache__\\views.cpython-313.pyc",
+      "size": 15531
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__pycache__\\certification_services.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\certifications\\__pycache__\\certification_services.cpython-313.pyc",
+      "size": 17914
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_search_api_simple.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\test_job_search_api_simple.py",
+      "size": 2380
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\compensation\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 161
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__pycache__\\models.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\promotions\\__pycache__\\models.cpython-313.pyc",
+      "size": 15828
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\__pycache__\\__init__.cpython-313.pyc",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\utils\\__pycache__\\__init__.cpython-313.pyc",
+      "size": 154
+    },
+    {
+      "original": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\migrations\\__init__.py",
+      "backup": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840\\permissions\\migrations\\__init__.py",
+      "size": 0
+    }
+  ],
+  "total_size": 4492808
+}

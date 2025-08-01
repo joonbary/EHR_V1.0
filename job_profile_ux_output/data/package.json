@@ -1,0 +1,24 @@
+{
+  "name": "job-profile-tree-ui",
+  "version": "1.0.0",
+  "description": "\uc9c1\ubb34\uae30\uc220\uc11c \ud2b8\ub9ac \uc2dc\uac01\ud654 UI/UX \uc2dc\uc2a4\ud15c",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "antd": "^5.0.0",
+    "framer-motion": "^10.0.0",
+    "@ant-design/icons": "^5.0.0",
+    "vue": "^3.3.0",
+    "@vue/composition-api": "^1.7.0",
+    "ant-design-vue": "^4.0.0",
+    "d3": "^7.8.0",
+    "vis-network": "^9.1.0",
+    "react-flow-renderer": "^11.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-vue": "^4.0.0",
+    "vite": "^4.4.0",
+    "typescript": "^5.0.0"
+  }
+}

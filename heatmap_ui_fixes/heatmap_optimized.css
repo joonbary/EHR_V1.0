@@ -1,0 +1,315 @@
+
+/* Skillmap Heatmap Optimized Styles */
+
+/* 컨테이너 스타일 */
+.skillmap-heatmap-container {
+    width: 100%;
+    height: 100%;
+    min-height: 600px;
+    max-height: 90vh;
+    position: relative;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 헤더 영역 */
+.heatmap-header {
+    padding: 20px;
+    background-color: white;
+    border-bottom: 1px solid #e9ecef;
+    flex-shrink: 0;
+}
+
+.heatmap-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.heatmap-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* 차트 영역 */
+.heatmap-chart-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    padding: 20px;
+    background-color: white;
+}
+
+/* 스크롤바 스타일링 */
+.heatmap-chart-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.heatmap-chart-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.heatmap-chart-wrapper::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.heatmap-chart-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 범례 스타일 */
+.heatmap-legend {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.legend-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.legend-scale {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-gradient {
+    width: 100px;
+    height: 20px;
+    background: linear-gradient(to right, #f7fbff, #3182bd);
+    border-radius: 2px;
+}
+
+.legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+/* 툴팁 스타일 */
+.heatmap-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.heatmap-tooltip.show {
+    opacity: 1;
+}
+
+.tooltip-employee {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.tooltip-skill {
+    color: #adb5bd;
+    font-size: 11px;
+}
+
+.tooltip-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4ecdc4;
+}
+
+/* 필터 컨트롤 */
+.heatmap-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-label {
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.control-select {
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.control-select:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* 로딩 상태 */
+.heatmap-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3182bd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 에러 상태 */
+.heatmap-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 48px;
+    color: #dc3545;
+    margin-bottom: 16px;
+}
+
+.error-message {
+    font-size: 16px;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.error-detail {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .skillmap-heatmap-container {
+        max-height: 80vh;
+    }
+    
+    .heatmap-header {
+        padding: 15px;
+    }
+    
+    .heatmap-title {
+        font-size: 20px;
+    }
+    
+    .heatmap-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .control-group {
+        width: 100%;
+    }
+    
+    .control-select {
+        width: 100%;
+    }
+    
+    .heatmap-legend {
+        position: static;
+        margin-top: 10px;
+        width: fit-content;
+    }
+}
+
+/* 프린트 스타일 */
+@media print {
+    .skillmap-heatmap-container {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+    }
+    
+    .heatmap-controls {
+        display: none;
+    }
+    
+    .heatmap-chart-wrapper {
+        overflow: visible;
+        max-height: none;
+    }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+    .skillmap-heatmap-container {
+        background-color: #212529;
+    }
+    
+    .heatmap-header,
+    .heatmap-chart-wrapper {
+        background-color: #343a40;
+        border-color: #495057;
+    }
+    
+    .heatmap-title {
+        color: #f8f9fa;
+    }
+    
+    .heatmap-subtitle,
+    .control-label {
+        color: #adb5bd;
+    }
+    
+    .control-select {
+        background-color: #495057;
+        color: #f8f9fa;
+        border-color: #6c757d;
+    }
+    
+    .heatmap-legend {
+        background-color: rgba(52, 58, 64, 0.95);
+        border-color: #495057;
+    }
+    
+    .legend-title {
+        color: #f8f9fa;
+    }
+}

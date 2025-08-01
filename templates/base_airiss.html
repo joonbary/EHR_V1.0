@@ -1,0 +1,386 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AIRISS - AI-Driven HR System{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // OK금융그룹 브랜드 컬러로 변경
+                        primary: {
+                            DEFAULT: '#FF6B00',
+                            hover: '#E55A00',
+                            light: '#FFF4ED',
+                            lighter: '#FFEDE5',
+                            dark: '#CC5500'
+                        },
+                        accent: {
+                            DEFAULT: '#FFAA00',
+                            hover: '#E69900',
+                            light: '#FFF8E6'
+                        },
+                        brand: {
+                            brown: '#55474A',
+                            gray: '#E3DFDA',
+                            dark: '#1A1A1A'
+                        },
+                        status: {
+                            success: '#10B981',
+                            warning: '#F59E0B',
+                            error: '#EF4444',
+                            info: '#3B82F6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'Noto Sans KR', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(255, 107, 0, 0.15)',
+                        'glow-lg': '0 0 30px rgba(255, 107, 0, 0.2)',
+                        'neumorphic': '8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.7)'
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        /* 그라디언트 배경 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        }
+        
+        .gradient-bg-subtle {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+        }
+        
+        /* 글래스모피즘 효과 */
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .glass-dark {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* 호버 애니메이션 */
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+        }
+        
+        /* 플로팅 애니메이션 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* 그라디언트 텍스트 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* 서브메뉴 스타일 */
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .submenu.open {
+            max-height: 500px;
+        }
+        
+        .menu-chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .menu-chevron.rotate {
+            transform: rotate(180deg);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    
+    <!-- 상단 네비게이션 바 -->
+    <nav class="fixed top-0 left-0 right-0 glass dark:glass-dark border-b border-gray-200/50 dark:border-gray-700/50 z-50">
+        <div class="px-4 lg:px-6">
+            <div class="flex justify-between items-center h-16">
+                <!-- 로고 및 브랜드 -->
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="메뉴 토글">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                            <i data-lucide="building" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div class="hidden sm:block">
+                            <h1 class="text-xl font-bold gradient-text">OK금융그룹</h1>
+                            <p class="text-xs text-gray-500">e-HR System</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 우측 메뉴 -->
+                <div class="flex items-center space-x-4">
+                    <!-- 사용자 프로필 -->
+                    <div class="relative">
+                        <button class="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <div class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                {{ user.get_full_name|default:user.username|slice:":2"|upper }}
+                            </div>
+                            <div class="hidden sm:block text-left">
+                                <p class="text-sm font-medium">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-500">{{ user.groups.first.name|default:"사용자" }}</p>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="relative min-h-full">
+        <!-- 모바일 오버레이 -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden opacity-0 pointer-events-none transition-opacity" aria-hidden="true"></div>
+        
+        <!-- 좌측 사이드바 (글래스모피즘 적용) -->
+        <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-72 glass dark:glass-dark border-r border-gray-200/50 dark:border-gray-700/50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40" role="navigation" aria-label="메인 네비게이션">
+            <div class="h-full flex flex-col pt-20">
+                
+                <!-- 네비게이션 메뉴 -->
+                <nav class="flex-1 p-4 overflow-y-auto">
+                    <!-- 7개 핵심 모듈 -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">핵심 모듈</h3>
+                        <div class="space-y-1">
+                    
+                            <!-- 1. 대시보드 -->
+                            <a href="{% url 'home' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-primary/50 {% if request.resolver_match.url_name == 'home' %}gradient-bg text-white shadow-glow{% else %}hover:bg-primary/10 dark:hover:bg-primary/10{% endif %}" aria-label="대시보드" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>
+                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'home' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                    <i data-lucide="layout-dashboard" class="w-5 h-5 {% if request.resolver_match.url_name == 'home' %}text-white{% else %}text-primary{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">대시보드</span>
+                            </a>
+                    
+                            <!-- 2. 직원관리 -->
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-blue-500/50 {% if 'employee' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-blue-50 dark:hover:bg-blue-900/20{% endif %}" aria-label="직원관리" onclick="toggleSubmenu('employees-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if 'employee' in request.resolver_match.url_name %}bg-white/20{% else %}bg-blue-100 group-hover:bg-blue-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="users" class="w-5 h-5 {% if 'employee' in request.resolver_match.url_name %}text-white{% else %}text-blue-600{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">직원관리</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'employee' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="employees-submenu" class="submenu {% if 'employee' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'employees:employee_management' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직원 목록</a>
+                                    <a href="{% url 'employees:employee_create' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직원 등록</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">근태 관리</a>
+                                    <a href="{% url 'employees:employee_bulk_upload' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">대량 업로드</a>
+                                </div>
+                            </div>
+                    
+                            <!-- 3. 평가관리 -->
+                            <a href="{% url 'evaluations:dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-green-500/50 {% if 'evaluation' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-green-50 dark:hover:bg-green-900/20{% endif %}" aria-label="평가관리" {% if 'evaluation' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+                                <div class="w-10 h-10 {% if 'evaluation' in request.resolver_match.url_name %}bg-white/20{% else %}bg-green-100 group-hover:bg-green-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                    <i data-lucide="clipboard-check" class="w-5 h-5 {% if 'evaluation' in request.resolver_match.url_name %}text-white{% else %}text-green-600{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">평가관리</span>
+                            </a>
+                    
+                            <!-- 4. 보상관리 -->
+                            <a href="{% url 'compensation:dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-yellow-500/50 {% if 'compensation' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-yellow-50 dark:hover:bg-yellow-900/20{% endif %}" aria-label="보상관리" {% if 'compensation' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+                                <div class="w-10 h-10 {% if 'compensation' in request.resolver_match.url_name %}bg-white/20{% else %}bg-yellow-100 group-hover:bg-yellow-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                    <i data-lucide="coins" class="w-5 h-5 {% if 'compensation' in request.resolver_match.url_name %}text-white{% else %}text-yellow-600{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">보상관리</span>
+                            </a>
+                    
+                            <!-- 5. 조직관리 -->
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-orange-500/50 {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}gradient-bg text-white shadow-glow{% else %}hover:bg-orange-50 dark:hover:bg-orange-900/20{% endif %}" aria-label="조직관리" onclick="toggleSubmenu('organization-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}bg-white/20{% else %}bg-orange-100 group-hover:bg-orange-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="building" class="w-5 h-5 {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}text-white{% else %}text-orange-600{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">조직관리</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="organization-submenu" class="submenu {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'employees:organization_chart' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">조직도</a>
+                                    <a href="{% url 'organization:department_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">부서 관리</a>
+                                    <a href="{% url 'organization:position_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직위 관리</a>
+                                    <a href="{% url 'job_profiles:list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직무 체계도</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 6. 채용관리 -->
+                            <a href="{% url 'recruitment:dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-purple-500/50 {% if 'recruitment' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-purple-50 dark:hover:bg-purple-900/20{% endif %}" aria-label="채용관리" {% if 'recruitment' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+                                <div class="w-10 h-10 {% if 'recruitment' in request.resolver_match.url_name %}bg-white/20{% else %}bg-purple-100 group-hover:bg-purple-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                    <i data-lucide="user-check" class="w-5 h-5 {% if 'recruitment' in request.resolver_match.url_name %}text-white{% else %}text-purple-600{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">채용관리</span>
+                            </a>
+                            
+                            <!-- 7. AIRISS -->
+                            <a href="{% url 'airiss:dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-pink-500/50 {% if 'airiss' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-pink-50 dark:hover:bg-pink-900/20{% endif %}" aria-label="AIRISS" {% if 'airiss' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+                                <div class="w-10 h-10 {% if 'airiss' in request.resolver_match.url_name %}bg-white/20{% else %}bg-pink-100 group-hover:bg-pink-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                    <i data-lucide="brain" class="w-5 h-5 {% if 'airiss' in request.resolver_match.url_name %}text-white{% else %}text-pink-600{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">AIRISS</span>
+                            </a>
+                        </div>
+                    </div>
+                
+                    <!-- AI 기능 메뉴 -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">AI 기능</h3>
+                        <div class="space-y-1">
+                            <a href="{% url 'airiss:insights' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800 {% if 'insights' in request.resolver_match.url_name %}bg-pink-50 text-pink-600{% endif %}">
+                                <div class="w-10 h-10 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="lightbulb" class="w-5 h-5 text-blue-600"></i>
+                                </div>
+                                <span class="font-medium">AI 인사이트</span>
+                            </a>
+                            
+                            <a href="{% url 'airiss:predictions' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800 {% if 'predictions' in request.resolver_match.url_name %}bg-pink-50 text-pink-600{% endif %}">
+                                <div class="w-10 h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="sparkles" class="w-5 h-5 text-green-600"></i>
+                                </div>
+                                <span class="font-medium">AI 추천</span>
+                            </a>
+                            
+                            <a href="{% url 'airiss:chatbot' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800 {% if 'chatbot' in request.resolver_match.url_name %}bg-pink-50 text-pink-600{% endif %}">
+                                <div class="w-10 h-10 bg-orange-100 group-hover:bg-orange-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="message-circle" class="w-5 h-5 text-orange-600"></i>
+                                </div>
+                                <span class="font-medium">HR 챗봇</span>
+                            </a>
+                            
+                            <a href="{% url 'airiss:model_status' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800 {% if 'model_status' in request.resolver_match.url_name %}bg-pink-50 text-pink-600{% endif %}">
+                                <div class="w-10 h-10 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="settings" class="w-5 h-5 text-gray-600"></i>
+                                </div>
+                                <span class="font-medium">모델 관리</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- 분석 및 리포트 -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">분석 및 리포트</h3>
+                        <div class="space-y-1">
+                            <a href="{% url 'airiss:analytics' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800 {% if 'analytics' in request.resolver_match.url_name %}bg-pink-50 text-pink-600{% endif %}">
+                                <div class="w-10 h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="pie-chart" class="w-5 h-5 text-purple-600"></i>
+                                </div>
+                                <span class="font-medium">인재 분석</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+        
+        <!-- 메인 콘텐츠 영역 -->
+        <main class="lg:ml-72 pt-16">
+            <div class="p-6">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Lucide 아이콘 초기화
+        lucide.createIcons();
+        
+        // 사이드바 토글 (모바일)
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        
+        sidebarToggle?.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('opacity-0');
+            sidebarOverlay.classList.toggle('pointer-events-none');
+        });
+        
+        sidebarOverlay?.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('opacity-0');
+            sidebarOverlay.classList.add('pointer-events-none');
+        });
+        
+        // 서브메뉴 토글
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const chevron = submenu.previousElementSibling.querySelector('.menu-chevron');
+            
+            submenu.classList.toggle('open');
+            chevron?.classList.toggle('rotate');
+        }
+        
+        // 현재 페이지에 맞는 서브메뉴 자동 열기
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const menuLinks = document.querySelectorAll('.submenu a');
+            
+            menuLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    const submenu = link.closest('.submenu');
+                    if (submenu) {
+                        submenu.classList.add('open');
+                        const chevron = submenu.previousElementSibling.querySelector('.menu-chevron');
+                        if (chevron) chevron.classList.add('rotate');
+                    }
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

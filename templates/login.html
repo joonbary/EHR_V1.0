@@ -4,37 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 - OK금융그룹 e-HR</title>
+    <title>로그인 - OK금융그룹 AI-Driven HR System</title>
     <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--bg-secondary) 100%);
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: var(--spacing-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(-45deg);
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: rotate(-45deg) translateY(0); }
+            50% { transform: rotate(-45deg) translateY(-20px); }
         }
         
         .login-container {
             width: 100%;
-            max-width: 420px;
+            max-width: 480px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
         
         .login-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-2xl);
-            box-shadow: var(--shadow-2xl);
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            border: 1px solid var(--gray-200);
+            backdrop-filter: blur(10px);
         }
         
         .login-header {
-            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-hover) 100%);
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
             color: white;
-            padding: var(--spacing-2xl);
+            padding: 3rem 2rem;
             text-align: center;
             position: relative;
         }
@@ -97,18 +118,19 @@
         
         .form-control {
             width: 100%;
-            padding: var(--spacing-md);
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            font-size: var(--font-size-base);
-            transition: all var(--transition-normal);
-            background-color: var(--bg-primary);
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #E5E5E5;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #F8F9FA;
         }
         
         .form-control:focus {
             outline: none;
-            border-color: var(--primary-orange);
-            box-shadow: 0 0 0 3px var(--primary-orange-light);
+            border-color: #FF6B00;
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+            background-color: white;
         }
         
         .form-control::placeholder {
@@ -134,17 +156,18 @@
         
         .btn-login {
             width: 100%;
-            padding: var(--spacing-md);
-            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-hover) 100%);
+            padding: 1rem;
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
             color: white;
             border: none;
-            border-radius: var(--radius-lg);
-            font-size: var(--font-size-lg);
+            border-radius: 12px;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: all var(--transition-normal);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
         }
         
         .btn-login::before {
@@ -164,7 +187,7 @@
         
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
         }
         
         .btn-login:active {
@@ -269,10 +292,9 @@
             <div class="login-header">
                 <div class="login-header-content">
                     <div class="login-logo">
-                        <i class="fas fa-building"></i>
-                        OK금융그룹
+                        <img src="{% static 'images/ok-financial-logo.svg' %}" alt="OK금융그룹" style="height: 80px; width: auto; margin-bottom: 15px; filter: brightness(0) invert(1);">
                     </div>
-                    <div class="login-subtitle">e-HR 직원 포털</div>
+                    <div class="login-subtitle">AI-Driven HR Portal</div>
                 </div>
             </div>
             

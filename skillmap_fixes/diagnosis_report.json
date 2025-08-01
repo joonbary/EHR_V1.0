@@ -1,0 +1,87 @@
+{
+  "timestamp": "2025-07-26T15:18:12.151854",
+  "issues": [
+    {
+      "type": "css_scroll_conflict",
+      "file": "staticfiles\\admin\\css\\forms.css",
+      "line": 6,
+      "pattern": "CSS scroll conflict",
+      "snippet": "overflow: hidden;\n    padding: 10px;\n    font-size: 0.8125rem;\n    border-bottom: 1px solid var(--ha",
+      "severity": "medium"
+    },
+    {
+      "type": "template_inline_timer",
+      "file": "templates\\dashboard.html",
+      "pattern": "Timer without cleanup",
+      "severity": "high"
+    },
+    {
+      "type": "template_inline_timer",
+      "file": "templates\\dashboard_new.html",
+      "pattern": "Timer without cleanup",
+      "severity": "high"
+    },
+    {
+      "type": "template_nested_loop",
+      "file": "templates\\admin\\dashboard.html",
+      "pattern": "Nested loops without pagination",
+      "severity": "medium"
+    },
+    {
+      "type": "template_nested_loop",
+      "file": "templates\\skillmap\\dashboard.html",
+      "pattern": "Nested loops without pagination",
+      "severity": "medium"
+    },
+    {
+      "type": "template_nested_loop",
+      "file": "templates\\skillmap\\dashboard_fixed.html",
+      "pattern": "Nested loops without pagination",
+      "severity": "medium"
+    },
+    {
+      "type": "template_nested_loop",
+      "file": "templates\\tasks\\dashboard.html",
+      "pattern": "Nested loops without pagination",
+      "severity": "medium"
+    },
+    {
+      "type": "template_inline_timer",
+      "file": "templates\\tasks\\dashboard.html",
+      "pattern": "Timer without cleanup",
+      "severity": "high"
+    },
+    {
+      "type": "template_nested_loop",
+      "file": "evaluations\\templates\\evaluations\\dashboard.html",
+      "pattern": "Nested loops without pagination",
+      "severity": "medium"
+    },
+    {
+      "type": "template_nested_loop",
+      "file": "promotions\\templates\\promotions\\dashboard.html",
+      "pattern": "Nested loops without pagination",
+      "severity": "medium"
+    },
+    {
+      "type": "template_inline_timer",
+      "file": ".cleanup_backup\\20250726_142840\\templates\\dashboard_backup.html",
+      "pattern": "Timer without cleanup",
+      "severity": "high"
+    },
+    {
+      "type": "backend_n_plus_one",
+      "file": "ehr_system\\dashboard_views.py",
+      "pattern": "Potential N+1 query",
+      "severity": "medium"
+    }
+  ],
+  "affected_files": [],
+  "recommendations": [
+    {
+      "category": "CSS",
+      "action": "Review and fix conflicting scroll styles",
+      "priority": "medium"
+    }
+  ]
+}

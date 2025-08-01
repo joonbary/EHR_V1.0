@@ -1,0 +1,88 @@
+{
+  "timestamp": "2025-07-26T16:35:49.458834",
+  "layout_issues": [
+    {
+      "type": "vertical_squashing",
+      "description": "세로 방향 찌그러짐 - 높이 부족",
+      "severity": "high",
+      "cause": "Fixed height with many Y-axis items"
+    },
+    {
+      "type": "aspect_ratio",
+      "description": "종횡비 불균형",
+      "severity": "medium",
+      "cause": "No aspect ratio constraints"
+    },
+    {
+      "type": "margin_overflow",
+      "description": "마진 오버플로우",
+      "severity": "medium",
+      "cause": "Insufficient margins for labels"
+    }
+  ],
+  "label_issues": [
+    {
+      "type": "label_overlap",
+      "description": "Y축 레이블 겹침",
+      "severity": "high",
+      "cause": "Too many items without rotation"
+    },
+    {
+      "type": "label_truncation",
+      "description": "레이블 잘림",
+      "severity": "medium",
+      "cause": "Insufficient margin space"
+    },
+    {
+      "type": "font_size",
+      "description": "폰트 크기 부적절",
+      "severity": "low",
+      "cause": "Fixed font size for variable content"
+    }
+  ],
+  "container_issues": [
+    {
+      "type": "container_overflow",
+      "description": "컨테이너 오버플로우",
+      "severity": "high",
+      "cause": "Chart larger than container"
+    },
+    {
+      "type": "responsive_failure",
+      "description": "반응형 실패",
+      "severity": "medium",
+      "cause": "Fixed dimensions"
+    }
+  ],
+  "style_issues": [
+    {
+      "type": "color_scale",
+      "description": "컬러 스케일 가독성",
+      "severity": "low",
+      "cause": "Poor color contrast"
+    },
+    {
+      "type": "grid_lines",
+      "description": "그리드 라인 과다",
+      "severity": "low",
+      "cause": "Default grid settings"
+    }
+  ],
+  "recommendations": [
+    {
+      "category": "Layout",
+      "action": "Implement dynamic height calculation based on data",
+      "priority": "high"
+    },
+    {
+      "category": "Labels",
+      "action": "Add label rotation and dynamic font sizing",
+      "priority": "high"
+    },
+    {
+      "category": "Container",
+      "action": "Implement responsive container with scroll",
+      "priority": "medium"
+    }
+  ]
+}

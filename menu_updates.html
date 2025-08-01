@@ -1,0 +1,57 @@
+
+<!-- 인재 관리 섹션 -->
+<li class="sidebar-nav-section">
+    <span class="sidebar-nav-section-title">인재 관리</span>
+</li>
+
+<li class="sidebar-nav-item">
+    <a href="{% url 'matching_dashboard' %}" class="sidebar-nav-link {% if 'matching' in request.resolver_match.url_name %}active{% endif %}">
+        <i data-lucide="users-cog" class="w-4 h-4"></i>
+        <span>직무 매칭</span>
+    </a>
+</li>
+
+<li class="sidebar-nav-item">
+    <a href="{% url 'certification_dashboard' %}" class="sidebar-nav-link {% if 'certification' in request.resolver_match.url_name %}active{% endif %}">
+        <i data-lucide="award" class="w-4 h-4"></i>
+        <span>자격증 관리</span>
+    </a>
+</li>
+
+<!-- 개인 성장 섹션 -->
+<li class="sidebar-nav-section">
+    <span class="sidebar-nav-section-title">개인 성장</span>
+</li>
+
+<li class="sidebar-nav-item">
+    <a href="{% url 'ess_plus_dashboard' %}" class="sidebar-nav-link {% if 'ess_plus' in request.resolver_match.url_name %}active{% endif %}">
+        <i data-lucide="user-plus" class="w-4 h-4"></i>
+        <span>ESS Plus</span>
+    </a>
+</li>
+
+<!-- 분석 도구 섹션 -->
+<li class="sidebar-nav-section">
+    <span class="sidebar-nav-section-title">분석 도구</span>
+</li>
+
+<li class="sidebar-nav-item">
+    <a href="{% url 'analytics_dashboard' %}" class="sidebar-nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}">
+        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+        <span>고급 분석</span>
+    </a>
+</li>
+
+{% if user.is_staff %}
+<!-- 개발자 도구 섹션 -->
+<li class="sidebar-nav-section">
+    <span class="sidebar-nav-section-title">개발자 도구</span>
+</li>
+
+<li class="sidebar-nav-item">
+    <a href="{% url 'test_dashboard' %}" class="sidebar-nav-link {% if 'test' in request.resolver_match.url_name %}active{% endif %}">
+        <i data-lucide="flask" class="w-4 h-4"></i>
+        <span>테스트 시스템</span>
+    </a>
+</li>
+{% endif %}

@@ -1,0 +1,1360 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}대시보드 - OK금융그룹 AI-Driven HR System{% endblock %}
+
+{% block page_header %}{% endblock %}
+
+{% block content %}
+<!-- 환영 메시지 섹션 -->
+<div class="dashboard-welcome">
+    <div class="welcome-content">
+        <h1 class="welcome-title">안녕하세요, {{ user.get_full_name|default:user.username }}님! 👋</h1>
+        <p class="welcome-subtitle">오늘도 OK금융그룹과 함께 성장하는 하루 되세요</p>
+        
+        <!-- 오늘의 할 일 -->
+        <div class="today-tasks">
+            <div class="task-item">
+                <i class="fas fa-check-circle"></i>
+                <span>평가 완료: 3/5</span>
+            </div>
+            <div class="task-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>오늘의 일정: 2건</span>
+            </div>
+            <div class="task-item">
+                <i class="fas fa-bell"></i>
+                <span>새 알림: 4건</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 배경 장식 -->
+    <div class="welcome-decoration">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path fill="rgba(255,255,255,0.1)" d="M47.4,-57.2C59.8,-47.1,67.1,-30.4,69.3,-13.1C71.5,4.3,68.6,22.3,59.8,36.8C51,51.3,36.3,62.3,19.4,67.2C2.5,72.1,-16.6,70.9,-33.3,63.8C-50,56.7,-64.3,43.7,-71.3,27.2C-78.3,10.7,-78,-9.3,-70.9,-26.3C-63.8,-43.3,-49.9,-57.3,-34.2,-66.9C-18.5,-76.5,-1,-81.7,16.2,-82C33.4,-82.3,35,-67.3,47.4,-57.2Z" transform="translate(100 100)" />
+        </svg>
+    </div>
+</div>
+
+<!-- CSS Grid 기반 대시보드 컨테이너 -->
+<div class="dashboard-grid-container">
+    <!-- 주요 지표 카드 그리드 -->
+    <section class="stats-grid-section">
+        <div class="stats-grid">
+            <!-- 나의 성장레벨 -->
+            <div class="stat-card-wrapper">
+                <div class="ok-stat-card">
+                    <div class="stat-icon-wrapper">
+                        <div class="ok-card-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="ok-stat-value">Lv.2</div>
+                        <div class="ok-stat-label">나의 성장레벨</div>
+                        <div class="ok-stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>다음 레벨까지 18개월</span>
+                        </div>
+                    </div>
+                    <div class="stat-progress">
+                        <div class="ok-progress">
+                            <div class="ok-progress-bar" style="width: 65%"></div>
+                        </div>
+                        <div class="progress-text">65% 달성</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 평가점수 -->
+            <div class="stat-card-wrapper">
+                <div class="ok-stat-card">
+                    <div class="stat-icon-wrapper">
+                        <div class="ok-card-icon" style="background: linear-gradient(135deg, var(--secondary-green) 0%, #5CB616 100%);">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="ok-stat-value">3.8</div>
+                        <div class="ok-stat-label">종합 평가점수</div>
+                        <div class="ok-stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>전년 대비 +0.3</span>
+                        </div>
+                    </div>
+                    <div class="rating-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 역량급 등급 -->
+            <div class="stat-card-wrapper">
+                <div class="ok-stat-card">
+                    <div class="stat-icon-wrapper">
+                        <div class="ok-card-icon" style="background: linear-gradient(135deg, var(--secondary-blue) 0%, #3B7BC0 100%);">
+                            <i class="fas fa-award"></i>
+                        </div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="ok-stat-value">A</div>
+                        <div class="ok-stat-label">역량급 등급</div>
+                        <div class="ok-stat-change">
+                            <i class="fas fa-equals"></i>
+                            <span>현재 유지중</span>
+                        </div>
+                    </div>
+                    <div class="grade-indicator">
+                        <span class="grade-item">C</span>
+                        <span class="grade-item">B</span>
+                        <span class="grade-item active">A</span>
+                        <span class="grade-item">S</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 다음 승진까지 -->
+            <div class="stat-card-wrapper">
+                <div class="ok-stat-card">
+                    <div class="stat-icon-wrapper">
+                        <div class="ok-card-icon" style="background: linear-gradient(135deg, var(--secondary-purple) 0%, #7C3AED 100%);">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="ok-stat-value">24</div>
+                        <div class="ok-stat-label">다음 승진까지 (개월)</div>
+                        <div class="ok-stat-change">
+                            <i class="fas fa-clock"></i>
+                            <span>2026년 1월 예정</span>
+                        </div>
+                    </div>
+                    <div class="promotion-timeline">
+                        <div class="timeline-track">
+                            <div class="timeline-progress" style="width: 40%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 성장 Journey 섹션 -->
+    <section class="journey-section">
+        <div class="journey-wrapper">
+            <div class="ok-card">
+                <div class="ok-card-header">
+                    <h3 class="ok-card-title">
+                        <i class="fas fa-route"></i>
+                        나의 성장 Journey
+                    </h3>
+                    <button class="ok-btn ok-btn-ghost">
+                        <i class="fas fa-info-circle"></i>
+                        가이드 보기
+                    </button>
+                </div>
+                <div class="growth-journey">
+                    <div class="journey-timeline">
+                        <div class="journey-item completed">
+                            <div class="journey-point">
+                                <div class="point-circle">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="point-line"></div>
+                            </div>
+                            <div class="journey-content">
+                                <h4>Level 1</h4>
+                                <p class="text-muted">Junior</p>
+                                <small>2022.03 달성</small>
+                            </div>
+                        </div>
+                        
+                        <div class="journey-item active">
+                            <div class="journey-point">
+                                <div class="point-circle">
+                                    <span>2</span>
+                                </div>
+                                <div class="point-line"></div>
+                            </div>
+                            <div class="journey-content">
+                                <h4>Level 2</h4>
+                                <p class="text-muted">Associate</p>
+                                <small>2024.01 ~ 현재</small>
+                                <div class="journey-requirements">
+                                    <div class="req-item completed">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>기본 역량 완료</span>
+                                    </div>
+                                    <div class="req-item">
+                                        <i class="far fa-circle"></i>
+                                        <span>리더십 과정 이수 필요</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="journey-item">
+                            <div class="journey-point">
+                                <div class="point-circle inactive">
+                                    <span>3</span>
+                                </div>
+                                <div class="point-line inactive"></div>
+                            </div>
+                            <div class="journey-content inactive">
+                                <h4>Level 3</h4>
+                                <p class="text-muted">Senior</p>
+                                <small>목표: 2026.01</small>
+                            </div>
+                        </div>
+                        
+                        <div class="journey-item">
+                            <div class="journey-point">
+                                <div class="point-circle inactive">
+                                    <span>4</span>
+                                </div>
+                            </div>
+                            <div class="journey-content inactive">
+                                <h4>Level 4</h4>
+                                <p class="text-muted">Expert</p>
+                                <small>목표: 2029.01</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 메인 위젯 그리드 섹션 -->
+    <section class="widgets-section">
+        <div class="widgets-grid">
+            <!-- 평가 매트릭스 -->
+            <div class="widget-wrapper">
+                <div class="ok-card dashboard-widget">
+                    <div class="ok-card-header">
+                        <h3 class="ok-card-title">
+                            <i class="fas fa-th"></i>
+                            평가 매트릭스
+                        </h3>
+                        <div class="card-actions">
+                            <button class="btn-action" title="새로고침">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="evaluation-matrix">
+                        <div class="matrix-chart-container">
+                            <canvas id="matrixChart" style="max-height: 200px;"></canvas>
+                        </div>
+                        <div class="matrix-legend">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: var(--ok-orange);"></span>
+                                <span>현재 위치</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: var(--gray-400);"></span>
+                                <span>팀 평균</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 최근 공지사항 -->
+            <div class="widget-wrapper">
+                <div class="ok-card dashboard-widget">
+                    <div class="ok-card-header">
+                        <h3 class="ok-card-title">
+                            <i class="fas fa-bullhorn"></i>
+                            최근 공지사항
+                        </h3>
+                        <div class="card-actions">
+                            <a href="#" class="btn-link">전체보기</a>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <div class="notice-list">
+                            <div class="notice-item">
+                                <div class="notice-badge ok-badge ok-badge-orange">중요</div>
+                                <div class="notice-content">
+                                    <h5>2024년 하반기 성과평가 일정 안내</h5>
+                                    <p class="text-muted mb-1">Check-in 작성 기간: 12월 1일 ~ 12월 15일</p>
+                                    <small class="text-muted">2024.11.25</small>
+                                </div>
+                            </div>
+                            <div class="notice-item">
+                                <div class="notice-badge ok-badge ok-badge-blue">일반</div>
+                                <div class="notice-content">
+                                    <h5>AI 역량 강화 교육 프로그램 신청 안내</h5>
+                                    <p class="text-muted mb-1">신청 기간: 11월 25일 ~ 12월 5일</p>
+                                    <small class="text-muted">2024.11.23</small>
+                                </div>
+                            </div>
+                            <div class="notice-item">
+                                <div class="notice-badge ok-badge ok-badge-green">교육</div>
+                                <div class="notice-content">
+                                    <h5>리더십 에센셜 과정 개설 안내</h5>
+                                    <p class="text-muted mb-1">Level 2 이상 직원 대상</p>
+                                    <small class="text-muted">2024.11.20</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 나의 업무 현황 -->
+            <div class="widget-wrapper">
+                <div class="ok-card dashboard-widget">
+                    <div class="ok-card-header">
+                        <h3 class="ok-card-title">
+                            <i class="fas fa-tasks"></i>
+                            나의 업무 현황
+                        </h3>
+                        <div class="card-actions">
+                            <a href="#" class="btn-link">전체보기</a>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <div class="task-summary">
+                            <div class="task-stat-grid">
+                                <div class="task-stat">
+                                    <div class="task-stat-value">12</div>
+                                    <div class="task-stat-label">진행중</div>
+                                </div>
+                                <div class="task-stat">
+                                    <div class="task-stat-value">5</div>
+                                    <div class="task-stat-label">검토 대기</div>
+                                </div>
+                                <div class="task-stat">
+                                    <div class="task-stat-value">28</div>
+                                    <div class="task-stat-label">완료</div>
+                                </div>
+                            </div>
+                            
+                            <div class="recent-tasks">
+                                <h5 class="mb-3">최근 업무</h5>
+                                <div class="task-item">
+                                    <div class="task-status">
+                                        <i class="fas fa-spinner text-warning"></i>
+                                    </div>
+                                    <div class="task-content">
+                                        <h6>AI 챗봇 시스템 개발</h6>
+                                        <div class="task-meta">
+                                            <span class="ok-badge ok-badge-orange">진행중</span>
+                                            <span class="text-muted">마감: 2024.12.15</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-progress">
+                                        <div class="ok-progress">
+                                            <div class="ok-progress-bar" style="width: 70%"></div>
+                                        </div>
+                                        <small>70%</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="task-item">
+                                    <div class="task-status">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    </div>
+                                    <div class="task-content">
+                                        <h6>월간 성과 리포트 작성</h6>
+                                        <div class="task-meta">
+                                            <span class="ok-badge ok-badge-green">완료</span>
+                                            <span class="text-muted">완료: 2024.11.20</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+/* CSS Grid 기반 대시보드 레이아웃 시스템 */
+.dashboard-grid-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+/* 통계 카드 그리드 섹션 */
+.stats-grid-section {
+    width: 100%;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+.stat-card-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+/* 성장 Journey 섹션 */
+.journey-section {
+    width: 100%;
+}
+
+.journey-wrapper {
+    width: 100%;
+    max-width: none;
+}
+
+/* 메인 위젯 그리드 섹션 */
+.widgets-section {
+    width: 100%;
+}
+
+.widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 2rem;
+    align-items: start;
+}
+
+.widget-wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 400px;
+}
+
+/* 통계 카드 높이 통일 */
+.stat-card-wrapper .ok-stat-card {
+    height: 100%;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* 위젯 크기 통일 */
+.widget-wrapper .dashboard-widget {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 환영 메시지 섹션 */
+.dashboard-welcome {
+    background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    color: white;
+    padding: 3rem 2rem;
+    margin: -2rem -2rem 3rem -2rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 24px 24px;
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    font-size: var(--text-lg);
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.today-tasks {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    backdrop-filter: blur(10px);
+}
+
+.task-item i {
+    font-size: 1.2rem;
+}
+
+.welcome-decoration {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 300px;
+    height: 300px;
+    opacity: 0.3;
+}
+
+/* 스탯 카드 개선 */
+.ok-stat-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+}
+
+.stat-icon-wrapper {
+    margin-bottom: 1rem;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-progress {
+    margin-top: 1rem;
+}
+
+.progress-text {
+    font-size: var(--text-xs);
+    color: var(--gray-600);
+    margin-top: 0.5rem;
+    text-align: right;
+}
+
+.rating-stars {
+    margin-top: 1rem;
+    color: var(--ok-orange);
+}
+
+.grade-indicator {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.grade-item {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: var(--gray-200);
+    color: var(--gray-500);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.grade-item.active {
+    background: var(--ok-orange);
+    color: white;
+    transform: scale(1.1);
+}
+
+.promotion-timeline {
+    margin-top: 1rem;
+}
+
+.timeline-track {
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.timeline-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary-purple) 0%, #A78BFA 100%);
+    border-radius: 100px;
+}
+
+/* 성장 Journey */
+.growth-journey {
+    padding: 2rem;
+}
+
+.journey-timeline {
+    position: relative;
+}
+
+.journey-item {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.journey-point {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.point-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--gray-600);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.journey-item.completed .point-circle {
+    background: var(--secondary-green);
+    color: white;
+}
+
+.journey-item.active .point-circle {
+    background: var(--ok-orange);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4); }
+    50% { box-shadow: 0 2px 20px rgba(255, 107, 0, 0.6); }
+    100% { box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4); }
+}
+
+.point-line {
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100px;
+    background: var(--gray-300);
+}
+
+.journey-item.completed .point-line {
+    background: var(--secondary-green);
+}
+
+.point-line.inactive {
+    background: var(--gray-200);
+    border-style: dashed;
+}
+
+.journey-content h4 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.journey-content.inactive {
+    opacity: 0.5;
+}
+
+.journey-requirements {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 8px;
+}
+
+.req-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: var(--text-sm);
+}
+
+.req-item.completed {
+    color: var(--secondary-green);
+}
+
+/* 대시보드 위젯 통일 스타일 */
+.dashboard-widget {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-widget:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--ok-orange-light);
+}
+
+.dashboard-widget .ok-card-header {
+    flex-shrink: 0;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-bottom: 1px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dashboard-widget .ok-card-header .ok-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-action:hover {
+    background: var(--ok-orange-light);
+    color: var(--ok-orange);
+    transform: scale(1.1);
+}
+
+.btn-link {
+    color: var(--gray-600);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-link:hover {
+    color: var(--ok-orange);
+    background: var(--ok-orange-light);
+}
+
+.widget-content {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 평가 매트릭스 */
+.evaluation-matrix {
+    padding: 1rem;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.matrix-chart-container {
+    flex: 1;
+    height: 200px;
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.matrix-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+/* 위젯별 공통 스타일 개선 */
+.widget-content .notice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.widget-content .notice-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
+}
+
+.widget-content .notice-item:hover {
+    background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
+    border-color: var(--ok-orange-light);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.1);
+}
+
+.widget-content .notice-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.widget-content .notice-content h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--gray-900);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.widget-content .notice-content p {
+    font-size: 0.8rem;
+    color: var(--gray-600);
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.widget-content .notice-content small {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+/* 업무 현황 위젯 */
+.widget-content .task-summary {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.widget-content .task-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.widget-content .task-stat {
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.widget-content .task-stat:hover {
+    background: rgba(255, 107, 0, 0.1);
+    transform: scale(1.05);
+}
+
+.widget-content .task-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ok-orange);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.widget-content .task-stat-label {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+.widget-content .recent-tasks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow-y: auto;
+}
+
+.widget-content .recent-tasks h5 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 0.75rem;
+    flex-shrink: 0;
+}
+
+.widget-content .task-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
+}
+
+.widget-content .task-item:hover {
+    border-color: var(--ok-orange-light);
+    background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.1);
+}
+
+.widget-content .task-status {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.widget-content .task-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.widget-content .task-content h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--gray-900);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.widget-content .task-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.widget-content .task-progress {
+    width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.widget-content .task-progress .ok-progress {
+    height: 6px;
+    background: var(--gray-200);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.widget-content .task-progress .ok-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    border-radius: 3px;
+    transition: width 0.8s ease;
+}
+
+.widget-content .task-progress small {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+/* CSS Grid 반응형 시스템 */
+@media (max-width: 1400px) {
+    .dashboard-grid-container {
+        padding: 1.5rem 1rem;
+        gap: 2rem;
+    }
+    
+    .widgets-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+    }
+    
+    .widgets-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+    
+    .widget-wrapper .dashboard-widget {
+        height: auto;
+        min-height: 350px;
+    }
+    
+    .stat-card-wrapper .ok-stat-card {
+        min-height: 180px;
+    }
+}
+
+@media (max-width: 992px) {
+    .dashboard-grid-container {
+        gap: 1.5rem;
+    }
+    
+    .widgets-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    
+    .widget-content .task-stat-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .widget-content .task-stat {
+        padding: 0.75rem;
+    }
+    
+    .matrix-chart-container {
+        height: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-welcome {
+        padding: 2rem 1rem;
+        margin: -1rem -1rem 2rem -1rem;
+    }
+    
+    .welcome-title {
+        font-size: var(--text-2xl);
+    }
+    
+    .today-tasks {
+        gap: 1rem;
+        flex-direction: column;
+    }
+    
+    .dashboard-grid-container {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+    
+    .widgets-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .widget-wrapper .dashboard-widget {
+        height: auto;
+        min-height: 300px;
+    }
+    
+    .stat-card-wrapper .ok-stat-card {
+        min-height: 160px;
+    }
+    
+    .widget-content {
+        padding: 1rem;
+    }
+    
+    .widget-content .task-stat-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+    
+    .widget-content .task-stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .widget-content .task-stat-label {
+        font-size: 0.7rem;
+    }
+    
+    .journey-item {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .point-line {
+        left: 24px;
+    }
+    
+    .matrix-chart-container {
+        height: 150px;
+    }
+    
+    .widget-content .notice-item,
+    .widget-content .task-item {
+        padding: 0.75rem;
+    }
+    
+    .widget-content .notice-content h5,
+    .widget-content .task-content h6 {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-grid-container {
+        padding: 0.75rem;
+        gap: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .stat-card-wrapper .ok-stat-card {
+        min-height: 140px;
+    }
+    
+    .widget-wrapper .dashboard-widget {
+        min-height: 280px;
+    }
+    
+    .dashboard-widget .ok-card-header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .card-actions {
+        align-self: flex-end;
+    }
+    
+    .widget-content .task-progress {
+        display: none;
+    }
+    
+    .widget-content .task-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .widget-content .task-stat-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-grid-container {
+        padding: 0.5rem;
+    }
+    
+    .stats-grid {
+        gap: 0.5rem;
+    }
+    
+    .stat-card-wrapper .ok-stat-card {
+        min-height: 120px;
+        padding: 1rem;
+    }
+    
+    .ok-stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .ok-stat-label {
+        font-size: 0.8rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chart.js 기본 설정
+Chart.defaults.font.family = 'Pretendard, -apple-system, sans-serif';
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#4B5563';
+
+// 평가 매트릭스 차트 (Document ready 후 실행)
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('matrixChart');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        const matrixChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '나의 위치',
+                    data: [{x: 3.8, y: 3.5}],
+                    backgroundColor: '#FF6B00',
+                    borderColor: '#FF6B00',
+                    pointRadius: 12,
+                    pointHoverRadius: 15,
+                    pointBorderWidth: 3,
+                    pointBorderColor: '#FFFFFF'
+                }, {
+                    label: '팀 평균',
+                    data: [{x: 3.2, y: 3.0}],
+                    backgroundColor: '#9CA3AF',
+                    borderColor: '#9CA3AF',
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                    pointBorderWidth: 2,
+                    pointBorderColor: '#FFFFFF'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                aspectRatio: 1,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        min: 1,
+                        max: 5,
+                        title: {
+                            display: true,
+                            text: '기여방식',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            },
+                            color: '#374151'
+                        },
+                        grid: {
+                            color: 'rgba(229, 231, 235, 0.5)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#6B7280',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    y: {
+                        min: 1,
+                        max: 5,
+                        title: {
+                            display: true,
+                            text: '기여수준',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            },
+                            color: '#374151'
+                        },
+                        grid: {
+                            color: 'rgba(229, 231, 235, 0.5)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#6B7280',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#FFFFFF',
+                        borderColor: '#FF6B00',
+                        borderWidth: 2,
+                        cornerRadius: 8,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': (' + context.parsed.x.toFixed(1) + ', ' + context.parsed.y.toFixed(1) + ')';
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+    }
+    
+    // 진행률 바 애니메이션
+    const progressBars = document.querySelectorAll('.ok-progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 100);
+    });
+    
+    // 카드 순차적 등장
+    const cards = document.querySelectorAll('.ok-stat-card, .ok-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

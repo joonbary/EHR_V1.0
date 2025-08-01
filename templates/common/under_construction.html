@@ -1,0 +1,120 @@
+{% extends 'base_modern.html' %}
+{% load static %}
+
+{% block title %}개발중 - OK eHR{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    
+    .bounce-animation {
+        animation: bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    .rotate-animation {
+        animation: rotate 20s linear infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-[60vh] flex items-center justify-center px-4 py-12">
+    <div class="text-center max-w-2xl mx-auto">
+        <!-- Construction Icon Container -->
+        <div class="relative inline-block mb-8">
+            <!-- Background Circle -->
+            <div class="absolute inset-0 bg-orange-100 rounded-full w-32 h-32 opacity-50 rotate-animation"></div>
+            
+            <!-- Main Icon -->
+            <div class="relative bounce-animation">
+                <div class="bg-gradient-to-br from-orange-400 to-orange-600 rounded-full p-8 shadow-xl">
+                    <i data-lucide="construction" class="w-16 h-16 text-white"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Title -->
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            해당 화면은 현재 개발중입니다 🛠️
+        </h1>
+        
+        <!-- Subtitle -->
+        <p class="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
+            곧 멋지게 완성되어 돌아올 예정이에요!<br>
+            잠시만 기다려 주세요 :)
+        </p>
+        
+        <!-- Additional Info Box -->
+        <div class="bg-orange-50 rounded-xl p-6 mb-8 border border-orange-200">
+            <div class="flex items-center justify-center space-x-3 mb-3">
+                <i data-lucide="clock" class="w-5 h-5 text-orange-600"></i>
+                <span class="text-orange-800 font-semibold">개발 진행 상황</span>
+            </div>
+            <div class="text-sm text-gray-600">
+                더 나은 서비스 제공을 위해 열심히 개발하고 있습니다.<br>
+                빠른 시일 내에 찾아뵙겠습니다.
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <!-- Go Back Button -->
+            <button onclick="history.back()" 
+                    class="inline-flex items-center px-6 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                이전 페이지로
+            </button>
+            
+            <!-- Go to Dashboard -->
+            <a href="{% url 'dashboard' %}" 
+               class="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200 shadow-sm">
+                <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                대시보드로 이동
+            </a>
+        </div>
+        
+        <!-- Contact Info -->
+        <div class="mt-12 text-sm text-gray-500">
+            <p>문의사항이 있으신가요?</p>
+            <a href="mailto:support@okfn.co.kr" class="text-orange-600 hover:text-orange-700 transition-colors">
+                support@okfn.co.kr
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Decorative Elements -->
+<div class="fixed top-20 left-10 opacity-10 pointer-events-none">
+    <i data-lucide="wrench" class="w-24 h-24 text-orange-500 rotate-12"></i>
+</div>
+<div class="fixed bottom-20 right-10 opacity-10 pointer-events-none">
+    <i data-lucide="hammer" class="w-20 h-20 text-orange-500 -rotate-12"></i>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize Lucide icons
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
+{% endblock %}

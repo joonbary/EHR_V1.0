@@ -1,0 +1,54 @@
+/sc:build ehr-ui-system --magic -persona-frontend -plan -think-hard -seq
+
+🎯 목적:
+OK금융그룹 e-HR 시스템의 전체 UI/UX를 재설계합니다. 일관성 있고 반응형이며, modern한 사용자 경험을 제공합니다. 모든 컴포넌트는 shadcn/ui를 사용하며 Tailwind CSS 기반으로 구현합니다.
+
+📦 구성요소:
+
+1. Layout 시스템
+   - <MainLayout>: 상단 헤더 + 좌측 사이드바 + 콘텐츠 그리드
+   - <AdminLayout>: 관리자용 헤더 + 퀵탭 메뉴 + 통계영역 포함
+   - 반응형 레이아웃 지원 (모바일에서는 사이드바 축소/숨김)
+
+2. 공통 UI 컴포넌트
+   - <Button>: primary / secondary / ghost / destructive 타입 지원
+   - <Input>: label, placeholder, error message 포함
+   - <Select>: role 또는 조직 선택용, 다중선택 지원
+   - <Card>: 통계/정보 요약 카드, 아이콘 지원
+   - <DataTable>: 필터/페이지네이션/정렬 기능 포함 (shadcn)
+   - <Toast>: 상단 우측 고정형 알림
+   - <Dialog>: 재사용 가능한 modal 구조
+   - <Tabs>, <Accordion>, <Tooltip>, <Badge> 등 자주 쓰이는 요소 추가
+
+3. 페이지 템플릿
+   - DashboardPage.tsx: 주요 지표 위젯 + 카드형 통계 영역
+   - ProfilePage.tsx: 직원 개인 정보 및 이력 관리
+   - EvaluationPage.tsx: 평가결과 조회/입력 화면
+   - OrganizationPage.tsx: 조직도 탐색 및 변경 요청
+   - HRAdminPage.tsx: 관리자용 인사정보 일람/관리 화면
+
+4. 시각적 규칙 (디자인 시스템)
+   - 컬러: Primary #1443FF, Accent #FFD700, Gray #F9FAFB~#111827
+   - 폰트: Noto Sans KR, base 16px, heading 24px~32px
+   - 여백/간격: 8px grid system, section 간격 32px 이상
+
+5. 상호작용 (UX 강화)
+   - 버튼 클릭 시 로딩 Spinner
+   - Modal 등장 시 슬라이드 애니메이션 (Framer Motion 적용)
+   - Form 유효성 검증: 실시간 오류 메시지 출력
+
+6. 접근성
+   - 모든 컴포넌트 WCAG 기준 준수 (aria-label, role 등 포함)
+   - 다크모드 지원 (Tailwind `dark:` prefix 사용)
+
+🧩 추가 요청사항:
+- 모든 컴포넌트는 `src/components/ui/`에 저장
+- 페이지 템플릿은 `src/pages/`로 구분
+- 폴더 구조는 `layout`, `components`, `hooks`, `pages`, `lib`로 나누어 생성
+- 테스트용 dummy 데이터도 포함 (예: 직원 3명, 평가 2건)
+
+🛠 MCP 서버 연동 고려:
+- `/fileserver` 경로로 프로필 이미지 업로드 UI 포함
+- `/shrimp` 실시간 평가 진행상황 WebSocket 연결 버튼 추가
+
+

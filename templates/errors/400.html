@@ -1,0 +1,37 @@
+{% extends 'errors/base_error.html' %}
+
+{% block title %}400 - 잘못된 요청{% endblock %}
+
+{% block content %}
+    <div class="error-icon">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+    </div>
+    
+    <div class="error-code">400</div>
+    
+    <h1 class="error-title">잘못된 요청입니다</h1>
+    
+    <p class="error-message">
+        {% if error_message %}
+            {{ error_message }}
+        {% else %}
+            요청하신 내용을 처리할 수 없습니다.<br>
+            입력하신 정보를 다시 확인해 주세요.
+        {% endif %}
+    </p>
+    
+    <div class="error-actions">
+        <button onclick="goBack()" class="btn btn-secondary">이전 페이지로</button>
+        <a href="/" class="btn btn-primary">홈으로 이동</a>
+    </div>
+    
+    {% if error_code %}
+    <div class="error-details">
+        오류 코드: {{ error_code }}
+    </div>
+    {% endif %}
+{% endblock %}

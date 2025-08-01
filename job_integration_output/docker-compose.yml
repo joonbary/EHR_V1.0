@@ -1,0 +1,64 @@
+
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - elasticsearch
+    environment:
+      - DJANGO_SETTINGS_MODULE=ehr_system.settings
+      - REDIS_URL=redis://redis:6379/0
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+
+  celery:
+    build: .
+    command: celery -A ehr_system worker -l info
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
+      - elasticsearch
+    environment:
+      - DJANGO_SETTINGS_MODULE=ehr_system.settings
+      - REDIS_URL=redis://redis:6379/0
+
+  celery-beat:
+    build: .
+    command: celery -A ehr_system beat -l info
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=ehr_system.settings
+      - REDIS_URL=redis://redis:6379/0
+
+volumes:
+  redis_data:
+  es_data:

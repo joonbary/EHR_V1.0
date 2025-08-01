@@ -1,0 +1,34 @@
+{% extends 'errors/base_error.html' %}
+
+{% block title %}403 - 접근 거부{% endblock %}
+
+{% block content %}
+    <div class="error-icon">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0110 0v4"></path>
+        </svg>
+    </div>
+    
+    <div class="error-code">403</div>
+    
+    <h1 class="error-title">접근 권한이 없습니다</h1>
+    
+    <p class="error-message">
+        {% if error_message %}
+            {{ error_message }}
+        {% else %}
+            이 페이지에 접근할 권한이 없습니다.<br>
+            필요한 권한이 있는지 확인해 주세요.
+        {% endif %}
+    </p>
+    
+    <div class="error-actions">
+        <button onclick="goBack()" class="btn btn-secondary">이전 페이지로</button>
+        <a href="/" class="btn btn-primary">홈으로 이동</a>
+    </div>
+    
+    <div class="error-details">
+        권한이 필요하신 경우 시스템 관리자에게 문의하세요.
+    </div>
+{% endblock %}

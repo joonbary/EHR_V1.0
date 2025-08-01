@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .views import CompensationStatementView, ProfileUpdateView, CustomPasswordChangeView
+from core.views import under_construction
 
 app_name = 'selfservice'
 
@@ -12,4 +13,8 @@ urlpatterns = [
     path('compensation/', CompensationStatementView.as_view(), name='compensation_statement'),
     path('compensation/<int:year>/<int:month>/', CompensationStatementView.as_view(), name='compensation_statement_detail'),
     path('career/', views.career_path, name='career_path'),
+    
+    # 미구현 기능
+    path('my-evaluation/', under_construction, name='my_evaluation'),
+    path('my-compensation/', under_construction, name='my_compensation'),
 ] 

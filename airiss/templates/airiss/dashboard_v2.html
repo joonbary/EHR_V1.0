@@ -1,0 +1,320 @@
+{% extends 'base_modern.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}AIRISS - AI 기반 HR 지원{% endblock %}
+
+{% block extra_css %}
+<style>
+    .model-selector-card {
+        background: linear-gradient(135deg, #007ACC 0%, #00498B 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .model-select {
+        background: rgba(255,255,255,0.9);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #333;
+        border-radius: 5px;
+        padding: 0.5rem;
+    }
+    
+    .model-info {
+        background: rgba(255,255,255,0.1);
+        border-radius: 5px;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+        color: white;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+    
+    .status-online {
+        background-color: #28a745;
+    }
+    
+    .status-offline {
+        background-color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">AIRISS - AI 기반 HR 지원 시스템</h1>
+    
+    <!-- 상태 알림 영역 -->
+    <div id="alertContainer"></div>
+    
+    <!-- AI 모델 설정 -->
+    <div class="model-selector-card">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <h5 class="mb-2">
+                    <i class="fas fa-brain"></i> AI 모델 설정
+                </h5>
+                <div class="d-flex align-items-center">
+                    <span class="status-indicator" id="apiStatus"></span>
+                    <span id="apiStatusText">연결 확인 중...</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label mb-1">GPT 모델 선택:</label>
+                <select class="form-select model-select" id="modelSelector" disabled>
+                    <option value="">로딩 중...</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <div class="model-info" id="modelInfo">
+                    모델 정보를 불러오는 중...
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-light btn-sm" onclick="refreshModels()" style="margin-top: 1.5rem;">
+                    <i class="fas fa-sync"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 통계 카드 -->
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">총 AI 분석</h5>
+                    <p class="display-4">{{ total_analyses|default:0 }}</p>
+                    <small class="text-muted">전체 기간</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">활성 인사이트</h5>
+                    <p class="display-4">{{ active_insights|default:0 }}</p>
+                    <small class="text-muted">검토 필요</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">챗봇 대화</h5>
+                    <p class="display-4">{{ total_conversations|default:0 }}</p>
+                    <small class="text-muted">전체 세션</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">활성 대화</h5>
+                    <p class="display-4">{{ active_conversations|default:0 }}</p>
+                    <small class="text-muted">현재 진행중</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI 분석 메뉴 -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4 class="card-title mb-3">AI 분석 도구</h4>
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <a href="{% url 'airiss:predictions' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-chart-bar me-2"></i>예측 분석
+                    </a>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <a href="{% url 'airiss:analytics' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>HR 분석
+                    </a>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <a href="{% url 'airiss:insights' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-lightbulb me-2"></i>AI 인사이트
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+    // 전역 변수
+    let currentModels = [];
+    let isChangingModel = false;
+    
+    console.log('AIRISS v2 JavaScript 로드됨');
+    
+    // 유틸리티 함수
+    function showAlert(message, type = 'success') {
+        const container = document.getElementById('alertContainer');
+        const alertHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        container.innerHTML = alertHTML;
+    }
+    
+    // 모델 정보 업데이트
+    function updateModelInfo(modelId) {
+        const model = currentModels.find(m => m.id === modelId);
+        const infoDiv = document.getElementById('modelInfo');
+        
+        if (model) {
+            infoDiv.innerHTML = `
+                <strong>${model.name}</strong><br>
+                <small>${model.description}</small>
+            `;
+        }
+    }
+    
+    // 모델 새로고침
+    function refreshModels() {
+        console.log('모델 새로고침...');
+        loadAvailableModels();
+    }
+    
+    // 모델 목록 로드
+    function loadAvailableModels() {
+        console.log('모델 목록 로딩 시작...');
+        
+        fetch('{% url "airiss:api_get_models" %}')
+            .then(response => {
+                console.log('API 응답:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('모델 데이터:', data);
+                
+                if (data.success) {
+                    currentModels = data.available_models;
+                    const selector = document.getElementById('modelSelector');
+                    const statusIndicator = document.getElementById('apiStatus');
+                    const statusText = document.getElementById('apiStatusText');
+                    
+                    // API 상태 업데이트
+                    if (data.api_available) {
+                        statusIndicator.className = 'status-indicator status-online';
+                        statusText.textContent = 'OpenAI API 연결됨';
+                    } else {
+                        statusIndicator.className = 'status-indicator status-offline';
+                        statusText.textContent = 'API 키가 설정되지 않음';
+                    }
+                    
+                    // 모델 선택기 업데이트
+                    selector.innerHTML = '';
+                    data.available_models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.id;
+                        option.textContent = model.name;
+                        if (model.id === data.current_model) {
+                            option.selected = true;
+                        }
+                        selector.appendChild(option);
+                    });
+                    
+                    selector.disabled = false;
+                    updateModelInfo(data.current_model);
+                    
+                    console.log('모델 로딩 완료');
+                    showAlert('모델 목록을 성공적으로 불러왔습니다.', 'success');
+                }
+            })
+            .catch(error => {
+                console.error('모델 로딩 오류:', error);
+                document.getElementById('apiStatus').className = 'status-indicator status-offline';
+                document.getElementById('apiStatusText').textContent = '연결 오류';
+                showAlert('모델을 불러오는 중 오류가 발생했습니다.', 'danger');
+            });
+    }
+    
+    // 모델 변경
+    function changeModel(newModelId) {
+        console.log('모델 변경 시작:', newModelId);
+        
+        if (isChangingModel) return;
+        
+        isChangingModel = true;
+        const selector = document.getElementById('modelSelector');
+        selector.disabled = true;
+        
+        fetch('{% url "airiss:api_change_model" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({
+                model: newModelId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                updateModelInfo(newModelId);
+            } else {
+                showAlert('모델 변경 실패: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('모델 변경 오류:', error);
+            showAlert('네트워크 오류: ' + error.message, 'danger');
+        })
+        .finally(() => {
+            selector.disabled = false;
+            isChangingModel = false;
+        });
+    }
+    
+    // CSRF 토큰 가져오기
+    function getCsrfToken() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                return value;
+            }
+        }
+        return '';
+    }
+    
+    // DOM 로드 완료 시
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM 로드 완료 - AIRISS v2');
+        
+        // 모델 정보 로드
+        loadAvailableModels();
+        
+        // 모델 선택 이벤트 리스너
+        const selector = document.getElementById('modelSelector');
+        if (selector) {
+            selector.addEventListener('change', function(e) {
+                if (e.target.value && !isChangingModel) {
+                    changeModel(e.target.value);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

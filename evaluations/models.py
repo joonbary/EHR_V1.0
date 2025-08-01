@@ -112,6 +112,20 @@ class Task(models.Model):
     )
     title = models.CharField(max_length=200, verbose_name='과제명')
     description = models.TextField(blank=True, verbose_name='과제설명')
+    
+    # Task 유형 추가
+    contribution_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('strategic', '전략과제'),
+            ('improvement', '개선과제'),
+            ('operation', '운영과제'),
+            ('project', '프로젝트'),
+        ],
+        default='operation',
+        verbose_name='과제유형'
+    )
+    
     weight = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -169,6 +183,38 @@ class Task(models.Model):
         verbose_name='달성률(%)'
     )
     
+    # Scoring 관련 필드 추가
+    base_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        validators=[MinValueValidator(1), MaxValueValidator(4)],
+        null=True,
+        blank=True,
+        verbose_name='기본점수',
+        help_text='Scoring Chart 기반 기본점수'
+    )
+    
+    final_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        validators=[MinValueValidator(1), MaxValueValidator(4)],
+        null=True,
+        blank=True,
+        verbose_name='최종점수',
+        help_text='달성률을 반영한 최종점수'
+    )
+    
+    # Check-in 기록
+    last_checkin_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='마지막 체크인'
+    )
+    checkin_count = models.IntegerField(
+        default=0,
+        verbose_name='체크인 횟수'
+    )
+    
     status = models.CharField(
         max_length=20,
         choices=[
@@ -200,27 +246,54 @@ class Task(models.Model):
 
     def calculate_contribution_score(self):
         """Scoring Chart를 활용한 기여도 점수 계산"""
-        from .models import CONTRIBUTION_SCORING_CHART
-        
         if self.contribution_scope in CONTRIBUTION_SCORING_CHART:
             scope_chart = CONTRIBUTION_SCORING_CHART[self.contribution_scope]
             if self.contribution_method in scope_chart:
                 base_score = scope_chart[self.contribution_method]
+                self.base_score = base_score
                 
                 # 달성률에 따른 점수 조정
                 if self.achievement_rate:
                     if self.achievement_rate >= 100:
-                        return base_score
+                        final_score = base_score
                     elif self.achievement_rate >= 90:
-                        return base_score - 0.5
+                        final_score = base_score - 0.5
                     elif self.achievement_rate >= 80:
-                        return base_score - 1.0
+                        final_score = base_score - 1.0
                     elif self.achievement_rate >= 70:
-                        return base_score - 1.5
+                        final_score = base_score - 1.5
                     else:
-                        return max(1.0, base_score - 2.0)
-                return base_score
-        return 2.0  # 기본값
+                        final_score = max(1.0, base_score - 2.0)
+                    
+                    self.final_score = round(final_score, 1)
+                    self.save()
+                    return self.final_score
+                else:
+                    self.final_score = base_score
+                    self.save()
+                    return base_score
+        
+        # 기본값
+        self.base_score = 2.0
+        self.final_score = 2.0
+        self.save()
+        return 2.0
+    
+    def checkin(self, progress_note=None):
+        """Task Check-in 수행"""
+        from django.utils import timezone
+        
+        self.last_checkin_date = timezone.now()
+        self.checkin_count += 1
+        
+        # 진행중 상태로 자동 변경
+        if self.status == 'PLANNED':
+            self.status = 'IN_PROGRESS'
+        
+        self.save()
+        
+        # TODO: Check-in 이력 기록 (별도 모델 필요시)
+        return True
 
 
 class ContributionEvaluation(models.Model):
@@ -695,6 +768,29 @@ class ComprehensiveEvaluation(models.Model):
         verbose_name='영향력 평가'
     )
     
+    # 각 평가 점수 (캐시용)
+    contribution_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='기여도 점수'
+    )
+    expertise_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='전문성 점수'
+    )
+    impact_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='영향력 점수'
+    )
+    
     # 달성 여부
     contribution_achieved = models.BooleanField(
         default=False,
@@ -746,6 +842,21 @@ class ComprehensiveEvaluation(models.Model):
         blank=True,
         verbose_name='조정의견'
     )
+    calibration_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name='Calibration 완료일'
+    )
+    
+    # Calibration Session 정보
+    calibration_session = models.ForeignKey(
+        'CalibrationSession',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='evaluations',
+        verbose_name='Calibration Session'
+    )
     
     # 상태
     status = models.CharField(
@@ -753,6 +864,16 @@ class ComprehensiveEvaluation(models.Model):
         choices=EVALUATION_STATUS,
         default='DRAFT',
         verbose_name='상태'
+    )
+    
+    # 종합 점수 (평균)
+    overall_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='종합점수',
+        help_text='3대 평가 평균 점수'
     )
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -785,3 +906,792 @@ class ComprehensiveEvaluation(models.Model):
             self.manager_grade = 'C'
             
         return self.manager_grade
+    
+    def sync_evaluation_scores(self):
+        """각 평가의 점수를 동기화"""
+        if self.contribution_evaluation:
+            self.contribution_score = self.contribution_evaluation.contribution_score
+            self.contribution_achieved = self.contribution_evaluation.is_achieved
+        
+        if self.expertise_evaluation:
+            self.expertise_score = self.expertise_evaluation.total_score
+            self.expertise_achieved = self.expertise_evaluation.is_achieved
+        
+        if self.impact_evaluation:
+            self.impact_score = self.impact_evaluation.total_score
+            self.impact_achieved = self.impact_evaluation.is_achieved
+        
+        # 종합 점수 계산
+        scores = []
+        if self.contribution_score:
+            scores.append(self.contribution_score)
+        if self.expertise_score:
+            scores.append(self.expertise_score)
+        if self.impact_score:
+            scores.append(self.impact_score)
+        
+        if scores:
+            self.overall_score = round(sum(scores) / len(scores), 1)
+        
+        self.save()
+    
+    def can_be_calibrated(self):
+        """Calibration 가능 여부 확인"""
+        return all([
+            self.contribution_evaluation,
+            self.expertise_evaluation,
+            self.impact_evaluation,
+            self.manager_grade,
+            self.status in ['SUBMITTED', 'IN_REVIEW']
+        ])
+
+
+class CalibrationSession(models.Model):
+    """Calibration Session"""
+    evaluation_period = models.ForeignKey(
+        EvaluationPeriod,
+        on_delete=models.CASCADE,
+        verbose_name='평가기간'
+    )
+    session_name = models.CharField(
+        max_length=200,
+        verbose_name='세션명'
+    )
+    session_date = models.DateField(
+        verbose_name='세션 날짜'
+    )
+    
+    # 참여자
+    facilitator = models.ForeignKey(
+        Employee,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='calibration_sessions_facilitated',
+        verbose_name='진행자'
+    )
+    participants = models.ManyToManyField(
+        Employee,
+        related_name='calibration_sessions_participated',
+        verbose_name='참여자'
+    )
+    
+    # 대상
+    department = models.CharField(
+        max_length=20,
+        choices=[
+            ('IT', 'IT'),
+            ('HR', '인사'),
+            ('FINANCE', '재무'),
+            ('MARKETING', '마케팅'),
+            ('SALES', '영업'),
+            ('OPERATIONS', '운영'),
+        ],
+        null=True,
+        blank=True,
+        verbose_name='대상 부서'
+    )
+    
+    # 세션 정보
+    agenda = models.TextField(
+        blank=True,
+        verbose_name='안건'
+    )
+    minutes = models.TextField(
+        blank=True,
+        verbose_name='회의록'
+    )
+    
+    # 상태
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('SCHEDULED', '예정'),
+            ('IN_PROGRESS', '진행중'),
+            ('COMPLETED', '완료'),
+            ('CANCELLED', '취소'),
+        ],
+        default='SCHEDULED',
+        verbose_name='상태'
+    )
+    
+    # 등급 분포 가이드라인
+    s_grade_ratio = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=10.0,
+        verbose_name='S등급 비율(%)'
+    )
+    a_grade_ratio = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=30.0,
+        verbose_name='A등급 비율(%)'
+    )
+    b_grade_ratio = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=50.0,
+        verbose_name='B등급 비율(%)'
+    )
+    c_grade_ratio = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=10.0,
+        verbose_name='C등급 비율(%)'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Calibration Session'
+        verbose_name_plural = 'Calibration Sessions'
+        ordering = ['-session_date']
+
+    def __str__(self):
+        return f"{self.session_name} - {self.session_date}"
+    
+    def get_grade_distribution(self):
+        """현재 등급 분포 계산"""
+        evaluations = self.evaluations.filter(final_grade__isnull=False)
+        total = evaluations.count()
+        
+        if total == 0:
+            return {}
+        
+        distribution = {}
+        for grade, _ in GRADE_CHOICES:
+            count = evaluations.filter(final_grade=grade).count()
+            distribution[grade] = {
+                'count': count,
+                'ratio': round((count / total) * 100, 1)
+            }
+        
+        return distribution
+    
+    def check_grade_guideline_compliance(self):
+        """등급 가이드라인 준수 여부 확인"""
+        distribution = self.get_grade_distribution()
+        
+        compliance = {
+            'S': abs(distribution.get('S', {}).get('ratio', 0) - float(self.s_grade_ratio)) <= 5,
+            'A': abs(distribution.get('A', {}).get('ratio', 0) - float(self.a_grade_ratio)) <= 5,
+            'B': abs(distribution.get('B', {}).get('ratio', 0) - float(self.b_grade_ratio)) <= 5,
+            'C': abs(distribution.get('C', {}).get('ratio', 0) - float(self.c_grade_ratio)) <= 5,
+        }
+        
+        return compliance
+
+
+class GrowthLevel(models.Model):
+    """성장레벨 정의"""
+    level = models.IntegerField(
+        unique=True,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        verbose_name='레벨'
+    )
+    name = models.CharField(
+        max_length=50,
+        verbose_name='레벨명'
+    )
+    description = models.TextField(
+        verbose_name='레벨 설명'
+    )
+    
+    # 레벨별 요구사항
+    min_contribution_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=2.0,
+        verbose_name='최소 기여도 점수'
+    )
+    min_expertise_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=2.0,
+        verbose_name='최소 전문성 점수'
+    )
+    min_impact_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=2.0,
+        verbose_name='최소 영향력 점수'
+    )
+    
+    # 승급 조건
+    required_evaluation_periods = models.IntegerField(
+        default=2,
+        verbose_name='필요 평가기간 수',
+        help_text='해당 레벨에서 몇 번의 평가를 받아야 하는지'
+    )
+    min_consecutive_achievements = models.IntegerField(
+        default=1,
+        verbose_name='연속 달성 필요 횟수',
+        help_text='연속으로 목표를 달성해야 하는 횟수'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '성장레벨'
+        verbose_name_plural = '성장레벨'
+        ordering = ['level']
+
+    def __str__(self):
+        return f"Level {self.level}: {self.name}"
+    
+    def get_next_level(self):
+        """다음 레벨 가져오기"""
+        return GrowthLevel.objects.filter(level__gt=self.level).first()
+
+
+class EmployeeGrowthHistory(models.Model):
+    """직원 성장레벨 이력"""
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='growth_history',
+        verbose_name='직원'
+    )
+    evaluation_period = models.ForeignKey(
+        EvaluationPeriod,
+        on_delete=models.CASCADE,
+        verbose_name='평가기간'
+    )
+    previous_level = models.ForeignKey(
+        GrowthLevel,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='previous_employees',
+        verbose_name='이전 레벨'
+    )
+    current_level = models.ForeignKey(
+        GrowthLevel,
+        on_delete=models.CASCADE,
+        related_name='current_employees',
+        verbose_name='현재 레벨'
+    )
+    
+    # 승급/강등 정보
+    change_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('PROMOTION', '승급'),
+            ('DEMOTION', '강등'),
+            ('MAINTAIN', '유지'),
+            ('INITIAL', '초기설정'),
+        ],
+        verbose_name='변경 유형'
+    )
+    change_reason = models.TextField(
+        blank=True,
+        verbose_name='변경 사유'
+    )
+    
+    # 해당 기간 성과
+    contribution_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='기여도 점수'
+    )
+    expertise_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='전문성 점수'
+    )
+    impact_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='영향력 점수'
+    )
+    overall_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='종합 점수'
+    )
+    
+    # 승급 자격 정보
+    meets_score_requirement = models.BooleanField(
+        default=False,
+        verbose_name='점수 요구사항 충족'
+    )
+    consecutive_achievements = models.IntegerField(
+        default=0,
+        verbose_name='연속 달성 횟수'
+    )
+    is_promotion_eligible = models.BooleanField(
+        default=False,
+        verbose_name='승급 자격 충족'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '성장레벨 이력'
+        verbose_name_plural = '성장레벨 이력'
+        unique_together = ['employee', 'evaluation_period']
+        ordering = ['-evaluation_period__year', '-evaluation_period__period_type']
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.evaluation_period} (Level {self.current_level.level})"
+    
+    def calculate_promotion_eligibility(self):
+        """승급 자격 계산"""
+        next_level = self.current_level.get_next_level()
+        if not next_level:
+            self.is_promotion_eligible = False
+            return False
+        
+        # 점수 요구사항 확인
+        score_met = all([
+            self.contribution_score and self.contribution_score >= next_level.min_contribution_score,
+            self.expertise_score and self.expertise_score >= next_level.min_expertise_score,
+            self.impact_score and self.impact_score >= next_level.min_impact_score
+        ])
+        
+        self.meets_score_requirement = score_met
+        
+        # 연속 달성 횟수 확인
+        if score_met:
+            # 이전 이력에서 연속 달성 횟수 계산
+            previous_histories = EmployeeGrowthHistory.objects.filter(
+                employee=self.employee,
+                current_level=self.current_level,
+                meets_score_requirement=True,
+                evaluation_period__end_date__lt=self.evaluation_period.end_date
+            ).order_by('-evaluation_period__end_date')
+            
+            consecutive_count = 1  # 현재 기간 포함
+            for history in previous_histories:
+                if history.meets_score_requirement:
+                    consecutive_count += 1
+                else:
+                    break
+            
+            self.consecutive_achievements = consecutive_count
+            
+            # 승급 자격 판정
+            self.is_promotion_eligible = consecutive_count >= next_level.min_consecutive_achievements
+        else:
+            self.consecutive_achievements = 0
+            self.is_promotion_eligible = False
+        
+        return self.is_promotion_eligible
+
+
+class GrowthLevelRequirement(models.Model):
+    """성장레벨별 세부 요구사항"""
+    growth_level = models.ForeignKey(
+        GrowthLevel,
+        on_delete=models.CASCADE,
+        related_name='requirements',
+        verbose_name='성장레벨'
+    )
+    category = models.CharField(
+        max_length=50,
+        choices=[
+            ('TECHNICAL', '기술역량'),
+            ('LEADERSHIP', '리더십'),
+            ('BUSINESS', '비즈니스'),
+            ('COMMUNICATION', '소통'),
+            ('PROBLEM_SOLVING', '문제해결'),
+        ],
+        verbose_name='역량 카테고리'
+    )
+    requirement = models.TextField(
+        verbose_name='요구사항 설명'
+    )
+    priority = models.IntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name='우선순위',
+        help_text='1=낮음, 5=높음'
+    )
+    is_mandatory = models.BooleanField(
+        default=True,
+        verbose_name='필수 여부'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = '성장레벨 요구사항'
+        verbose_name_plural = '성장레벨 요구사항'
+        ordering = ['growth_level__level', '-priority', 'category']
+
+    def __str__(self):
+        return f"Level {self.growth_level.level} - {self.get_category_display()}"
+
+
+class PerformanceTrend(models.Model):
+    """성과 트렌드 분석"""
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='performance_trends',
+        verbose_name='직원'
+    )
+    evaluation_period = models.ForeignKey(
+        EvaluationPeriod,
+        on_delete=models.CASCADE,
+        verbose_name='평가기간'
+    )
+    
+    # 트렌드 분석 데이터
+    contribution_trend = models.CharField(
+        max_length=20,
+        choices=[
+            ('IMPROVING', '개선'),
+            ('STABLE', '안정'),
+            ('DECLINING', '하락'),
+            ('VOLATILE', '변동'),
+        ],
+        null=True,
+        blank=True,
+        verbose_name='기여도 트렌드'
+    )
+    expertise_trend = models.CharField(
+        max_length=20,
+        choices=[
+            ('IMPROVING', '개선'),
+            ('STABLE', '안정'),
+            ('DECLINING', '하락'),
+            ('VOLATILE', '변동'),
+        ],
+        null=True,
+        blank=True,
+        verbose_name='전문성 트렌드'
+    )
+    impact_trend = models.CharField(
+        max_length=20,
+        choices=[
+            ('IMPROVING', '개선'),
+            ('STABLE', '안정'),
+            ('DECLINING', '하락'),
+            ('VOLATILE', '변동'),
+        ],
+        null=True,
+        blank=True,
+        verbose_name='영향력 트렌드'
+    )
+    overall_trend = models.CharField(
+        max_length=20,
+        choices=[
+            ('IMPROVING', '개선'),
+            ('STABLE', '안정'),
+            ('DECLINING', '하락'),
+            ('VOLATILE', '변동'),
+        ],
+        null=True,
+        blank=True,
+        verbose_name='종합 트렌드'
+    )
+    
+    # 변화율 (이전 기간 대비 %)
+    contribution_change_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='기여도 변화율(%)'
+    )
+    expertise_change_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='전문성 변화율(%)'
+    )
+    impact_change_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='영향력 변화율(%)'
+    )
+    overall_change_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='종합 변화율(%)'
+    )
+    
+    # AI 인사이트
+    insights = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='분석 인사이트',
+        help_text='AI 분석 결과 저장'
+    )
+    recommendations = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='개선 추천사항',
+        help_text='개인 성장을 위한 추천사항'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '성과 트렌드'
+        verbose_name_plural = '성과 트렌드'
+        unique_together = ['employee', 'evaluation_period']
+        ordering = ['-evaluation_period__year', '-evaluation_period__period_type']
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.evaluation_period} 트렌드"
+
+
+class GrowthLevel(models.Model):
+    """성장레벨 정의"""
+    level = models.IntegerField(
+        unique=True,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        verbose_name='레벨'
+    )
+    name = models.CharField(max_length=50, verbose_name='레벨명')
+    description = models.TextField(verbose_name='레벨 설명')
+    
+    # 기존 마이그레이션에서 생성된 필드들
+    min_contribution_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=2.0,
+        verbose_name='최소 기여도 점수'
+    )
+    min_expertise_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=2.0,
+        verbose_name='최소 전문성 점수'
+    )
+    min_impact_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=2.0,
+        verbose_name='최소 영향력 점수'
+    )
+    required_evaluation_periods = models.IntegerField(
+        default=2,
+        verbose_name='필요 평가기간 수',
+        help_text='해당 레벨에서 몇 번의 평가를 받아야 하는지'
+    )
+    min_consecutive_achievements = models.IntegerField(
+        default=1,
+        verbose_name='연속 달성 필요 횟수',
+        help_text='연속으로 목표를 달성해야 하는 횟수'
+    )
+    
+    # 새로 추가된 필드들
+    min_score_requirement = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=3.0,
+        verbose_name='최소 점수 요구사항'
+    )
+    consecutive_achievements_required = models.IntegerField(
+        default=3,
+        verbose_name='연속 달성 횟수 요구'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '성장레벨'
+        verbose_name_plural = '성장레벨'
+        ordering = ['level']
+
+    def __str__(self):
+        return f"레벨 {self.level}: {self.name}"
+
+
+class GrowthLevelRequirement(models.Model):
+    """성장레벨 상세 요구사항"""
+    CATEGORY_CHOICES = [
+        ('TECHNICAL', '기술역량'),
+        ('LEADERSHIP', '리더십'),
+        ('BUSINESS', '비즈니스'),
+        ('COMMUNICATION', '소통'),
+        ('PROBLEM_SOLVING', '문제해결'),
+    ]
+    
+    growth_level = models.ForeignKey(
+        GrowthLevel,
+        on_delete=models.CASCADE,
+        related_name='requirements',
+        verbose_name='성장레벨'
+    )
+    category = models.CharField(
+        max_length=50,
+        choices=CATEGORY_CHOICES,
+        verbose_name='역량 카테고리'
+    )
+    requirement = models.TextField(verbose_name='요구사항 설명')
+    priority = models.IntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name='우선순위',
+        help_text='1=낮음, 5=높음'
+    )
+    is_mandatory = models.BooleanField(default=True, verbose_name='필수 여부')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = '성장레벨 요구사항'
+        verbose_name_plural = '성장레벨 요구사항'
+        ordering = ['growth_level__level', '-priority', 'category']
+
+    def __str__(self):
+        return f"{self.growth_level.name} - {self.get_category_display()}: {self.requirement[:50]}"
+
+
+class EmployeeGrowthHistory(models.Model):
+    """직원 성장레벨 이력"""
+    CHANGE_TYPE_CHOICES = [
+        ('PROMOTION', '승급'),
+        ('DEMOTION', '강등'),
+        ('MAINTAIN', '유지'),
+        ('INITIAL', '초기설정'),
+    ]
+    
+    employee = models.ForeignKey(
+        'employees.Employee',
+        on_delete=models.CASCADE,
+        related_name='growth_history',
+        verbose_name='직원'
+    )
+    evaluation_period = models.ForeignKey(
+        EvaluationPeriod,
+        on_delete=models.CASCADE,
+        verbose_name='평가기간'
+    )
+    
+    # 레벨 정보
+    current_level = models.ForeignKey(
+        GrowthLevel,
+        on_delete=models.CASCADE,
+        related_name='current_employees',
+        verbose_name='현재 레벨'
+    )
+    previous_level = models.ForeignKey(
+        GrowthLevel,
+        on_delete=models.SET_NULL,
+        related_name='previous_employees',
+        null=True,
+        blank=True,
+        verbose_name='이전 레벨'
+    )
+    change_type = models.CharField(
+        max_length=20,
+        choices=CHANGE_TYPE_CHOICES,
+        verbose_name='변경 유형'
+    )
+    change_reason = models.TextField(blank=True, verbose_name='변경 사유')
+    
+    # 평가 점수
+    contribution_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='기여도 점수'
+    )
+    expertise_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='전문성 점수'
+    )
+    impact_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='영향력 점수'
+    )
+    overall_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name='종합 점수'
+    )
+    
+    # 승급 자격
+    meets_score_requirement = models.BooleanField(
+        default=False,
+        verbose_name='점수 요구사항 충족'
+    )
+    consecutive_achievements = models.IntegerField(
+        default=0,
+        verbose_name='연속 달성 횟수'
+    )
+    is_promotion_eligible = models.BooleanField(
+        default=False,
+        verbose_name='승급 자격 충족'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '성장레벨 이력'
+        verbose_name_plural = '성장레벨 이력'
+        unique_together = [('employee', 'evaluation_period')]
+        ordering = ['-evaluation_period__year', '-evaluation_period__period_type']
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.evaluation_period} (레벨 {self.current_level.level})"
+    
+    def calculate_overall_score(self):
+        """종합 점수 계산"""
+        scores = [
+            self.contribution_score,
+            self.expertise_score,
+            self.impact_score
+        ]
+        valid_scores = [score for score in scores if score is not None]
+        
+        if valid_scores:
+            self.overall_score = sum(valid_scores) / len(valid_scores)
+        else:
+            self.overall_score = None
+    
+    def calculate_promotion_eligibility(self):
+        """승급 자격 계산"""
+        next_level = GrowthLevel.objects.filter(level=self.current_level.level + 1).first()
+        
+        if not next_level:
+            # 최고 레벨
+            self.meets_score_requirement = False
+            self.is_promotion_eligible = False
+            return
+        
+        # 점수 요구사항 확인
+        if self.overall_score and self.overall_score >= next_level.min_score_requirement:
+            self.meets_score_requirement = True
+        else:
+            self.meets_score_requirement = False
+        
+        # 연속 달성 요구사항 확인
+        if (self.meets_score_requirement and 
+            self.consecutive_achievements >= next_level.consecutive_achievements_required):
+            self.is_promotion_eligible = True
+        else:
+            self.is_promotion_eligible = False

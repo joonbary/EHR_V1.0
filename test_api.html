@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API 테스트</title>
+</head>
+<body>
+    <h1>API 테스트</h1>
+    <button onclick="testAPI()">API 테스트</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            console.log('=== API 테스트 시작 ===');
+            
+            try {
+                const url = '/employees/api/employees/';
+                console.log('요청 URL:', url);
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('응답 상태:', response.status, response.statusText);
+                console.log('응답 헤더:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('응답 데이터:', data);
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>성공!</h2>
+                    <p>총 직원 수: ${data.count}</p>
+                    <p>첫 번째 직원: ${data.results[0].name}</p>
+                `;
+                
+            } catch (error) {
+                console.error('API 오류:', error);
+                document.getElementById('result').innerHTML = `
+                    <h2>오류 발생</h2>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

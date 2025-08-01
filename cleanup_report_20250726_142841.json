@@ -1,0 +1,3050 @@
+{
+  "start_time": "2025-07-26T14:28:40.062838",
+  "project_root": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0",
+  "actions": [],
+  "analysis": {
+    "total_files": 491,
+    "total_size": 15888304,
+    "file_types": {
+      "": 3,
+      ".md": 22,
+      ".py": 237,
+      ".json": 4,
+      ".sqlite3": 1,
+      ".db": 1,
+      ".html": 68,
+      ".log": 2,
+      ".txt": 4,
+      ".svg": 25,
+      ".css": 25,
+      ".otf": 6,
+      ".ttf": 6,
+      ".png": 2,
+      ".js": 85
+    },
+    "junk_files": [
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_full_test_data.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_test_data_new.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\integrated_test_system.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\project_cleanup.log",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\server.log",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_dashboard_backup_20241231.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_api_endpoints.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_certification_check.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_department_skill_score_api.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_direct_url.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_ess_leader_api.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_evaluation_matching.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_evaluation_urls.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_growth_path.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_import.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_matching.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_search_api.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_search_api_simple.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_view.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_leader_recommendation.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_leader_report_generation.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_recommendation_comment.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_skillmap_dashboard.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_skillmap_improvements.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_training_recommendations.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_ui_fixes.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_upload_scenarios.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_urls.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_view_direct.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\docs\\test_data_creation.md",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\management\\commands\\create_test_data.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\static\\fonts\\OKBold.otf",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\static\\fonts\\OKBold.ttf",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\templates\\evaluations\\test_navigation.html",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\views_test.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles\\fonts\\OKBold.otf",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles\\fonts\\OKBold.ttf",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\templates\\dashboard_backup.html"
+    ],
+    "duplicate_files": {
+      "d41d8cd98f00b204e9800998ecf8427e": [
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\migrations\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\migrations\\__init__.py"
+      ],
+      "e08f0582500f6562bf0a931ef9503b39": [
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\tests.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\tests.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\tests.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\tests.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\tests.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\tests.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\tests.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\tests.py"
+      ],
+      "0930cf2b7a88c0769a56270ed057a8d2": [
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\management\\__init__.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\management\\commands\\__init__.py"
+      ],
+      "ef4c241c5311eee11a93e9366f492a72": [
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\admin.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\admin.py"
+      ],
+      "d66d26e53e7ac2028454d3dd6f7e92ad": [
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\models.py",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\models.py"
+      ],
+      "a8efa7f24014f2ed2477a1cbf5b63ac6": [
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\static\\css\\admin-custom.css",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles\\css\\admin-custom.css"
+      ],
+      "3809e8efda4e9f1c3b5f87bf4795c888": [
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\static\\css\\brand.css",
+        "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles\\css\\brand.css"
+      ]
+    },
+    "dead_code": {
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_gpt_chatbot.py": [
+        "ChatbotWebSocketHandler",
+        "post",
+        "get_context_data",
+        "get",
+        "dispatch"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\integrated_test_system.py": [
+        "test_employee_lifecycle_scenario",
+        "login",
+        "save_json_report",
+        "test_ai_response_quality",
+        "test_security_checks",
+        "test_performance_metrics",
+        "generate_summary",
+        "test_ai_chatbot_scenario",
+        "test_dashboard_scenario"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profile_migration.py": [
+        "JobProfileMigrationCommand",
+        "extract",
+        "export_to_json",
+        "handle",
+        "migrate_to_database",
+        "add_arguments",
+        "export_to_excel"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_search_recommend_api.py": [
+        "ResponseFormat",
+        "process_chat_query",
+        "analyze_career_path",
+        "JobSearchChatAPI",
+        "post",
+        "JobRecommendationAPI",
+        "search_jobs",
+        "JobSearchAPI",
+        "get",
+        "CareerPathAPI"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\leader_ai_assistant.py": [
+        "generate_insights",
+        "post",
+        "analyze_query",
+        "stream_response",
+        "get_relevant_data",
+        "get_context_data",
+        "get",
+        "dispatch"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\leader_kpi_dashboard.py": [
+        "KPICategory",
+        "calculate_talent_readiness_kpis",
+        "calculate_training_effectiveness_kpis",
+        "get_context_data",
+        "calculate_certification_progress_kpis",
+        "get_department_hierarchy_kpis",
+        "calculate_leader_pipeline_kpis",
+        "get",
+        "dispatch"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\leader_strategy_reportgen.py": [
+        "post",
+        "dispatch",
+        "generate_report",
+        "get"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\menu_url_link_autogen.py": [
+        "analyze_missing_features",
+        "generate_testing_views",
+        "generate_url_patterns",
+        "generate_test_dashboard_template",
+        "generate_menu_updates",
+        "generate_matching_views",
+        "generate_certification_views",
+        "generate_ess_views",
+        "generate_matching_dashboard_template",
+        "generate_analytics_views",
+        "execute_auto_installation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\module_screen_link_plan.py": [
+        "generate_ui_components",
+        "analyze_modules",
+        "generate_url_patterns",
+        "generate_integration_plan",
+        "generate_url_mappings",
+        "generate_navigation_structure",
+        "generate_templates",
+        "export_analysis",
+        "generate_view_functions"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\project_fileclean_refactor.py": [
+        "restore_backup",
+        "remove_unused_imports",
+        "create_improved_structure",
+        "analyze_current_structure",
+        "run_cleanup",
+        "analyze_project"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_dashboard.py": [
+        "get",
+        "calcSkillScoreForDeptSkill",
+        "post",
+        "DepartmentSkillScoreAPI",
+        "SkillMapDrillDownAPI",
+        "get_drill_down_data",
+        "get_context_data",
+        "get_organization_skill_map",
+        "SkillGapAnalysisAPI",
+        "SkillMapAPI",
+        "SkillMapDashboardView",
+        "SkillMapExportAPI",
+        "export_skill_data"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_dashboard_backup_20241231.py": [
+        "post",
+        "SkillMapDrillDownAPI",
+        "get_drill_down_data",
+        "get_context_data",
+        "SkillMapExportAPI",
+        "get_organization_skill_map",
+        "SkillMapAPI",
+        "SkillMapDashboardView",
+        "SkillGapAnalysisAPI",
+        "get",
+        "export_skill_data"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_dashboard_improved.py": [
+        "SkillMapDrillDownAPIImproved",
+        "post",
+        "SkillMapExportAPIImproved",
+        "SkillMapAPIImproved",
+        "SkillGapAnalysisAPIImproved",
+        "get"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_databinding_bugfix.py": [
+        "calculate_averages",
+        "SkillCategory",
+        "SkillLevel",
+        "to_dict"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_upload_scenarios.py": [
+        "test_4_large_file",
+        "BulkUploadTest",
+        "test_2_error_upload",
+        "test_5_empty_file",
+        "test_3_duplicate_email",
+        "setUp",
+        "test_1_normal_upload"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ui_sidebar_style_unify.py": [
+        "create_preview",
+        "apply_unified_design",
+        "analyze_current_styles",
+        "auto_fix_styles",
+        "create_style_guide",
+        "create_unified_css",
+        "generate_report"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\workforce_comp_dashboard.py": [
+        "detect_anomalies",
+        "get_compensation_timeseries",
+        "post",
+        "get_workforce_timeseries",
+        "WorkforceCompDashboardView",
+        "get_drill_down_data",
+        "get_context_data",
+        "ExportDataAPI",
+        "AnomalyDetectionAPI",
+        "predict_trends",
+        "WorkforceCompAPI",
+        "WorkforceCompChatbotAPI",
+        "get_dashboard_data",
+        "WorkforceCompDrillDownAPI",
+        "get",
+        "TrendPredictionAPI"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\admin.py": [
+        "CertificationCheckLogAdmin",
+        "GrowthLevelCertificationAdmin",
+        "JobLevelRequirementAdmin",
+        "GrowthLevelRequirementAdmin"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\certification_api.py": [
+        "MyGrowthLevelStatusAPI",
+        "post",
+        "GrowthLevelCertificationApplyAPI",
+        "GrowthLevelProgressAPI",
+        "GrowthLevelCertificationCheckAPI",
+        "get",
+        "dispatch"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\certification_engine.py": [
+        "check_certification_eligibility",
+        "calculate_certification_progress",
+        "CertificationEngine"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\certification_services.py": [
+        "get_certification_history",
+        "CertificationService",
+        "check_growth_level_certification",
+        "apply_for_certification"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\leader_certification_approval.py": [
+        "send_certification_result",
+        "CertificationAdminService",
+        "process_certification_application",
+        "manual_review_decision",
+        "get_pending_reviews",
+        "evaluate_certification",
+        "notify_hr_review_required",
+        "get_certification_analytics"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\models.py": [
+        "GrowthLevelRequirement",
+        "GrowthLevelCertification",
+        "JobLevelRequirement",
+        "Meta",
+        "CertificationCheckLog"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\admin.py": [
+        "PerformanceIncentiveRateAdmin",
+        "CompetencyPayTableAdmin",
+        "PositionAllowanceAdmin",
+        "EmployeeCompensationAdmin",
+        "SalaryTableAdmin"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\apps.py": [
+        "CompensationConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\models.py": [
+        "PositionAllowance",
+        "calculate_fixed_overtime",
+        "calculate_pi_amount",
+        "calculate_total_compensation",
+        "CompetencyPayTable",
+        "SalaryTable",
+        "save",
+        "Meta",
+        "EmployeeCompensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\views.py": [
+        "api_level_comparison",
+        "api_compensation_summary",
+        "api_grade_distribution",
+        "compensation_dashboard",
+        "api_job_type_analysis"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\0002_alter_employeecompensation_pi_amount.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\0003_alter_performanceincentiverate_options_and_more.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\decorators.py": [
+        "handle_exceptions",
+        "atomic_transaction",
+        "log_access",
+        "require_hr_permission",
+        "require_employee",
+        "ajax_response",
+        "measure_performance",
+        "cache_result"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\error_handlers.py": [
+        "ErrorMiddleware",
+        "handle_404",
+        "process_exception",
+        "handle_403",
+        "handle_500",
+        "handle_400",
+        "handle_exception"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\exceptions.py": [
+        "AuthorizationError",
+        "CompensationError",
+        "ValidationError",
+        "FileProcessingError",
+        "PromotionError",
+        "EvaluationError",
+        "EmployeeNotFoundError"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\logging_config.py": [
+        "setup_logging",
+        "log_task_execution",
+        "log_api_response_time",
+        "log_data_access",
+        "log_login_attempt",
+        "log_access_denied",
+        "log_slow_query"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mixins.py": [
+        "dispatch",
+        "ExportMixin",
+        "paginate_queryset",
+        "AjaxResponseMixin",
+        "HRPermissionMixin",
+        "json_error",
+        "FilterMixin",
+        "PaginationMixin",
+        "EmployeeRequiredMixin",
+        "test_func",
+        "apply_filters",
+        "json_success",
+        "is_ajax",
+        "export_to_excel",
+        "handle_no_permission"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\responses.py": [
+        "render_with_message",
+        "error_response",
+        "TemplateResponseMixin",
+        "validation_error_response",
+        "paginated_response",
+        "success_response",
+        "render_error_page",
+        "ResponseFormatter"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\utils.py": [
+        "NumberUtils",
+        "bulk_update_or_create",
+        "StringUtils",
+        "get_quarter_range",
+        "generate_employee_number",
+        "format_currency",
+        "calculate_percentage",
+        "get_or_none",
+        "generate_hash",
+        "is_weekend",
+        "get_fiscal_year_range",
+        "get_active_employees",
+        "calculate_work_period",
+        "QueryUtils",
+        "mask_email",
+        "round_to_nearest",
+        "add_business_days",
+        "mask_phone"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\validators.py": [
+        "validate_grade",
+        "validate_score",
+        "validate_employee_data",
+        "validate_date_range",
+        "validate_document_file",
+        "validate_percentage",
+        "validate_email",
+        "FileValidators",
+        "validate_image_file",
+        "validate_phone_number"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mcp\\file_service.py": [
+        "generate_excel_export",
+        "MCPFileService",
+        "process_excel_import",
+        "delete_file",
+        "get_file_info",
+        "cleanup_temp_files",
+        "process_profile_image",
+        "get_storage_stats"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mcp\\sequential_service.py": [
+        "get",
+        "MCPSequentialService",
+        "set",
+        "is_successful",
+        "add_error",
+        "execute_process",
+        "add_result",
+        "get_summary",
+        "register_process"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mcp\\task_service.py": [
+        "stop",
+        "schedule_recurring_task",
+        "register_handler",
+        "start",
+        "get_task_status",
+        "cancel_task",
+        "get_statistics",
+        "submit_task"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\ai_views.py": [
+        "ehr_chatbot",
+        "leader_ai_assistant",
+        "chat_api"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\apps.py": [
+        "ready",
+        "EhrSystemConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\dashboard_views.py": [
+        "leader_kpi_dashboard",
+        "workforce_comp_dashboard",
+        "export_dashboard",
+        "skillmap_dashboard"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\urls.py": [
+        "get_context_data"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\views_tasks.py": [
+        "TaskDashboardView",
+        "task_statistics_api",
+        "post",
+        "TaskStatusView",
+        "SubmitTaskView",
+        "BatchTasksView",
+        "get"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\admin.py": [
+        "EmployeeAdmin",
+        "get_queryset"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\apps.py": [
+        "EmployeesConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\forms.py": [
+        "Meta",
+        "EmployeeForm"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\models.py": [
+        "is_manager",
+        "Employee",
+        "Meta",
+        "get_full_position",
+        "get_subordinates"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\tests.py": [
+        "test_4_large_file",
+        "BulkUploadTest",
+        "test_2_error_upload",
+        "test_5_empty_file",
+        "test_3_duplicate_email",
+        "setUp",
+        "test_1_normal_upload"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\views.py": [
+        "post",
+        "EmployeeDeleteView",
+        "get_context_data",
+        "form_valid",
+        "organization_data_api",
+        "handle_ajax_save",
+        "organization_chart",
+        "EmployeeListView",
+        "delete",
+        "get_queryset",
+        "EmployeeUpdateView",
+        "download_template",
+        "hierarchy_organization_api",
+        "EmployeeCreateView",
+        "BulkUploadView",
+        "hierarchy_organization_view",
+        "handle_preview",
+        "EmployeeDetailView",
+        "get"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\management\\commands\\create_test_data.py": [
+        "create_empty_data",
+        "create_sample_upload_data",
+        "create_large_data",
+        "handle",
+        "create_error_data",
+        "Command",
+        "create_normal_data",
+        "add_arguments"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\0002_alter_employee_options_employee_employment_status_and_more.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\0003_alter_employee_hire_date.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\0004_employee_address_employee_emergency_contact_and_more.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\0005_employee_user.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\templatetags\\custom_filters.py": [
+        "get_item"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\admin.py": [
+        "ImpactEvaluationAdmin",
+        "ImpactInline",
+        "ExpertiseInline",
+        "ComprehensiveEvaluationAdmin",
+        "ExpertiseEvaluationAdmin",
+        "ContributionInline",
+        "EvaluationPeriodAdmin",
+        "ContributionEvaluationAdmin",
+        "TaskInline",
+        "TaskAdmin"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\apps.py": [
+        "EvaluationsConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\models.py": [
+        "calculate_achievement_rate",
+        "calculate_from_tasks",
+        "auto_calculate_manager_grade",
+        "calculate_total_score",
+        "ComprehensiveEvaluation",
+        "Task",
+        "Meta",
+        "calculate_contribution_score"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\views.py": [
+        "expertise_evaluation",
+        "evaluation_dashboard",
+        "create_goal",
+        "my_evaluations_dashboard",
+        "my_goals",
+        "calculate_score_ajax",
+        "evaluation_statistics",
+        "impact_evaluation",
+        "evaluate_employee",
+        "period_management",
+        "contribution_evaluation",
+        "hr_admin_dashboard",
+        "evaluator_dashboard",
+        "my_evaluation_results",
+        "update_goal"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\views_advanced.py": [
+        "post",
+        "PerformanceTrendView",
+        "get_context_data",
+        "evaluation_analytics_api",
+        "CalibrationSessionView",
+        "CalibrationDashboardView",
+        "ProcessEvaluationView",
+        "delete",
+        "EvaluationInsightsView",
+        "get",
+        "put"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\views_debug.py": [
+        "debug_navigation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\migrations\\0002_expertiseevaluation_business_acumen_and_more.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\analytics_views.py": [
+        "analytics_dashboard",
+        "generate_report_api",
+        "strategy_report"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\certification_views.py": [
+        "certification_dashboard",
+        "my_certifications",
+        "growth_status_api"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\ess_views.py": [
+        "growth_path",
+        "ess_plus_dashboard",
+        "training_recommendations"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\matching_views.py": [
+        "job_search",
+        "matching_dashboard",
+        "matching_api"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\testing_views.py": [
+        "run_scenario_test",
+        "test_dashboard",
+        "ai_quality_test"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\admin.py": [
+        "JobProfileAdmin",
+        "save_model",
+        "JobTypeAdmin",
+        "JobRoleAdmin",
+        "JobCategoryAdmin",
+        "get_queryset"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\apps.py": [
+        "JobProfilesConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\embedding_matcher.py": [
+        "SkillClusterAnalyzer",
+        "calculate_embedding_similarity",
+        "create_skill_embedding",
+        "match_profiles_with_embedding",
+        "create_profile_embedding",
+        "hybrid_match",
+        "analyze_skill_clusters"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\ess_leader_api.py": [
+        "MyLeaderReportAPI",
+        "get",
+        "MyLeaderGrowthStatusAPI",
+        "get_my_leader_recommendation_summary"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\evaluation_matcher.py": [
+        "percentage_to_contribution_level",
+        "calculate_evaluation_score",
+        "EvaluationGradeConverter",
+        "match_multiple_profiles_with_evaluation",
+        "score_to_impact_level"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\evaluation_services.py": [
+        "get_high_performer_opportunities",
+        "get_employee_profile_with_evaluation",
+        "analyze_team_promotion_readiness",
+        "find_suitable_jobs_with_evaluation",
+        "create_evaluation_based_development_plan"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\forms.py": [
+        "clean_related_certifications_text",
+        "JobProfileSearchForm",
+        "JobProfileForm",
+        "clean_basic_skills_text",
+        "save",
+        "Meta",
+        "clean_applied_skills_text"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\growth_path_recommender.py": [
+        "find_reachable_jobs",
+        "simulate_growth_path",
+        "find_reverse_path",
+        "build_transition_graph",
+        "analyze_skill_progression",
+        "calculate_transition_difficulty"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\growth_services.py": [
+        "analyze_department_growth_potential",
+        "extract_historical_transitions",
+        "get_employee_growth_paths",
+        "create_personalized_development_plan",
+        "get_growth_recommendations_for_employee"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\leader_recommender.py": [
+        "identify_risk_factors",
+        "generate_recommendation_reason",
+        "analyze_organization_talent_pool",
+        "from_string",
+        "evaluate_leadership_readiness"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\leader_report_generator.py": [
+        "generate_batch_reports",
+        "generate_leader_recommendation_report"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\leader_services.py": [
+        "get_succession_candidates",
+        "analyze_leadership_pipeline",
+        "create_talent_pool_report",
+        "find_leader_candidates"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\leader_visualization.py": [
+        "plot_organization_talent_heatmap",
+        "create_candidate_summary_card",
+        "plot_candidate_comparison",
+        "plot_skill_gap_analysis",
+        "plot_leadership_pipeline_funnel",
+        "plot_succession_pipeline"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\matching_engine.py": [
+        "calculate_similarity",
+        "fuzzy_match",
+        "normalize_text",
+        "extract_years_from_text",
+        "recommend_growth_path",
+        "MatchingResult"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\models.py": [
+        "full_path",
+        "get_all_skills",
+        "Meta",
+        "JobProfileHistory",
+        "get_skill_count"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\report_services.py": [
+        "generate_leader_report_view",
+        "get_report_download_response",
+        "generate_candidate_report",
+        "generate_batch_reports"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\services.py": [
+        "SkillDevelopmentService",
+        "get_career_path_recommendations",
+        "match_employee_to_job",
+        "find_suitable_jobs_for_employee",
+        "analyze_team_skill_gaps",
+        "get_job_profile_dict",
+        "create_development_plan",
+        "get_employee_profile_dict"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\views.py": [
+        "job_profile_update",
+        "get_job_roles",
+        "job_hierarchy_navigation",
+        "job_profile_admin_detail",
+        "job_profile_list",
+        "job_profile_detail",
+        "job_profile_delete",
+        "get_job_types",
+        "job_profile_admin_list",
+        "job_profile_create"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\views_test.py": [
+        "test_view"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\apps.py": [
+        "PerformanceNewConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\admin.py": [
+        "has_change_permission",
+        "AuditLogAdmin",
+        "has_add_permission",
+        "HRRoleAdmin",
+        "EmployeeRoleAdmin",
+        "DataAccessRuleAdmin"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\apps.py": [
+        "PermissionsConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\mixins.py": [
+        "log_access",
+        "is_own_data",
+        "check_access_level",
+        "DepartmentHeadMixin",
+        "TeamLeaderMixin",
+        "get_client_ip",
+        "is_dept_data",
+        "test_func",
+        "is_team_data",
+        "EmployeeSelfOnlyMixin"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\models.py": [
+        "EmployeeRole",
+        "DataAccessRule",
+        "Meta",
+        "AuditLog"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\views.py": [
+        "PermissionDashboardView",
+        "RevokeRoleView",
+        "get_context_data",
+        "form_valid",
+        "AuditLogView",
+        "RoleManagementView",
+        "AssignRoleView",
+        "delete",
+        "get_queryset"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\admin.py": [
+        "PromotionRequestAdmin",
+        "OrganizationChartAdmin",
+        "PromotionRequirementAdmin",
+        "JobTransferAdmin"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\apps.py": [
+        "PromotionsConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\models.py": [
+        "is_eligible_for_promotion",
+        "JobTransfer",
+        "execute_transfer",
+        "calculate_requirements",
+        "PromotionRequest",
+        "OrganizationChart",
+        "update_employee_count",
+        "Meta"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\promotion_analyzer.py": [
+        "PromotionAnalyzer",
+        "analyze_promotion_candidates",
+        "generate_promotion_forecast"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\views.py": [
+        "organization_chart",
+        "create_promotion_request",
+        "create_job_transfer",
+        "job_transfer_list",
+        "promotion_analytics",
+        "promotion_request_list",
+        "promotion_request_detail",
+        "promotion_dashboard"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\admin.py": [
+        "ReportGenerationAdmin",
+        "ReportTemplateAdmin"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\apps.py": [
+        "ReportsConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\models.py": [
+        "ReportGeneration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\utils.py": [
+        "add_title",
+        "auto_adjust_columns",
+        "add_data_row",
+        "save_to_response",
+        "ExcelReportGenerator",
+        "add_headers"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\views.py": [
+        "PromotionCandidatesReportView",
+        "get",
+        "ReportDashboardView",
+        "DepartmentStatisticsReportView",
+        "CompensationAnalysisReportView",
+        "get_context_data",
+        "EmployeeListReportView",
+        "EvaluationSummaryReportView",
+        "get_pi_rate"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\apps.py": [
+        "SelfserviceConfig"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\forms.py": [
+        "CustomPasswordChangeForm",
+        "Meta",
+        "ProfileUpdateForm"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\views.py": [
+        "compare_with_peers",
+        "calculate_peer_percentile",
+        "profile_update",
+        "career_path",
+        "my_dashboard",
+        "log_profile_change",
+        "calculate_monthly_breakdown",
+        "form_valid",
+        "get_monthly_trend",
+        "calculate_annual_summary",
+        "get_object",
+        "get_client_ip",
+        "password_change",
+        "analyze_growth_trend",
+        "log_password_change",
+        "compensation_statement",
+        "evaluation_history",
+        "get"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\compensation_service.py": [
+        "generate_payslip",
+        "calculate_employee_compensation",
+        "process_payroll",
+        "get_compensation_statistics",
+        "calculate_net_salary",
+        "CompensationService"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\employee_service.py": [
+        "update_employee",
+        "EmployeeService",
+        "get_organizational_chart",
+        "export_employee_data",
+        "create_employee",
+        "search_employees",
+        "get_employee_statistics",
+        "bulk_import_employees",
+        "process_profile_image"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\evaluation_service.py": [
+        "process_relative_evaluation",
+        "calculate_expertise_score",
+        "EvaluationService",
+        "export_evaluation_results",
+        "create_evaluation_period",
+        "get_evaluation_statistics",
+        "submit_comprehensive_evaluation",
+        "calculate_impact_score",
+        "calculate_contribution_score"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\promotion_service.py": [
+        "approve_promotion",
+        "get_transfer_history",
+        "get_promotion_statistics",
+        "process_job_transfer",
+        "create_promotion_request",
+        "reject_promotion",
+        "check_promotion_eligibility",
+        "analyze_promotion_candidates",
+        "PromotionService"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\admin.py": [
+        "TrainingCategoryAdmin",
+        "SkillTrainingMappingAdmin",
+        "TrainingEnrollmentAdmin",
+        "TrainingCourseAdmin",
+        "TrainingRecommendationAdmin"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\models.py": [
+        "TrainingRecommendation",
+        "Meta",
+        "TrainingEnrollment",
+        "SkillTrainingMapping"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\training_api.py": [
+        "TrainingCourseDetailAPI",
+        "MyGrowthTrainingRecommendationsAPI",
+        "post",
+        "MyTrainingHistoryAPI",
+        "TrainingEnrollmentAPI",
+        "get",
+        "dispatch"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\training_recommender.py": [
+        "filter_courses_by_criteria",
+        "generate_training_roadmap",
+        "recommend_trainings",
+        "TrainingRecommender"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\training_services.py": [
+        "get_employee_training_recommendations",
+        "TrainingRecommendationService",
+        "get_my_training_history",
+        "enroll_in_course"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\migrations\\0001_initial.py": [
+        "Migration"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\background_tasks.py": [
+        "stop",
+        "register_handler",
+        "setup_default_scheduled_tasks",
+        "add_scheduled_task",
+        "to_dict",
+        "start",
+        "get_task_status",
+        "cancel_task",
+        "submit_task"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\evaluation_processor.py": [
+        "review_case",
+        "analyze_department_performance",
+        "CalibrationSession",
+        "PerformanceTrendAnalyzer",
+        "start_session",
+        "process_comprehensive_evaluation",
+        "analyze_individual_trend",
+        "finalize_session"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\file_manager.py": [
+        "validate_file_size",
+        "FileManager",
+        "generate_error_report",
+        "create_directory_structure",
+        "process_employee_excel",
+        "ExcelFileHandler",
+        "cleanup_orphaned_files",
+        "save_profile_image",
+        "generate_unique_filename",
+        "validate_excel_file",
+        "optimize_image",
+        "delete_file",
+        "get_file_info",
+        "validate_file_type"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\management\\commands\\start_task_manager.py": [
+        "handle",
+        "Command",
+        "add_arguments"
+      ]
+    },
+    "unused_imports": {
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\check_admin_employee.py": [
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\check_server.py": [
+        "sys"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\clear_data.py": [
+        "datetime",
+        "promotions",
+        "employees",
+        "evaluations",
+        "sys",
+        "permissions",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\connect_user.py": [
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_admin_employee.py": [
+        "datetime",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_certification_data.py": [
+        "certifications",
+        "trainings"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_compensation_data.py": [
+        "decimal",
+        "evaluations",
+        "employees",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_evaluation_data.py": [
+        "datetime",
+        "decimal",
+        "evaluations",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_full_test_data.py": [
+        "decimal",
+        "promotions",
+        "employees",
+        "evaluations",
+        "sys",
+        "permissions",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_job_profiles_sample_data.py": [
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_permissions_data.py": [
+        "permissions"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_promotion_data.py": [
+        "datetime",
+        "decimal",
+        "evaluations",
+        "promotions"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_test_data_new.py": [
+        "decimal",
+        "promotions",
+        "employees",
+        "evaluations",
+        "sys",
+        "permissions",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\debug_job_urls.py": [
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\debug_urls.py": [
+        "pprint"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\demo_integration.py": [
+        "json",
+        "employees",
+        "job_profiles",
+        "trainings",
+        "certifications"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_gpt_chatbot.py": [
+        "io",
+        "typing",
+        "leader_strategy_reportgen",
+        "asyncio",
+        "leader_kpi_dashboard",
+        "employees",
+        "enum",
+        "requests",
+        "django",
+        "base64",
+        "evaluations",
+        "job_profiles",
+        "trainings",
+        "dataclasses",
+        "collections",
+        "leader_ai_assistant"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generate_ui_preview.py": [
+        "ui_sidebar_style_unify"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\integrated_test_system.py": [
+        "dataclasses",
+        "unittest",
+        "typing",
+        "os"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profile_migration.py": [
+        "pandas",
+        "nltk",
+        "typing",
+        "pathlib",
+        "numpy",
+        "konlpy",
+        "transformers",
+        "django",
+        "sklearn",
+        "dataclasses",
+        "openpyxl"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_search_recommend_api.py": [
+        "typing",
+        "employees",
+        "enum",
+        "django",
+        "job_profiles",
+        "dataclasses"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\kill_server.py": [
+        "signal",
+        "os"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\leader_ai_assistant.py": [
+        "pandas",
+        "datetime",
+        "typing",
+        "numpy",
+        "leader_kpi_dashboard",
+        "employees",
+        "enum",
+        "django",
+        "trainings",
+        "evaluations",
+        "job_profiles",
+        "dataclasses"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\leader_kpi_dashboard.py": [
+        "pandas",
+        "typing",
+        "json",
+        "employees",
+        "enum",
+        "django",
+        "evaluations",
+        "trainings",
+        "job_profiles",
+        "dataclasses",
+        "collections",
+        "certifications",
+        "openpyxl"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\leader_strategy_reportgen.py": [
+        "openai",
+        "typing",
+        "pptx",
+        "pandas",
+        "seaborn",
+        "employees",
+        "enum",
+        "matplotlib",
+        "evaluations",
+        "dataclasses",
+        "certifications",
+        "reportlab",
+        "django",
+        "base64",
+        "leader_ai_assistant",
+        "io",
+        "pathlib",
+        "leader_kpi_dashboard",
+        "trainings"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\manage.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\menu_url_link_autogen.py": [
+        "json",
+        "datetime",
+        "typing"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\migrate_hris_data.py": [
+        "datetime"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\module_screen_link_plan.py": [
+        "pathlib",
+        "os"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\project_fileclean_refactor.py": [
+        "typing",
+        "pathlib",
+        "difflib",
+        "subprocess",
+        "collections"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reset_admin_password.py": [
+        "sys"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\run_server.py": [
+        "sys"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_dashboard.py": [
+        "pandas",
+        "typing",
+        "uuid",
+        "numpy",
+        "enum",
+        "django",
+        "evaluations",
+        "dataclasses",
+        "collections",
+        "certifications"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_dashboard_backup_20241231.py": [
+        "pandas",
+        "typing",
+        "uuid",
+        "numpy",
+        "enum",
+        "django",
+        "evaluations",
+        "dataclasses",
+        "collections",
+        "certifications"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_dashboard_improved.py": [
+        "collections",
+        "django",
+        "skillmap_dashboard"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\skillmap_databinding_bugfix.py": [
+        "datetime",
+        "typing",
+        "numpy",
+        "enum",
+        "dataclasses",
+        "collections"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_certification_check.py": [
+        "datetime"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_department_skill_score_api.py": [
+        "requests",
+        "datetime",
+        "sys",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_evaluation_matching.py": [
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_growth_path.py": [
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_search_api.py": [
+        "json",
+        "requests",
+        "job_search_recommend_api"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_search_api_simple.py": [
+        "job_search_recommend_api"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_job_view.py": [
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_leader_recommendation.py": [
+        "json"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_leader_report_generation.py": [
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_recommendation_comment.py": [
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_skillmap_dashboard.py": [
+        "json",
+        "numpy",
+        "job_profiles",
+        "skillmap_dashboard"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_skillmap_improvements.py": [
+        "requests",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_upload_scenarios.py": [
+        "pandas",
+        "datetime",
+        "io",
+        "employees",
+        "sys"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\test_view_direct.py": [
+        "evaluations"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ui_sidebar_style_unify.py": [
+        "typing",
+        "pathlib",
+        "os"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\workforce_comp_dashboard.py": [
+        "pandas",
+        "io",
+        "typing",
+        "decimal",
+        "uuid",
+        "services",
+        "numpy",
+        "prophet",
+        "employees",
+        "enum",
+        "django",
+        "job_profiles",
+        "statsmodels",
+        "evaluations",
+        "sklearn",
+        "dataclasses",
+        "collections"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\admin.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\certification_api.py": [
+        "datetime",
+        "typing",
+        "employees",
+        "django",
+        "job_profiles",
+        "certification_services"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\certification_engine.py": [
+        "typing"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\certification_services.py": [
+        "typing",
+        "certification_engine",
+        "employees",
+        "models",
+        "django",
+        "trainings",
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\leader_certification_approval.py": [
+        "typing",
+        "decimal",
+        "json",
+        "employees",
+        "enum",
+        "models",
+        "evaluations",
+        "trainings",
+        "job_profiles",
+        "dataclasses"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\models.py": [
+        "django",
+        "job_profiles",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\urls.py": [
+        "django",
+        "certification_api"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\admin.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\models.py": [
+        "django",
+        "decimal",
+        "evaluations",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\tests.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\urls.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\views.py": [
+        "django",
+        "decimal",
+        "evaluations",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\0002_alter_employeecompensation_pi_amount.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\decorators.py": [
+        "functools",
+        "django",
+        "typing",
+        "exceptions"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\error_handlers.py": [
+        "traceback",
+        "django",
+        "typing",
+        "exceptions"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\logging_config.py": [
+        "datetime",
+        "pathlib"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mixins.py": [
+        "pandas",
+        "io",
+        "typing",
+        "django",
+        "responses",
+        "exceptions"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\responses.py": [
+        "django",
+        "typing"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\utils.py": [
+        "django",
+        "typing",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\validators.py": [
+        "django",
+        "typing",
+        "exceptions"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mcp\\file_service.py": [
+        "pandas",
+        "io",
+        "typing",
+        "pathlib",
+        "core",
+        "django",
+        "PIL"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mcp\\sequential_service.py": [
+        "pandas",
+        "typing",
+        "employees",
+        "core",
+        "django",
+        "dataclasses"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mcp\\task_service.py": [
+        "datetime",
+        "typing",
+        "json",
+        "core",
+        "enum",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core\\mcp\\__init__.py": [
+        "file_service",
+        "task_service",
+        "sequential_service"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\ai_views.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\asgi.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\dashboard_views.py": [
+        "django",
+        "employees",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\settings.py": [
+        "pathlib"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\urls.py": [
+        "skillmap_dashboard_improved",
+        "skillmap_dashboard",
+        "employees",
+        "django",
+        "job_profiles",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\views_tasks.py": [
+        "django",
+        "utils",
+        "evaluations"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\wsgi.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\admin.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\forms.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\models.py": [
+        "django",
+        "datetime"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\tests.py": [
+        "io",
+        "django",
+        "models",
+        "pandas"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\urls.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\views.py": [
+        "pandas",
+        "io",
+        "forms",
+        "utils",
+        "models",
+        "django",
+        "os"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\management\\commands\\create_test_data.py": [
+        "pandas",
+        "django",
+        "io",
+        "os"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\0001_initial.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\0003_alter_employee_hire_date.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\0004_employee_address_employee_emergency_contact_and_more.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\templatetags\\custom_filters.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\admin.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\models.py": [
+        "datetime",
+        "decimal",
+        "django",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\tests.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\urls.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\views.py": [
+        "datetime",
+        "decimal",
+        "django",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\views_advanced.py": [
+        "numpy",
+        "utils",
+        "django",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\views_debug.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\analytics_views.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\certification_views.py": [
+        "django",
+        "datetime"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\ess_views.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\matching_views.py": [
+        "django",
+        "job_profiles",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views\\testing_views.py": [
+        "json",
+        "integrated_test_system",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\admin.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\embedding_matcher.py": [
+        "typing",
+        "numpy",
+        "sklearn",
+        "os",
+        "pickle",
+        "matching_engine"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\ess_leader_api.py": [
+        "typing",
+        "leader_services",
+        "json",
+        "recommendation_comment_generator",
+        "growth_services",
+        "employees",
+        "models",
+        "django",
+        "report_services",
+        "evaluations"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\evaluation_matcher.py": [
+        "dataclasses",
+        "datetime",
+        "typing",
+        "matching_engine"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\evaluation_services.py": [
+        "datetime",
+        "typing",
+        "services",
+        "models",
+        "evaluation_matcher"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\forms.py": [
+        "json",
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\growth_path_recommender.py": [
+        "datetime",
+        "typing",
+        "numpy",
+        "networkx",
+        "dataclasses",
+        "collections"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\growth_services.py": [
+        "typing",
+        "json",
+        "services",
+        "evaluation_services",
+        "growth_path_recommender",
+        "models",
+        "evaluations",
+        "collections"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\leader_recommender.py": [
+        "datetime",
+        "typing",
+        "numpy",
+        "enum",
+        "dataclasses",
+        "collections"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\leader_report_generator.py": [
+        "io",
+        "typing",
+        "reportlab",
+        "matplotlib",
+        "base64"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\leader_services.py": [
+        "typing",
+        "json",
+        "services",
+        "recommendation_comment_generator",
+        "evaluation_services",
+        "employees",
+        "models",
+        "evaluations",
+        "collections",
+        "leader_recommender"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\leader_visualization.py": [
+        "pandas",
+        "typing",
+        "seaborn",
+        "numpy",
+        "matplotlib"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\matching_engine.py": [
+        "json",
+        "dataclasses",
+        "datetime",
+        "typing"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\models.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\recommendation_comment_generator.py": [
+        "dataclasses",
+        "datetime",
+        "typing",
+        "random"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\report_services.py": [
+        "leader_report_generator",
+        "typing",
+        "leader_services",
+        "recommendation_comment_generator",
+        "growth_services",
+        "employees",
+        "models"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\services.py": [
+        "models",
+        "matching_engine",
+        "typing"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\tests.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\urls.py": [
+        "django",
+        "views_test"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\views.py": [
+        "json",
+        "models",
+        "django",
+        "forms"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\views_test.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\admin.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\models.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\tests.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\views.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\admin.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\mixins.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\models.py": [
+        "django",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\tests.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\urls.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\views.py": [
+        "models",
+        "django",
+        "mixins"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\admin.py": [
+        "models",
+        "django",
+        "datetime"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\models.py": [
+        "datetime",
+        "decimal",
+        "django",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\promotion_analyzer.py": [
+        "pandas",
+        "datetime",
+        "typing",
+        "numpy",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\tests.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\urls.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\views.py": [
+        "datetime",
+        "json",
+        "models",
+        "django",
+        "evaluations"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\admin.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\models.py": [
+        "json",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\tests.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\urls.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\utils.py": [
+        "pandas",
+        "datetime",
+        "io",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\views.py": [
+        "promotions",
+        "utils",
+        "models",
+        "django",
+        "permissions",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\admin.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\apps.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\forms.py": [
+        "django",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\models.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\tests.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\urls.py": [
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\views.py": [
+        "promotions",
+        "forms",
+        "utils",
+        "employees",
+        "django",
+        "calendar",
+        "os",
+        "compensation"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\compensation_service.py": [
+        "typing",
+        "decimal",
+        "employees",
+        "core",
+        "django",
+        "evaluations"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\employee_service.py": [
+        "datetime",
+        "typing",
+        "employees",
+        "core",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\evaluation_service.py": [
+        "pandas",
+        "datetime",
+        "typing",
+        "employees",
+        "core",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\promotion_service.py": [
+        "datetime",
+        "typing",
+        "promotions",
+        "employees",
+        "core",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services\\__init__.py": [
+        "promotion_service",
+        "compensation_service",
+        "evaluation_service",
+        "employee_service"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\admin.py": [
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\models.py": [
+        "django",
+        "employees"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\training_api.py": [
+        "typing",
+        "training_services",
+        "employees",
+        "models",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\training_recommender.py": [
+        "datetime",
+        "typing"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\training_services.py": [
+        "typing",
+        "employees",
+        "training_recommender",
+        "models",
+        "django",
+        "job_profiles"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\urls.py": [
+        "django",
+        "training_api"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\background_tasks.py": [
+        "typing",
+        "promotions",
+        "json",
+        "utils",
+        "enum",
+        "django",
+        "reports"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\evaluation_processor.py": [
+        "pandas",
+        "typing",
+        "numpy",
+        "employees",
+        "django"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\file_manager.py": [
+        "io",
+        "pandas",
+        "pathlib",
+        "employees",
+        "django",
+        "PIL"
+      ],
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils\\management\\commands\\start_task_manager.py": [
+        "sys",
+        "django",
+        "utils"
+      ]
+    },
+    "empty_files": [
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\nul",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice\\migrations\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\__init__.py",
+      "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings\\migrations\\__init__.py"
+    ],
+    "large_files": []
+  },
+  "backup_path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\.cleanup_backup\\20250726_142840",
+  "deleted_files": 199,
+  "structure_analysis": {
+    "directories": {
+      "certifications": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\certifications",
+        "file_count": 8,
+        "total_size": 117395,
+        "file_types": {
+          ".py": 8
+        },
+        "subdirs": [
+          "migrations",
+          "__pycache__"
+        ]
+      },
+      "compensation": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\compensation",
+        "file_count": 9,
+        "total_size": 58418,
+        "file_types": {
+          ".py": 8,
+          ".html": 1
+        },
+        "subdirs": [
+          "migrations",
+          "templates"
+        ]
+      },
+      "core": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\core",
+        "file_count": 13,
+        "total_size": 81828,
+        "file_types": {
+          ".py": 13
+        },
+        "subdirs": [
+          "mcp"
+        ]
+      },
+      "docs": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\docs",
+        "file_count": 10,
+        "total_size": 414669,
+        "file_types": {
+          ".md": 9,
+          ".svg": 1
+        },
+        "subdirs": []
+      },
+      "ehr_system": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_system",
+        "file_count": 8,
+        "total_size": 33439,
+        "file_types": {
+          ".py": 8
+        },
+        "subdirs": []
+      },
+      "employees": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\employees",
+        "file_count": 30,
+        "total_size": 3071312,
+        "file_types": {
+          ".py": 16,
+          ".css": 1,
+          ".otf": 2,
+          ".ttf": 2,
+          ".png": 1,
+          ".html": 8
+        },
+        "subdirs": [
+          "management",
+          "migrations",
+          "static",
+          "templates",
+          "templatetags"
+        ]
+      },
+      "evaluations": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\evaluations",
+        "file_count": 21,
+        "total_size": 344851,
+        "file_types": {
+          ".py": 9,
+          ".html": 12
+        },
+        "subdirs": [
+          "migrations",
+          "templates"
+        ]
+      },
+      "generated_templates": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_templates",
+        "file_count": 2,
+        "total_size": 10705,
+        "file_types": {
+          ".html": 2
+        },
+        "subdirs": [
+          "matching",
+          "testing"
+        ]
+      },
+      "generated_views": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_views",
+        "file_count": 5,
+        "total_size": 10745,
+        "file_types": {
+          ".py": 5
+        },
+        "subdirs": []
+      },
+      "job_profiles": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profiles",
+        "file_count": 28,
+        "total_size": 373525,
+        "file_types": {
+          ".py": 21,
+          ".html": 7
+        },
+        "subdirs": [
+          "migrations",
+          "templates",
+          "__pycache__"
+        ]
+      },
+      "media": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\media",
+        "file_count": 0,
+        "total_size": 0,
+        "file_types": {},
+        "subdirs": [
+          "documents",
+          "exports",
+          "imports",
+          "profile_images",
+          "temp"
+        ]
+      },
+      "performance_new": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\performance_new",
+        "file_count": 2,
+        "total_size": 233,
+        "file_types": {
+          ".py": 2
+        },
+        "subdirs": [
+          "migrations"
+        ]
+      },
+      "permissions": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\permissions",
+        "file_count": 7,
+        "total_size": 20429,
+        "file_types": {
+          ".py": 7
+        },
+        "subdirs": [
+          "migrations"
+        ]
+      },
+      "promotions": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\promotions",
+        "file_count": 9,
+        "total_size": 115773,
+        "file_types": {
+          ".py": 7,
+          ".html": 2
+        },
+        "subdirs": [
+          "migrations",
+          "templates"
+        ]
+      },
+      "reports": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\reports",
+        "file_count": 8,
+        "total_size": 23121,
+        "file_types": {
+          ".py": 8
+        },
+        "subdirs": [
+          "migrations"
+        ]
+      },
+      "selfservice": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\selfservice",
+        "file_count": 12,
+        "total_size": 66054,
+        "file_types": {
+          ".py": 6,
+          ".html": 6
+        },
+        "subdirs": [
+          "migrations",
+          "templates"
+        ]
+      },
+      "services": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\services",
+        "file_count": 5,
+        "total_size": 53076,
+        "file_types": {
+          ".py": 5
+        },
+        "subdirs": []
+      },
+      "static": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\static",
+        "file_count": 7,
+        "total_size": 92561,
+        "file_types": {
+          ".css": 5,
+          ".svg": 2
+        },
+        "subdirs": [
+          "css",
+          "images"
+        ]
+      },
+      "staticfiles": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticfiles",
+        "file_count": 134,
+        "total_size": 4358777,
+        "file_types": {
+          ".css": 16,
+          ".md": 2,
+          ".svg": 22,
+          "": 1,
+          ".txt": 3,
+          ".js": 85,
+          ".otf": 2,
+          ".ttf": 2,
+          ".png": 1
+        },
+        "subdirs": [
+          "admin",
+          "css",
+          "fonts",
+          "images"
+        ]
+      },
+      "staticimages": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\staticimages",
+        "file_count": 0,
+        "total_size": 0,
+        "file_types": {},
+        "subdirs": []
+      },
+      "templates": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\templates",
+        "file_count": 25,
+        "total_size": 317554,
+        "file_types": {
+          ".html": 25
+        },
+        "subdirs": [
+          "admin",
+          "ai",
+          "dashboards",
+          "errors",
+          "evaluations",
+          "reports",
+          "skillmap",
+          "tasks"
+        ]
+      },
+      "trainings": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\trainings",
+        "file_count": 7,
+        "total_size": 67963,
+        "file_types": {
+          ".py": 7
+        },
+        "subdirs": [
+          "migrations",
+          "__pycache__"
+        ]
+      },
+      "ui_preview": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ui_preview",
+        "file_count": 3,
+        "total_size": 18928,
+        "file_types": {
+          ".html": 2,
+          ".css": 1
+        },
+        "subdirs": []
+      },
+      "utils": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\utils",
+        "file_count": 7,
+        "total_size": 53788,
+        "file_types": {
+          ".py": 7
+        },
+        "subdirs": [
+          "management"
+        ]
+      },
+      "__pycache__": {
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\__pycache__",
+        "file_count": 0,
+        "total_size": 0,
+        "file_types": {},
+        "subdirs": []
+      }
+    },
+    "file_distribution": {
+      ".py": [
+        "check_admin_employee.py",
+        "check_server.py",
+        "check_urls.py",
+        "clear_data.py",
+        "connect_user.py",
+        "create_admin_employee.py",
+        "create_certification_data.py",
+        "create_compensation_data.py",
+        "create_evaluation_data.py",
+        "create_job_profiles_sample_data.py",
+        "create_permissions_data.py",
+        "create_promotion_data.py",
+        "debug_job_urls.py",
+        "debug_urls.py",
+        "demo_integration.py",
+        "ehr_gpt_chatbot.py",
+        "generated_url_patterns.py",
+        "generate_ui_preview.py",
+        "job_profile_migration.py",
+        "job_search_recommend_api.py",
+        "kill_server.py",
+        "leader_ai_assistant.py",
+        "leader_kpi_dashboard.py",
+        "leader_strategy_reportgen.py",
+        "manage.py",
+        "menu_url_link_autogen.py",
+        "migrate_hris_data.py",
+        "migrate_more_data.py",
+        "migrate_simple.py",
+        "module_screen_link_plan.py",
+        "project_fileclean_refactor.py",
+        "reset_admin_password.py",
+        "run_server.py",
+        "skillmap_dashboard.py",
+        "skillmap_dashboard_debugfix.py",
+        "skillmap_dashboard_improved.py",
+        "skillmap_databinding_bugfix.py",
+        "ui_sidebar_style_unify.py",
+        "workforce_comp_dashboard.py",
+        "certifications\\admin.py",
+        "certifications\\certification_api.py",
+        "certifications\\certification_engine.py",
+        "certifications\\certification_services.py",
+        "certifications\\leader_certification_approval.py",
+        "certifications\\models.py",
+        "certifications\\urls.py",
+        "certifications\\migrations\\0001_initial.py",
+        "compensation\\admin.py",
+        "compensation\\apps.py",
+        "compensation\\models.py",
+        "compensation\\urls.py",
+        "compensation\\views.py",
+        "compensation\\migrations\\0001_initial.py",
+        "compensation\\migrations\\0002_alter_employeecompensation_pi_amount.py",
+        "compensation\\migrations\\0003_alter_performanceincentiverate_options_and_more.py",
+        "core\\decorators.py",
+        "core\\error_handlers.py",
+        "core\\exceptions.py",
+        "core\\logging_config.py",
+        "core\\mixins.py",
+        "core\\responses.py",
+        "core\\utils.py",
+        "core\\validators.py",
+        "core\\__init__.py",
+        "core\\mcp\\file_service.py",
+        "core\\mcp\\sequential_service.py",
+        "core\\mcp\\task_service.py",
+        "core\\mcp\\__init__.py",
+        "ehr_system\\ai_views.py",
+        "ehr_system\\apps.py",
+        "ehr_system\\asgi.py",
+        "ehr_system\\dashboard_views.py",
+        "ehr_system\\settings.py",
+        "ehr_system\\urls.py",
+        "ehr_system\\views_tasks.py",
+        "ehr_system\\wsgi.py",
+        "employees\\admin.py",
+        "employees\\apps.py",
+        "employees\\forms.py",
+        "employees\\models.py",
+        "employees\\tests.py",
+        "employees\\urls.py",
+        "employees\\views.py",
+        "employees\\__init__.py",
+        "employees\\management\\__init__.py",
+        "employees\\migrations\\0001_initial.py",
+        "employees\\migrations\\0002_alter_employee_options_employee_employment_status_and_more.py",
+        "employees\\migrations\\0003_alter_employee_hire_date.py",
+        "employees\\migrations\\0004_employee_address_employee_emergency_contact_and_more.py",
+        "employees\\migrations\\0005_employee_user.py",
+        "employees\\templatetags\\custom_filters.py",
+        "employees\\templatetags\\__init__.py",
+        "evaluations\\admin.py",
+        "evaluations\\apps.py",
+        "evaluations\\models.py",
+        "evaluations\\urls.py",
+        "evaluations\\views.py",
+        "evaluations\\views_advanced.py",
+        "evaluations\\views_debug.py",
+        "evaluations\\migrations\\0001_initial.py",
+        "evaluations\\migrations\\0002_expertiseevaluation_business_acumen_and_more.py",
+        "generated_views\\analytics_views.py",
+        "generated_views\\certification_views.py",
+        "generated_views\\ess_views.py",
+        "generated_views\\matching_views.py",
+        "generated_views\\testing_views.py",
+        "job_profiles\\admin.py",
+        "job_profiles\\apps.py",
+        "job_profiles\\embedding_matcher.py",
+        "job_profiles\\ess_leader_api.py",
+        "job_profiles\\evaluation_matcher.py",
+        "job_profiles\\evaluation_services.py",
+        "job_profiles\\forms.py",
+        "job_profiles\\growth_path_recommender.py",
+        "job_profiles\\growth_services.py",
+        "job_profiles\\leader_recommender.py",
+        "job_profiles\\leader_report_generator.py",
+        "job_profiles\\leader_services.py",
+        "job_profiles\\leader_visualization.py",
+        "job_profiles\\matching_engine.py",
+        "job_profiles\\models.py",
+        "job_profiles\\recommendation_comment_generator.py",
+        "job_profiles\\report_services.py",
+        "job_profiles\\services.py",
+        "job_profiles\\urls.py",
+        "job_profiles\\views.py",
+        "job_profiles\\migrations\\0001_initial.py",
+        "performance_new\\apps.py",
+        "performance_new\\views.py",
+        "permissions\\admin.py",
+        "permissions\\apps.py",
+        "permissions\\mixins.py",
+        "permissions\\models.py",
+        "permissions\\urls.py",
+        "permissions\\views.py",
+        "permissions\\migrations\\0001_initial.py",
+        "promotions\\admin.py",
+        "promotions\\apps.py",
+        "promotions\\models.py",
+        "promotions\\promotion_analyzer.py",
+        "promotions\\urls.py",
+        "promotions\\views.py",
+        "promotions\\migrations\\0001_initial.py",
+        "reports\\admin.py",
+        "reports\\apps.py",
+        "reports\\models.py",
+        "reports\\tests.py",
+        "reports\\urls.py",
+        "reports\\utils.py",
+        "reports\\views.py",
+        "reports\\migrations\\0001_initial.py",
+        "selfservice\\admin.py",
+        "selfservice\\apps.py",
+        "selfservice\\forms.py",
+        "selfservice\\models.py",
+        "selfservice\\urls.py",
+        "selfservice\\views.py",
+        "services\\compensation_service.py",
+        "services\\employee_service.py",
+        "services\\evaluation_service.py",
+        "services\\promotion_service.py",
+        "services\\__init__.py",
+        "trainings\\admin.py",
+        "trainings\\models.py",
+        "trainings\\training_api.py",
+        "trainings\\training_recommender.py",
+        "trainings\\training_services.py",
+        "trainings\\urls.py",
+        "trainings\\migrations\\0001_initial.py",
+        "utils\\background_tasks.py",
+        "utils\\evaluation_processor.py",
+        "utils\\file_manager.py",
+        "utils\\__init__.py",
+        "utils\\management\\__init__.py",
+        "utils\\management\\commands\\start_task_manager.py",
+        "utils\\management\\commands\\__init__.py"
+      ],
+      ".html": [
+        "menu_updates.html",
+        "compensation\\templates\\compensation\\dashboard.html",
+        "employees\\templates\\employees\\base.html",
+        "employees\\templates\\employees\\bulk_upload.html",
+        "employees\\templates\\employees\\employee_confirm_delete.html",
+        "employees\\templates\\employees\\employee_detail.html",
+        "employees\\templates\\employees\\employee_form.html",
+        "employees\\templates\\employees\\employee_list.html",
+        "employees\\templates\\employees\\hierarchy_organization.html",
+        "employees\\templates\\employees\\organization_chart.html",
+        "evaluations\\templates\\evaluations\\contribution_evaluation.html",
+        "evaluations\\templates\\evaluations\\dashboard.html",
+        "evaluations\\templates\\evaluations\\debug_navigation.html",
+        "evaluations\\templates\\evaluations\\evaluate_employee.html",
+        "evaluations\\templates\\evaluations\\evaluation_statistics.html",
+        "evaluations\\templates\\evaluations\\evaluator_dashboard.html",
+        "evaluations\\templates\\evaluations\\expertise_evaluation.html",
+        "evaluations\\templates\\evaluations\\hr_admin_dashboard.html",
+        "evaluations\\templates\\evaluations\\impact_evaluation.html",
+        "evaluations\\templates\\evaluations\\my_evaluations_dashboard.html",
+        "evaluations\\templates\\evaluations\\my_goals.html",
+        "evaluations\\templates\\evaluations\\period_management.html",
+        "generated_templates\\matching\\dashboard.html",
+        "generated_templates\\testing\\dashboard.html",
+        "job_profiles\\templates\\job_profiles\\job_hierarchy_navigation.html",
+        "job_profiles\\templates\\job_profiles\\job_profile_admin_detail.html",
+        "job_profiles\\templates\\job_profiles\\job_profile_admin_list.html",
+        "job_profiles\\templates\\job_profiles\\job_profile_confirm_delete.html",
+        "job_profiles\\templates\\job_profiles\\job_profile_detail.html",
+        "job_profiles\\templates\\job_profiles\\job_profile_form.html",
+        "job_profiles\\templates\\job_profiles\\job_profile_list.html",
+        "promotions\\templates\\promotions\\dashboard.html",
+        "promotions\\templates\\promotions\\request_detail.html",
+        "selfservice\\templates\\selfservice\\base.html",
+        "selfservice\\templates\\selfservice\\compensation_statement.html",
+        "selfservice\\templates\\selfservice\\dashboard.html",
+        "selfservice\\templates\\selfservice\\evaluation_history.html",
+        "selfservice\\templates\\selfservice\\password_change.html",
+        "selfservice\\templates\\selfservice\\profile_update.html",
+        "templates\\base.html",
+        "templates\\base_modern.html",
+        "templates\\dashboard.html",
+        "templates\\dashboard_modern.html",
+        "templates\\dashboard_new.html",
+        "templates\\login.html",
+        "templates\\admin\\base_site.html",
+        "templates\\admin\\dashboard.html",
+        "templates\\admin\\index.html",
+        "templates\\admin\\login.html",
+        "templates\\ai\\chatbot.html",
+        "templates\\ai\\leader_assistant.html",
+        "templates\\dashboards\\leader_kpi.html",
+        "templates\\dashboards\\skillmap.html",
+        "templates\\dashboards\\workforce_comp.html",
+        "templates\\errors\\400.html",
+        "templates\\errors\\403.html",
+        "templates\\errors\\404.html",
+        "templates\\errors\\500.html",
+        "templates\\errors\\base_error.html",
+        "templates\\evaluations\\calibration_dashboard.html",
+        "templates\\reports\\dashboard.html",
+        "templates\\skillmap\\dashboard.html",
+        "templates\\skillmap\\dashboard_fixed.html",
+        "templates\\tasks\\dashboard.html",
+        "ui_preview\\comparison.html",
+        "ui_preview\\style-guide.html"
+      ],
+      ".css": [
+        "employees\\static\\css\\brand.css",
+        "static\\css\\admin-custom.css",
+        "static\\css\\brand.css",
+        "static\\css\\design-system-v3.css",
+        "static\\css\\design-system.css",
+        "static\\css\\sidebar-fix.css",
+        "staticfiles\\admin\\css\\autocomplete.css",
+        "staticfiles\\admin\\css\\base.css",
+        "staticfiles\\admin\\css\\changelists.css",
+        "staticfiles\\admin\\css\\dark_mode.css",
+        "staticfiles\\admin\\css\\dashboard.css",
+        "staticfiles\\admin\\css\\forms.css",
+        "staticfiles\\admin\\css\\login.css",
+        "staticfiles\\admin\\css\\nav_sidebar.css",
+        "staticfiles\\admin\\css\\responsive.css",
+        "staticfiles\\admin\\css\\responsive_rtl.css",
+        "staticfiles\\admin\\css\\rtl.css",
+        "staticfiles\\admin\\css\\unusable_password_field.css",
+        "staticfiles\\admin\\css\\widgets.css",
+        "staticfiles\\admin\\css\\vendor\\select2\\select2.css",
+        "staticfiles\\admin\\css\\vendor\\select2\\select2.min.css",
+        "staticfiles\\css\\design-system.css",
+        "ui_preview\\unified-design-system.css"
+      ],
+      ".js": [
+        "staticfiles\\admin\\js\\actions.js",
+        "staticfiles\\admin\\js\\autocomplete.js",
+        "staticfiles\\admin\\js\\calendar.js",
+        "staticfiles\\admin\\js\\cancel.js",
+        "staticfiles\\admin\\js\\change_form.js",
+        "staticfiles\\admin\\js\\core.js",
+        "staticfiles\\admin\\js\\filters.js",
+        "staticfiles\\admin\\js\\inlines.js",
+        "staticfiles\\admin\\js\\jquery.init.js",
+        "staticfiles\\admin\\js\\nav_sidebar.js",
+        "staticfiles\\admin\\js\\popup_response.js",
+        "staticfiles\\admin\\js\\prepopulate.js",
+        "staticfiles\\admin\\js\\prepopulate_init.js",
+        "staticfiles\\admin\\js\\SelectBox.js",
+        "staticfiles\\admin\\js\\SelectFilter2.js",
+        "staticfiles\\admin\\js\\theme.js",
+        "staticfiles\\admin\\js\\unusable_password_field.js",
+        "staticfiles\\admin\\js\\urlify.js",
+        "staticfiles\\admin\\js\\admin\\DateTimeShortcuts.js",
+        "staticfiles\\admin\\js\\admin\\RelatedObjectLookups.js",
+        "staticfiles\\admin\\js\\vendor\\jquery\\jquery.js",
+        "staticfiles\\admin\\js\\vendor\\jquery\\jquery.min.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\select2.full.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\select2.full.min.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\af.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ar.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\az.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\bg.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\bn.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\bs.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ca.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\cs.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\da.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\de.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\dsb.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\el.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\en.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\es.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\et.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\eu.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\fa.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\fi.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\fr.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\gl.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\he.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\hi.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\hr.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\hsb.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\hu.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\hy.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\id.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\is.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\it.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ja.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ka.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\km.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ko.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\lt.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\lv.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\mk.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ms.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\nb.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ne.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\nl.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\pl.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ps.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\pt-BR.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\pt.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ro.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\ru.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\sk.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\sl.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\sq.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\sr-Cyrl.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\sr.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\sv.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\th.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\tk.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\tr.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\uk.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\vi.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\zh-CN.js",
+        "staticfiles\\admin\\js\\vendor\\select2\\i18n\\zh-TW.js",
+        "staticfiles\\admin\\js\\vendor\\xregexp\\xregexp.js",
+        "staticfiles\\admin\\js\\vendor\\xregexp\\xregexp.min.js"
+      ]
+    },
+    "recommendations": [
+      {
+        "type": "missing_directory",
+        "directory": "src",
+        "description": "소스 코드",
+        "action": "src/ 디렉토리 생성 권장"
+      },
+      {
+        "type": "missing_directory",
+        "directory": "api",
+        "description": "API 엔드포인트",
+        "action": "api/ 디렉토리 생성 권장"
+      },
+      {
+        "type": "missing_directory",
+        "directory": "frontend",
+        "description": "프론트엔드 코드",
+        "action": "frontend/ 디렉토리 생성 권장"
+      },
+      {
+        "type": "missing_directory",
+        "directory": "backend",
+        "description": "백엔드 코드",
+        "action": "backend/ 디렉토리 생성 권장"
+      },
+      {
+        "type": "missing_directory",
+        "directory": "tests",
+        "description": "테스트 코드",
+        "action": "tests/ 디렉토리 생성 권장"
+      },
+      {
+        "type": "missing_directory",
+        "directory": "scripts",
+        "description": "유틸리티 스크립트",
+        "action": "scripts/ 디렉토리 생성 권장"
+      },
+      {
+        "type": "missing_directory",
+        "directory": "config",
+        "description": "설정 파일",
+        "action": "config/ 디렉토리 생성 권장"
+      },
+      {
+        "type": "reorganize_files",
+        "files": [
+          "check_admin_employee.py",
+          "check_server.py",
+          "check_urls.py",
+          "clear_data.py",
+          "connect_user.py"
+        ],
+        "action": "Python 파일들을 src/ 또는 적절한 디렉토리로 이동"
+      },
+      {
+        "type": "reorganize_files",
+        "files": [
+          "staticfiles\\admin\\js\\actions.js",
+          "staticfiles\\admin\\js\\autocomplete.js",
+          "staticfiles\\admin\\js\\calendar.js",
+          "staticfiles\\admin\\js\\cancel.js",
+          "staticfiles\\admin\\js\\change_form.js"
+        ],
+        "action": "Frontend 파일들을 frontend/ 디렉토리로 통합"
+      },
+      {
+        "type": "organize_tests",
+        "files": [
+          "employees\\tests.py",
+          "generated_views\\testing_views.py",
+          "reports\\tests.py",
+          "generated_templates\\testing\\dashboard.html"
+        ],
+        "action": "테스트 파일들을 tests/ 디렉토리로 통합"
+      }
+    ]
+  },
+  "structure_improvements": {
+    "operations": [
+      {
+        "type": "create_directory",
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src",
+        "subdirs": [
+          "components",
+          "utils",
+          "services",
+          "models"
+        ]
+      },
+      {
+        "type": "create_directory",
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\api",
+        "subdirs": [
+          "routes",
+          "controllers",
+          "middlewares"
+        ]
+      },
+      {
+        "type": "create_directory",
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\frontend",
+        "subdirs": [
+          "components",
+          "pages",
+          "styles",
+          "assets"
+        ]
+      },
+      {
+        "type": "create_directory",
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\backend",
+        "subdirs": [
+          "models",
+          "views",
+          "serializers",
+          "services"
+        ]
+      },
+      {
+        "type": "create_directory",
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\tests",
+        "subdirs": [
+          "unit",
+          "integration",
+          "e2e"
+        ]
+      },
+      {
+        "type": "create_directory",
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\scripts",
+        "subdirs": [
+          "build",
+          "deploy",
+          "maintenance"
+        ]
+      },
+      {
+        "type": "create_directory",
+        "path": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\config",
+        "subdirs": [
+          "environments",
+          "webpack",
+          "docker"
+        ]
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\check_admin_employee.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\check_admin_employee.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\check_server.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\check_server.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\check_urls.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\check_urls.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\clear_data.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\clear_data.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\connect_user.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\connect_user.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_admin_employee.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\create_admin_employee.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_certification_data.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\create_certification_data.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_compensation_data.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\create_compensation_data.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_evaluation_data.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\create_evaluation_data.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_job_profiles_sample_data.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\create_job_profiles_sample_data.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_permissions_data.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\create_permissions_data.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\create_promotion_data.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\create_promotion_data.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\debug_job_urls.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\debug_job_urls.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\debug_urls.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\debug_urls.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\demo_integration.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\demo_integration.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\ehr_gpt_chatbot.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\ehr_gpt_chatbot.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generated_url_patterns.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\generated_url_patterns.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\generate_ui_preview.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\generate_ui_preview.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_profile_migration.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\job_profile_migration.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      },
+      {
+        "type": "move_file",
+        "source": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\job_search_recommend_api.py",
+        "destination": "C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\src\\job_search_recommend_api.py",
+        "reason": "루트 디렉토리의 Python 파일을 src/로 이동"
+      }
+    ],
+    "dry_run": false
+  },
+  "end_time": "2025-07-26T14:28:41.692578",
+  "dry_run": false
+}

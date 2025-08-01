@@ -1,0 +1,51 @@
+from django.shortcuts import render, get_object_or_404
+from django.views.generic import TemplateView
+from django.http import JsonResponse
+from django.db.models import Count, Prefetch
+import json
+
+from .models import JobCategory, JobType, JobRole, JobProfile
+
+
+class JobTreeMapView(TemplateView):
+    """직무체계도 트리맵 뷰"""
+    template_name = 'job_profiles/job_treemap.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # 통계 데이터
+        try:
+            context['total_categories'] = JobCategory.objects.filter(is_active=True).count()
+            context['total_job_types'] = JobType.objects.filter(is_active=True).count()
+            context['total_job_roles'] = JobRole.objects.filter(is_active=True).count()
+            context['total_profiles'] = JobProfile.objects.filter(is_active=True).count()
+        except:
+            # 모델이 없는 경우 기본값
+            context['total_categories'] = 0
+            context['total_job_types'] = 0
+            context['total_job_roles'] = 0
+            context['total_profiles'] = 0
+        
+        return context
+
+
+def job_tree_map_data_api(request):
+    """트리맵 데이터 API"""
+    return JsonResponse({
+        'success': True,
+        'data': {'Non-PL': {}, 'PL': {}}
+    })
+
+
+def job_detail_modal_api(request, job_role_id):
+    """직무 상세 정보 API"""
+    return JsonResponse({
+        'success': False,
+        'error': 'Not implemented'
+    })
+
+
+def job_profile_edit_view(request, job_role_id):
+    """직무기술서 편집 뷰"""
+    return render(request, 'job_profiles/job_profile_edit.html', {})

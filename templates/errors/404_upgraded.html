@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 페이지를 찾을 수 없습니다</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#1443FF',
+                            hover: '#0E35CC',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900 font-['Noto_Sans_KR']">
+    <div class="min-h-full flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full text-center">
+            <!-- 404 Icon -->
+            <div class="mx-auto w-24 h-24 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-8">
+                <i data-lucide="alert-circle" class="w-12 h-12 text-red-600 dark:text-red-400"></i>
+            </div>
+            
+            <!-- Error Code -->
+            <h1 class="text-9xl font-bold text-gray-200 dark:text-gray-700">404</h1>
+            
+            <!-- Error Message -->
+            <h2 class="mt-4 text-3xl font-bold text-gray-900 dark:text-white">
+                페이지를 찾을 수 없습니다
+            </h2>
+            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                요청하신 페이지가 존재하지 않거나 이동되었습니다.
+            </p>
+            
+            <!-- Suggestions -->
+            <div class="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+                    다음을 시도해보세요:
+                </h3>
+                <ul class="text-left space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                    <li class="flex items-start">
+                        <i data-lucide="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span>URL이 올바른지 확인하세요</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i data-lucide="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span>브라우저의 뒤로 가기 버튼을 사용하세요</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i data-lucide="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span>홈페이지에서 원하는 페이지를 찾아보세요</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="history.back()" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                    이전 페이지로
+                </button>
+                <a href="/" class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                    홈으로 가기
+                </a>
+            </div>
+            
+            <!-- Help Link -->
+            <p class="mt-8 text-sm text-gray-500 dark:text-gray-400">
+                도움이 필요하신가요? 
+                <a href="/support" class="font-medium text-primary hover:text-primary-hover">
+                    고객지원 센터
+                </a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Check for dark mode preference
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</body>
+</html>

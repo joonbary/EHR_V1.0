@@ -2,6 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
 
+# HR Dashboard models import
+from .models_hr import HREmployee, HRMonthlySnapshot, HRContractor, HRFileUpload
+
+# Weekly Workforce models import
+from .models_workforce import WeeklyWorkforceSnapshot, WeeklyJoinLeave, WeeklyWorkforceChange
+
 # Create your models here.
 
 class Employee(models.Model):

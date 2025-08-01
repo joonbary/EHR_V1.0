@@ -16,7 +16,7 @@
     <!-- 네비게이션 바 -->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm rounded-4 mt-3 mb-4">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'employees:employee_list' %}" style="font-size:1.4rem; letter-spacing:-1px; color:#fff;">
+            <a class="navbar-brand fw-bold" href="{% url 'employees:employee_management' %}" style="font-size:1.4rem; letter-spacing:-1px; color:#fff;">
                 <span style="color:#fff; font-weight:900;">OK금융그룹</span>
                 <i class="fa-solid fa-user-group me-2" style="color:#fff;"></i>
                 <span style="color:#fff;">eHR 시스템</span>
@@ -27,7 +27,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/employees/' %}active{% endif %}" href="{% url 'employees:employee_list' %}">
+                        <a class="nav-link {% if request.path == '/employees/' %}active{% endif %}" href="{% url 'employees:employee_management' %}">
                             <i class="fas fa-list me-1"></i>직원 목록
                         </a>
                     </li>

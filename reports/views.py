@@ -8,6 +8,9 @@ from promotions.models import PromotionRequest
 from .utils import ExcelReportGenerator
 from .models import ReportTemplate, ReportGeneration
 from datetime import datetime
+from utils.file_manager import FileManager, ExcelFileHandler
+import os
+from django.conf import settings
 
 class ReportDashboardView(HRPermissionMixin, ListView):
     """리포트 대시보드"""
@@ -80,7 +83,19 @@ class EmployeeListReportView(HRPermissionMixin, View):
             file_format='excel'
         )
         
-        return generator.save_to_response(f"직원명부_{datetime.now().strftime('%Y%m%d')}.xlsx")
+        # 파일 매니저를 통해 exports 폴더에 저장
+        file_manager = FileManager()
+        filename = f"직원명부_{datetime.now().strftime('%Y%m%d')}.xlsx"
+        export_path = os.path.join(settings.MEDIA_ROOT, 'exports', filename)
+        
+        # 임시 파일로 저장 후 exports 폴더로 이동
+        response = generator.save_to_response(filename)
+        
+        # exports 폴더에 복사본 저장 (선택적)
+        with open(export_path, 'wb') as f:
+            f.write(response.content)
+        
+        return response
 
 class EvaluationSummaryReportView(HRPermissionMixin, View):
     """평가 결과 요약 리포트"""
@@ -134,7 +149,18 @@ class EvaluationSummaryReportView(HRPermissionMixin, View):
             ratio = (count / total * 100) if total > 0 else 0
             generator.add_data_row([grade, count, f"{ratio:.1f}%"])
             
-        return generator.save_to_response(f"평가결과_{year}년.xlsx")
+        # 파일 매니저를 통해 exports 폴더에 저장
+        file_manager = FileManager()
+        filename = f"평가결과_{year}년.xlsx"
+        export_path = os.path.join(settings.MEDIA_ROOT, 'exports', filename)
+        
+        response = generator.save_to_response(filename)
+        
+        # exports 폴더에 복사본 저장
+        with open(export_path, 'wb') as f:
+            f.write(response.content)
+        
+        return response
     
     def get_pi_rate(self, level, grade):
         """PI 지급률 조회"""

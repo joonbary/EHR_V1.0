@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI/UX 업그레이드 진행상황 - Shrimp Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-slow {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .task-card {
+            transition: all 0.3s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Shrimp Task Manager</h1>
+                            <p class="text-sm text-gray-500">UI/UX 업그레이드 진행상황</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div id="connection-status" class="flex items-center space-x-2">
+                            <div id="status-indicator" class="w-3 h-3 rounded-full bg-gray-400"></div>
+                            <span id="status-text" class="text-sm text-gray-600">연결 대기중</span>
+                        </div>
+                        <button onclick="connectWebSocket()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            재연결
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Overall Progress -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4">전체 진행률</h2>
+                <div class="relative">
+                    <div class="overflow-hidden h-4 text-xs flex rounded-full bg-gray-200">
+                        <div id="overall-progress-bar" style="width: 0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"></div>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mt-2">
+                        <span>시작</span>
+                        <span id="overall-progress-text" class="font-semibold">0%</span>
+                        <span>완료</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">전체 작업</p>
+                            <p id="total-tasks" class="text-2xl font-bold text-gray-900">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">완료됨</p>
+                            <p id="completed-tasks" class="text-2xl font-bold text-green-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">진행중</p>
+                            <p id="in-progress-tasks" class="text-2xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">실패</p>
+                            <p id="failed-tasks" class="text-2xl font-bold text-red-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">작업 목록</h2>
+                <div id="task-list" class="space-y-4">
+                    <!-- Tasks will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Real-time Log -->
+            <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+                <h2 class="text-xl font-semibold mb-4">실시간 로그</h2>
+                <div id="log-container" class="bg-gray-50 rounded-lg p-4 h-64 overflow-y-auto font-mono text-sm">
+                    <!-- Logs will be inserted here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let ws = null;
+        let tasks = {};
+        let reconnectInterval = null;
+
+        function connectWebSocket() {
+            const wsUrl = 'ws://localhost:8765';
+            
+            try {
+                ws = new WebSocket(wsUrl);
+                
+                ws.onopen = function() {
+                    console.log('WebSocket 연결됨');
+                    updateConnectionStatus('connected');
+                    addLog('WebSocket 서버에 연결되었습니다', 'success');
+                    
+                    if (reconnectInterval) {
+                        clearInterval(reconnectInterval);
+                        reconnectInterval = null;
+                    }
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleMessage(data);
+                    } catch (error) {
+                        console.error('메시지 파싱 오류:', error);
+                    }
+                };
+                
+                ws.onclose = function() {
+                    console.log('WebSocket 연결 끊김');
+                    updateConnectionStatus('disconnected');
+                    addLog('WebSocket 연결이 끊어졌습니다', 'error');
+                    attemptReconnect();
+                };
+                
+                ws.onerror = function(error) {
+                    console.error('WebSocket 오류:', error);
+                    updateConnectionStatus('error');
+                    addLog('WebSocket 오류 발생', 'error');
+                };
+                
+            } catch (error) {
+                console.error('WebSocket 연결 실패:', error);
+                updateConnectionStatus('error');
+                attemptReconnect();
+            }
+        }
+
+        function attemptReconnect() {
+            if (!reconnectInterval) {
+                reconnectInterval = setInterval(() => {
+                    addLog('재연결 시도중...', 'info');
+                    connectWebSocket();
+                }, 5000);
+            }
+        }
+
+        function updateConnectionStatus(status) {
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            
+            switch(status) {
+                case 'connected':
+                    indicator.className = 'w-3 h-3 rounded-full bg-green-500 animate-pulse-slow';
+                    text.textContent = '연결됨';
+                    text.className = 'text-sm text-green-600';
+                    break;
+                case 'disconnected':
+                    indicator.className = 'w-3 h-3 rounded-full bg-red-500';
+                    text.textContent = '연결 끊김';
+                    text.className = 'text-sm text-red-600';
+                    break;
+                case 'error':
+                    indicator.className = 'w-3 h-3 rounded-full bg-yellow-500';
+                    text.textContent = '오류';
+                    text.className = 'text-sm text-yellow-600';
+                    break;
+                default:
+                    indicator.className = 'w-3 h-3 rounded-full bg-gray-400';
+                    text.textContent = '연결 대기중';
+                    text.className = 'text-sm text-gray-600';
+            }
+        }
+
+        function handleMessage(data) {
+            switch(data.type) {
+                case 'welcome':
+                    addLog(data.message, 'success');
+                    break;
+                case 'start':
+                    initializeTasks(data.tasks);
+                    document.getElementById('total-tasks').textContent = data.total_tasks;
+                    addLog(`UI/UX 업그레이드 작업 시작 (총 ${data.total_tasks}개 작업)`, 'info');
+                    break;
+                case 'progress_update':
+                    updateTask(data.task);
+                    updateOverallProgress(data.overall_progress);
+                    break;
+                case 'complete':
+                    updateStatistics(data);
+                    addLog('모든 작업이 완료되었습니다!', 'success');
+                    break;
+                case 'history':
+                    // Handle history data
+                    break;
+            }
+        }
+
+        function initializeTasks(taskList) {
+            const container = document.getElementById('task-list');
+            container.innerHTML = '';
+            
+            taskList.forEach(task => {
+                tasks[task.task_id] = task;
+                container.appendChild(createTaskElement(task));
+            });
+        }
+
+        function createTaskElement(task) {
+            const div = document.createElement('div');
+            div.id = `task-${task.task_id}`;
+            div.className = 'task-card border rounded-lg p-4 bg-gray-50';
+            
+            div.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-3">
+                        <div class="task-status-icon">
+                            ${getStatusIcon(task.status)}
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">${task.name}</h3>
+                            <p class="text-sm text-gray-600">${task.description}</p>
+                        </div>
+                    </div>
+                    <span class="task-type px-3 py-1 rounded-full text-xs font-medium ${getTypeClass(task.task_type)}">
+                        ${task.task_type}
+                    </span>
+                </div>
+                <div class="mt-3">
+                    <div class="overflow-hidden h-2 text-xs flex rounded-full bg-gray-200">
+                        <div class="task-progress-bar shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-300" style="width: ${task.progress || 0}%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span class="task-status">${getStatusText(task.status)}</span>
+                        <span class="task-progress-text">${task.progress || 0}%</span>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function updateTask(task) {
+            const element = document.getElementById(`task-${task.task_id}`);
+            if (!element) return;
+            
+            // Update status icon
+            const statusIcon = element.querySelector('.task-status-icon');
+            statusIcon.innerHTML = getStatusIcon(task.status);
+            
+            // Update progress bar
+            const progressBar = element.querySelector('.task-progress-bar');
+            progressBar.style.width = `${task.progress}%`;
+            
+            // Update progress text
+            const progressText = element.querySelector('.task-progress-text');
+            progressText.textContent = `${task.progress}%`;
+            
+            // Update status text
+            const statusText = element.querySelector('.task-status');
+            statusText.textContent = getStatusText(task.status);
+            
+            // Update card style based on status
+            updateCardStyle(element, task.status);
+            
+            // Add log entry
+            if (task.status === 'in_progress' && task.progress === 0) {
+                addLog(`작업 시작: ${task.name}`, 'info');
+            } else if (task.status === 'completed') {
+                addLog(`작업 완료: ${task.name}`, 'success');
+            } else if (task.status === 'failed') {
+                addLog(`작업 실패: ${task.name} - ${task.error}`, 'error');
+            }
+            
+            // Update statistics
+            updateStatisticsCounts();
+        }
+
+        function updateCardStyle(element, status) {
+            element.className = 'task-card border rounded-lg p-4 transition-all duration-300 ';
+            
+            switch(status) {
+                case 'completed':
+                    element.className += 'bg-green-50 border-green-200';
+                    break;
+                case 'in_progress':
+                    element.className += 'bg-blue-50 border-blue-200 animate-pulse-slow';
+                    break;
+                case 'failed':
+                    element.className += 'bg-red-50 border-red-200';
+                    break;
+                default:
+                    element.className += 'bg-gray-50 border-gray-200';
+            }
+        }
+
+        function updateOverallProgress(progress) {
+            const progressBar = document.getElementById('overall-progress-bar');
+            const progressText = document.getElementById('overall-progress-text');
+            
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
+        }
+
+        function updateStatisticsCounts() {
+            let completed = 0, inProgress = 0, failed = 0, pending = 0;
+            
+            Object.values(tasks).forEach(task => {
+                switch(task.status) {
+                    case 'completed': completed++; break;
+                    case 'in_progress': inProgress++; break;
+                    case 'failed': failed++; break;
+                    case 'pending': pending++; break;
+                }
+            });
+            
+            document.getElementById('completed-tasks').textContent = completed;
+            document.getElementById('in-progress-tasks').textContent = inProgress;
+            document.getElementById('failed-tasks').textContent = failed;
+        }
+
+        function updateStatistics(data) {
+            document.getElementById('completed-tasks').textContent = data.success_count || 0;
+            document.getElementById('failed-tasks').textContent = data.failed_count || 0;
+            document.getElementById('in-progress-tasks').textContent = 0;
+        }
+
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'completed':
+                    return '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                case 'in_progress':
+                    return '<svg class="w-6 h-6 text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+                case 'failed':
+                    return '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                default:
+                    return '<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'completed': return '완료';
+                case 'in_progress': return '진행중';
+                case 'failed': return '실패';
+                case 'pending': return '대기중';
+                default: return '알 수 없음';
+            }
+        }
+
+        function getTypeClass(type) {
+            switch(type) {
+                case 'planning': return 'bg-purple-100 text-purple-800';
+                case 'design': return 'bg-blue-100 text-blue-800';
+                case 'implementation': return 'bg-green-100 text-green-800';
+                case 'testing': return 'bg-yellow-100 text-yellow-800';
+                case 'deployment': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('log-container');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'mb-1';
+            
+            let colorClass = 'text-gray-600';
+            let prefix = '[INFO]';
+            
+            switch(type) {
+                case 'success':
+                    colorClass = 'text-green-600';
+                    prefix = '[SUCCESS]';
+                    break;
+                case 'error':
+                    colorClass = 'text-red-600';
+                    prefix = '[ERROR]';
+                    break;
+                case 'warning':
+                    colorClass = 'text-yellow-600';
+                    prefix = '[WARNING]';
+                    break;
+            }
+            
+            logEntry.innerHTML = `<span class="text-gray-400">[${timestamp}]</span> <span class="${colorClass}">${prefix}</span> ${message}`;
+            container.appendChild(logEntry);
+            
+            // Auto scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>

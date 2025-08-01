@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - 서버 오류</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#1443FF',
+                            hover: '#0E35CC',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900 font-['Noto_Sans_KR']">
+    <div class="min-h-full flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full text-center">
+            <!-- 500 Icon -->
+            <div class="mx-auto w-24 h-24 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-8">
+                <i data-lucide="server-crash" class="w-12 h-12 text-orange-600 dark:text-orange-400"></i>
+            </div>
+            
+            <!-- Error Code -->
+            <h1 class="text-9xl font-bold text-gray-200 dark:text-gray-700">500</h1>
+            
+            <!-- Error Message -->
+            <h2 class="mt-4 text-3xl font-bold text-gray-900 dark:text-white">
+                서버 오류가 발생했습니다
+            </h2>
+            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
+            </p>
+            
+            <!-- Status Info -->
+            <div class="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <div class="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">
+                        기술팀에서 문제를 확인하고 있습니다
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    이 오류는 자동으로 기록되었으며, 최대한 빠르게 해결하도록 노력하겠습니다.
+                </p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="location.reload()" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
+                    페이지 새로고침
+                </button>
+                <a href="/" class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                    홈으로 가기
+                </a>
+            </div>
+            
+            <!-- Error Details (for development) -->
+            {% if debug %}
+            <div class="mt-8 text-left bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                    디버그 정보 (개발 환경에서만 표시)
+                </h3>
+                <pre class="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
+{{ exception|default:"No exception details available" }}
+                </pre>
+            </div>
+            {% endif %}
+            
+            <!-- Help Link -->
+            <p class="mt-8 text-sm text-gray-500 dark:text-gray-400">
+                계속해서 문제가 발생한다면 
+                <a href="/support" class="font-medium text-primary hover:text-primary-hover">
+                    고객지원 센터
+                </a>
+                로 문의해주세요
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Check for dark mode preference
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</body>
+</html>

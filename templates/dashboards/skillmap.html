@@ -1,0 +1,331 @@
+{% extends 'base_modern.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .skill-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .skill-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .skill-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    
+    .skill-icon {
+        width: 48px;
+        height: 48px;
+        background: #f0f4f8;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        font-size: 1.5rem;
+    }
+    
+    .skill-card h3 {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+    
+    .skill-count {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #007bff;
+        margin-bottom: 4px;
+    }
+    
+    .skill-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .skill-chart-container {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .skill-matrix {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .skill-matrix-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
+    .skill-item {
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    
+    .skill-item:hover {
+        border-color: #007bff;
+        background: #e7f3ff;
+    }
+    
+    .skill-level {
+        display: inline-block;
+        padding: 4px 8px;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 8px;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .filter-group {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <h1>{{ title }}</h1>
+        <div class="header-actions">
+            <button class="btn btn-outline-primary" onclick="exportSkillData()">
+                <i class="fas fa-download"></i> 스킬 데이터 내보내기
+            </button>
+            <button class="btn btn-primary" onclick="addNewSkill()">
+                <i class="fas fa-plus"></i> 스킬 추가
+            </button>
+        </div>
+    </div>
+    
+    <!-- 필터 섹션 -->
+    <div class="filter-section">
+        <div class="filter-group">
+            <label>카테고리:</label>
+            <select class="form-control" style="width: 200px;">
+                <option>전체</option>
+                <option>기술 역량</option>
+                <option>리더십</option>
+                <option>커뮤니케이션</option>
+            </select>
+            
+            <label>부서:</label>
+            <select class="form-control" style="width: 200px;">
+                <option>전체 부서</option>
+                <option>IT</option>
+                <option>HR</option>
+                <option>영업</option>
+            </select>
+            
+            <button class="btn btn-primary">
+                <i class="fas fa-filter"></i> 필터 적용
+            </button>
+        </div>
+    </div>
+    
+    <!-- 스킬 개요 -->
+    <div class="skill-overview">
+        {% for category in skill_categories %}
+        <div class="skill-card">
+            <div class="skill-icon" style="background: 
+                {% if category.name == '기술 역량' %}#e3f2fd{% elif category.name == '리더십' %}#fce4ec{% elif category.name == '커뮤니케이션' %}#e8f5e9{% elif category.name == '프로젝트 관리' %}#fff3e0{% else %}#f3e5f5{% endif %};">
+                {% if category.name == '기술 역량' %}
+                    💻
+                {% elif category.name == '리더십' %}
+                    👥
+                {% elif category.name == '커뮤니케이션' %}
+                    💬
+                {% elif category.name == '프로젝트 관리' %}
+                    📊
+                {% else %}
+                    📈
+                {% endif %}
+            </div>
+            <h3>{{ category.name }}</h3>
+            <div class="skill-count">{{ category.count }}</div>
+            <div class="skill-label">보유 인원</div>
+        </div>
+        {% endfor %}
+        
+        <div class="skill-card">
+            <div class="skill-icon" style="background: #e0f2fe;">
+                🎯
+            </div>
+            <h3>전체 스킬</h3>
+            <div class="skill-count">{{ total_skills }}</div>
+            <div class="skill-label">총 보유 스킬</div>
+        </div>
+    </div>
+    
+    <!-- 스킬 분포 차트 -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="skill-chart-container">
+                <h3>부서별 스킬 분포</h3>
+                <canvas id="skillDistributionChart" height="300"></canvas>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="skill-chart-container">
+                <h3>스킬 레벨 분포</h3>
+                <canvas id="skillLevelChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 스킬 매트릭스 -->
+    <div class="skill-matrix">
+        <h3>주요 스킬 현황</h3>
+        <div class="skill-matrix-grid">
+            <div class="skill-item">
+                <div>Python</div>
+                <div class="skill-level">고급</div>
+            </div>
+            <div class="skill-item">
+                <div>JavaScript</div>
+                <div class="skill-level">중급</div>
+            </div>
+            <div class="skill-item">
+                <div>프로젝트 관리</div>
+                <div class="skill-level">고급</div>
+            </div>
+            <div class="skill-item">
+                <div>데이터 분석</div>
+                <div class="skill-level">중급</div>
+            </div>
+            <div class="skill-item">
+                <div>리더십</div>
+                <div class="skill-level">초급</div>
+            </div>
+            <div class="skill-item">
+                <div>커뮤니케이션</div>
+                <div class="skill-level">고급</div>
+            </div>
+            <div class="skill-item">
+                <div>클라우드</div>
+                <div class="skill-level">중급</div>
+            </div>
+            <div class="skill-item">
+                <div>AI/ML</div>
+                <div class="skill-level">초급</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 부서별 스킬 분포 차트
+const ctx1 = document.getElementById('skillDistributionChart').getContext('2d');
+const skillDistChart = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: ['IT', 'HR', '영업', '마케팅', '재무'],
+        datasets: [{
+            label: '기술 역량',
+            data: [45, 12, 8, 15, 10],
+            backgroundColor: 'rgba(54, 162, 235, 0.8)'
+        }, {
+            label: '리더십',
+            data: [20, 25, 30, 22, 28],
+            backgroundColor: 'rgba(255, 99, 132, 0.8)'
+        }, {
+            label: '커뮤니케이션',
+            data: [35, 40, 45, 38, 32],
+            backgroundColor: 'rgba(75, 192, 192, 0.8)'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                stacked: true
+            },
+            y: {
+                stacked: true,
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// 스킬 레벨 분포 차트
+const ctx2 = document.getElementById('skillLevelChart').getContext('2d');
+const skillLevelChart = new Chart(ctx2, {
+    type: 'pie',
+    data: {
+        labels: ['초급', '중급', '고급', '전문가'],
+        datasets: [{
+            data: [30, 45, 20, 5],
+            backgroundColor: [
+                'rgba(255, 206, 86, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+function exportSkillData() {
+    alert('스킬 데이터 내보내기 기능은 준비 중입니다.');
+}
+
+function addNewSkill() {
+    alert('스킬 추가 기능은 준비 중입니다.');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 테스트 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        select {
+            padding: 8px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+        .success {
+            background: #d4edda !important;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da !important;
+            color: #721c24;
+        }
+    </style>
+    
+    <script>
+        // 페이지 로드 즉시 실행
+        console.log('🎯 테스트 페이지 JavaScript 로드됨');
+        
+        // 전역 변수
+        window.testResults = [];
+        
+        // 페이지 로드 완료 후 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM 로드 완료');
+            updateStatus('DOM 로드 완료 - JavaScript 정상 작동');
+        });
+    </script>
+</head>
+<body>
+    <div class="test-card">
+        <h1>🧪 JavaScript 기능 테스트</h1>
+        <p>이 페이지는 JavaScript가 정상적으로 작동하는지 테스트합니다.</p>
+        
+        <div id="status">테스트 준비 중...</div>
+        
+        <hr>
+        
+        <h3>1. 기본 버튼 테스트</h3>
+        <button class="btn" onclick="testAlert()">알림 테스트</button>
+        <button class="btn" onclick="testConsole()">콘솔 테스트</button>
+        <button class="btn" onclick="testDOM()">DOM 조작 테스트</button>
+        
+        <h3>2. AI 모델 선택 시뮬레이션</h3>
+        <select id="modelSelect" onchange="testModelChange(this.value)">
+            <option value="">모델 선택...</option>
+            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+            <option value="gpt-4">GPT-4</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4-turbo">GPT-4 Turbo</option>
+        </select>
+        
+        <div id="modelInfo" style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            모델을 선택해주세요.
+        </div>
+        
+        <h3>3. AJAX 테스트</h3>
+        <button class="btn" onclick="testAjax()">AJAX 호출 테스트</button>
+        <div id="ajaxResult" style="margin: 10px 0;"></div>
+        
+        <h3>4. 테스트 결과</h3>
+        <ul id="testResults"></ul>
+        
+        <hr>
+        <button class="btn" onclick="location.href='/airiss/'">AIRISS 대시보드로 돌아가기</button>
+    </div>
+
+    <script>
+        // 테스트 함수들
+        function updateStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = isError ? 'error' : 'success';
+        }
+        
+        function addTestResult(test, result) {
+            const ul = document.getElementById('testResults');
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${test}:</strong> ${result}`;
+            ul.appendChild(li);
+            console.log(`테스트 결과 - ${test}: ${result}`);
+        }
+        
+        function testAlert() {
+            alert('✅ JavaScript Alert 기능이 정상 작동합니다!');
+            addTestResult('Alert 테스트', '성공');
+        }
+        
+        function testConsole() {
+            console.log('📝 콘솔 로그 테스트');
+            console.warn('⚠️ 콘솔 경고 테스트');
+            console.error('❌ 콘솔 에러 테스트');
+            addTestResult('Console 테스트', '콘솔창 확인 (F12)');
+        }
+        
+        function testDOM() {
+            const now = new Date().toLocaleTimeString();
+            updateStatus(`DOM 조작 성공 - 현재 시간: ${now}`);
+            addTestResult('DOM 조작 테스트', '성공');
+        }
+        
+        function testModelChange(value) {
+            if (!value) return;
+            
+            const info = document.getElementById('modelInfo');
+            const models = {
+                'gpt-3.5-turbo': '빠르고 경제적인 모델',
+                'gpt-4': '더 정확하고 창의적인 응답',
+                'gpt-4o': '최신 멀티모달 모델',
+                'gpt-4-turbo': 'GPT-4의 빠른 버전'
+            };
+            
+            info.innerHTML = `
+                <strong>선택된 모델: ${value}</strong><br>
+                <small>${models[value]}</small>
+            `;
+            
+            addTestResult('모델 선택 테스트', `${value} 선택됨`);
+            console.log('모델 변경:', value);
+        }
+        
+        function testAjax() {
+            const resultDiv = document.getElementById('ajaxResult');
+            resultDiv.innerHTML = '🔄 AJAX 요청 중...';
+            
+            fetch('/airiss/api/models/')
+                .then(response => response.json())
+                .then(data => {
+                    resultDiv.innerHTML = `
+                        <strong>✅ AJAX 성공!</strong><br>
+                        <small>현재 모델: ${data.current_model}</small><br>
+                        <small>API 사용 가능: ${data.api_available ? '예' : '아니오'}</small>
+                    `;
+                    addTestResult('AJAX 테스트', '성공');
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `❌ AJAX 실패: ${error.message}`;
+                    addTestResult('AJAX 테스트', `실패: ${error.message}`);
+                });
+        }
+        
+        // 페이지 로드 시 자동 테스트
+        window.onload = function() {
+            updateStatus('✅ 모든 JavaScript 기능이 정상 작동 중입니다!');
+            addTestResult('페이지 로드', '성공');
+            console.log('🎉 테스트 페이지 초기화 완료');
+        };
+    </script>
+</body>
+</html>

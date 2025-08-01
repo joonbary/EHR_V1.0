@@ -1,0 +1,60 @@
+/* 사이드바 프로필 위치 수정을 위한 추가 CSS */
+
+/* 사이드바 컨테이너 */
+.sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+/* 사이드바 헤더 - 상단 고정 */
+.sidebar-header {
+    flex-shrink: 0 !important;
+    position: relative !important;
+}
+
+/* 네비게이션 영역 - 중간에서 스크롤 가능 */
+.sidebar-nav {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-height: 0 !important;
+    position: relative !important;
+}
+
+/* 사이드바 푸터 - 하단 고정 */
+.sidebar-footer {
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+    position: relative !important;
+    z-index: 10 !important;
+    background-color: #F9FAFB !important;
+    border-top: 1px solid #E5E7EB !important;
+    padding: 1.5rem !important;
+}
+
+/* 사용자 프로필 */
+.user-profile {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+/* 스크롤바 스타일 */
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}

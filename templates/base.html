@@ -4,10 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}OK금융그룹 e-HR 시스템{% endblock %}</title>
+    <title>{% block title %}OK금융그룹 AI-Driven HR System{% endblock %}</title>
     
     <!-- OK금융그룹 디자인 시스템 CSS -->
-    <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+    <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/brand.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/sidebar-fix.css' %}?v=1">
     
     <!-- Pretendard 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -21,14 +23,19 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- 사이드바 오버레이 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <!-- 사이드바 -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2 class="text-primary">OK금융그룹</h2>
-            <p class="text-sm text-gray-600">e-HR 시스템</p>
+    <div class="sidebar" id="sidebar" style="display: flex; flex-direction: column; height: 100vh;">
+        <div class="sidebar-header" style="flex-shrink: 0;">
+            <img src="{% static 'images/ok-logo-white.svg' %}" alt="OK금융그룹" class="sidebar-logo" 
+                 style="height: 48px; width: auto; margin-bottom: 0.25rem; 
+                        display: block; margin-left: auto; margin-right: auto;">
+            <p class="text-sm text-white" style="opacity: 0.9; font-size: 0.8rem; margin-top: 0.25rem;">AI-Driven HR System</p>
         </div>
         
-        <nav class="sidebar-nav">
+        <nav class="sidebar-nav" style="flex: 1 1 auto; overflow-y: auto; min-height: 0;">
             <ul>
                 <li class="sidebar-nav-item">
                     <a href="{% url 'home' %}" class="sidebar-nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
@@ -38,9 +45,23 @@
                 </li>
                 
                 <li class="sidebar-nav-item">
-                    <a href="{% url 'employees:employee_list' %}" class="sidebar-nav-link {% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'employees:employee_management' %}" class="sidebar-nav-link {% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
                         <i data-lucide="users" class="w-4 h-4"></i>
                         <span>인사정보</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'employees:organization_chart' %}" class="sidebar-nav-link {% if 'organization_chart' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="network" class="w-4 h-4"></i>
+                        <span>조직도</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'employees:hierarchy_organization' %}" class="sidebar-nav-link {% if 'hierarchy_organization' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                        <span>계층별 조직도</span>
                     </a>
                 </li>
                 
@@ -65,21 +86,97 @@
                     </a>
                 </li>
                 
-                <li class="sidebar-nav-item">
+                <!-- 리포트 기능은 아직 구현되지 않음 -->
+                <!-- <li class="sidebar-nav-item">
                     <a href="{% url 'reports:dashboard' %}" class="sidebar-nav-link {% if 'reports' in request.resolver_match.url_name %}active{% endif %}">
                         <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
                         <span>리포트</span>
+                    </a>
+                </li> -->
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'job_profiles:list' %}" class="sidebar-nav-link {% if 'job_profiles' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="briefcase" class="w-4 h-4"></i>
+                        <span>직무기술서</span>
+                    </a>
+                </li>
+                
+                <!-- 대시보드 섹션 -->
+                <li class="sidebar-nav-section">
+                    <span class="sidebar-nav-section-title">대시보드</span>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'leader_kpi_dashboard' %}" class="sidebar-nav-link {% if 'leader_kpi' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="activity" class="w-4 h-4"></i>
+                        <span>경영진 KPI</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'workforce_comp_dashboard' %}" class="sidebar-nav-link {% if 'workforce_comp' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="users-2" class="w-4 h-4"></i>
+                        <span>인력/보상 현황</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'employees:hr_dashboard' %}" class="sidebar-nav-link {% if 'hr_dashboard' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="bar-chart" class="w-4 h-4"></i>
+                        <span>HR 대시보드</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'employees:outsourced_dashboard' %}" class="sidebar-nav-link {% if 'outsourced_dashboard' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                        <span>외주인력 현황</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'skillmap_dashboard' %}" class="sidebar-nav-link {% if 'skillmap' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="target" class="w-4 h-4"></i>
+                        <span>스킬맵</span>
+                    </a>
+                </li>
+                
+                <!-- AI 도구 섹션 -->
+                <li class="sidebar-nav-section">
+                    <span class="sidebar-nav-section-title">AI 도구</span>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'ai_chatbot' %}" class="sidebar-nav-link {% if 'ai_chatbot' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span>AI 챗봇</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'leader_ai_assistant' %}" class="sidebar-nav-link {% if 'leader_ai_assistant' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                        <span>리더 AI 어시스턴트</span>
                     </a>
                 </li>
             </ul>
         </nav>
         
         <!-- 사용자 프로필 -->
-        <div class="sidebar-footer">
+        <div class="sidebar-footer" style="flex-shrink: 0; margin-top: auto;">
             {% if user.is_authenticated %}
             <div class="user-profile">
                 <div class="user-avatar">
-                    <i data-lucide="user" class="w-8 h-8"></i>
+                    {% if user.employee.profile_image %}
+                    <img src="{{ user.employee.profile_image.url }}" alt="프로필" 
+                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    {% else %}
+                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ok-primary) 0%, var(--ok-accent) 100%); 
+                                display: flex; align-items: center; justify-content: center; color: white; 
+                                font-weight: 700; font-size: 1.25rem; border-radius: 50%;">
+                        {{ user.get_full_name|default:user.username|slice:":2"|upper }}
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="user-info">
                     <p class="user-name">{{ user.get_full_name|default:user.username }}</p>
@@ -98,7 +195,8 @@
                 <div class="navbar-content">
                     <!-- 사이드바 토글 버튼 -->
                     <button class="btn btn-ghost sidebar-toggle" id="sidebarToggle">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
+                        <i data-lucide="menu" class="w-5 h-5" id="menuIcon"></i>
+                        <i data-lucide="x" class="w-5 h-5" id="closeIcon" style="display: none;"></i>
                     </button>
                     
                     <!-- 검색바 -->
@@ -121,7 +219,13 @@
                         <div class="user-menu">
                             {% if user.is_authenticated %}
                             <div class="user-menu-trigger">
-                                <img src="{% static 'images/avatar-placeholder.png' %}" alt="프로필" class="user-avatar-sm">
+                                {% if user.employee.profile_image %}
+                                <img src="{{ user.employee.profile_image.url }}" alt="프로필" class="user-avatar-sm" style="object-fit: cover;">
+                                {% else %}
+                                <div class="user-avatar-sm" style="background: linear-gradient(135deg, var(--ok-primary) 0%, var(--ok-accent) 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem;">
+                                    {{ user.get_full_name|default:user.username|slice:":2"|upper }}
+                                </div>
+                                {% endif %}
                                 <span class="user-name-sm">{{ user.get_full_name|default:user.username }}</span>
                                 <i data-lucide="chevron-down" class="w-4 h-4"></i>
                             </div>
@@ -170,11 +274,12 @@
 
                 <!-- 페이지 헤더 -->
                 {% block page_header %}
+                {% if request.resolver_match.url_name == 'home' %}
                 <div class="page-header">
                     <div class="page-header-content">
-                        <h1 class="page-title">{% block page_title %}페이지 제목{% endblock %}</h1>
+                        <h1 class="page-title">{% block page_title %}OK금융그룹 AI-Driven 인사정보시스템{% endblock %}</h1>
                         {% block page_description %}
-                        <p class="page-description">{% block page_desc %}페이지 설명{% endblock %}</p>
+                        <p class="page-description">{% block page_desc %}인공지능 기반의 스마트한 인재관리로 조직의 미래를 설계합니다{% endblock %}</p>
                         {% endblock %}
                     </div>
                     
@@ -182,6 +287,7 @@
                         {% block page_actions %}{% endblock %}
                     </div>
                 </div>
+                {% endif %}
                 {% endblock %}
 
                 <!-- 메인 콘텐츠 -->
@@ -194,13 +300,62 @@
 
     <!-- JavaScript -->
     <script>
+        // 강제 캐시 클리어 (개발 중에만 사용)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const links = document.querySelectorAll('link[rel="stylesheet"]');
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.includes('?v=')) {
+                    const newHref = href.replace(/\?v=\d+/, '?v=' + Date.now());
+                    link.setAttribute('href', newHref);
+                }
+            });
+        }
+        
         // Lucide 아이콘 초기화
         lucide.createIcons();
         
         // 사이드바 토글
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.querySelector('.main-content').classList.toggle('expanded');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        
+        sidebarToggle.addEventListener('click', function() {
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            
+            // 아이콘 변경
+            const menuIcon = document.getElementById('menuIcon');
+            const closeIcon = document.getElementById('closeIcon');
+            
+            if (isCollapsed) {
+                menuIcon.style.display = 'block';
+                closeIcon.style.display = 'none';
+            } else {
+                menuIcon.style.display = 'none';
+                closeIcon.style.display = 'block';
+            }
+            
+            // 모바일에서 오버레이 표시
+            if (window.innerWidth <= 768) {
+                sidebarOverlay.classList.toggle('active');
+            }
+            
+            // Lucide 아이콘 다시 초기화
+            lucide.createIcons();
+        });
+        
+        // 오버레이 클릭시 사이드바 닫기
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+            sidebarOverlay.classList.remove('active');
+            
+            // 아이콘 원상복귀
+            document.getElementById('menuIcon').style.display = 'block';
+            document.getElementById('closeIcon').style.display = 'none';
+            lucide.createIcons();
         });
         
         // 검색 단축키
@@ -212,22 +367,34 @@
         });
         
         // 사용자 메뉴 토글
-        document.querySelector('.user-menu-trigger').addEventListener('click', function() {
-            document.querySelector('.user-menu-dropdown').classList.toggle('show');
-        });
+        const userMenuTrigger = document.querySelector('.user-menu-trigger');
+        if (userMenuTrigger) {
+            userMenuTrigger.addEventListener('click', function() {
+                const dropdown = document.querySelector('.user-menu-dropdown');
+                if (dropdown) {
+                    dropdown.classList.toggle('show');
+                }
+            });
+        }
         
         // 외부 클릭시 메뉴 닫기
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.user-menu')) {
-                document.querySelector('.user-menu-dropdown').classList.remove('show');
+                const dropdown = document.querySelector('.user-menu-dropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
             }
         });
         
         // 알림 토글
-        document.querySelector('.notification-btn').addEventListener('click', function() {
-            // 알림 드롭다운 구현
-            console.log('알림 토글');
-        });
+        const notificationBtn = document.querySelector('.notification-btn');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', function() {
+                // 알림 드롭다운 구현
+                console.log('알림 토글');
+            });
+        }
     </script>
     
     {% block extra_js %}{% endblock %}

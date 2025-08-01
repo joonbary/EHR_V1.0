@@ -1,0 +1,43 @@
+/sc:improve --magic -persona-frontend
+
+💡 목적: OK금융그룹 e-HR 관리자 대시보드 UI 시각 개선 및 반응형 구조 보완
+
+🎯 주요 지시사항:
+1. ✅ **레이아웃 정비**
+   - 12컬럼 기반 Grid 레이아웃으로 재구성
+   - 통계 카드 간 `gap`을 통일 (`gap-4`, `p-4` 기준)
+   - 좌측 사이드바와 메인 콘텐츠의 `flex` 균형 조정 (비율: `1:5`)
+
+2. 🎨 **시각 구성 개선**
+   - 타이틀, 부제목, 표 제목 등 텍스트 계층 구조 강화 (`text-xl`, `text-md`, `text-sm`)
+   - 각 콘텐츠 구역마다 `border-b`, `bg-muted` 또는 `shadow-sm` 적용하여 구획 시각화
+   - 사이드바 hover 및 active 상태에 `bg-primary/10`, `text-primary` 효과 적용
+
+3. 📊 **시각 위젯 추가**
+   - `막대형 차트` → 평가등급 분포, 연령대 분포
+   - `도넛형 차트` → 고성과자 비율, 리더십 역량 분포
+   - `라인차트` → 월별 인력 이동 추이
+   - 각 위젯은 `recharts` 라이브러리 기반으로 구성
+
+4. 📱 **반응형 구조 강화**
+   - Breakpoint: `sm`, `md`, `lg`, `xl` 적용
+   - 작은 화면에서는 카드 1열 → 큰 화면에서는 2~3열 자동 배치
+   - 사이드바는 `fixed`가 아닌 `drawer`로 모바일 대응
+
+5. 🧭 **접근성 향상**
+   - 모든 버튼에 `aria-label` 추가
+   - 색상 대비 기준 WCAG 2.1 AA 충족
+   - 키보드 네비게이션 테스트 통과 필수
+
+6. 🧩 **기타 개선**
+   - 상단 글로벌 헤더는 고정 (`sticky top-0`) 처리
+   - 테이블에는 zebra striping 적용 (`odd:bg-muted/10`)
+   - 비어있는 위젯은 `빈 데이터 안내문구 + 아이콘` 표시
+
+🔧 참고 라이브러리:
+- `shadcn/ui`, `lucide-react`, `tailwindcss`, `recharts`
+
+📝 추가 명령:
+- 필요한 경우 `/sc:design -persona-frontend -magic` 으로 상세 설계 재지시
+- 실제 위젯 구현은 `/sc:implement -persona-frontend`로 전환 가능
+

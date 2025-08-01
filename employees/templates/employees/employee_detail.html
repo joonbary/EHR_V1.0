@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_modern.html' %}
 {% load static %}
 
 {% block title %}{{ employee.name }} - 직원 상세정보 - OK금융그룹 eHR 시스템{% endblock %}
@@ -25,7 +25,7 @@
                         <i class="fas fa-trash"></i>
                         삭제
                     </a>
-                    <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+                    <a href="{% url 'employees:employee_management' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i>
                         목록으로
                     </a>

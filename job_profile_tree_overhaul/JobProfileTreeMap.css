@@ -1,0 +1,225 @@
+/* JobProfileTreeMap.css */
+
+.job-profile-tree-map {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* 스크롤바 스타일링 */
+.job-profile-tree-map::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.job-profile-tree-map::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+
+.job-profile-tree-map::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.job-profile-tree-map::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* 트리맵 컨테이너 */
+.tree-map-container {
+  transition: transform 0.3s ease;
+}
+
+/* 직무 카드 애니메이션 */
+.job-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.job-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.5), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.job-card:hover::before {
+  transform: translateX(100%);
+}
+
+/* 직종 섹션 애니메이션 */
+.job-type-section {
+  position: relative;
+}
+
+.job-type-section::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+}
+
+.job-type-section:last-child::after {
+  display: none;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .job-profile-tree-map {
+    padding: 16px;
+  }
+  
+  .tree-map-header h4 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .job-profile-tree-map {
+    padding: 12px;
+  }
+  
+  .tree-map-header h4 {
+    font-size: 1.5rem;
+  }
+  
+  .job-card {
+    min-height: 100px;
+    padding: 16px !important;
+  }
+  
+  .job-icon {
+    font-size: 24px !important;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .job-profile-tree-map {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+  
+  .job-card {
+    background: #1e293b !important;
+    border-color: rgba(255,255,255,0.1) !important;
+  }
+  
+  .job-name {
+    color: #f1f5f9 !important;
+  }
+}
+
+/* 프린트 스타일 */
+@media print {
+  .floating-controls {
+    display: none !important;
+  }
+  
+  .job-profile-tree-map {
+    background: white;
+    padding: 0;
+  }
+  
+  .job-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* 접근성 향상 */
+.job-card:focus-visible {
+  outline: 3px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+.job-card[aria-selected="true"] {
+  background: #dbeafe !important;
+  border-color: #3B82F6 !important;
+}
+
+/* 로딩 애니메이션 */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 50%,
+    #f3f4f6 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* 드래그 인디케이터 */
+.drag-indicator {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.drag-indicator.show {
+  opacity: 1;
+}
+
+/* 줌 컨트롤 */
+.zoom-controls {
+  position: fixed;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.zoom-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.zoom-button:hover {
+  background: #f3f4f6;
+  transform: scale(1.1);
+}
+
+.zoom-button:active {
+  transform: scale(0.95);
+}

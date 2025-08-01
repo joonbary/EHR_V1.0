@@ -1,0 +1,32 @@
+{% extends 'errors/base_error.html' %}
+
+{% block title %}500 - 서버 오류{% endblock %}
+
+{% block content %}
+    <div class="error-icon">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7L2 17L12 22L22 17L22 7L12 2Z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+    </div>
+    
+    <div class="error-code">500</div>
+    
+    <h1 class="error-title">서버 오류가 발생했습니다</h1>
+    
+    <p class="error-message">
+        죄송합니다. 일시적인 서버 오류가 발생했습니다.<br>
+        잠시 후 다시 시도해 주세요.
+    </p>
+    
+    <div class="error-actions">
+        <button onclick="location.reload()" class="btn btn-secondary">새로고침</button>
+        <a href="/" class="btn btn-primary">홈으로 이동</a>
+    </div>
+    
+    <div class="error-details">
+        문제가 지속되면 시스템 관리자에게 문의하세요.<br>
+        <small>{{ request.build_absolute_uri }}</small>
+    </div>
+{% endblock %}

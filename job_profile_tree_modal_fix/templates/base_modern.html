@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OK금융그룹 인사관리 시스템">
+    <title>{% block title %}OK금융그룹 HRIS{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    
+    <!-- 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    
+    <!-- 기본 CSS -->
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- 심플 헤더 (로그인 없음) -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-logo">
+                <a href="/">
+                    <img src="{% static 'images/logo.png' %}" alt="OK금융그룹" height="40">
+                </a>
+            </div>
+            <nav class="header-nav">
+                <a href="/" class="nav-link active">
+                    <i class="fas fa-sitemap"></i> 직무 체계도
+                </a>
+                <!-- 필요시 다른 메뉴 추가 -->
+            </nav>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <p>&copy; 2025 OK금융그룹. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 기본 JavaScript -->
+    {% block extra_js %}{% endblock %}
+    
+    <!-- 글로벌 스타일 -->
+    <style>
+        /* 헤더 스타일 */
+        .main-header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: #3B82F6;
+        }
+        
+        /* 메인 컨텐츠 */
+        .main-content {
+            min-height: calc(100vh - 120px);
+        }
+        
+        /* 푸터 */
+        .main-footer {
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+            padding: 2rem;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 1rem;
+            }
+            
+            .header-nav {
+                display: none;
+            }
+        }
+    </style>
+</body>
+</html>

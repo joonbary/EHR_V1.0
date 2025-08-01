@@ -21,6 +21,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from .forms import ProfileUpdateForm, CustomPasswordChangeForm
 import os
+from utils.file_manager import FileManager
 
 @login_required
 def my_dashboard(request):
@@ -44,11 +45,24 @@ class ProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     
     def form_valid(self, form):
         # 프로필 이미지 처리
-        if 'profile_image' in form.changed_data:
+        if 'profile_image' in form.changed_data and form.cleaned_data.get('profile_image'):
+            file_manager = FileManager()
+            
             # 기존 이미지 삭제
             old_image = self.get_object().profile_image
-            if old_image and os.path.exists(old_image.path):
-                os.remove(old_image.path)
+            if old_image:
+                file_manager.delete_file(old_image.name)
+            
+            # 새 이미지 저장
+            try:
+                new_image_path = file_manager.save_profile_image(
+                    form.cleaned_data['profile_image'],
+                    self.get_object().employee_number
+                )
+                form.instance.profile_image = new_image_path
+            except ValueError as e:
+                form.add_error('profile_image', str(e))
+                return self.form_invalid(form)
         
         # 변경 이력 저장 (간단한 로그)
         self.log_profile_change(form.changed_data)

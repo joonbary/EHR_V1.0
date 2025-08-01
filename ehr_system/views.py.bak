@@ -1,0 +1,24 @@
+from django.views.generic import TemplateView
+from django.db.models import Count
+from datetime import datetime, timedelta
+
+from employees.models import Employee
+from job_profiles.models import JobRole, JobProfile
+
+
+class DashboardView(TemplateView):
+    """메인 대시보드 뷰"""
+    template_name = 'dashboard.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # 통계 데이터
+        context['stats'] = {
+            'total_employees': Employee.objects.filter(is_active=True).count(),
+            'total_departments': Employee.objects.filter(is_active=True).values('department').distinct().count(),
+            'total_job_roles': JobRole.objects.filter(is_active=True).count(),
+            'completed_profiles': JobProfile.objects.filter(is_active=True).count(),
+        }
+        
+        return context

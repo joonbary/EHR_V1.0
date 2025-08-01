@@ -296,7 +296,7 @@ def organization_chart(request):
     for dept in departments:
         employees = Employee.objects.filter(
             department=dept.department,
-            is_active=True
+            employment_status='active'
         ).order_by('growth_level', 'name')
         department_employees[dept.department] = employees
     
