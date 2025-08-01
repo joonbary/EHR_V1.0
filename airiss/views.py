@@ -902,7 +902,16 @@ def airiss_v4_portal(request):
     # 환경 변수에서 URL 가져오기 (로컬/프로덕션 자동 전환)
     airiss_v4_url = os.getenv('AIRISS_V4_URL', 'http://localhost:3000')
     
-    return render(request, 'airiss/airiss_v4_portal.html', {
+    # iframe 모드 또는 popup 모드 선택
+    # iframe이 차단되는 경우 popup 모드 사용
+    use_popup = request.GET.get('popup', 'false').lower() == 'true'
+    
+    if use_popup:
+        template = 'airiss/airiss_v4_portal_popup.html'
+    else:
+        template = 'airiss/airiss_v4_portal.html'
+    
+    return render(request, template, {
         'airiss_v4_url': airiss_v4_url
     })
 
