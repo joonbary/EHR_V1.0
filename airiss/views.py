@@ -896,6 +896,13 @@ def dashboard_test(request):
     return render(request, 'airiss/dashboard_test.html')
 
 
+def airiss_v4_portal(request):
+    """AIRISS v4 포털 - 새로운 HR 분석 시스템"""
+    return render(request, 'airiss/airiss_v4_portal.html', {
+        'airiss_v4_url': 'http://localhost:3000'  # AIRISS v4 프론트엔드 URL
+    })
+
+
 def analytics(request):
     """HR 분석 대시보드"""
     try:

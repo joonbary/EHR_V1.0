@@ -29,6 +29,9 @@ urlpatterns = [
     path('api/models/', views.api_get_available_models, name='api_get_models'),
     path('api/change-model/', views.api_change_model, name='api_change_model'),
     
+    # AIRISS v4 포털
+    path('v4/', views.airiss_v4_portal, name='airiss_v4_portal'),
+    
     # 테스트 페이지
     path('test-js/', views.test_javascript, name='test_javascript'),
     path('standalone/', views.dashboard_standalone, name='dashboard_standalone'),

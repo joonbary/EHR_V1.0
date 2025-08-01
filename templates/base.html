@@ -159,6 +159,13 @@
                         <span>리더 AI 어시스턴트</span>
                     </a>
                 </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'airiss:airiss_v4_portal' %}" class="sidebar-nav-link {% if 'airiss_v4_portal' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                        <span>AIRISS v4</span>
+                    </a>
+                </li>
             </ul>
         </nav>
         

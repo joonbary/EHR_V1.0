@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AIRISS v4 - AI 기반 HR 리스크 평가 시스템{% endblock %}
+
+{% block page_title %}AIRISS v4{% endblock %}
+{% block page_desc %}AI 기반 인사 리스크 종합 평가 시스템{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-text">AI 도구</span>
+</li>
+<li class="breadcrumb-item">
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-text">AIRISS v4</span>
+</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .airiss-container {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 280px);
+        min-height: 600px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .airiss-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    .airiss-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    
+    .airiss-error {
+        padding: 40px;
+        text-align: center;
+        color: #666;
+    }
+    
+    .connection-info {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f0f8ff;
+        border-radius: 6px;
+        border-left: 4px solid #0066cc;
+    }
+    
+    .connection-info h4 {
+        margin: 0 0 10px 0;
+        color: #0066cc;
+        font-size: 16px;
+    }
+    
+    .connection-info p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #333;
+    }
+    
+    .connection-info code {
+        background: #e8f4f8;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 13px;
+    }
+    
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #0066cc;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 연결 정보 표시 -->
+    <div class="connection-info">
+        <h4>📊 AIRISS v4 시스템</h4>
+        <p>AIRISS v4는 별도의 포트에서 실행되는 독립적인 시스템입니다.</p>
+        <p>연결 주소: <code>{{ airiss_v4_url }}</code></p>
+        <p>문제가 발생한 경우 AIRISS v4 서버가 실행 중인지 확인하세요.</p>
+    </div>
+    
+    <!-- AIRISS v4 컨테이너 -->
+    <div class="airiss-container" id="airissContainer">
+        <!-- 로딩 표시 -->
+        <div class="airiss-loading" id="airissLoading">
+            <div class="spinner"></div>
+            <p>AIRISS v4 로드 중...</p>
+        </div>
+        
+        <!-- iframe -->
+        <iframe 
+            id="airissFrame"
+            src="{{ airiss_v4_url }}" 
+            class="airiss-iframe"
+            title="AIRISS v4"
+            onload="handleIframeLoad()"
+            onerror="handleIframeError()"
+            style="display: none;"
+        ></iframe>
+        
+        <!-- 에러 메시지 (숨김 상태) -->
+        <div class="airiss-error" id="airissError" style="display: none;">
+            <h3>⚠️ 연결할 수 없습니다</h3>
+            <p>AIRISS v4 시스템에 연결할 수 없습니다.</p>
+            <p>다음 사항을 확인해주세요:</p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>AIRISS v4 서버가 실행 중인지 확인</li>
+                <li>포트 3000이 사용 가능한지 확인</li>
+                <li>방화벽 설정 확인</li>
+            </ul>
+            <br>
+            <button class="btn btn-primary" onclick="retryConnection()">다시 시도</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let loadTimeout;
+    
+    function handleIframeLoad() {
+        // 로딩 완료
+        clearTimeout(loadTimeout);
+        document.getElementById('airissLoading').style.display = 'none';
+        document.getElementById('airissFrame').style.display = 'block';
+        document.getElementById('airissError').style.display = 'none';
+        
+        console.log('AIRISS v4 로드 완료');
+    }
+    
+    function handleIframeError() {
+        // 에러 발생
+        clearTimeout(loadTimeout);
+        document.getElementById('airissLoading').style.display = 'none';
+        document.getElementById('airissFrame').style.display = 'none';
+        document.getElementById('airissError').style.display = 'block';
+        
+        console.error('AIRISS v4 로드 실패');
+    }
+    
+    function retryConnection() {
+        // 재시도
+        document.getElementById('airissError').style.display = 'none';
+        document.getElementById('airissLoading').style.display = 'block';
+        document.getElementById('airissFrame').src = document.getElementById('airissFrame').src;
+        
+        // 타임아웃 설정
+        loadTimeout = setTimeout(function() {
+            handleIframeError();
+        }, 10000); // 10초 타임아웃
+    }
+    
+    // 페이지 로드 시 타임아웃 설정
+    window.addEventListener('load', function() {
+        loadTimeout = setTimeout(function() {
+            // iframe이 아직 로드되지 않았다면 에러 처리
+            if (document.getElementById('airissLoading').style.display !== 'none') {
+                handleIframeError();
+            }
+        }, 10000); // 10초 타임아웃
+    });
+    
+    // iframe 간 통신 (옵션)
+    window.addEventListener('message', function(event) {
+        // AIRISS v4에서 보낸 메시지 처리
+        if (event.origin === '{{ airiss_v4_url }}') {
+            console.log('AIRISS v4 메시지:', event.data);
+            
+            // 필요한 경우 메시지 처리 로직 추가
+            // 예: 로그인 정보 동기화, 데이터 공유 등
+        }
+    });
+</script>
+{% endblock %}
