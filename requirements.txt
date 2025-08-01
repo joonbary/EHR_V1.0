@@ -22,6 +22,7 @@ openai>=1.30.0
 # Data Analysis
 scipy>=1.10.0
 statsmodels>=0.14.0
+networkx>=3.0
 
 # Utilities
 python-dotenv>=1.0.0
