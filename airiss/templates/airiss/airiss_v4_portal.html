@@ -101,9 +101,16 @@
     <!-- 연결 정보 표시 -->
     <div class="connection-info">
         <h4>📊 AIRISS v4 시스템</h4>
-        <p>AIRISS v4는 별도의 포트에서 실행되는 독립적인 시스템입니다.</p>
+        <p>AIRISS v4는 별도의 시스템으로 운영됩니다.</p>
         <p>연결 주소: <code>{{ airiss_v4_url }}</code></p>
-        <p>문제가 발생한 경우 AIRISS v4 서버가 실행 중인지 확인하세요.</p>
+        <p>
+            <a href="{{ airiss_v4_url }}" target="_blank" style="color: #FF6B00; text-decoration: underline;">
+                → 새 창에서 AIRISS v4 직접 열기
+            </a>
+        </p>
+        <p style="margin-top: 10px; font-size: 12px; color: #666;">
+            iframe 로딩 실패 시 위 링크를 클릭하세요.
+        </p>
     </div>
     
     <!-- AIRISS v4 컨테이너 -->
@@ -180,9 +187,12 @@
     
     // 페이지 로드 시 타임아웃 설정
     window.addEventListener('load', function() {
+        console.log('AIRISS v4 URL:', '{{ airiss_v4_url }}');
+        
         loadTimeout = setTimeout(function() {
             // iframe이 아직 로드되지 않았다면 에러 처리
             if (document.getElementById('airissLoading').style.display !== 'none') {
+                console.error('AIRISS v4 로드 타임아웃');
                 handleIframeError();
             }
         }, 10000); // 10초 타임아웃

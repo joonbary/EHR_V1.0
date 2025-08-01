@@ -899,8 +899,15 @@ def dashboard_test(request):
 def airiss_v4_portal(request):
     """AIRISS v4 포털 - 새로운 HR 분석 시스템"""
     import os
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
     # 환경 변수에서 URL 가져오기 (로컬/프로덕션 자동 전환)
     airiss_v4_url = os.getenv('AIRISS_V4_URL', 'http://localhost:3000')
+    
+    # 디버깅용 로그
+    logger.info(f"AIRISS_V4_URL from env: {airiss_v4_url}")
     
     # iframe 모드 또는 popup 모드 선택
     # iframe이 차단되는 경우 popup 모드 사용
