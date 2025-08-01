@@ -898,8 +898,12 @@ def dashboard_test(request):
 
 def airiss_v4_portal(request):
     """AIRISS v4 포털 - 새로운 HR 분석 시스템"""
+    import os
+    # 환경 변수에서 URL 가져오기 (로컬/프로덕션 자동 전환)
+    airiss_v4_url = os.getenv('AIRISS_V4_URL', 'http://localhost:3000')
+    
     return render(request, 'airiss/airiss_v4_portal.html', {
-        'airiss_v4_url': 'http://localhost:3000'  # AIRISS v4 프론트엔드 URL
+        'airiss_v4_url': airiss_v4_url
     })
 
 

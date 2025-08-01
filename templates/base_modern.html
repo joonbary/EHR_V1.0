@@ -312,12 +312,25 @@
                             </a>
                             
                             <!-- 7. AIRISS -->
-                            <a href="{% url 'airiss:dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-pink-500/50 {% if 'airiss' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-pink-50 dark:hover:bg-pink-900/20{% endif %}" aria-label="AIRISS" {% if 'airiss' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
-                                <div class="w-10 h-10 {% if 'airiss' in request.resolver_match.url_name %}bg-white/20{% else %}bg-pink-100 group-hover:bg-pink-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
-                                    <i data-lucide="brain" class="w-5 h-5 {% if 'airiss' in request.resolver_match.url_name %}text-white{% else %}text-pink-600{% endif %}"></i>
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-pink-500/50 {% if 'airiss' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-pink-50 dark:hover:bg-pink-900/20{% endif %}" aria-label="AIRISS" onclick="toggleSubmenu('airiss-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if 'airiss' in request.resolver_match.url_name %}bg-white/20{% else %}bg-pink-100 group-hover:bg-pink-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="brain" class="w-5 h-5 {% if 'airiss' in request.resolver_match.url_name %}text-white{% else %}text-pink-600{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">AIRISS</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'airiss' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="airiss-submenu" class="submenu {% if 'airiss' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'airiss:dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">AIRISS 대시보드</a>
+                                    <a href="{% url 'airiss:analytics' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">HR 분석</a>
+                                    <a href="{% url 'airiss:predictions' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">AI 예측</a>
+                                    <a href="{% url 'airiss:insights' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">인사이트</a>
+                                    <a href="{% url 'airiss:chatbot' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">HR 챗봇</a>
+                                    <a href="{% url 'airiss:airiss_v4_portal' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg font-semibold">AIRISS v4 ✨</a>
                                 </div>
-                                <span class="font-medium">AIRISS</span>
-                            </a>
+                            </div>
                         </div>
                     </div>
                 
@@ -366,13 +379,6 @@
                                     <i data-lucide="brain" class="w-5 h-5 text-orange-600"></i>
                                 </div>
                                 <span class="font-medium">리더 AI 어시스턴트</span>
-                            </a>
-                            
-                            <a href="{% url 'airiss:airiss_v4_portal' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
-                                <div class="w-10 h-10 bg-red-100 group-hover:bg-red-200 rounded-lg flex items-center justify-center">
-                                    <i data-lucide="shield" class="w-5 h-5 text-red-600"></i>
-                                </div>
-                                <span class="font-medium">AIRISS v4</span>
                             </a>
                         </div>
                     </div>

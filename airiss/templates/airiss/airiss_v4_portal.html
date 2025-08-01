@@ -1,33 +1,21 @@
-{% extends "base.html" %}
+{% extends "base_modern.html" %}
 {% load static %}
 
 {% block title %}AIRISS v4 - AI 기반 HR 리스크 평가 시스템{% endblock %}
 
-{% block page_title %}AIRISS v4{% endblock %}
-{% block page_desc %}AI 기반 인사 리스크 종합 평가 시스템{% endblock %}
-
-{% block breadcrumb_items %}
-<li class="breadcrumb-item">
-    <span class="breadcrumb-separator">/</span>
-    <span class="breadcrumb-text">AI 도구</span>
-</li>
-<li class="breadcrumb-item">
-    <span class="breadcrumb-separator">/</span>
-    <span class="breadcrumb-text">AIRISS v4</span>
-</li>
-{% endblock %}
 
 {% block extra_css %}
 <style>
     .airiss-container {
         position: relative;
         width: 100%;
-        height: calc(100vh - 280px);
+        height: calc(100vh - 300px);
         min-height: 600px;
         background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(255, 107, 0, 0.08);
         overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
     }
     
     .airiss-iframe {
@@ -52,35 +40,38 @@
     
     .connection-info {
         margin-bottom: 20px;
-        padding: 15px;
-        background: #f0f8ff;
-        border-radius: 6px;
-        border-left: 4px solid #0066cc;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 107, 0, 0.2);
     }
     
     .connection-info h4 {
         margin: 0 0 10px 0;
-        color: #0066cc;
-        font-size: 16px;
+        color: #FF6B00;
+        font-size: 18px;
+        font-weight: 600;
     }
     
     .connection-info p {
         margin: 5px 0;
         font-size: 14px;
-        color: #333;
+        color: #4B5563;
     }
     
     .connection-info code {
-        background: #e8f4f8;
-        padding: 2px 6px;
-        border-radius: 3px;
+        background: rgba(255, 107, 0, 0.1);
+        padding: 4px 8px;
+        border-radius: 6px;
         font-family: monospace;
         font-size: 13px;
+        color: #FF6B00;
+        font-weight: 500;
     }
     
     .spinner {
         border: 4px solid #f3f3f3;
-        border-top: 4px solid #0066cc;
+        border-top: 4px solid #FF6B00;
         border-radius: 50%;
         width: 40px;
         height: 40px;
@@ -96,7 +87,17 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<!-- 페이지 헤더 -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold gradient-text mb-2">AIRISS v4</h1>
+            <p class="text-gray-600 dark:text-gray-400">AI 기반 인사 리스크 종합 평가 시스템</p>
+        </div>
+    </div>
+</div>
+
+<div>
     <!-- 연결 정보 표시 -->
     <div class="connection-info">
         <h4>📊 AIRISS v4 시스템</h4>
@@ -135,7 +136,7 @@
                 <li>방화벽 설정 확인</li>
             </ul>
             <br>
-            <button class="btn btn-primary" onclick="retryConnection()">다시 시도</button>
+            <button class="px-6 py-3 gradient-bg text-white rounded-xl hover-lift font-medium" onclick="retryConnection()">다시 시도</button>
         </div>
     </div>
 </div>
