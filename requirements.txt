@@ -24,4 +24,9 @@ statsmodels>=0.14.0
 # Utilities
 python-dotenv>=1.0.0
 requests>=2.30.0
-django-environ>=0.10.0 
+django-environ>=0.10.0
+
+# Deployment
+gunicorn>=20.1.0
+whitenoise>=6.5.0
+dj-database-url>=2.0.0
