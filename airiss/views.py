@@ -99,4 +99,3 @@ def chatbot(request):
 def airiss_v4_portal(request):
     """AIRISS V4 포털 (더미)"""
     return render(request, "airiss/airiss_v4_portal.html", {"page_title": "AIRISS V4 포털"})
-EOF < /dev/null
