@@ -86,10 +86,8 @@ def executive_dashboard(request):
     }
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
-    # React 버전 구분을 위해 템플릿에 플래그 전달
-    context['use_react'] = use_react
-    
-    return render(request, "airiss/executive_dashboard.html", context)
+    # Railway에서 템플릿 찾기 문제로 인해 simple 버전 사용
+    return render(request, "airiss/executive_dashboard_simple.html", context)
 
 def employee_analysis_all(request):
     """전직원 분석"""
@@ -171,10 +169,8 @@ def employee_analysis_all(request):
     }
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
-    # React 버전 구분을 위해 템플릿에 플래그 전달
-    context['use_react'] = use_react
-    
-    return render(request, "airiss/employee_analysis_all.html", context)
+    # Railway에서 템플릿 찾기 문제로 인해 simple 버전 사용
+    return render(request, "airiss/employee_analysis_all_simple.html", context)
 
 def employee_analysis_detail(request, employee_id):
     """개인별 분석결과 상세 조회"""

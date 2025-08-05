@@ -103,5 +103,45 @@
             <a href="/" class="btn btn-outline-secondary">메인으로</a>
         </div>
     </div>
+
+    <!-- AIRISS 설정 -->
+    <script>
+        window.AIRISS_CONFIG = {
+            apiUrl: '{{ msa_url|default:"https://web-production-4066.up.railway.app" }}',
+            contextData: {{ dept_stats|safe }},
+            totalEmployees: {{ total_employees|default:0 }},
+            gradeDistribution: {{ grade_distribution|safe }}
+        };
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // 차트 초기화
+        const gradeData = window.AIRISS_CONFIG.gradeDistribution || {"S": 15, "A": 50, "B": 100, "C": 30, "D": 10};
+        const deptStats = window.AIRISS_CONFIG.contextData || [];
+        
+        // 등급 분포 차트
+        const ctx = document.getElementById('gradeChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(gradeData),
+                    datasets: [{
+                        data: Object.values(gradeData),
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#6b7280']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        title: { display: true, text: '전사 성과 등급 분포' }
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>
