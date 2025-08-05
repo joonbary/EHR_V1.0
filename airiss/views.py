@@ -211,24 +211,24 @@ def employee_analysis_detail(request, employee_id):
 # 더미 뷰들 - base_modern.html의 URL 참조를 위해
 def dashboard(request):
     """AIRISS 대시보드 - 준비중"""
-    return render(request, "common/under_construction.html", {"page_title": "AIRISS 대시보드"})
+    return render(request, "airiss/dashboard.html", {"page_title": "AIRISS 대시보드"})
 
 def analytics(request):
     """HR 분석 - 준비중"""
-    return render(request, "common/under_construction.html", {"page_title": "HR 분석"})
+    return render(request, "airiss/analytics.html", {"page_title": "HR 분석"})
 
 def predictions(request):
     """AI 예측 - 준비중"""
-    return render(request, "common/under_construction.html", {"page_title": "AI 예측"})
+    return render(request, "airiss/predictions.html", {"page_title": "AI 예측"})
 
 def insights(request):
     """인사이트 - 준비중"""
-    return render(request, "common/under_construction.html", {"page_title": "인사이트"})
+    return render(request, "airiss/insights.html", {"page_title": "인사이트"})
 
 def chatbot(request):
     """HR 챗봇 - 준비중"""
-    return render(request, "common/under_construction.html", {"page_title": "HR 챗봇"})
+    return render(request, "airiss/chatbot.html", {"page_title": "HR 챗봇"})
 
 def airiss_v4_portal(request):
     """AIRISS v4 포털 - 준비중"""
-    return render(request, "common/under_construction.html", {"page_title": "AIRISS v4 포털"})
+    return render(request, "airiss/airiss_v4_portal.html", {"page_title": "AIRISS v4 포털"})
