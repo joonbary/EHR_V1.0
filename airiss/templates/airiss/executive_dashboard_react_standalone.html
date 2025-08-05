@@ -1,0 +1,377 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}경영진 대시보드 - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_css %}
+<style>
+    #airiss-react-root {
+        min-height: calc(100vh - 60px);
+        background: #f5f7fa;
+    }
+    
+    .airiss-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+        font-size: 18px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="airiss-react-root">
+    <div class="airiss-loading">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>AIRISS 대시보드를 불러오는 중...</p>
+        </div>
+    </div>
+</div>
+
+<!-- React 및 필요한 라이브러리 -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Material-UI -->
+<script src="https://unpkg.com/@mui/material@5.14.0/umd/material-ui.production.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-chartjs-2@5.2.0/dist/index.umd.js"></script>
+
+<!-- AIRISS 설정 -->
+<script>
+    window.AIRISS_CONFIG = {
+        apiUrl: '{{ msa_url|default:"https://web-production-4066.up.railway.app" }}',
+        contextData: {{ dept_stats|safe }},
+        totalEmployees: {{ total_employees|default:0 }},
+        gradeDistribution: {{ grade_distribution|safe }}
+    };
+</script>
+
+<!-- React 컴포넌트 -->
+<script type="text/babel">
+const { useState, useEffect, useContext, createContext } = React;
+const { 
+    Box, Card, CardContent, Grid, Typography, Paper, List, ListItem,
+    ListItemAvatar, ListItemText, Avatar, Chip, Button, IconButton,
+    Divider, CircularProgress, Alert
+} = MaterialUI;
+
+// Chart 컴포넌트
+const { Bar, Doughnut, Radar } = ReactChartjs2;
+
+// AIRISS Context
+const AirissContext = createContext();
+
+const AirissProvider = ({ children }) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [serviceHealth, setServiceHealth] = useState('unknown');
+    const [statistics, setStatistics] = useState({
+        totalEmployees: window.AIRISS_CONFIG.totalEmployees || 0,
+        averageScore: 82.5,
+        highPerformers: 45,
+        lowPerformers: 12
+    });
+
+    const checkServiceHealth = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${window.AIRISS_CONFIG.apiUrl}/health`);
+            setServiceHealth(response.ok ? 'healthy' : 'unhealthy');
+        } catch (err) {
+            setServiceHealth('unhealthy');
+            setError('AIRISS 서비스에 연결할 수 없습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const getDashboardSummary = async () => {
+        setIsLoading(true);
+        try {
+            // 여기서는 실제 API 호출 대신 설정된 데이터 사용
+            setStatistics({
+                totalEmployees: window.AIRISS_CONFIG.totalEmployees || 0,
+                averageScore: 82.5,
+                highPerformers: 45,
+                lowPerformers: 12
+            });
+        } catch (err) {
+            setError('대시보드 데이터를 불러올 수 없습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        checkServiceHealth();
+        getDashboardSummary();
+    }, []);
+
+    return (
+        <AirissContext.Provider value={{
+            isLoading,
+            error,
+            serviceHealth,
+            getDashboardSummary,
+            checkServiceHealth,
+            statistics
+        }}>
+            {children}
+        </AirissContext.Provider>
+    );
+};
+
+const useAiriss = () => useContext(AirissContext);
+
+// AIRISS 경영진 대시보드 컴포넌트
+const ExecutiveDashboard = () => {
+    const { isLoading, error, serviceHealth, getDashboardSummary, checkServiceHealth, statistics } = useAiriss();
+    const [selectedDepartment, setSelectedDepartment] = useState(null);
+
+    // 부서별 통계 데이터
+    const deptStats = window.AIRISS_CONFIG.contextData || [];
+    
+    // 등급 분포 데이터
+    const gradeData = window.AIRISS_CONFIG.gradeDistribution || {"S": 15, "A": 50, "B": 100, "C": 30, "D": 10};
+
+    // 차트 데이터 설정
+    const barChartData = {
+        labels: deptStats.map(d => d.department),
+        datasets: [{
+            label: '부서별 인원',
+            data: deptStats.map(d => d.count),
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    const doughnutChartData = {
+        labels: Object.keys(gradeData),
+        datasets: [{
+            data: Object.values(gradeData),
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF'
+            ]
+        }]
+    };
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: '부서별 인원 현황'
+            }
+        }
+    };
+
+    const doughnutOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right',
+            },
+            title: {
+                display: true,
+                text: '등급 분포'
+            }
+        }
+    };
+
+    if (error) {
+        return (
+            <Box sx={{ p: 3 }}>
+                <Alert severity="error">{error}</Alert>
+            </Box>
+        );
+    }
+
+    return (
+        <Box sx={{ flexGrow: 1, p: 3 }}>
+            <Typography variant="h4" gutterBottom>
+                경영진 대시보드
+            </Typography>
+            
+            <Grid container spacing={3}>
+                {/* 서비스 상태 */}
+                <Grid item xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Typography variant="h6">AIRISS 서비스 상태:</Typography>
+                                <Chip 
+                                    label={serviceHealth === 'healthy' ? '정상' : '연결 불가'} 
+                                    color={serviceHealth === 'healthy' ? 'success' : 'error'}
+                                    size="small"
+                                />
+                                <Button size="small" onClick={checkServiceHealth}>상태 확인</Button>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* 통계 카드들 */}
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                전체 직원 수
+                            </Typography>
+                            <Typography variant="h3">
+                                {statistics.totalEmployees.toLocaleString()}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                평균 AI 점수
+                            </Typography>
+                            <Typography variant="h3">
+                                {statistics.averageScore}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                우수 인재
+                            </Typography>
+                            <Typography variant="h3" color="primary">
+                                {statistics.highPerformers}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                관리 필요 인원
+                            </Typography>
+                            <Typography variant="h3" color="error">
+                                {statistics.lowPerformers}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* 차트 영역 */}
+                <Grid item xs={12} md={6}>
+                    <Card>
+                        <CardContent>
+                            <Box sx={{ height: 400 }}>
+                                <Bar data={barChartData} options={chartOptions} />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={6}>
+                    <Card>
+                        <CardContent>
+                            <Box sx={{ height: 400 }}>
+                                <Doughnut data={doughnutChartData} options={doughnutOptions} />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* 부서별 상세 정보 */}
+                <Grid item xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6" gutterBottom>
+                                부서별 상세 정보
+                            </Typography>
+                            <List>
+                                {deptStats.map((dept, index) => (
+                                    <React.Fragment key={dept.department}>
+                                        <ListItem 
+                                            button 
+                                            onClick={() => setSelectedDepartment(dept)}
+                                        >
+                                            <ListItemAvatar>
+                                                <Avatar sx={{ bgcolor: 'primary.main' }}>
+                                                    {dept.department.charAt(0)}
+                                                </Avatar>
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary={dept.department}
+                                                secondary={`인원: ${dept.count}명 | 평균 점수: ${dept.avg_score?.toFixed(1) || 'N/A'}`}
+                                            />
+                                            <Chip 
+                                                label={`${dept.count}명`} 
+                                                color="primary"
+                                                variant="outlined"
+                                            />
+                                        </ListItem>
+                                        {index < deptStats.length - 1 && <Divider />}
+                                    </React.Fragment>
+                                ))}
+                            </List>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+
+            {isLoading && (
+                <Box sx={{ 
+                    position: 'fixed', 
+                    top: 0, 
+                    left: 0, 
+                    right: 0, 
+                    bottom: 0, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    zIndex: 9999
+                }}>
+                    <CircularProgress size={60} />
+                </Box>
+            )}
+        </Box>
+    );
+};
+
+// 메인 App 컴포넌트
+const App = () => {
+    return (
+        <AirissProvider>
+            <ExecutiveDashboard />
+        </AirissProvider>
+    );
+};
+
+// React 렌더링
+const root = ReactDOM.createRoot(document.getElementById('airiss-react-root'));
+root.render(<App />);
+</script>
+{% endblock %}

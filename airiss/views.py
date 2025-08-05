@@ -87,31 +87,7 @@ def executive_dashboard(request):
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
     if use_react:
-        # 템플릿 경로 디버깅
-        import os
-        from django.conf import settings
-        from django.template import loader
-        from django.template.exceptions import TemplateDoesNotExist
-        
-        template_path = os.path.join(settings.BASE_DIR, "airiss/templates/airiss/executive_dashboard_react.html")
-        print(f"[DEBUG] Looking for template at: {template_path}")
-        print(f"[DEBUG] File exists: {os.path.exists(template_path)}")
-        print(f"[DEBUG] Template dirs: {settings.TEMPLATES[0]['DIRS']}")
-        print(f"[DEBUG] App dirs: {settings.TEMPLATES[0]['APP_DIRS']}")
-        
-        # 템플릿 로더가 찾을 수 있는지 확인
-        try:
-            template = loader.get_template("airiss/executive_dashboard_react.html")
-            print(f"[DEBUG] Template found: {template}")
-        except TemplateDoesNotExist as e:
-            print(f"[DEBUG] Template not found by loader: {e}")
-            # 모든 템플릿 디렉토리 나열
-            for template_dir in loader.engines.all()[0].template_loaders[0].get_dirs():
-                print(f"[DEBUG] Template dir: {template_dir}")
-                react_file = os.path.join(template_dir, "airiss/executive_dashboard_react.html")
-                print(f"[DEBUG]   - React file exists here: {os.path.exists(react_file)}")
-        
-        return render(request, "airiss/executive_dashboard_react.html", context)
+        return render(request, "airiss/executive_dashboard_react_standalone.html", context)
     else:
         return render(request, "airiss/executive_dashboard_simple.html", context)
 
@@ -196,7 +172,7 @@ def employee_analysis_all(request):
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
     if use_react:
-        return render(request, "airiss/employee_analysis_all_react.html", context)
+        return render(request, "airiss/employee_analysis_all_react_standalone.html", context)
     else:
         return render(request, "airiss/employee_analysis_all_simple.html", context)
 
