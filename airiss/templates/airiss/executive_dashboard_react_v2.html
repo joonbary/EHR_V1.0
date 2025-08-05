@@ -186,18 +186,6 @@
 {% endblock %}
 
 {% block content %}
-{% if use_react %}
-<!-- React 버전 -->
-<div id="airiss-react-root">
-    <div class="text-center" style="padding: 50px;">
-        <div class="spinner-border text-primary mb-3" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-        <p>AIRISS 대시보드를 불러오는 중...</p>
-    </div>
-</div>
-{% else %}
-<!-- 기존 버전 -->
 <div class="executive-dashboard">
     <div class="dashboard-header">
         <h1>경영진 대시보드</h1>
@@ -366,157 +354,9 @@
         </div>
     </div>
 </div>
-{% endif %}
 {% endblock %}
 
 {% block extra_js %}
-{% if use_react %}
-<!-- React 및 필요한 라이브러리 -->
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/@mui/material@5.14.0/umd/material-ui.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-<script>
-    window.AIRISS_CONFIG = {
-        apiUrl: '{{ msa_url|default:"https://web-production-4066.up.railway.app" }}',
-        contextData: {{ dept_stats|safe }},
-        totalEmployees: {{ total_employees|default:0 }},
-        gradeDistribution: {{ grade_distribution|safe }}
-    };
-</script>
-
-<script type="text/babel">
-const { useState, useEffect } = React;
-const { Box, Card, CardContent, Grid, Typography, Chip, CircularProgress, Alert } = MaterialUI;
-
-const ExecutiveDashboard = () => {
-    const [loading, setLoading] = useState(false);
-    const [statistics] = useState({
-        totalEmployees: window.AIRISS_CONFIG.totalEmployees || 0,
-        averageScore: 82.5,
-        highPerformers: 45,
-        lowPerformers: 12
-    });
-
-    const deptStats = window.AIRISS_CONFIG.contextData || [];
-    const gradeData = window.AIRISS_CONFIG.gradeDistribution || {"S": 15, "A": 50, "B": 100, "C": 30, "D": 10};
-
-    useEffect(() => {
-        // 차트 초기화
-        const ctx1 = document.getElementById('barChart');
-        const ctx2 = document.getElementById('doughnutChart');
-        
-        if (ctx1) {
-            new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: deptStats.map(d => d.department),
-                    datasets: [{
-                        label: '부서별 인원',
-                        data: deptStats.map(d => d.count),
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        if (ctx2) {
-            new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(gradeData),
-                    datasets: [{
-                        data: Object.values(gradeData),
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        }
-    }, []);
-
-    return (
-        <Box sx={{ flexGrow: 1, p: 3 }}>
-            <Typography variant="h4" gutterBottom>경영진 대시보드</Typography>
-            
-            <Grid container spacing={3}>
-                <Grid item xs={12} md={3}>
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" gutterBottom>전체 직원 수</Typography>
-                            <Typography variant="h3">{statistics.totalEmployees.toLocaleString()}</Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                
-                <Grid item xs={12} md={3}>
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" gutterBottom>평균 AI 점수</Typography>
-                            <Typography variant="h3">{statistics.averageScore}</Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                
-                <Grid item xs={12} md={3}>
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" gutterBottom>우수 인재</Typography>
-                            <Typography variant="h3" color="primary">{statistics.highPerformers}</Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                
-                <Grid item xs={12} md={3}>
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" gutterBottom>관리 필요 인원</Typography>
-                            <Typography variant="h3" color="error">{statistics.lowPerformers}</Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                    <Card>
-                        <CardContent>
-                            <Box sx={{ height: 400 }}>
-                                <canvas id="barChart"></canvas>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                
-                <Grid item xs={12} md={6}>
-                    <Card>
-                        <CardContent>
-                            <Box sx={{ height: 400 }}>
-                                <canvas id="doughnutChart"></canvas>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            </Grid>
-        </Box>
-    );
-};
-
-// React 렌더링
-const root = ReactDOM.createRoot(document.getElementById('airiss-react-root'));
-root.render(<ExecutiveDashboard />);
-</script>
-{% else %}
-<!-- 기존 차트 코드 -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 // 성과 등급 분포 차트
@@ -560,5 +400,4 @@ function refreshData() {
     location.reload();
 }
 </script>
-{% endif %}
 {% endblock %}
