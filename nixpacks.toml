@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["python311", "postgresql_15"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "python start_server.py"
