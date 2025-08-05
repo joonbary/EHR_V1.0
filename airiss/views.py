@@ -74,4 +74,29 @@ def employee_analysis_detail(request, employee_id):
         "msa_url": "https://web-production-4066.up.railway.app"
     }
     return render(request, "airiss/employee_analysis_detail.html", context)
+
+# 더미 뷰들 - base_modern.html 호환성을 위해
+def dashboard(request):
+    """AIRISS 대시보드 (더미)"""
+    return render(request, "airiss/dashboard.html", {"page_title": "AIRISS 대시보드"})
+
+def analytics(request):
+    """분석 페이지 (더미)"""
+    return render(request, "airiss/analytics.html", {"page_title": "분석"})
+
+def predictions(request):
+    """예측 페이지 (더미)"""
+    return render(request, "airiss/predictions.html", {"page_title": "예측"})
+
+def insights(request):
+    """인사이트 페이지 (더미)"""
+    return render(request, "airiss/insights.html", {"page_title": "인사이트"})
+
+def chatbot(request):
+    """챗봇 페이지 (더미)"""
+    return render(request, "airiss/chatbot.html", {"page_title": "AI 챗봇"})
+
+def airiss_v4_portal(request):
+    """AIRISS V4 포털 (더미)"""
+    return render(request, "airiss/airiss_v4_portal.html", {"page_title": "AIRISS V4 포털"})
 EOF < /dev/null
