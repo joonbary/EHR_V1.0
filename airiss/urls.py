@@ -4,8 +4,17 @@ from . import views
 app_name = "airiss"
 
 urlpatterns = [
+    # 메인 기능
     path("executive/", views.executive_dashboard, name="executive_dashboard"),
-    path("employees/", views.employee_analysis_all, name="employee_analysis_all"),
+    path("employee-analysis/all/", views.employee_analysis_all, name="employee_analysis_all"),
     path("employee/<int:employee_id>/analysis/", views.employee_analysis_detail, name="employee_analysis_detail"),
-    path("msa_integration/", views.msa_integration, name="msa_integration"),
+    path("msa-integration/", views.msa_integration, name="msa_integration"),
+    
+    # 더미 URL들 - base_modern.html 호환성을 위해
+    path("", views.dashboard, name="dashboard"),
+    path("analytics/", views.analytics, name="analytics"),
+    path("predictions/", views.predictions, name="predictions"),
+    path("insights/", views.insights, name="insights"),
+    path("chatbot/", views.chatbot, name="chatbot"),
+    path("airiss-v4-portal/", views.airiss_v4_portal, name="airiss_v4_portal"),
 ]
