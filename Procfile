@@ -1,1 +1,1 @@
-web: bash railway_start.sh
+web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn ehr_system.wsgi:application -c gunicorn.conf.py
