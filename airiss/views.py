@@ -87,12 +87,14 @@ def executive_dashboard(request):
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
     if use_react:
-        try:
-            return render(request, "airiss/executive_dashboard_react.html", context)
-        except Exception as e:
-            print(f"[ERROR] React template not found: {e}")
-            # React 템플릿이 없으면 simple 버전으로 폴백
-            return render(request, "airiss/executive_dashboard_simple.html", context)
+        # 템플릿 경로 디버깅
+        import os
+        from django.conf import settings
+        template_path = os.path.join(settings.BASE_DIR, "airiss/templates/airiss/executive_dashboard_react.html")
+        print(f"[DEBUG] Looking for template at: {template_path}")
+        print(f"[DEBUG] File exists: {os.path.exists(template_path)}")
+        
+        return render(request, "airiss/executive_dashboard_react.html", context)
     else:
         return render(request, "airiss/executive_dashboard_simple.html", context)
 
@@ -177,12 +179,7 @@ def employee_analysis_all(request):
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
     if use_react:
-        try:
-            return render(request, "airiss/employee_analysis_all_react.html", context)
-        except Exception as e:
-            print(f"[ERROR] React template not found: {e}")
-            # React 템플릿이 없으면 simple 버전으로 폴백
-            return render(request, "airiss/employee_analysis_all_simple.html", context)
+        return render(request, "airiss/employee_analysis_all_react.html", context)
     else:
         return render(request, "airiss/employee_analysis_all_simple.html", context)
 
