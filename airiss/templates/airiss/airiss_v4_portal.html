@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AIRISS v4 - AI 기반 직원 성과역량 평가 시스템{% endblock %}
+
+
+{% block extra_css %}
+<style>
+    .airiss-container {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 300px);
+        min-height: 600px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(255, 107, 0, 0.08);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .airiss-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    .airiss-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    
+    .airiss-error {
+        padding: 40px;
+        text-align: center;
+        color: #666;
+    }
+    
+    .connection-info {
+        margin-bottom: 20px;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 107, 0, 0.2);
+    }
+    
+    .connection-info h4 {
+        margin: 0 0 10px 0;
+        color: #FF6B00;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .connection-info p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #4B5563;
+    }
+    
+    .connection-info code {
+        background: rgba(255, 107, 0, 0.1);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 13px;
+        color: #FF6B00;
+        font-weight: 500;
+    }
+    
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #FF6B00;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 페이지 헤더 -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold gradient-text mb-2">AIRISS v4</h1>
+            <p class="text-gray-600 dark:text-gray-400">AI 기반 직원 성과역량 평가 시스템</p>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- 연결 정보 표시 -->
+    <div class="connection-info">
+        <h4>📊 AIRISS v4 시스템</h4>
+        <p>AIRISS v4는 별도의 시스템으로 운영됩니다.</p>
+        <p>연결 주소: <code>{{ airiss_v4_url }}</code></p>
+        <p>
+            <a href="{{ airiss_v4_url }}" target="_blank" style="color: #FF6B00; text-decoration: underline;">
+                → 새 창에서 AIRISS v4 직접 열기
+            </a>
+        </p>
+        <p style="margin-top: 10px; font-size: 12px; color: #666;">
+            iframe 로딩 실패 시 위 링크를 클릭하세요.
+        </p>
+    </div>
+    
+    <!-- AIRISS v4 컨테이너 -->
+    <div class="airiss-container" id="airissContainer">
+        <!-- 로딩 표시 -->
+        <div class="airiss-loading" id="airissLoading">
+            <div class="spinner"></div>
+            <p>AIRISS v4 로드 중...</p>
+        </div>
+        
+        <!-- iframe -->
+        <iframe 
+            id="airissFrame"
+            src="{{ airiss_v4_url }}" 
+            class="airiss-iframe"
+            title="AIRISS v4"
+            onload="handleIframeLoad()"
+            onerror="handleIframeError()"
+            style="display: none;"
+        ></iframe>
+        
+        <!-- 에러 메시지 (숨김 상태) -->
+        <div class="airiss-error" id="airissError" style="display: none;">
+            <h3>⚠️ 연결할 수 없습니다</h3>
+            <p>AIRISS v4 시스템에 연결할 수 없습니다.</p>
+            <p>다음 사항을 확인해주세요:</p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>AIRISS v4 서버가 실행 중인지 확인</li>
+                <li>포트 3000이 사용 가능한지 확인</li>
+                <li>방화벽 설정 확인</li>
+            </ul>
+            <br>
+            <button class="px-6 py-3 gradient-bg text-white rounded-xl hover-lift font-medium" onclick="retryConnection()">다시 시도</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let loadTimeout;
+    
+    function handleIframeLoad() {
+        // 로딩 완료
+        clearTimeout(loadTimeout);
+        document.getElementById('airissLoading').style.display = 'none';
+        document.getElementById('airissFrame').style.display = 'block';
+        document.getElementById('airissError').style.display = 'none';
+        
+        console.log('AIRISS v4 로드 완료');
+    }
+    
+    function handleIframeError() {
+        // 에러 발생
+        clearTimeout(loadTimeout);
+        document.getElementById('airissLoading').style.display = 'none';
+        document.getElementById('airissFrame').style.display = 'none';
+        document.getElementById('airissError').style.display = 'block';
+        
+        console.error('AIRISS v4 로드 실패');
+    }
+    
+    function retryConnection() {
+        // 재시도
+        document.getElementById('airissError').style.display = 'none';
+        document.getElementById('airissLoading').style.display = 'block';
+        document.getElementById('airissFrame').src = document.getElementById('airissFrame').src;
+        
+        // 타임아웃 설정
+        loadTimeout = setTimeout(function() {
+            handleIframeError();
+        }, 10000); // 10초 타임아웃
+    }
+    
+    // 페이지 로드 시 타임아웃 설정
+    window.addEventListener('load', function() {
+        console.log('AIRISS v4 URL:', '{{ airiss_v4_url }}');
+        
+        loadTimeout = setTimeout(function() {
+            // iframe이 아직 로드되지 않았다면 에러 처리
+            if (document.getElementById('airissLoading').style.display !== 'none') {
+                console.error('AIRISS v4 로드 타임아웃');
+                handleIframeError();
+            }
+        }, 10000); // 10초 타임아웃
+    });
+    
+    // iframe 간 통신 (옵션)
+    window.addEventListener('message', function(event) {
+        // AIRISS v4에서 보낸 메시지 처리
+        if (event.origin === '{{ airiss_v4_url }}') {
+            console.log('AIRISS v4 메시지:', event.data);
+            
+            // 필요한 경우 메시지 처리 로직 추가
+            // 예: 로그인 정보 동기화, 데이터 공유 등
+        }
+    });
+</script>
+{% endblock %}

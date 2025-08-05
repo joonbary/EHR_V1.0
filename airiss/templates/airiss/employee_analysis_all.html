@@ -1,0 +1,452 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .employee-analysis-all {
+        padding: 20px;
+        background: #f5f7fa;
+        min-height: calc(100vh - 60px);
+    }
+
+    .page-header {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        color: #1f2937;
+        margin-bottom: 10px;
+    }
+
+    .filter-section {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 15px;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .employee-table-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .employee-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .employee-table thead {
+        background: #f9fafb;
+    }
+
+    .employee-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #6b7280;
+        border-bottom: 2px solid #e5e7eb;
+        position: sticky;
+        top: 0;
+        background: #f9fafb;
+    }
+
+    .employee-table td {
+        padding: 15px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .employee-table tr:hover {
+        background: #f9fafb;
+    }
+
+    .employee-name {
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .ai-score {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .grade-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        color: white;
+        font-size: 14px;
+    }
+
+    .grade-S { background: #10b981; }
+    .grade-A { background: #3b82f6; }
+    .grade-B { background: #f59e0b; }
+    .grade-C { background: #fb923c; }
+    .grade-D { background: #ef4444; }
+    .grade-NA { background: #6b7280; }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-analyze {
+        background: #FF6B00;
+        color: white;
+    }
+
+    .btn-analyze:hover {
+        background: #e55a00;
+    }
+
+    .btn-detail {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-detail:hover {
+        background: #4b5563;
+    }
+
+    .pagination-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        gap: 10px;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 5px;
+    }
+
+    .page-link {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        color: #6b7280;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .page-link:hover {
+        background: #f3f4f6;
+    }
+
+    .page-link.active {
+        background: #FF6B00;
+        color: white;
+        border-color: #FF6B00;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #6b7280;
+    }
+
+    .batch-actions {
+        padding: 15px 20px;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .selected-count {
+        color: #6b7280;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="employee-analysis-all">
+    <div class="page-header">
+        <h1>전직원 AI 분석</h1>
+        <p>전체 직원의 AI 분석 결과를 조회하고 관리합니다.</p>
+    </div>
+
+    <!-- 필터 섹션 -->
+    <div class="filter-section">
+        <form method="get" action="{% url 'airiss:employee_analysis_all' %}">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>부서</label>
+                    <select name="department">
+                        <option value="">전체 부서</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}" {% if dept == selected_department %}selected{% endif %}>
+                            {{ dept }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>직급</label>
+                    <select name="position">
+                        <option value="">전체 직급</option>
+                        {% for pos in positions %}
+                        <option value="{{ pos }}" {% if pos == selected_position %}selected{% endif %}>
+                            {{ pos }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>검색</label>
+                    <input type="text" name="search" placeholder="이름 또는 사번" value="{{ search_query }}">
+                </div>
+
+                <div class="filter-group">
+                    <button type="submit" class="btn btn-primary">
+                        검색
+                    </button>
+                    <a href="{% url 'airiss:employee_analysis_all' %}" class="btn btn-secondary">
+                        초기화
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- 직원 테이블 -->
+    <div class="employee-table-card">
+        <div class="batch-actions">
+            <div class="selected-count">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <span id="selectedCount">0명 선택됨</span>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="batchAnalyze()">
+                    선택 직원 일괄 분석
+                </button>
+                <button class="btn btn-secondary" onclick="exportSelected()">
+                    선택 직원 내보내기
+                </button>
+            </div>
+        </div>
+
+        {% if employees %}
+        <table class="employee-table">
+            <thead>
+                <tr>
+                    <th width="40">선택</th>
+                    <th>사번</th>
+                    <th>이름</th>
+                    <th>부서</th>
+                    <th>직급</th>
+                    <th>AI 점수</th>
+                    <th>등급</th>
+                    <th>마지막 분석</th>
+                    <th>액션</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in employees %}
+                <tr>
+                    <td>
+                        <input type="checkbox" class="employee-checkbox" value="{{ item.employee.id }}">
+                    </td>
+                    <td>{{ item.employee.employee_id }}</td>
+                    <td class="employee-name">{{ item.employee.name }}</td>
+                    <td>{{ item.employee.department }}</td>
+                    <td>{{ item.employee.position }}</td>
+                    <td>
+                        {% if item.ai_score %}
+                        <span class="ai-score" style="background: rgba(255, 107, 0, 0.1); color: #FF6B00;">
+                            {{ item.ai_score|floatformat:1 }}점
+                        </span>
+                        {% else %}
+                        <span class="ai-score" style="background: #f3f4f6; color: #6b7280;">
+                            미분석
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="grade-badge grade-{{ item.ai_grade }}">
+                            {{ item.ai_grade }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if item.analysis %}
+                        {{ item.analysis.analyzed_at|date:"m/d H:i" }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-analyze" onclick="analyzeEmployee({{ item.employee.id }})">
+                                AI 분석
+                            </button>
+                            <button class="btn-action btn-detail" onclick="location.href='{% url 'airiss:employee_analysis_detail' item.employee.id %}'">
+                                상세보기
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination-section">
+            <div class="pagination">
+                {% if employees_page.has_previous %}
+                <a href="?page=1{% if selected_department %}&department={{ selected_department }}{% endif %}{% if selected_position %}&position={{ selected_position }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-link">처음</a>
+                <a href="?page={{ employees_page.previous_page_number }}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if selected_position %}&position={{ selected_position }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-link">이전</a>
+                {% endif %}
+
+                <span class="page-link active">
+                    {{ employees_page.number }} / {{ employees_page.paginator.num_pages }}
+                </span>
+
+                {% if employees_page.has_next %}
+                <a href="?page={{ employees_page.next_page_number }}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if selected_position %}&position={{ selected_position }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-link">다음</a>
+                <a href="?page={{ employees_page.paginator.num_pages }}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if selected_position %}&position={{ selected_position }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-link">마지막</a>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="no-data">
+            <p>조회된 직원이 없습니다.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const MSA_URL = '{{ msa_url }}';
+let selectedEmployees = [];
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.employee-checkbox');
+    
+    checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+    });
+    
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.employee-checkbox:checked');
+    selectedEmployees = Array.from(checkboxes).map(cb => cb.value);
+    document.getElementById('selectedCount').textContent = `${selectedEmployees.length}명 선택됨`;
+}
+
+document.querySelectorAll('.employee-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateSelectedCount);
+});
+
+async function analyzeEmployee(employeeId) {
+    if (!confirm('이 직원의 AI 분석을 실행하시겠습니까?')) return;
+    
+    try {
+        // MSA 서비스 호출
+        const response = await fetch(`${MSA_URL}/api/v1/llm/analyze`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                employee_data: {
+                    employee_id: employeeId,
+                    // 실제 데이터는 서버에서 가져와야 함
+                },
+                analysis_type: 'comprehensive',
+                include_recommendations: true
+            })
+        });
+        
+        if (response.ok) {
+            alert('AI 분석이 완료되었습니다.');
+            location.reload();
+        } else {
+            alert('AI 분석 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('분석 오류:', error);
+        alert('AI 분석 서비스에 연결할 수 없습니다.');
+    }
+}
+
+async function batchAnalyze() {
+    if (selectedEmployees.length === 0) {
+        alert('분석할 직원을 선택해주세요.');
+        return;
+    }
+    
+    if (!confirm(`선택한 ${selectedEmployees.length}명의 AI 분석을 실행하시겠습니까?`)) return;
+    
+    alert('일괄 분석 기능은 준비 중입니다.');
+}
+
+function exportSelected() {
+    if (selectedEmployees.length === 0) {
+        alert('내보낼 직원을 선택해주세요.');
+        return;
+    }
+    
+    alert('내보내기 기능은 준비 중입니다.');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI 인사이트 - AIRISS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .insight-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .insight-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .insight-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+    }
+    
+    .insight-card.priority-HIGH::before {
+        background-color: #dc3545;
+    }
+    
+    .insight-card.priority-MEDIUM::before {
+        background-color: #ffc107;
+    }
+    
+    .insight-card.priority-LOW::before {
+        background-color: #28a745;
+    }
+    
+    .priority-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .priority-badge.high {
+        background-color: #fee2e2;
+        color: #dc3545;
+    }
+    
+    .priority-badge.medium {
+        background-color: #fef3c7;
+        color: #d97706;
+    }
+    
+    .priority-badge.low {
+        background-color: #d1fae5;
+        color: #059669;
+    }
+    
+    .category-badge {
+        background-color: #e0e7ff;
+        color: #4338ca;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .action-item {
+        background-color: #f3f4f6;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: start;
+    }
+    
+    .action-item i {
+        color: #3b82f6;
+        margin-right: 0.5rem;
+        margin-top: 0.125rem;
+    }
+    
+    .filter-btn {
+        background-color: #f3f4f6;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+    
+    .filter-btn:hover {
+        background-color: #e5e7eb;
+    }
+    
+    .filter-btn.active {
+        background-color: #3b82f6;
+        color: white;
+    }
+    
+    .insights-empty {
+        text-align: center;
+        padding: 3rem;
+        color: #9ca3af;
+    }
+    
+    .insights-empty i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #d1d5db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">AI HR 인사이트</h1>
+        <p class="text-gray-600">AI가 발견한 실행 가능한 HR 인사이트와 권장 사항</p>
+    </div>
+
+    <!-- 필터 영역 -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="text-sm font-semibold text-gray-700 mb-3">카테고리별 필터</h5>
+                <div class="btn-group flex-wrap" role="group">
+                    <a href="?category=all&priority={{ selected_priority }}" 
+                       class="filter-btn {% if selected_category == 'all' %}active{% endif %}">
+                        전체
+                    </a>
+                    {% for code, name in categories %}
+                    <a href="?category={{ code }}&priority={{ selected_priority }}" 
+                       class="filter-btn {% if selected_category == code %}active{% endif %}">
+                        {{ name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h5 class="text-sm font-semibold text-gray-700 mb-3">우선순위별 필터</h5>
+                <div class="btn-group" role="group">
+                    <a href="?category={{ selected_category }}&priority=all" 
+                       class="filter-btn {% if selected_priority == 'all' %}active{% endif %}">
+                        전체
+                    </a>
+                    {% for code, name in priorities %}
+                    <a href="?category={{ selected_category }}&priority={{ code }}" 
+                       class="filter-btn {% if selected_priority == code %}active{% endif %}">
+                        {{ name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 인사이트 목록 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% for insight in insights %}
+        <div class="insight-card priority-{{ insight.priority }}">
+            <!-- 헤더 -->
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h5 class="font-semibold text-gray-800 mb-2">{{ insight.title }}</h5>
+                    <div class="d-flex gap-2">
+                        <span class="priority-badge {{ insight.priority|lower }}">
+                            {{ insight.get_priority_display }}
+                        </span>
+                        <span class="category-badge">
+                            {{ insight.get_category_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <small class="text-gray-500">{{ insight.generated_at|date:"Y-m-d" }}</small>
+                </div>
+            </div>
+
+            <!-- 설명 -->
+            <p class="text-gray-600 mb-3">{{ insight.description }}</p>
+
+            <!-- 영향 분석 -->
+            {% if insight.impact_analysis %}
+            <div class="bg-gray-50 rounded p-3 mb-3">
+                <h6 class="text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-chart-line mr-1"></i>예상 영향
+                </h6>
+                <p class="text-sm text-gray-600 mb-0">{{ insight.impact_analysis }}</p>
+            </div>
+            {% endif %}
+
+            <!-- 권장 조치사항 -->
+            {% if insight.action_items %}
+            <div class="mb-3">
+                <h6 class="text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-tasks mr-1"></i>권장 조치사항
+                </h6>
+                {% for action in insight.action_items %}
+                <div class="action-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span class="text-sm">{{ action }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- 대상 정보 -->
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <div class="text-sm text-gray-600">
+                    {% if insight.target_departments %}
+                        <i class="fas fa-building mr-1"></i>
+                        대상: {{ insight.target_departments|join:", " }}
+                    {% elif insight.target_employees.exists %}
+                        <i class="fas fa-users mr-1"></i>
+                        대상: {{ insight.target_employees.count }}명
+                    {% else %}
+                        <i class="fas fa-globe mr-1"></i>
+                        전사 대상
+                    {% endif %}
+                </div>
+                
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-eye mr-1"></i>
+                    {{ insight.views_count }}회 조회
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-2">
+            <div class="insights-empty bg-white rounded-lg shadow-md">
+                <i class="fas fa-lightbulb"></i>
+                <h5 class="text-gray-700 mb-2">인사이트가 없습니다</h5>
+                <p class="text-gray-500">선택한 필터에 해당하는 인사이트가 없습니다.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 페이지네이션 (필요시) -->
+    {% if insights.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-6">
+        <ul class="pagination justify-content-center">
+            {% if insights.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ insights.previous_page_number }}&category={{ selected_category }}&priority={{ selected_priority }}">
+                    이전
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in insights.paginator.page_range %}
+            <li class="page-item {% if insights.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&category={{ selected_category }}&priority={{ selected_priority }}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endfor %}
+            
+            {% if insights.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ insights.next_page_number }}&category={{ selected_category }}&priority={{ selected_priority }}">
+                    다음
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 인사이트 카드 클릭 시 상세 보기 (필요시 구현)
+document.querySelectorAll('.insight-card').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function(e) {
+        // 액션 아이템이나 링크 클릭 시에는 이벤트 전파 중지
+        if (e.target.tagName === 'A' || e.target.closest('.action-item')) {
+            return;
+        }
+        // 상세 페이지로 이동하거나 모달 표시
+        // window.location.href = '/airiss/insights/' + insightId;
+    });
+});
+
+// 필터 버튼 활성화 효과
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        // 같은 그룹의 다른 버튼들의 active 클래스 제거
+        const group = this.closest('.btn-group');
+        group.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+        // 현재 버튼에 active 추가
+        this.classList.add('active');
+    });
+});
+</script>
+{% endblock %}

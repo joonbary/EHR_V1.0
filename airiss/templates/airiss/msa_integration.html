@@ -1,0 +1,483 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* AIRISS MSA Integration Styles */
+    .msa-integration-container {
+        padding: 20px;
+        background: #f5f7fa;
+        min-height: calc(100vh - 60px);
+    }
+
+    .integration-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .service-status {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .status-badge.healthy {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .status-badge.unhealthy {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .actions-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-analyze {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: #FF6B00;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #e55a00;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .employees-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+    }
+
+    .employee-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+        border: 2px solid transparent;
+    }
+
+    .employee-card.selected {
+        border-color: #FF6B00;
+        box-shadow: 0 4px 8px rgba(255, 107, 0, 0.2);
+    }
+
+    .employee-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .employee-info {
+        margin-bottom: 15px;
+    }
+
+    .employee-info p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #4b5563;
+    }
+
+    .analysis-result {
+        padding-top: 15px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .score-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .ai-score {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .score-label {
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 4px;
+    }
+
+    .score-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1f2937;
+    }
+
+    .grade-badge {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .loading-spinner {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e5e7eb;
+        border-top-color: #FF6B00;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="msa-integration-container">
+    <div class="integration-header">
+        <h2>AIRISS AI 직원 분석 시스템</h2>
+        <div class="service-status">
+            <span id="status-badge" class="status-badge">
+                ● 서비스 확인 중...
+            </span>
+            <a href="{{ msa_url }}/docs" target="_blank" class="btn btn-secondary btn-sm">
+                API 문서
+            </a>
+        </div>
+    </div>
+
+    <div class="actions-bar">
+        <button id="batch-analyze-btn" class="btn-analyze btn-primary" onclick="batchAnalyze()">
+            선택된 직원 일괄 분석
+        </button>
+        <button class="btn-analyze btn-secondary" onclick="clearSelection()">
+            선택 초기화
+        </button>
+        <span id="selection-count" style="margin-left: 20px; line-height: 40px;">
+            0명 선택됨
+        </span>
+    </div>
+
+    <div class="employees-grid" id="employees-grid">
+        <!-- JavaScript로 동적 생성 -->
+    </div>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>AI 분석 중...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Configuration
+const MSA_URL = '{{ msa_url }}';
+const EMPLOYEES_DATA = {{ employees|safe }};
+
+// State
+let selectedEmployees = [];
+let analysisResults = {};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    checkServiceHealth();
+    renderEmployees();
+    setInterval(checkServiceHealth, 60000); // Check every minute
+});
+
+// Check service health
+async function checkServiceHealth() {
+    try {
+        const response = await fetch(`${MSA_URL}/health`);
+        const data = await response.json();
+        updateServiceStatus(data.status === 'healthy');
+    } catch (error) {
+        console.error('Health check failed:', error);
+        updateServiceStatus(false);
+    }
+}
+
+function updateServiceStatus(isHealthy) {
+    const badge = document.getElementById('status-badge');
+    if (isHealthy) {
+        badge.className = 'status-badge healthy';
+        badge.textContent = '● 서비스 정상';
+    } else {
+        badge.className = 'status-badge unhealthy';
+        badge.textContent = '● 서비스 점검 중';
+    }
+}
+
+// Render employees
+function renderEmployees() {
+    const grid = document.getElementById('employees-grid');
+    grid.innerHTML = '';
+    
+    EMPLOYEES_DATA.forEach(employee => {
+        const card = createEmployeeCard(employee);
+        grid.appendChild(card);
+    });
+}
+
+function createEmployeeCard(employee) {
+    const card = document.createElement('div');
+    card.className = 'employee-card';
+    card.id = `card-${employee.id}`;
+    
+    card.innerHTML = `
+        <div class="employee-header">
+            <input type="checkbox" onchange="toggleEmployeeSelection('${employee.id}')" />
+            <h3>${employee.name}</h3>
+            <span class="employee-id">#${employee.id}</span>
+        </div>
+        <div class="employee-info">
+            <p><strong>부서:</strong> ${employee.department}</p>
+            <p><strong>직급:</strong> ${employee.position}</p>
+        </div>
+        <div id="result-${employee.id}" class="analysis-result" style="display:none;">
+            <!-- Analysis results will be inserted here -->
+        </div>
+        <button class="btn-analyze btn-primary" onclick="analyzeEmployee('${employee.id}')">
+            AI 분석 시작
+        </button>
+    `;
+    
+    return card;
+}
+
+// Employee selection
+function toggleEmployeeSelection(employeeId) {
+    const employee = EMPLOYEES_DATA.find(e => e.id == employeeId);
+    const card = document.getElementById(`card-${employeeId}`);
+    
+    if (selectedEmployees.find(e => e.id == employeeId)) {
+        selectedEmployees = selectedEmployees.filter(e => e.id != employeeId);
+        card.classList.remove('selected');
+    } else {
+        selectedEmployees.push(employee);
+        card.classList.add('selected');
+    }
+    
+    updateSelectionCount();
+}
+
+function updateSelectionCount() {
+    document.getElementById('selection-count').textContent = 
+        `${selectedEmployees.length}명 선택됨`;
+}
+
+function clearSelection() {
+    selectedEmployees = [];
+    document.querySelectorAll('.employee-card').forEach(card => {
+        card.classList.remove('selected');
+        const checkbox = card.querySelector('input[type="checkbox"]');
+        if (checkbox) checkbox.checked = false;
+    });
+    updateSelectionCount();
+}
+
+// Analysis functions
+async function analyzeEmployee(employeeId) {
+    const employee = EMPLOYEES_DATA.find(e => e.id == employeeId);
+    if (!employee) return;
+    
+    showLoading();
+    
+    try {
+        const requestBody = {
+            employee_data: {
+                employee_id: employee.id,
+                name: employee.name,
+                department: employee.department,
+                position: employee.position,
+                performance_data: {
+                    목표달성률: employee.goalAchievement,
+                    프로젝트성공률: employee.projectSuccess,
+                    고객만족도: employee.customerSatisfaction,
+                    출근율: employee.attendance
+                },
+                competencies: {
+                    리더십: employee.leadership,
+                    기술력: employee.technical,
+                    커뮤니케이션: employee.communication,
+                    문제해결: employee.problemSolving,
+                    팀워크: employee.teamwork,
+                    창의성: employee.creativity,
+                    적응력: employee.adaptability,
+                    성실성: employee.reliability
+                }
+            },
+            analysis_type: 'comprehensive',
+            include_recommendations: true
+        };
+        
+        const response = await fetch(`${MSA_URL}/api/v1/llm/analyze`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Analysis failed: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        analysisResults[employeeId] = result;
+        displayAnalysisResult(employeeId, result);
+        
+    } catch (error) {
+        console.error('Analysis error:', error);
+        alert(`분석 실패: ${error.message}`);
+    } finally {
+        hideLoading();
+    }
+}
+
+async function batchAnalyze() {
+    if (selectedEmployees.length === 0) {
+        alert('분석할 직원을 선택해주세요.');
+        return;
+    }
+    
+    showLoading();
+    
+    for (const employee of selectedEmployees) {
+        await analyzeEmployee(employee.id);
+    }
+    
+    hideLoading();
+    alert(`${selectedEmployees.length}명 분석 완료!`);
+}
+
+function displayAnalysisResult(employeeId, result) {
+    const resultDiv = document.getElementById(`result-${employeeId}`);
+    
+    const gradeColor = {
+        'S': '#4CAF50',
+        'A': '#8BC34A',
+        'B': '#FFC107',
+        'C': '#FF9800',
+        'D': '#F44336'
+    };
+    
+    resultDiv.innerHTML = `
+        <div class="score-section">
+            <div class="ai-score">
+                <span class="score-label">AI 점수</span>
+                <span class="score-value">${result.ai_score || 'N/A'}</span>
+            </div>
+            <div class="grade-badge" style="background-color: ${gradeColor[result.grade] || '#999'}">
+                ${result.grade || 'N/A'}
+            </div>
+        </div>
+        ${result.strengths && result.strengths.length > 0 ? `
+        <div class="strengths">
+            <h4>강점</h4>
+            <ul>
+                ${result.strengths.slice(0, 3).map(s => `<li>${s}</li>`).join('')}
+            </ul>
+        </div>
+        ` : ''}
+        ${result.improvements && result.improvements.length > 0 ? `
+        <div class="improvements">
+            <h4>개선점</h4>
+            <ul>
+                ${result.improvements.slice(0, 2).map(i => `<li>${i}</li>`).join('')}
+            </ul>
+        </div>
+        ` : ''}
+        ${result.ai_feedback ? `
+        <div class="feedback">
+            <h4>AI 피드백</h4>
+            <p>${result.ai_feedback.substring(0, 200)}...</p>
+        </div>
+        ` : ''}
+    `;
+    
+    resultDiv.style.display = 'block';
+    
+    // Update button
+    const card = document.getElementById(`card-${employeeId}`);
+    const button = card.querySelector('button.btn-analyze');
+    button.textContent = '재분석';
+}
+
+// Loading overlay
+function showLoading() {
+    document.getElementById('loading-overlay').classList.add('active');
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('active');
+}
+</script>
+{% endblock %}

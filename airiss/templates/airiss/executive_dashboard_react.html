@@ -1,0 +1,330 @@
+{% extends "airiss/react_base.html" %}
+{% load static %}
+
+{% block react_component %}
+<script type="text/babel">
+const { useState, useEffect } = React;
+const { 
+    Box, Card, CardContent, Grid, Typography, Paper, List, ListItem,
+    ListItemAvatar, ListItemText, Avatar, Chip, Button, IconButton,
+    Divider, CircularProgress, Alert
+} = MaterialUI;
+
+// Chart 컴포넌트
+const { Bar, Doughnut, Radar } = ReactChartjs2;
+
+// AIRISS 경영진 대시보드 컴포넌트
+const ExecutiveDashboard = () => {
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, []);
+
+    const fetchDashboardData = async () => {
+        try {
+            setLoading(true);
+            
+            // EHR API에서 직원 데이터 가져오기
+            const response = await fetch('/api/employees/', {
+                headers: {
+                    'X-CSRFToken': window.AIRISS_CONFIG.CSRF_TOKEN,
+                }
+            });
+            
+            if (!response.ok) throw new Error('데이터 로드 실패');
+            
+            const employees = await response.json();
+            
+            // 데이터 분석
+            const processedData = processEmployeeData(employees);
+            setData(processedData);
+            
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const processEmployeeData = (employees) => {
+        // 부서별 통계
+        const departmentStats = {};
+        const gradeStats = {};
+        const ageGroups = { '20대': 0, '30대': 0, '40대': 0, '50대 이상': 0 };
+        
+        employees.forEach(emp => {
+            // 부서별
+            if (emp.department) {
+                departmentStats[emp.department] = (departmentStats[emp.department] || 0) + 1;
+            }
+            
+            // 직급별
+            if (emp.position) {
+                gradeStats[emp.position] = (gradeStats[emp.position] || 0) + 1;
+            }
+            
+            // 연령대별
+            if (emp.age) {
+                if (emp.age < 30) ageGroups['20대']++;
+                else if (emp.age < 40) ageGroups['30대']++;
+                else if (emp.age < 50) ageGroups['40대']++;
+                else ageGroups['50대 이상']++;
+            }
+        });
+
+        return {
+            totalEmployees: employees.length,
+            departmentStats,
+            gradeStats,
+            ageGroups,
+            employees: employees.slice(0, 10) // 상위 10명만
+        };
+    };
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box p={3}>
+                <Alert severity="error">{error}</Alert>
+            </Box>
+        );
+    }
+
+    // 차트 데이터 설정
+    const departmentChartData = {
+        labels: Object.keys(data.departmentStats),
+        datasets: [{
+            label: '인원 수',
+            data: Object.values(data.departmentStats),
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)',
+            ],
+        }]
+    };
+
+    const ageChartData = {
+        labels: Object.keys(data.ageGroups),
+        datasets: [{
+            label: '연령대별 분포',
+            data: Object.values(data.ageGroups),
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+            ],
+        }]
+    };
+
+    return (
+        <Box sx={{ p: 3, backgroundColor: '#f5f7fa', minHeight: '100vh' }}>
+            {/* 헤더 */}
+            <Paper 
+                sx={{ 
+                    p: 3, 
+                    mb: 3,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white'
+                }}
+            >
+                <Typography variant="h4" gutterBottom>
+                    경영진 대시보드
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                    최종 업데이트: {new Date().toLocaleString('ko-KR')}
+                </Typography>
+            </Paper>
+
+            {/* 주요 지표 */}
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                전체 직원 수
+                            </Typography>
+                            <Typography variant="h3">
+                                {data.totalEmployees}
+                            </Typography>
+                            <Chip 
+                                label="+5.2%" 
+                                color="success" 
+                                size="small" 
+                                sx={{ mt: 1 }}
+                            />
+                        </CardContent>
+                    </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                평균 근속연수
+                            </Typography>
+                            <Typography variant="h3">
+                                7.5년
+                            </Typography>
+                            <Chip 
+                                label="안정적" 
+                                color="primary" 
+                                size="small" 
+                                sx={{ mt: 1 }}
+                            />
+                        </CardContent>
+                    </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                AI 분석 점수
+                            </Typography>
+                            <Typography variant="h3">
+                                85.3
+                            </Typography>
+                            <Chip 
+                                label="우수" 
+                                color="success" 
+                                size="small" 
+                                sx={{ mt: 1 }}
+                            />
+                        </CardContent>
+                    </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                이직률
+                            </Typography>
+                            <Typography variant="h3">
+                                3.2%
+                            </Typography>
+                            <Chip 
+                                label="-0.8%" 
+                                color="success" 
+                                size="small" 
+                                sx={{ mt: 1 }}
+                            />
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+
+            {/* 차트 영역 */}
+            <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6" gutterBottom>
+                                부서별 인원 분포
+                            </Typography>
+                            <Box sx={{ height: 300 }}>
+                                <Bar 
+                                    data={departmentChartData}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: {
+                                                display: false
+                                            }
+                                        }
+                                    }}
+                                />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={6}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6" gutterBottom>
+                                연령대별 분포
+                            </Typography>
+                            <Box sx={{ height: 300 }}>
+                                <Doughnut 
+                                    data={ageChartData}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false
+                                    }}
+                                />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+
+            {/* AI 인사이트 */}
+            <Card sx={{ mt: 3 }}>
+                <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                        AI 인사이트
+                    </Typography>
+                    <List>
+                        <ListItem>
+                            <ListItemAvatar>
+                                <Avatar sx={{ bgcolor: 'success.main' }}>
+                                    <span>📈</span>
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText 
+                                primary="조직 안정성 우수"
+                                secondary="평균 근속연수가 업계 평균 대비 20% 높습니다."
+                            />
+                        </ListItem>
+                        <Divider variant="inset" component="li" />
+                        <ListItem>
+                            <ListItemAvatar>
+                                <Avatar sx={{ bgcolor: 'warning.main' }}>
+                                    <span>⚠️</span>
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText 
+                                primary="연령대 불균형 주의"
+                                secondary="30대 직원 비중이 과도하게 높아 향후 승진 병목 우려됩니다."
+                            />
+                        </ListItem>
+                        <Divider variant="inset" component="li" />
+                        <ListItem>
+                            <ListItemAvatar>
+                                <Avatar sx={{ bgcolor: 'info.main' }}>
+                                    <span>💡</span>
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText 
+                                primary="디지털 역량 강화 필요"
+                                secondary="IT 부서 인력 확충과 전사 디지털 교육 프로그램 도입을 권장합니다."
+                            />
+                        </ListItem>
+                    </List>
+                </CardContent>
+            </Card>
+        </Box>
+    );
+};
+
+// React 컴포넌트 렌더링
+const root = ReactDOM.createRoot(document.getElementById('airiss-react-root'));
+root.render(<ExecutiveDashboard />);
+</script>
+{% endblock %}

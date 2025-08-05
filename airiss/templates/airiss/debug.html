@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AIRISS 디버깅{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>AIRISS JavaScript 디버깅 페이지</h1>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">JavaScript 로드 테스트</h5>
+            <button class="btn btn-primary" onclick="testAlert()">Alert 테스트</button>
+            <button class="btn btn-success" onclick="testConsole()">Console 테스트</button>
+            <button class="btn btn-info" onclick="testDOM()">DOM 테스트</button>
+            
+            <div id="testResult" class="mt-3 p-3 bg-light">
+                테스트 결과가 여기에 표시됩니다.
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">모델 선택기 테스트</h5>
+            <select id="modelSelector" class="form-select">
+                <option value="">선택하세요...</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                <option value="gpt-4">GPT-4</option>
+            </select>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    console.log('🚀 AIRISS 디버깅 페이지 JavaScript 로드됨!');
+    
+    function testAlert() {
+        alert('✅ Alert 테스트 성공!');
+        updateResult('Alert 테스트가 성공적으로 실행되었습니다.');
+    }
+    
+    function testConsole() {
+        console.log('✅ Console 로그 테스트');
+        console.warn('⚠️ Console 경고 테스트');
+        console.error('❌ Console 에러 테스트');
+        updateResult('Console 테스트가 실행되었습니다. F12를 눌러 콘솔을 확인하세요.');
+    }
+    
+    function testDOM() {
+        const now = new Date().toLocaleString();
+        updateResult(`DOM 조작 테스트 성공! 현재 시간: ${now}`);
+    }
+    
+    function updateResult(message) {
+        document.getElementById('testResult').innerHTML = `<strong>${message}</strong>`;
+    }
+    
+    // DOMContentLoaded 이벤트
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ DOMContentLoaded 이벤트 발생!');
+        updateResult('페이지가 완전히 로드되었습니다.');
+        
+        // 모델 선택기 이벤트
+        const selector = document.getElementById('modelSelector');
+        if (selector) {
+            selector.addEventListener('change', function(e) {
+                console.log('모델 선택:', e.target.value);
+                updateResult(`선택된 모델: ${e.target.value}`);
+            });
+        }
+    });
+    
+    // window.onload
+    window.onload = function() {
+        console.log('✅ window.onload 이벤트 발생!');
+    };
+</script>
+{% endblock %}

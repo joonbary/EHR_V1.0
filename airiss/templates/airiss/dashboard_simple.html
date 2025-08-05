@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AIRISS - AI 기반 HR 지원{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>AIRISS 대시보드</h1>
+    
+    <!-- 테스트 버튼 -->
+    <div class="mb-4">
+        <button class="btn btn-primary" onclick="alert('JavaScript 작동!')">JavaScript 테스트</button>
+    </div>
+    
+    <!-- AI 모델 설정 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">AI 모델 설정</h5>
+            <select id="modelSelector" class="form-select">
+                <option value="">로딩 중...</option>
+            </select>
+            <button class="btn btn-sm btn-secondary mt-2" onclick="loadModels()">모델 불러오기</button>
+        </div>
+    </div>
+    
+    <!-- 통계 -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5>총 AI 분석</h5>
+                    <p class="display-4">{{ total_analyses|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    console.log('AIRISS JavaScript 로드됨');
+    
+    function loadModels() {
+        console.log('모델 로딩 시작...');
+        alert('모델을 불러옵니다...');
+        
+        fetch('{% url "airiss:api_get_models" %}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('모델 데이터:', data);
+                const selector = document.getElementById('modelSelector');
+                selector.innerHTML = '';
+                
+                if (data.success && data.available_models) {
+                    data.available_models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.id;
+                        option.textContent = model.name;
+                        selector.appendChild(option);
+                    });
+                } else {
+                    selector.innerHTML = '<option>모델 로드 실패</option>';
+                }
+            })
+            .catch(error => {
+                console.error('오류:', error);
+                alert('오류 발생: ' + error.message);
+            });
+    }
+    
+    // 페이지 로드 시 실행
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM 로드 완료');
+        loadModels();
+    });
+</script>
+{% endblock %}

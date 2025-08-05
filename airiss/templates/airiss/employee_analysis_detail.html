@@ -1,0 +1,539 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .employee-detail {
+        padding: 20px;
+        background: #f5f7fa;
+        min-height: calc(100vh - 60px);
+    }
+
+    .breadcrumb {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .breadcrumb a {
+        color: #6b7280;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+
+    .breadcrumb a:hover {
+        color: #FF6B00;
+    }
+
+    .employee-header {
+        background: linear-gradient(135deg, #FF6B00 0%, #ff8533 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(255, 107, 0, 0.2);
+    }
+
+    .employee-info-grid {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 30px;
+        align-items: center;
+    }
+
+    .employee-avatar {
+        width: 100px;
+        height: 100px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        font-weight: bold;
+        color: #FF6B00;
+    }
+
+    .employee-details h1 {
+        margin: 0 0 10px 0;
+        font-size: 2rem;
+    }
+
+    .employee-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        opacity: 0.9;
+    }
+
+    .ai-summary {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .ai-score-big {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: #f9fafb;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h2 {
+        font-size: 1.125rem;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .score-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .score-item:last-child {
+        border-bottom: none;
+    }
+
+    .score-label {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .score-value {
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .progress-bar {
+        width: 100px;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #FF6B00;
+        transition: width 0.3s;
+    }
+
+    .risk-indicator {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    .risk-high {
+        background: #fee2e2;
+        border-left: 4px solid #ef4444;
+    }
+
+    .risk-medium {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+    }
+
+    .risk-low {
+        background: #d1fae5;
+        border-left: 4px solid #10b981;
+    }
+
+    .recommendation-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .recommendation-list li {
+        padding: 10px;
+        margin-bottom: 10px;
+        background: #f9fafb;
+        border-radius: 6px;
+        display: flex;
+        align-items: start;
+        gap: 10px;
+    }
+
+    .recommendation-list li:before {
+        content: "→";
+        color: #FF6B00;
+        font-weight: bold;
+    }
+
+    .chart-container {
+        height: 300px;
+        padding: 10px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-large {
+        padding: 12px 24px;
+        font-size: 16px;
+    }
+
+    .analysis-history {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .history-item:last-child {
+        border-bottom: none;
+    }
+
+    .history-date {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .history-score {
+        font-weight: 600;
+        color: #FF6B00;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="employee-detail">
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb">
+        <a href="{% url 'airiss:executive_dashboard' %}">경영진 대시보드</a> &gt;
+        <a href="{% url 'airiss:employee_analysis_all' %}">전직원 분석</a> &gt;
+        <span>{{ employee.name }}</span>
+    </div>
+
+    <!-- 직원 헤더 -->
+    <div class="employee-header">
+        <div class="employee-info-grid">
+            <div class="employee-avatar">
+                {{ employee.name|slice:":1" }}
+            </div>
+            <div class="employee-details">
+                <h1>{{ employee.name }}</h1>
+                <div class="employee-meta">
+                    <span class="meta-item">사번: {{ employee.employee_id }}</span>
+                    <span class="meta-item">부서: {{ employee.department }}</span>
+                    <span class="meta-item">직급: {{ employee.position }}</span>
+                    <span class="meta-item">입사일: {{ employee.hire_date|date:"Y년 m월 d일" }}</span>
+                </div>
+            </div>
+            <div class="ai-summary">
+                <div class="ai-score-big">
+                    {% if latest_comprehensive %}
+                    {{ latest_comprehensive.score|floatformat:1 }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </div>
+                <div>AI 종합 점수</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주요 지표 그리드 -->
+    <div class="content-grid">
+        <!-- 퇴사 위험도 -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h2>퇴사 위험도 분석</h2>
+                {% if turnover_risk %}
+                <span class="text-muted">{{ turnover_risk.analyzed_at|date:"m/d H:i" }}</span>
+                {% endif %}
+            </div>
+            <div class="card-content">
+                {% if turnover_risk %}
+                <div class="risk-indicator {% if turnover_risk.score >= 70 %}risk-high{% elif turnover_risk.score >= 40 %}risk-medium{% else %}risk-low{% endif %}">
+                    <strong>위험도: {{ turnover_risk.score|floatformat:1 }}%</strong>
+                    <p style="margin: 5px 0 0 0;">
+                        {% if turnover_risk.score >= 70 %}
+                        즉시 관리가 필요한 상태입니다.
+                        {% elif turnover_risk.score >= 40 %}
+                        주의 관찰이 필요합니다.
+                        {% else %}
+                        안정적인 상태입니다.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">신뢰도</span>
+                    <span class="score-value">{{ turnover_risk.confidence|floatformat:1 }}%</span>
+                </div>
+                {% else %}
+                <p class="text-muted">분석 데이터가 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 승진 가능성 -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h2>승진 가능성 분석</h2>
+                {% if promotion_potential %}
+                <span class="text-muted">{{ promotion_potential.analyzed_at|date:"m/d H:i" }}</span>
+                {% endif %}
+            </div>
+            <div class="card-content">
+                {% if promotion_potential %}
+                <div class="risk-indicator {% if promotion_potential.score >= 80 %}risk-low{% elif promotion_potential.score >= 60 %}risk-medium{% else %}risk-high{% endif %}">
+                    <strong>준비도: {{ promotion_potential.score|floatformat:1 }}%</strong>
+                    <p style="margin: 5px 0 0 0;">
+                        {% if promotion_potential.score >= 80 %}
+                        승진 준비가 완료되었습니다.
+                        {% elif promotion_potential.score >= 60 %}
+                        추가 역량 개발이 필요합니다.
+                        {% else %}
+                        기본 역량 강화가 필요합니다.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">신뢰도</span>
+                    <span class="score-value">{{ promotion_potential.confidence|floatformat:1 }}%</span>
+                </div>
+                {% else %}
+                <p class="text-muted">분석 데이터가 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 역량 평가 & 성과 추이 -->
+    <div class="content-grid">
+        <!-- 역량 평가 -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h2>핵심 역량 평가</h2>
+            </div>
+            <div class="card-content">
+                <div class="chart-container">
+                    <canvas id="competencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 성과 추이 -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h2>성과 추이</h2>
+            </div>
+            <div class="card-content">
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 추천사항 -->
+    {% if latest_comprehensive and latest_comprehensive.recommendations %}
+    <div class="detail-card">
+        <div class="card-header">
+            <h2>AI 추천사항</h2>
+        </div>
+        <div class="card-content">
+            <ul class="recommendation-list">
+                {% for rec in latest_comprehensive.recommendations %}
+                <li>{{ rec }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 액션 버튼 -->
+    <div class="action-buttons">
+        <button class="btn btn-primary btn-large" onclick="runNewAnalysis()">
+            새로운 AI 분석 실행
+        </button>
+        <button class="btn btn-secondary btn-large" onclick="exportReport()">
+            분석 보고서 다운로드
+        </button>
+        <button class="btn btn-info btn-large" onclick="compareWithPeers()">
+            동료 비교 분석
+        </button>
+        <button class="btn btn-success btn-large" onclick="createDevelopmentPlan()">
+            개발 계획 수립
+        </button>
+    </div>
+
+    <!-- 분석 이력 -->
+    <div class="analysis-history">
+        <div class="card-header" style="background: transparent; padding: 0 0 20px 0;">
+            <h2>분석 이력</h2>
+        </div>
+        {% for analysis in all_analyses %}
+        <div class="history-item">
+            <span>{{ analysis.analysis_type.name }}</span>
+            <span class="history-date">{{ analysis.analyzed_at|date:"Y-m-d H:i" }}</span>
+            <span class="history-score">{{ analysis.score|floatformat:1 }}점</span>
+        </div>
+        {% empty %}
+        <p class="text-muted">분석 이력이 없습니다.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 역량 차트
+const competencies = {{ competencies|safe }};
+const competencyCtx = document.getElementById('competencyChart').getContext('2d');
+new Chart(competencyCtx, {
+    type: 'radar',
+    data: {
+        labels: Object.keys(competencies),
+        datasets: [{
+            label: '역량 점수',
+            data: Object.values(competencies),
+            backgroundColor: 'rgba(255, 107, 0, 0.2)',
+            borderColor: 'rgba(255, 107, 0, 1)',
+            pointBackgroundColor: 'rgba(255, 107, 0, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(255, 107, 0, 1)'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: {
+                    display: false
+                },
+                suggestedMin: 0,
+                suggestedMax: 100
+            }
+        }
+    }
+});
+
+// 성과 추이 차트
+const trendData = {{ performance_trend|safe }};
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: trendData.map(d => d.month),
+        datasets: [{
+            label: '성과 점수',
+            data: trendData.map(d => d.score),
+            borderColor: 'rgb(255, 107, 0)',
+            backgroundColor: 'rgba(255, 107, 0, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+
+async function runNewAnalysis() {
+    if (!confirm('새로운 AI 분석을 실행하시겠습니까?')) return;
+    
+    try {
+        const response = await fetch('{{ msa_url }}/api/v1/llm/analyze', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                employee_data: {
+                    employee_id: '{{ employee.id }}',
+                    name: '{{ employee.name }}',
+                    department: '{{ employee.department }}',
+                    position: '{{ employee.position }}'
+                },
+                analysis_type: 'comprehensive',
+                include_recommendations: true
+            })
+        });
+        
+        if (response.ok) {
+            alert('AI 분석이 완료되었습니다.');
+            location.reload();
+        } else {
+            alert('AI 분석 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('분석 오류:', error);
+        alert('AI 분석 서비스에 연결할 수 없습니다.');
+    }
+}
+
+function exportReport() {
+    alert('보고서 다운로드 기능은 준비 중입니다.');
+}
+
+function compareWithPeers() {
+    alert('동료 비교 분석 기능은 준비 중입니다.');
+}
+
+function createDevelopmentPlan() {
+    alert('개발 계획 수립 기능은 준비 중입니다.');
+}
+</script>
+{% endblock %}
