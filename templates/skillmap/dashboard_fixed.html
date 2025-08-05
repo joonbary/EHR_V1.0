@@ -1,0 +1,835 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}직무스킬맵 - OK금융그룹 AI-Driven HR System{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">
+    <span class="breadcrumb-link">직무스킬맵</span>
+</li>
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1 class="page-title">직무스킬맵 대시보드</h1>
+        <p class="page-description">조직 전체 스킬 현황과 갭 분석을 한눈에 확인하세요</p>
+    </div>
+    
+    <div class="page-header-actions">
+        <button class="btn btn-primary" onclick="exportData()">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            데이터 내보내기
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+    /* 스킬맵 대시보드 스타일 */
+    .filters {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .filter-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .filter-group select {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+        background-color: white;
+        transition: border-color 0.2s;
+    }
+    
+    .filter-group select:focus {
+        outline: none;
+        border-color: var(--ok-orange);
+        box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+    }
+    
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .metric-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--ok-orange);
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    @media (min-width: 1200px) {
+        .dashboard-grid {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+    
+    .heatmap-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        height: 600px;
+        overflow: hidden;
+    }
+    
+    .heatmap-container h3 {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    #skillHeatmap {
+        height: calc(100% - 3rem);
+        overflow: auto;
+    }
+    
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .chart-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .chart-container h4 {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gray-500);
+    }
+    
+    .error-message {
+        text-align: center;
+        padding: 2rem;
+        color: #DC2626;
+        background-color: #FEE2E2;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+    
+    .skill-gap-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--gray-200);
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .skill-gap-item:hover {
+        background-color: var(--gray-50);
+    }
+    
+    .skill-gap-item:last-child {
+        border-bottom: none;
+    }
+    
+    .gap-rate {
+        background: #FEE2E2;
+        color: #DC2626;
+        padding: 0.25rem 0.75rem;
+        border-radius: 16px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    
+    .gap-rate.medium {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+    
+    .gap-rate.low {
+        background: #DCFCE7;
+        color: #16A34A;
+    }
+    
+    /* 부서별 요약 스타일 */
+    .dept-summary-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-top: 2rem;
+    }
+    
+    .dept-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .dept-card {
+        padding: 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .dept-card:hover {
+        border-color: var(--ok-orange);
+        box-shadow: 0 2px 8px rgba(255, 107, 0, 0.1);
+    }
+    
+    .dept-name {
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+    
+    .dept-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+    
+    /* Loading spinner */
+    .spinner {
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 3px solid var(--ok-orange);
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<!-- 필터 섹션 -->
+<div class="filters">
+    <div class="filter-group">
+        <select id="departmentFilter">
+            <option value="">전체 부서</option>
+            {% for dept_code, dept_name in departments %}
+            <option value="{{ dept_code }}">{{ dept_name }}</option>
+            {% endfor %}
+        </select>
+        
+        <select id="jobGroupFilter">
+            <option value="">전체 직군</option>
+            {% for group_code, group_name in job_groups %}
+            <option value="{{ group_code }}">{{ group_name }}</option>
+            {% endfor %}
+        </select>
+        
+        <select id="jobTypeFilter">
+            <option value="">전체 직종</option>
+            {% for type_code, type_name in job_types %}
+            <option value="{{ type_code }}">{{ type_name }}</option>
+            {% endfor %}
+        </select>
+        
+        <select id="growthLevelFilter">
+            <option value="">전체 성장레벨</option>
+            {% for level_code, level_name in growth_levels %}
+            <option value="{{ level_code }}">{{ level_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<!-- 메트릭스 카드 -->
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-value" id="totalEmployees">-</div>
+        <div class="metric-label">총 직원 수</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value" id="totalSkills">-</div>
+        <div class="metric-label">분석된 스킬</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value" id="avgProficiency">-</div>
+        <div class="metric-label">평균 숙련도</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value" id="skillGapRate">-</div>
+        <div class="metric-label">스킬 갭률</div>
+    </div>
+</div>
+
+<!-- 대시보드 그리드 -->
+<div class="dashboard-grid">
+    <!-- 스킬맵 히트맵 -->
+    <div class="heatmap-container">
+        <h3>
+            <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+            조직 스킬맵 히트맵
+        </h3>
+        <div id="skillHeatmap" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">데이터를 불러오는 중...</p>
+        </div>
+    </div>
+
+    <!-- 사이드바 -->
+    <div class="sidebar">
+        <!-- 상위 스킬 갭 -->
+        <div class="chart-container">
+            <h4>
+                <i data-lucide="target" class="w-4 h-4"></i>
+                주요 스킬 갭
+            </h4>
+            <div id="skillGapsList">
+                <div class="loading">데이터를 불러오는 중...</div>
+            </div>
+        </div>
+
+        <!-- 카테고리별 현황 -->
+        <div class="chart-container">
+            <h4>
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                스킬 카테고리별 현황
+            </h4>
+            <canvas id="categoryChart" width="300" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- 부서별 스킬 분포 -->
+<div class="dept-summary-container">
+    <h3>
+        <i data-lucide="building-2" class="w-5 h-5"></i>
+        부서별 스킬 분포
+    </h3>
+    <div id="deptSummaryGrid" class="dept-summary-grid">
+        <div class="loading">데이터를 불러오는 중...</div>
+    </div>
+</div>
+
+<!-- Error Display -->
+<div id="errorContainer" style="display: none;">
+    <div class="error-message">
+        <h4>오류가 발생했습니다</h4>
+        <p id="errorMessage"></p>
+    </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script>
+    let currentData = null;
+    let categoryChartInstance = null;
+    let isLoading = false;
+    
+    // 페이지 로드 시 초기 데이터 로드
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lucide 아이콘 초기화
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // 초기 데이터 로드 with error handling
+        setTimeout(() => {
+            loadSkillMapData();
+        }, 100);
+        
+        // 필터 변경 이벤트 리스너
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', debounce(loadSkillMapData, 500));
+        });
+    });
+    
+    // Debounce function to prevent too many API calls
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    async function loadSkillMapData() {
+        if (isLoading) return;
+        
+        isLoading = true;
+        hideError();
+        
+        try {
+            // Show loading state
+            showLoadingState();
+            
+            // 필터 값 수집
+            const filters = {
+                department: document.getElementById('departmentFilter').value,
+                job_group: document.getElementById('jobGroupFilter').value,
+                job_type: document.getElementById('jobTypeFilter').value,
+                growth_level: document.getElementById('growthLevelFilter').value
+            };
+            
+            // API 호출
+            const params = new URLSearchParams();
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value) params.append(key, value);
+            });
+            
+            const response = await fetch(`/api/skillmap/?${params}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                currentData = result.data;
+                updateDashboard(currentData);
+            } else {
+                throw new Error(result.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Error loading skillmap data:', error);
+            showError(error.message || '네트워크 오류가 발생했습니다.');
+        } finally {
+            isLoading = false;
+        }
+    }
+    
+    function showLoadingState() {
+        // Update all loading indicators
+        document.getElementById('skillHeatmap').innerHTML = '<div class="spinner"></div><p style="margin-top: 1rem;">데이터를 불러오는 중...</p>';
+        document.getElementById('skillGapsList').innerHTML = '<div class="loading">데이터를 불러오는 중...</div>';
+        document.getElementById('deptSummaryGrid').innerHTML = '<div class="loading">데이터를 불러오는 중...</div>';
+    }
+    
+    function updateDashboard(data) {
+        try {
+            // 메트릭스 업데이트
+            document.getElementById('totalEmployees').textContent = 
+                data.metrics?.total_employees?.toLocaleString() || '0';
+            document.getElementById('totalSkills').textContent = 
+                data.metrics?.total_skills || '0';
+            document.getElementById('avgProficiency').textContent = 
+                (data.metrics?.avg_proficiency || 0) + '%';
+            document.getElementById('skillGapRate').textContent = 
+                (data.metrics?.skill_gap_rate || 0) + '%';
+            
+            // 히트맵 생성 - 부서별로 집계하여 표시
+            if (data.skillmap_matrix) {
+                createAggregatedHeatmap(data.skillmap_matrix);
+            }
+            
+            // 스킬 갭 리스트 업데이트
+            if (data.metrics?.top_skill_gaps) {
+                updateSkillGapsList(data.metrics.top_skill_gaps);
+            }
+            
+            // 차트 업데이트
+            if (data.skillmap_matrix?.category_summary) {
+                updateCategoryChart(data.skillmap_matrix.category_summary);
+            }
+            
+            // 부서별 요약 업데이트
+            if (data.metrics?.department_summary) {
+                updateDepartmentSummary(data.metrics.department_summary);
+            }
+        } catch (error) {
+            console.error('Error updating dashboard:', error);
+            showError('대시보드 업데이트 중 오류가 발생했습니다.');
+        }
+    }
+    
+    function createAggregatedHeatmap(matrixData) {
+        try {
+            // Check if we have data
+            if (!matrixData || !matrixData.matrix || matrixData.matrix.length === 0) {
+                document.getElementById('skillHeatmap').innerHTML = 
+                    '<div class="loading">데이터가 없습니다.</div>';
+                return;
+            }
+            
+            // 부서별로 스킬 데이터를 집계
+            const departmentData = {};
+            const skills = matrixData.skills?.map(skill => skill.name) || [];
+            
+            // 부서별로 직원들의 스킬 갭을 집계
+            matrixData.matrix.forEach(emp => {
+                const dept = emp.department || '미지정';
+                if (!departmentData[dept]) {
+                    departmentData[dept] = {
+                        employees: 0,
+                        skillGaps: {}
+                    };
+                    skills.forEach(skill => {
+                        departmentData[dept].skillGaps[skill] = [];
+                    });
+                }
+                
+                departmentData[dept].employees++;
+                
+                skills.forEach(skill => {
+                    if (emp.skills && emp.skills[skill]) {
+                        departmentData[dept].skillGaps[skill].push(emp.skills[skill].gap || 0);
+                    }
+                });
+            });
+            
+            // 부서별 평균 갭 계산
+            const departments = Object.keys(departmentData).sort();
+            const heatmapData = [];
+            
+            departments.forEach(dept => {
+                const deptRow = [];
+                skills.forEach(skill => {
+                    const gaps = departmentData[dept].skillGaps[skill];
+                    const avgGap = gaps.length > 0 ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0;
+                    deptRow.push(avgGap);
+                });
+                heatmapData.push(deptRow);
+            });
+            
+            // 히트맵 생성
+            const data = [{
+                z: heatmapData,
+                x: skills,
+                y: departments,
+                type: 'heatmap',
+                colorscale: [
+                    [0, '#22c55e'],    // 녹색 (갭 없음)
+                    [0.25, '#84cc16'], // 연녹색
+                    [0.5, '#fbbf24'],  // 노란색 (중간 갭)
+                    [0.75, '#f87171'], // 연빨간색
+                    [1, '#ef4444']     // 빨간색 (큰 갭)
+                ],
+                hovertemplate: '부서: %{y}<br>스킬: %{x}<br>평균 갭: %{z:.2f}<extra></extra>',
+                colorbar: {
+                    title: '스킬 갭',
+                    titleside: 'right',
+                    tickmode: 'array',
+                    tickvals: [0, 1, 2, 3, 4],
+                    ticktext: ['없음', '낮음', '중간', '높음', '매우 높음']
+                }
+            }];
+            
+            const layout = {
+                title: '',
+                xaxis: {
+                    title: '스킬',
+                    tickangle: -45,
+                    automargin: true
+                },
+                yaxis: {
+                    title: '부서',
+                    automargin: true
+                },
+                margin: { l: 100, r: 50, t: 20, b: 100 },
+                height: 500
+            };
+            
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+            
+            Plotly.newPlot('skillHeatmap', data, layout, config);
+            
+            // 히트맵 클릭 이벤트
+            document.getElementById('skillHeatmap').on('plotly_click', function(eventData) {
+                if (eventData.points && eventData.points.length > 0) {
+                    const skill = eventData.points[0].x;
+                    const dept = eventData.points[0].y;
+                    drillDownToSkill(skill, dept);
+                }
+            });
+        } catch (error) {
+            console.error('Error creating heatmap:', error);
+            document.getElementById('skillHeatmap').innerHTML = 
+                '<div class="error-message">히트맵 생성 중 오류가 발생했습니다.</div>';
+        }
+    }
+    
+    function updateSkillGapsList(skillGaps) {
+        const container = document.getElementById('skillGapsList');
+        
+        if (!skillGaps || skillGaps.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--gray-500);">데이터가 없습니다.</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        skillGaps.slice(0, 8).forEach(gap => {
+            const item = document.createElement('div');
+            item.className = 'skill-gap-item';
+            
+            const gapClass = gap.gap_rate > 50 ? '' : gap.gap_rate > 30 ? 'medium' : 'low';
+            
+            item.innerHTML = `
+                <span>${gap.skill || '알 수 없음'}</span>
+                <span class="gap-rate ${gapClass}">${(gap.gap_rate || 0).toFixed(1)}%</span>
+            `;
+            
+            item.onclick = () => drillDownToSkill(gap.skill);
+            
+            container.appendChild(item);
+        });
+    }
+    
+    function updateCategoryChart(categorySummary) {
+        const ctx = document.getElementById('categoryChart');
+        if (!ctx) return;
+        
+        const context = ctx.getContext('2d');
+        
+        if (!categorySummary || Object.keys(categorySummary).length === 0) {
+            context.clearRect(0, 0, ctx.width, ctx.height);
+            context.fillStyle = '#64748b';
+            context.textAlign = 'center';
+            context.fillText('데이터가 없습니다', ctx.width / 2, ctx.height / 2);
+            return;
+        }
+        
+        const categories = Object.keys(categorySummary);
+        const proficiencies = categories.map(cat => categorySummary[cat].avg_proficiency || 0);
+        
+        // 기존 차트 인스턴스 제거
+        if (categoryChartInstance) {
+            categoryChartInstance.destroy();
+        }
+        
+        // Chart.js가 로드되었는지 확인
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js is not loaded');
+            return;
+        }
+        
+        categoryChartInstance = new Chart(context, {
+            type: 'bar',
+            data: {
+                labels: categories.map(cat => {
+                    const labelMap = {
+                        'technical': '기술',
+                        'business': '비즈니스',
+                        'leadership': '리더십',
+                        'communication': '커뮤니케이션',
+                        'financial': '금융',
+                        'compliance': '컴플라이언스',
+                        'digital': '디지털'
+                    };
+                    return labelMap[cat] || cat;
+                }),
+                datasets: [{
+                    label: '평균 숙련도',
+                    data: proficiencies,
+                    backgroundColor: 'rgba(255, 107, 0, 0.8)',
+                    borderColor: '#FF6B00',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateDepartmentSummary(deptSummary) {
+        const container = document.getElementById('deptSummaryGrid');
+        
+        if (!deptSummary || Object.keys(deptSummary).length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--gray-500);">부서별 데이터가 없습니다.</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        Object.entries(deptSummary).forEach(([dept, data]) => {
+            const card = document.createElement('div');
+            card.className = 'dept-card';
+            card.innerHTML = `
+                <div class="dept-name">${dept}</div>
+                <div class="dept-stats">
+                    <span>직원: ${data.employee_count || 0}명</span>
+                    <span>갭 점수: ${(data.avg_gap_score || 0).toFixed(1)}%</span>
+                </div>
+            `;
+            
+            card.onclick = () => {
+                document.getElementById('departmentFilter').value = dept;
+                loadSkillMapData();
+            };
+            
+            container.appendChild(card);
+        });
+    }
+    
+    async function drillDownToSkill(skillName, department = null) {
+        if (!skillName) return;
+        
+        try {
+            let url = `/api/skillmap/drilldown/skill/${encodeURIComponent(skillName)}/`;
+            if (department) {
+                url += `?department=${encodeURIComponent(department)}`;
+            }
+            
+            const response = await fetch(url);
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                showSkillDetailModal(result.data);
+            }
+        } catch (error) {
+            console.error('Drill-down error:', error);
+            alert('스킬 상세 정보를 불러오는 중 오류가 발생했습니다.');
+        }
+    }
+    
+    function showSkillDetailModal(skillData) {
+        // 간단한 alert 대신 실제 모달을 구현할 수 있습니다
+        const message = `${skillData.skill_name} 스킬 상세 분석\n\n` +
+                      `총 직원: ${skillData.gap_analysis?.total_employees || 0}명\n` +
+                      `갭 보유 직원: ${skillData.gap_analysis?.employees_with_gap || 0}명\n` +
+                      `평균 갭 크기: ${skillData.gap_analysis?.avg_gap_size || 0}\n\n` +
+                      `추천사항:\n${(skillData.recommendations || []).join('\n')}`;
+        
+        alert(message);
+    }
+    
+    async function exportData() {
+        try {
+            const filters = {
+                department: document.getElementById('departmentFilter').value,
+                job_group: document.getElementById('jobGroupFilter').value,
+                job_type: document.getElementById('jobTypeFilter').value,
+                growth_level: document.getElementById('growthLevelFilter').value
+            };
+            
+            const response = await fetch('/api/skillmap/export/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    format: 'excel',
+                    filters: filters
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                alert('데이터 내보내기가 준비되었습니다.');
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            alert('내보내기 중 오류가 발생했습니다.');
+        }
+    }
+    
+    function showError(message) {
+        document.getElementById('errorContainer').style.display = 'block';
+        document.getElementById('errorMessage').textContent = message;
+        
+        // Update all containers to show error state
+        document.getElementById('skillHeatmap').innerHTML = 
+            `<div class="error-message">${message}</div>`;
+    }
+    
+    function hideError() {
+        document.getElementById('errorContainer').style.display = 'none';
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

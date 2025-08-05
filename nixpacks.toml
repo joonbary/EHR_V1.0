@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ["python311", "postgresql_15"]
+nixPkgs = ["python311", "postgresql_15", "bash"]
 
 [phases.install]
 cmds = ["pip install -r requirements.txt"]
 
 [start]
-cmd = "python start_server.py"
+cmd = "bash railway_start.sh"

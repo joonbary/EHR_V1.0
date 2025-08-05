@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}보상 분석 - OK금융그룹 AI-Driven HR System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">보상 분석</h1>
+        <p class="page-subtitle">급여 및 보상 체계 분석</p>
+    </div>
+
+    <!-- 주요 지표 카드 -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i data-lucide="dollar-sign" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ total_payroll|intcomma }}</h3>
+                    <p class="stat-label">총 인건비</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info">
+                    <i data-lucide="trending-up" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ avg_salary|intcomma }}</h3>
+                    <p class="stat-label">평균 급여</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                    <i data-lucide="users" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ salary_distribution|length }}</h3>
+                    <p class="stat-label">급여 구간</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i data-lucide="bar-chart" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ salary_by_position|length }}</h3>
+                    <p class="stat-label">직급 체계</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 차트 섹션 -->
+    <div class="row mt-4">
+        <!-- 직급별 평균 급여 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">직급별 평균 급여</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="positionSalaryChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 급여 분포 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">급여 분포</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="salaryDistChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 부서별 평균 급여 -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">부서별 평균 급여</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="deptSalaryChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 급여 상세 테이블 -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">직급별 급여 상세</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>직급</th>
+                                    <th class="text-right">평균 급여</th>
+                                    <th class="text-right">최소 급여</th>
+                                    <th class="text-right">최대 급여</th>
+                                    <th>급여 범위</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pos in salary_by_position %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">{{ pos.position }}</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong>{{ pos.avg_salary|intcomma }}만원</strong>
+                                    </td>
+                                    <td class="text-right text-muted">{{ pos.min|intcomma }}만원</td>
+                                    <td class="text-right text-muted">{{ pos.max|intcomma }}만원</td>
+                                    <td>
+                                        <div class="salary-range">
+                                            <div class="range-bar">
+                                                <div class="range-fill" 
+                                                     style="left: {% widthratio pos.min pos.max 100 %}%; 
+                                                            width: {% widthratio pos.avg_salary pos.max 50 %}%">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.stat-label {
+    color: #666;
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 12px;
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.salary-range {
+    width: 100%;
+    padding: 0 10px;
+}
+
+.range-bar {
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    position: relative;
+}
+
+.range-fill {
+    position: absolute;
+    height: 100%;
+    background: linear-gradient(90deg, #4F46E5, #7C3AED);
+    border-radius: 4px;
+}
+
+.badge {
+    padding: 6px 12px;
+    font-weight: 500;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 직급별 평균 급여 차트
+    const positionCtx = document.getElementById('positionSalaryChart').getContext('2d');
+    new Chart(positionCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for pos in salary_by_position %}'{{ pos.position }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '평균 급여 (만원)',
+                data: [{% for pos in salary_by_position %}{{ pos.avg_salary }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#4F46E5',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + '만원';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 급여 분포 차트
+    const distCtx = document.getElementById('salaryDistChart').getContext('2d');
+    new Chart(distCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for dist in salary_distribution %}'{{ dist.range }}만원'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for dist in salary_distribution %}{{ dist.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [
+                    '#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '명';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 부서별 평균 급여 차트
+    const deptCtx = document.getElementById('deptSalaryChart').getContext('2d');
+    new Chart(deptCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for dept in salary_by_dept %}'{{ dept.department }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '평균 급여 (만원)',
+                data: [{% for dept in salary_by_dept %}{{ dept.avg_salary }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: '#4F46E5',
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: '#4F46E5',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + '만원';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

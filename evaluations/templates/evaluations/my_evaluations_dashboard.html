@@ -1,0 +1,333 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}나의 평가 현황{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">나의 평가 현황</h1>
+                <p class="text-gray-600 mt-2">{{ employee.name }}님의 평가 현황을 확인하고 목표를 관리합니다</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'evaluations:dashboard' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                    평가관리 메인
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if active_period %}
+    <!-- 현재 평가 기간 정보 -->
+    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <i data-lucide="calendar" class="w-6 h-6 text-blue-600"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-blue-900">{{ active_period.year }}년 {{ active_period.get_period_type_display }}</h3>
+                <p class="text-blue-700">평가 기간: {{ active_period.start_date|date:"Y.m.d" }} ~ {{ active_period.end_date|date:"Y.m.d" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 평가 진행 현황 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
+                    <i data-lucide="target" class="w-6 h-6 text-primary"></i>
+                </div>
+                <div class="text-right">
+                    {% if my_tasks %}
+                        <div class="text-2xl font-bold text-primary">{{ my_tasks|length }}</div>
+                        <div class="text-sm text-gray-600">개 설정</div>
+                    {% else %}
+                        <div class="text-2xl font-bold text-yellow-600">미설정</div>
+                        <div class="text-sm text-gray-600">-</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-gray-900">개인 목표</h3>
+                <a href="{% url 'evaluations:my_goals' %}" class="px-3 py-1 bg-primary text-white text-sm rounded-lg hover:bg-primary-hover transition-colors">
+                    관리
+                </a>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <div class="text-right">
+                    {% if evaluations.contribution %}
+                        <div class="text-2xl font-bold text-blue-600">{{ evaluations.contribution.contribution_score }}점</div>
+                        <div class="text-sm {% if evaluations.contribution.is_achieved %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ evaluations.contribution.is_achieved|yesno:"달성,미달성" }}
+                        </div>
+                    {% else %}
+                        <div class="text-2xl font-bold text-gray-400">-</div>
+                        <div class="text-sm text-gray-600">평가 전</div>
+                    {% endif %}
+                </div>
+            </div>
+            <h3 class="font-semibold text-gray-900">기여도 평가</h3>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="brain" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div class="text-right">
+                    {% if evaluations.expertise %}
+                        <div class="text-2xl font-bold text-green-600">{{ evaluations.expertise.total_score }}점</div>
+                        <div class="text-sm {% if evaluations.expertise.is_achieved %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ evaluations.expertise.is_achieved|yesno:"달성,미달성" }}
+                        </div>
+                    {% else %}
+                        <div class="text-2xl font-bold text-gray-400">-</div>
+                        <div class="text-sm text-gray-600">평가 전</div>
+                    {% endif %}
+                </div>
+            </div>
+            <h3 class="font-semibold text-gray-900">전문성 평가</h3>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="zap" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div class="text-right">
+                    {% if evaluations.impact %}
+                        <div class="text-2xl font-bold text-purple-600">{{ evaluations.impact.total_score }}점</div>
+                        <div class="text-sm {% if evaluations.impact.is_achieved %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ evaluations.impact.is_achieved|yesno:"달성,미달성" }}
+                        </div>
+                    {% else %}
+                        <div class="text-2xl font-bold text-gray-400">-</div>
+                        <div class="text-sm text-gray-600">평가 전</div>
+                    {% endif %}
+                </div>
+            </div>
+            <h3 class="font-semibold text-gray-900">영향력 평가</h3>
+        </div>
+    </div>
+
+    <!-- 나의 목표 현황 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">나의 목표 현황</h2>
+            <a href="{% url 'evaluations:my_goals' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors">
+                <i data-lucide="edit" class="w-4 h-4 inline mr-2"></i>
+                목표 관리
+            </a>
+        </div>
+        
+        {% if my_tasks %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">과제명</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가중치</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">목표</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">실적</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">달성률</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for task in my_tasks %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ task.title }}</div>
+                                    {% if task.description %}
+                                        <div class="text-sm text-gray-500">{{ task.description|truncatewords:10 }}</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 bg-primary text-white text-sm rounded-full">{{ task.weight }}%</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {% if task.target_value %}
+                                    {{ task.target_value }} {{ task.target_unit }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {% if task.actual_value %}
+                                    {{ task.actual_value }} {{ task.target_unit }}
+                                {% else %}
+                                    <span class="text-gray-500">미입력</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if task.achievement_rate %}
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
+                                            <div class="bg-primary h-2 rounded-full" style="width: {{ task.achievement_rate }}%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900">{{ task.achievement_rate }}%</span>
+                                    </div>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i data-lucide="clipboard-list" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                <p class="text-gray-500 mb-4">아직 설정된 목표가 없습니다.</p>
+                <a href="{% url 'evaluations:my_goals' %}" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                    목표 설정하기
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <!-- 활성 평가 기간이 없을 때 -->
+    <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-600"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-yellow-900">평가 기간 없음</h3>
+                <p class="text-yellow-700">현재 진행 중인 평가 기간이 없습니다.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 과거 평가 이력 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">과거 평가 이력</h2>
+        </div>
+        
+        {% if past_evaluations %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">평가 기간</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">기여도</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">전문성</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">영향력</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">최종 등급</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for eval in past_evaluations %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ eval.evaluation_period }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if eval.contribution_achieved %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-sm rounded-full">달성</span>
+                                {% else %}
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">미달성</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if eval.expertise_achieved %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-sm rounded-full">달성</span>
+                                {% else %}
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">미달성</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if eval.impact_achieved %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-sm rounded-full">달성</span>
+                                {% else %}
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">미달성</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if eval.final_grade %}
+                                    <span class="grade-badge grade-{{ eval.final_grade|lower }}">
+                                        {{ eval.final_grade }}
+                                    </span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <a href="{% url 'evaluations:my_results' %}" class="text-primary hover:text-primary-hover">
+                                    <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
+                                    상세보기
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i data-lucide="history" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                <p class="text-gray-500">아직 완료된 평가가 없습니다.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// 페이지 로드시 아이콘 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+
+<style>
+.grade-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.grade-s {
+    background-color: #FFE5B4;
+    color: #FF8C00;
+}
+
+.grade-a {
+    background-color: #E6F3FF;
+    color: #0066CC;
+}
+
+.grade-b {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+}
+
+.grade-c {
+    background-color: #FFF3E0;
+    color: #F57C00;
+}
+
+.grade-d {
+    background-color: #FFEBEE;
+    color: #C62828;
+}
+</style>
+{% endblock %}

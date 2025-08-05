@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Optimized Skillmap Heatmap</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        .heatmap-container {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            position: relative;
+            overflow: auto;
+        }
+        
+        #heatmapChart {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="heatmap-container">
+        <div id="heatmapChart"></div>
+    </div>
+    
+    <script>
+        // 샘플 데이터 생성
+        function generateSampleData() {
+            const employees = [];
+            const skills = [];
+            const values = [];
+            
+            // 50명의 직원과 20개의 스킬
+            for (let i = 0; i < 50; i++) {
+                employees.push(`Employee ${i + 1}`);
+            }
+            
+            for (let i = 0; i < 20; i++) {
+                skills.push(`Skill ${i + 1}`);
+            }
+            
+            // 랜덤 값 생성
+            for (let i = 0; i < employees.length; i++) {
+                const row = [];
+                for (let j = 0; j < skills.length; j++) {
+                    row.push(Math.floor(Math.random() * 100));
+                }
+                values.push(row);
+            }
+            
+            return { employees, skills, values };
+        }
+        
+        function createOptimizedHeatmap() {
+            const { employees, skills, values } = generateSampleData();
+            
+            // 동적 높이 계산 (직원 수에 따라)
+            const cellHeight = 20; // 각 셀의 최소 높이
+            const minHeight = 600;
+            const calculatedHeight = Math.max(minHeight, employees.length * cellHeight + 200);
+            
+            // 동적 폰트 크기 계산
+            const baseFontSize = 12;
+            const fontScale = Math.min(1, 30 / employees.length);
+            const fontSize = Math.max(8, baseFontSize * fontScale);
+            
+            const data = [{
+                z: values,
+                x: skills,
+                y: employees,
+                type: 'heatmap',
+                colorscale: [
+                    [0, '#f7fbff'],
+                    [0.2, '#deebf7'],
+                    [0.4, '#c6dbef'],
+                    [0.6, '#9ecae1'],
+                    [0.8, '#6baed6'],
+                    [1, '#3182bd']
+                ],
+                colorbar: {
+                    title: {
+                        text: 'Proficiency (%)',
+                        side: 'right'
+                    },
+                    thickness: 20,
+                    len: 0.9,
+                    x: 1.02
+                },
+                hovertemplate: '<b>%{y}</b><br>' +
+                             'Skill: %{x}<br>' +
+                             'Proficiency: %{z}%<br>' +
+                             '<extra></extra>'
+            }];
+            
+            const layout = {
+                title: {
+                    text: 'Organization Skillmap Heatmap',
+                    font: {
+                        size: 20,
+                        family: 'Arial, sans-serif'
+                    }
+                },
+                xaxis: {
+                    title: 'Skills',
+                    side: 'top',
+                    tickangle: -45,
+                    tickfont: {
+                        size: fontSize
+                    },
+                    automargin: true
+                },
+                yaxis: {
+                    title: 'Employees',
+                    tickfont: {
+                        size: fontSize
+                    },
+                    automargin: true,
+                    dtick: 1
+                },
+                margin: {
+                    l: 150,  // 왼쪽 마진 (직원 이름)
+                    r: 100,  // 오른쪽 마진 (컬러바)
+                    t: 150,  // 상단 마진 (스킬 레이블)
+                    b: 50,   // 하단 마진
+                    pad: 4
+                },
+                height: calculatedHeight,
+                width: null, // 자동 너비
+                paper_bgcolor: '#f8f9fa',
+                plot_bgcolor: 'white',
+                hoverlabel: {
+                    bgcolor: 'white',
+                    bordercolor: 'black',
+                    font: {
+                        family: 'Arial, sans-serif',
+                        size: 12
+                    }
+                }
+            };
+            
+            const config = {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToAdd: [
+                    {
+                        name: 'Download as PNG',
+                        icon: Plotly.Icons.camera,
+                        click: function(gd) {
+                            Plotly.downloadImage(gd, {
+                                format: 'png',
+                                width: 1200,
+                                height: calculatedHeight,
+                                filename: 'skillmap_heatmap'
+                            });
+                        }
+                    }
+                ],
+                modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d']
+            };
+            
+            Plotly.newPlot('heatmapChart', data, layout, config);
+            
+            // 윈도우 리사이즈 대응
+            window.addEventListener('resize', function() {
+                Plotly.Plots.resize('heatmapChart');
+            });
+        }
+        
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', createOptimizedHeatmap);
+    </script>
+</body>
+</html>

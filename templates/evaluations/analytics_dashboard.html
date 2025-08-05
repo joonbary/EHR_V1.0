@@ -1,0 +1,652 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}평가 데이터 분석 대시보드{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 분석 카드 스타일 */
+    .analytics-card {
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .analytics-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border-color: #ff6b00;
+    }
+    
+    /* 메트릭 카드 */
+    .metric-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-left: 4px solid;
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .metric-positive { border-left-color: #10b981; }
+    .metric-warning { border-left-color: #f59e0b; }
+    .metric-danger { border-left-color: #ef4444; }
+    .metric-info { border-left-color: #3b82f6; }
+    
+    /* 인사이트 카드 */
+    .insight-card {
+        border-left: 4px solid;
+        padding: 16px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+    }
+    
+    .insight-positive {
+        background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+        border-left-color: #10b981;
+    }
+    
+    .insight-warning {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border-left-color: #f59e0b;
+    }
+    
+    .insight-danger {
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        border-left-color: #ef4444;
+    }
+    
+    .insight-info {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-left-color: #3b82f6;
+    }
+    
+    /* 차트 컨테이너 */
+    .chart-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 부서 성과 테이블 */
+    .department-table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .department-row {
+        transition: background-color 0.2s;
+    }
+    
+    .department-row:hover {
+        background-color: #f8fafc;
+    }
+    
+    /* 진행률 바 */
+    .progress-bar {
+        height: 8px;
+        background-color: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%);
+        transition: width 0.3s ease;
+    }
+    
+    /* 등급 뱃지 */
+    .grade-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .grade-s { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .grade-a { background: linear-gradient(135deg, #10b981, #34d399); }
+    .grade-b { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .grade-c { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .grade-d { background: linear-gradient(135deg, #ef4444, #f87171); }
+    
+    /* 탭 스타일 */
+    .tab-button {
+        padding: 12px 24px;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+    }
+    
+    .tab-button.active {
+        background: white;
+        border-bottom-color: #ff6b00;
+        color: #ff6b00;
+        font-weight: 600;
+    }
+    
+    .tab-button:not(.active):hover {
+        background: #f3f4f6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">평가 데이터 분석</h1>
+                <p class="text-gray-600 mt-2">{{ report.evaluation_period }} 평가 기간 종합 분석</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="generateReport()" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
+                    <i data-lucide="refresh-cw" class="w-5 h-5 inline mr-2"></i>
+                    리포트 갱신
+                </button>
+                <button onclick="exportReport()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
+                    <i data-lucide="download" class="w-5 h-5 inline mr-2"></i>
+                    리포트 내보내기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주요 메트릭 요약 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="metric-card metric-info">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold text-gray-900">{{ report.report_summary.total_employees }}</div>
+                    <div class="text-sm text-gray-600">총 평가 대상자</div>
+                </div>
+                <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
+            </div>
+        </div>
+        
+        <div class="metric-card {% if report.report_summary.completion_rate >= 90 %}metric-positive{% elif report.report_summary.completion_rate >= 70 %}metric-warning{% else %}metric-danger{% endif %}">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold text-gray-900">{{ report.report_summary.completion_rate }}%</div>
+                    <div class="text-sm text-gray-600">평가 완료율</div>
+                </div>
+                <i data-lucide="check-circle" class="w-8 h-8 {% if report.report_summary.completion_rate >= 90 %}text-green-600{% elif report.report_summary.completion_rate >= 70 %}text-yellow-600{% else %}text-red-600{% endif %}"></i>
+            </div>
+        </div>
+        
+        <div class="metric-card {% if report.report_summary.overall_performance >= 3.5 %}metric-positive{% elif report.report_summary.overall_performance >= 2.5 %}metric-warning{% else %}metric-danger{% endif %}">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold text-gray-900">{{ report.report_summary.overall_performance }}</div>
+                    <div class="text-sm text-gray-600">전체 평균 점수</div>
+                </div>
+                <i data-lucide="trending-up" class="w-8 h-8 {% if report.report_summary.overall_performance >= 3.5 %}text-green-600{% elif report.report_summary.overall_performance >= 2.5 %}text-yellow-600{% else %}text-red-600{% endif %}"></i>
+            </div>
+        </div>
+        
+        <div class="metric-card metric-positive">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold text-gray-900">{{ report.report_summary.promotion_eligible }}</div>
+                    <div class="text-sm text-gray-600">승급 자격자</div>
+                </div>
+                <i data-lucide="arrow-up" class="w-8 h-8 text-green-600"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 인사이트 -->
+    <div class="mb-8">
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center mb-6">
+                <i data-lucide="brain" class="w-6 h-6 text-primary mr-3"></i>
+                <h2 class="text-lg font-semibold text-gray-900">AI 분석 인사이트</h2>
+                <span class="ml-auto px-3 py-1 bg-primary-light text-primary rounded-full text-sm">
+                    {{ report.report_summary.key_insights_count }}개 인사이트
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 성과 인사이트 -->
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-3">성과 인사이트</h3>
+                    {% for insight in report.ai_insights.performance_insights %}
+                    <div class="insight-card {% if insight.impact == 'positive' %}insight-positive{% else %}insight-info{% endif %}">
+                        <div class="flex items-start">
+                            <i data-lucide="{% if insight.impact == 'positive' %}trending-up{% else %}info{% endif %}" class="w-5 h-5 mr-3 mt-0.5"></i>
+                            <p class="text-sm text-gray-700">{{ insight.message }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-sm">성과 인사이트를 분석 중입니다.</p>
+                    {% endfor %}
+                </div>
+                
+                <!-- 위험 알람 -->
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-3">위험 알람</h3>
+                    {% for alert in report.ai_insights.risk_alerts %}
+                    <div class="insight-card {% if alert.severity == 'high' %}insight-danger{% else %}insight-warning{% endif %}">
+                        <div class="flex items-start">
+                            <i data-lucide="{% if alert.severity == 'high' %}alert-triangle{% else %}alert-circle{% endif %}" class="w-5 h-5 mr-3 mt-0.5"></i>
+                            <p class="text-sm text-gray-700">{{ alert.message }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="insight-card insight-positive">
+                        <div class="flex items-start">
+                            <i data-lucide="shield-check" class="w-5 h-5 mr-3 mt-0.5"></i>
+                            <p class="text-sm text-gray-700">현재 심각한 위험 요소가 발견되지 않았습니다.</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <div class="mb-6">
+        <div class="flex space-x-2 bg-gray-100 p-2 rounded-xl">
+            <button onclick="showTab('overview')" class="tab-button active" data-tab="overview">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>
+                전체 현황
+            </button>
+            <button onclick="showTab('departments')" class="tab-button" data-tab="departments">
+                <i data-lucide="building" class="w-4 h-4 inline mr-2"></i>
+                부서별 분석
+            </button>
+            <button onclick="showTab('growth')" class="tab-button" data-tab="growth">
+                <i data-lucide="trending-up" class="w-4 h-4 inline mr-2"></i>
+                성장 분석
+            </button>
+            <button onclick="showTab('trends')" class="tab-button" data-tab="trends">
+                <i data-lucide="activity" class="w-4 h-4 inline mr-2"></i>
+                트렌드 분석
+            </button>
+        </div>
+    </div>
+
+    <!-- 탭 컨텐츠 -->
+    <div id="tab-overview" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 평가 완료 현황 -->
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold mb-4">평가 완료 현황</h3>
+                <canvas id="completionChart" width="400" height="200"></canvas>
+            </div>
+            
+            <!-- 등급 분포 -->
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold mb-4">등급 분포</h3>
+                <canvas id="gradeDistributionChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        
+        <div class="mt-6">
+            <!-- 3대 평가축 현황 -->
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold mb-4">3대 평가축 현황</h3>
+                <canvas id="evaluationAxesChart" width="800" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-departments" class="tab-content hidden">
+        <div class="department-table">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold">부서별 성과 현황</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">부서</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">인원</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">완료율</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">평균 점수</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등급 분포</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for dept in report.analysis_data.department_analysis %}
+                        <tr class="department-row">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="font-medium text-gray-900">{{ dept.department_name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ dept.employee_count }}명
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-16 progress-bar mr-2">
+                                        <div class="progress-fill" style="width: {{ dept.completion_rate }}%"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-700">{{ dept.completion_rate }}%</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ dept.average_scores.overall }}</div>
+                                <div class="text-xs text-gray-500">
+                                    기여도 {{ dept.average_scores.contribution }} · 
+                                    전문성 {{ dept.average_scores.expertise }} · 
+                                    영향력 {{ dept.average_scores.impact }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex space-x-1">
+                                    {% for grade in dept.grade_distribution %}
+                                    <div class="grade-badge grade-{{ grade.final_grade|lower }}" title="{{ grade.final_grade }}: {{ grade.count }}명">
+                                        {{ grade.count }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-growth" class="tab-content hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 성장레벨 분포 -->
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold mb-4">성장레벨 분포</h3>
+                <canvas id="growthLevelChart" width="400" height="200"></canvas>
+            </div>
+            
+            <!-- 승급 현황 -->
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <h3 class="text-lg font-semibold mb-4">승급 현황</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">승급 자격자</span>
+                        <span class="font-semibold">{{ report.analysis_data.growth_insights.total_promotion_eligible }}명</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">승급률</span>
+                        <span class="font-semibold">{{ report.analysis_data.growth_insights.promotion_rate }}%</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="font-medium text-gray-700 mb-3">승급 후보자 (상위 5명)</h4>
+                    <div class="space-y-2">
+                        {% for candidate in report.analysis_data.growth_insights.promotion_candidates|slice:":5" %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">{{ candidate.employee.name }}</div>
+                                <div class="text-sm text-gray-600">{{ candidate.employee.get_department_display }}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-semibold">{{ candidate.overall_score }}</div>
+                                <div class="text-sm text-gray-600">레벨 {{ candidate.current_level.level }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-trends" class="tab-content hidden">
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold mb-4">성과 트렌드 (최근 6개 기간)</h3>
+            <canvas id="performanceTrendChart" width="800" height="400"></canvas>
+        </div>
+    </div>
+
+    <!-- 추천사항 -->
+    <div class="mt-8">
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center mb-6">
+                <i data-lucide="lightbulb" class="w-6 h-6 text-primary mr-3"></i>
+                <h2 class="text-lg font-semibold text-gray-900">개선 추천사항</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for recommendation in report.ai_insights.recommendations %}
+                <div class="insight-card insight-info">
+                    <div class="flex items-start">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-800 mb-1">{{ recommendation.category }}</h4>
+                            <p class="text-sm text-gray-700">{{ recommendation.recommendation }}</p>
+                        </div>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ml-2
+                                {% if recommendation.priority == 'high' %}bg-red-100 text-red-800
+                                {% elif recommendation.priority == 'medium' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {{ recommendation.priority|upper }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 탭 전환 기능
+function showTab(tabName) {
+    // 모든 탭 컨텐츠 숨기기
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // 모든 탭 버튼 비활성화
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+    
+    // 선택된 탭 표시
+    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+}
+
+// 차트 데이터 (서버에서 전달된 데이터 사용)
+const chartData = {
+    organizationSummary: {{ report.analysis_data.organization_summary|safe }},
+    departmentAnalysis: {{ report.analysis_data.department_analysis|safe }},
+    growthInsights: {{ report.analysis_data.growth_insights|safe }},
+    performanceTrends: {{ report.analysis_data.performance_trends|safe }}
+};
+
+// 차트 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    lucide.createIcons();
+});
+
+function initializeCharts() {
+    // 평가 완료 현황 차트
+    const completionCtx = document.getElementById('completionChart').getContext('2d');
+    new Chart(completionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['완료', '미완료'],
+            datasets: [{
+                data: [
+                    chartData.organizationSummary.completed_evaluations || 0,
+                    (chartData.organizationSummary.total_employees || 0) - (chartData.organizationSummary.completed_evaluations || 0)
+                ],
+                backgroundColor: ['#10b981', '#e5e7eb'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // 등급 분포 차트
+    const gradeCtx = document.getElementById('gradeDistributionChart').getContext('2d');
+    const gradeData = chartData.organizationSummary.grade_distribution || [];
+    new Chart(gradeCtx, {
+        type: 'bar',
+        data: {
+            labels: gradeData.map(g => g.final_grade),
+            datasets: [{
+                label: '인원 수',
+                data: gradeData.map(g => g.count),
+                backgroundColor: ['#8b5cf6', '#10b981', '#3b82f6', '#f59e0b', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // 3대 평가축 차트
+    const axesCtx = document.getElementById('evaluationAxesChart').getContext('2d');
+    const avgScores = chartData.organizationSummary.average_scores || {};
+    new Chart(axesCtx, {
+        type: 'radar',
+        data: {
+            labels: ['기여도', '전문성', '영향력'],
+            datasets: [{
+                label: '평균 점수',
+                data: [
+                    avgScores.contribution || 0,
+                    avgScores.expertise || 0,
+                    avgScores.impact || 0
+                ],
+                backgroundColor: 'rgba(255, 107, 0, 0.2)',
+                borderColor: '#ff6b00',
+                pointBackgroundColor: '#ff6b00'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: {
+                        display: true
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 5
+                }
+            }
+        }
+    });
+
+    // 성장레벨 분포 차트
+    const growthCtx = document.getElementById('growthLevelChart').getContext('2d');
+    const levelData = chartData.growthInsights.level_distribution || [];
+    new Chart(growthCtx, {
+        type: 'bar',
+        data: {
+            labels: levelData.map(l => `레벨 ${l.level}`),
+            datasets: [{
+                label: '인원 수',
+                data: levelData.map(l => l.count),
+                backgroundColor: '#ff6b00'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // 성과 트렌드 차트
+    const trendCtx = document.getElementById('performanceTrendChart').getContext('2d');
+    const trendData = chartData.performanceTrends;
+    if (trendData && trendData.periods) {
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendData.periods.map(p => p.name),
+                datasets: [
+                    {
+                        label: '기여도',
+                        data: trendData.organization_scores.contribution,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '전문성',
+                        data: trendData.organization_scores.expertise,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '영향력',
+                        data: trendData.organization_scores.impact,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                }
+            }
+        });
+    }
+}
+
+// 리포트 생성
+function generateReport() {
+    // AJAX로 리포트 갱신
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ action: 'regenerate' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// 리포트 내보내기
+function exportReport() {
+    window.open('/evaluations/analytics/export/', '_blank');
+}
+</script>
+{% endblock %}

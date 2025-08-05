@@ -1,0 +1,497 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}평가 통계 분석 - OK금융그룹 e-HR{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <!-- 브레드크럼 -->
+        <nav class="breadcrumb">
+            <ul class="breadcrumb-list">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'home' %}" class="breadcrumb-link">홈</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'evaluations:dashboard' %}" class="breadcrumb-link">평가관리</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'evaluations:hr_admin_dashboard' %}" class="breadcrumb-link">인사담당자</a>
+                </li>
+                <li class="breadcrumb-item">통계 분석</li>
+            </ul>
+        </nav>
+
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-chart-bar"></i>
+                    평가 통계 분석
+                </h1>
+                <p class="page-description">평가 결과를 다각도로 분석하고 인사이트를 도출합니다</p>
+            </div>
+            <div class="page-header-actions">
+                <form method="get" action="{% url 'evaluations:evaluation_statistics' %}" class="d-inline">
+                    <select name="period_id" class="form-control d-inline-block w-auto" onchange="this.form.submit()">
+                        <option value="">평가 기간 선택</option>
+                        {% for period in all_periods %}
+                        <option value="{{ period.id }}" {% if period.id == selected_period.id %}selected{% endif %}>
+                            {{ period.year }}년 {{ period.get_period_type_display }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </form>
+                <button class="btn btn-secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    인쇄
+                </button>
+            </div>
+        </div>
+
+        {% if selected_period %}
+        <!-- 평가 완료율 요약 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card bg-gradient-primary text-white">
+                    <div class="stat-card-body">
+                        <h3 class="stat-value">{{ total_employees }}명</h3>
+                        <p class="stat-label">전체 평가 대상</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-gradient-success text-white">
+                    <div class="stat-card-body">
+                        <h3 class="stat-value">{{ comprehensive_count }}명</h3>
+                        <p class="stat-label">평가 완료</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-gradient-warning text-white">
+                    <div class="stat-card-body">
+                        <h3 class="stat-value">{{ completion_rate }}%</h3>
+                        <p class="stat-label">완료율</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-gradient-info text-white">
+                    <div class="stat-card-body">
+                        <h3 class="stat-value">{{ selected_period.get_period_type_display }}</h3>
+                        <p class="stat-label">평가 기간</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 평가 항목별 달성률 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>평가 항목별 달성률</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="achievement-item">
+                            <h5>기여도 평가</h5>
+                            <div class="achievement-chart">
+                                <canvas id="contributionChart" width="150" height="150"></canvas>
+                            </div>
+                            <p class="text-center mt-2">
+                                달성: <strong>{{ contribution_achieved }}명</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="achievement-item">
+                            <h5>전문성 평가</h5>
+                            <div class="achievement-chart">
+                                <canvas id="expertiseChart" width="150" height="150"></canvas>
+                            </div>
+                            <p class="text-center mt-2">
+                                달성: <strong>{{ expertise_achieved }}명</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="achievement-item">
+                            <h5>영향력 평가</h5>
+                            <div class="achievement-chart">
+                                <canvas id="impactChart" width="150" height="150"></canvas>
+                            </div>
+                            <p class="text-center mt-2">
+                                달성: <strong>{{ impact_achieved }}명</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 등급 분포 차트 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>전체 등급 분포</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="gradeDistributionChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>부서별 평균 등급</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="departmentGradeChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상위/하위 성과자 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>상위 성과자 (S, A+, A등급)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>이름</th>
+                                        <th>부서</th>
+                                        <th>직급</th>
+                                        <th>등급</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for performer in top_performers %}
+                                    <tr>
+                                        <td>{{ performer.employee.name }}</td>
+                                        <td>{{ performer.employee.department }}</td>
+                                        <td>{{ performer.employee.position }}</td>
+                                        <td>
+                                            <span class="badge badge-success">{{ performer.final_grade }}</span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">데이터가 없습니다.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>하위 성과자 (C, D등급)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>이름</th>
+                                        <th>부서</th>
+                                        <th>직급</th>
+                                        <th>등급</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for performer in low_performers %}
+                                    <tr>
+                                        <td>{{ performer.employee.name }}</td>
+                                        <td>{{ performer.employee.department }}</td>
+                                        <td>{{ performer.employee.position }}</td>
+                                        <td>
+                                            <span class="badge badge-warning">{{ performer.final_grade }}</span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">데이터가 없습니다.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 부서별 상세 통계 -->
+        <div class="card">
+            <div class="card-header">
+                <h3>부서별 상세 통계</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>부서명</th>
+                                <th class="text-center">평가 인원</th>
+                                <th class="text-center">S</th>
+                                <th class="text-center">A+</th>
+                                <th class="text-center">A</th>
+                                <th class="text-center">B+</th>
+                                <th class="text-center">B</th>
+                                <th class="text-center">C</th>
+                                <th class="text-center">D</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dept in department_stats %}
+                            <tr>
+                                <td><strong>{{ dept.department }}</strong></td>
+                                <td class="text-center">{{ dept.total }}</td>
+                                <td class="text-center">{{ dept.grades.S|default:"0" }}</td>
+                                <td class="text-center">{{ dept.grades.A+|default:"0" }}</td>
+                                <td class="text-center">{{ dept.grades.A|default:"0" }}</td>
+                                <td class="text-center">{{ dept.grades.B+|default:"0" }}</td>
+                                <td class="text-center">{{ dept.grades.B|default:"0" }}</td>
+                                <td class="text-center">{{ dept.grades.C|default:"0" }}</td>
+                                <td class="text-center">{{ dept.grades.D|default:"0" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">부서별 데이터가 없습니다.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            평가 기간을 선택해주세요.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* 그라데이션 배경 카드 */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-orange-hover) 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, var(--info) 0%, #1d4ed8 100%);
+}
+
+.stat-card {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card-body {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* 달성률 차트 */
+.achievement-item {
+    text-align: center;
+}
+
+.achievement-item h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 1rem;
+}
+
+.achievement-chart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 인쇄 스타일 */
+@media print {
+    .page-header-actions,
+    .breadcrumb,
+    .btn {
+        display: none !important;
+    }
+    
+    .card {
+        page-break-inside: avoid;
+    }
+}
+</style>
+
+{% if selected_period %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 기여도 달성률 차트
+    const contributionCtx = document.getElementById('contributionChart').getContext('2d');
+    new Chart(contributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['달성', '미달성'],
+            datasets: [{
+                data: [{{ contribution_achieved }}, {{ total_employees|add:"-"|add:contribution_achieved|default:"0" }}],
+                backgroundColor: ['#10B981', '#E5E7EB']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 전문성 달성률 차트
+    const expertiseCtx = document.getElementById('expertiseChart').getContext('2d');
+    new Chart(expertiseCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['달성', '미달성'],
+            datasets: [{
+                data: [{{ expertise_achieved }}, {{ total_employees|add:"-"|add:expertise_achieved|default:"0" }}],
+                backgroundColor: ['#3B82F6', '#E5E7EB']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 영향력 달성률 차트
+    const impactCtx = document.getElementById('impactChart').getContext('2d');
+    new Chart(impactCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['달성', '미달성'],
+            datasets: [{
+                data: [{{ impact_achieved }}, {{ total_employees|add:"-"|add:impact_achieved|default:"0" }}],
+                backgroundColor: ['#F59E0B', '#E5E7EB']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 등급 분포 차트
+    const gradeData = {{ grade_distribution|safe }};
+    const gradeLabels = gradeData.map(item => item.final_grade + '등급');
+    const gradeCounts = gradeData.map(item => item.count);
+    
+    const gradeCtx = document.getElementById('gradeDistributionChart').getContext('2d');
+    new Chart(gradeCtx, {
+        type: 'bar',
+        data: {
+            labels: gradeLabels,
+            datasets: [{
+                label: '인원 수',
+                data: gradeCounts,
+                backgroundColor: [
+                    '#FFD700', '#4CAF50', '#2196F3', '#03A9F4', '#00BCD4', '#FF9800', '#F44336'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // 부서별 차트
+    const deptData = {{ department_stats|safe }};
+    const deptLabels = deptData.map(item => item.department);
+    const deptCounts = deptData.map(item => item.total);
+    
+    const deptCtx = document.getElementById('departmentGradeChart').getContext('2d');
+    new Chart(deptCtx, {
+        type: 'horizontalBar',
+        data: {
+            labels: deptLabels,
+            datasets: [{
+                label: '평가 인원',
+                data: deptCounts,
+                backgroundColor: '#FF6B00'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

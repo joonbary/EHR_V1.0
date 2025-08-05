@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}채용관리 대시보드{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-gray-800">채용관리 대시보드</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">홈</a></li>
+                    <li class="breadcrumb-item active">채용관리</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 통계 카드 -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                전체 채용공고</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_postings }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                진행중인 공고</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_postings }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-bullhorn fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                전체 지원자</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_applications }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                면접 예정</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ scheduled_interviews }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주요 기능 버튼 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="btn-group" role="group">
+                <a href="{% url 'recruitment:job_posting_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> 채용공고 등록
+                </a>
+                <a href="{% url 'recruitment:job_posting_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> 채용공고 목록
+                </a>
+                <a href="{% url 'recruitment:application_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-file-alt"></i> 지원서 관리
+                </a>
+                <a href="{% url 'recruitment:applicant_create' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-user-plus"></i> 지원자 등록
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 오늘의 면접 일정 -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">오늘의 면접 일정</h6>
+                </div>
+                <div class="card-body">
+                    {% if today_interviews %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>시간</th>
+                                        <th>지원자</th>
+                                        <th>직무</th>
+                                        <th>유형</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for interview in today_interviews %}
+                                    <tr>
+                                        <td>{{ interview.scheduled_date|date:"H:i" }}</td>
+                                        <td>
+                                            <a href="{% url 'recruitment:application_detail' interview.application.pk %}">
+                                                {{ interview.application.applicant.full_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ interview.application.job_posting.title }}</td>
+                                        <td><span class="badge badge-info">{{ interview.get_interview_type_display }}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">오늘 예정된 면접이 없습니다.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 최근 지원자 -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">최근 지원자</h6>
+                    <a href="{% url 'recruitment:application_list' %}" class="text-primary">전체보기 →</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>지원자</th>
+                                    <th>지원 직무</th>
+                                    <th>지원일</th>
+                                    <th>상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in recent_applications %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'recruitment:application_detail' application.pk %}">
+                                            {{ application.applicant.full_name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ application.job_posting.title }}</td>
+                                    <td>{{ application.applied_date|date:"m/d" }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ application.status|default:'secondary' }}">
+                                            {{ application.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 진행중인 채용공고 -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">진행중인 채용공고</h6>
+                    <a href="{% url 'recruitment:job_posting_list' %}" class="text-primary">전체보기 →</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>공고 제목</th>
+                                    <th>부서</th>
+                                    <th>직위</th>
+                                    <th>지원자 수</th>
+                                    <th>마감일</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for posting in active_job_postings %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'recruitment:job_posting_detail' posting.pk %}">
+                                            {{ posting.title }}
+                                        </a>
+                                    </td>
+                                    <td>{{ posting.get_department_display }}</td>
+                                    <td>{{ posting.get_position_display }}</td>
+                                    <td>
+                                        <span class="badge badge-pill badge-info">
+                                            {{ posting.application_count }}명
+                                        </span>
+                                    </td>
+                                    <td>{{ posting.closing_date|date:"Y-m-d" }}</td>
+                                    <td>
+                                        <a href="{% url 'recruitment:job_posting_detail' posting.pk %}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            상세보기
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // 테이블 정렬 기능
+    $('table').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Korean.json"
+        },
+        "pageLength": 5,
+        "lengthChange": false,
+        "searching": false,
+        "info": false,
+        "paging": false
+    });
+});
+</script>
+{% endblock %}

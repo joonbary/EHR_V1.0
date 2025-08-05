@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">홈</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'recruitment:dashboard' %}">채용관리</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'recruitment:job_posting_list' %}">채용공고 목록</a></li>
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">채용공고 정보</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- 기본 정보 -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">기본 정보</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.title.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                                    {{ form.status }}
+                                    {% if form.status.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.status.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.department.id_for_label }}">{{ form.department.label }}</label>
+                                    {{ form.department }}
+                                    {% if form.department.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.department.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.position.id_for_label }}">{{ form.position.label }}</label>
+                                    {{ form.position }}
+                                    {% if form.position.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.position.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.employment_type.id_for_label }}">{{ form.employment_type.label }}</label>
+                                    {{ form.employment_type }}
+                                    {% if form.employment_type.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.employment_type.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.job_role.id_for_label }}">{{ form.job_role.label }}</label>
+                                    {{ form.job_role }}
+                                    {% if form.job_role.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.job_role.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- 직무 상세 -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">직무 상세</h5>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                                    {{ form.description }}
+                                    {% if form.description.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.description.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.requirements.id_for_label }}">{{ form.requirements.label }}</label>
+                                    {{ form.requirements }}
+                                    {% if form.requirements.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.requirements.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.preferred_qualifications.id_for_label }}">{{ form.preferred_qualifications.label }}</label>
+                                    {{ form.preferred_qualifications }}
+                                    {% if form.preferred_qualifications.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.preferred_qualifications.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- 채용 조건 -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">채용 조건</h5>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.min_experience_years.id_for_label }}">{{ form.min_experience_years.label }}</label>
+                                    {{ form.min_experience_years }}
+                                    {% if form.min_experience_years.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.min_experience_years.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.max_experience_years.id_for_label }}">{{ form.max_experience_years.label }}</label>
+                                    {{ form.max_experience_years }}
+                                    {% if form.max_experience_years.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.max_experience_years.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.vacancies.id_for_label }}">{{ form.vacancies.label }}</label>
+                                    {{ form.vacancies }}
+                                    {% if form.vacancies.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.vacancies.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.location.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.salary_range_min.id_for_label }}">{{ form.salary_range_min.label }}</label>
+                                    {{ form.salary_range_min }}
+                                    {% if form.salary_range_min.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.salary_range_min.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.salary_range_max.id_for_label }}">{{ form.salary_range_max.label }}</label>
+                                    {{ form.salary_range_max }}
+                                    {% if form.salary_range_max.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.salary_range_max.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.closing_date.id_for_label }}">{{ form.closing_date.label }}</label>
+                                    {{ form.closing_date }}
+                                    {% if form.closing_date.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.closing_date.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> 저장
+                                </button>
+                                <a href="{% url 'recruitment:job_posting_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> 취소
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

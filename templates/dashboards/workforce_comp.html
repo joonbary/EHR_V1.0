@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<!-- JavaScript 유틸리티 추가 -->
+<script src="{% static 'js/utils/api_transformer.js' %}"></script>
+<script src="{% static 'js/utils/safe_data_accessor.js' %}"></script>
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card h3 {
+        color: #6c757d;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .department-table {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .department-table h3 {
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .table th {
+        background: #f8f9fa;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #6c757d;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .table td {
+        padding: 12px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .table tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .compensation-chart {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        height: 400px;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: #007bff;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <h1>{{ title }}</h1>
+        <div class="header-actions">
+            <button class="btn btn-outline-primary" onclick="exportData()">
+                <i class="fas fa-download"></i> 데이터 내보내기
+            </button>
+            <button class="btn btn-primary" onclick="location.reload()">
+                <i class="fas fa-sync"></i> 새로고침
+            </button>
+        </div>
+    </div>
+    
+    <!-- 통계 카드 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>총 직원수</h3>
+            <div class="stat-value" id="total-employees">{{ total_employees|default:"0" }}</div>
+            <div class="stat-label">전체 재직 인원</div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>평균 급여</h3>
+            <div class="stat-value" id="avg-salary">₩{{ compensation_stats.average|floatformat:0|default:"0" }}</div>
+            <div class="stat-label">전사 평균</div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>총 인건비</h3>
+            <div class="stat-value" id="total-payroll">₩{{ compensation_stats.total|floatformat:0|default:"0" }}</div>
+            <div class="stat-label">월 기준</div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>급여 범위</h3>
+            <div class="stat-value">{{ compensation_stats.min_comp|floatformat:0|default:"0" }} - {{ compensation_stats.max_comp|floatformat:0|default:"0" }}</div>
+            <div class="stat-label">최저 - 최고</div>
+        </div>
+    </div>
+    
+    <!-- 부서별 분포 -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="department-table">
+                <h3>부서별 인력 및 보상 현황</h3>
+                <table class="table" id="department-table">
+                    <thead>
+                        <tr>
+                            <th>부서명</th>
+                            <th>인원수</th>
+                            <th>비율</th>
+                            <th>평균 급여</th>
+                            <th>진행률</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in dept_distribution %}
+                        <tr>
+                            <td><strong>{{ dept.department }}</strong></td>
+                            <td>{{ dept.count }}명</td>
+                            <td>{{ dept.count|floatformat:0 }}%</td>
+                            <td>₩{{ dept.avg_salary|floatformat:0|default:"N/A" }}</td>
+                            <td style="width: 200px;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {% widthratio dept.count total_employees 100 %}%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">데이터가 없습니다.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="compensation-chart">
+                <h3>급여 분포 차트</h3>
+                <canvas id="salaryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 로딩 상태 표시
+function showLoading() {
+    document.querySelectorAll('.stat-value').forEach(el => {
+        el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    });
+}
+
+// API에서 데이터 가져오기
+async function fetchDashboardData() {
+    showLoading();
+    
+    try {
+        const response = await fetch('/api/workforce-comp/');
+        const rawData = await response.json();
+        
+        // API 응답 변환
+        const data = APIResponseTransformer.transform(rawData);
+        
+        if (data.success) {
+            updateDashboard(data.data);
+        } else {
+            console.error('API Error:', data.error);
+            showError('데이터를 불러오는데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        showError('서버 연결에 실패했습니다.');
+    }
+}
+
+// 대시보드 업데이트
+function updateDashboard(data) {
+    // 안전한 데이터 접근
+    const totalEmployees = SafeDataAccessor.get(data, 'workforce.totalEmployees', 0);
+    const activeEmployees = SafeDataAccessor.get(data, 'workforce.activeEmployees', 0);
+    const avgSalary = SafeDataAccessor.get(data, 'compensation.avgSalary', 0);
+    const totalPayroll = SafeDataAccessor.get(data, 'compensation.totalPayroll', 0);
+    const departments = SafeDataAccessor.getArray(data.departments);
+    
+    // 통계 카드 업데이트
+    document.querySelector('#total-employees').textContent = totalEmployees.toLocaleString('ko-KR');
+    document.querySelector('#avg-salary').textContent = SafeDataAccessor.formatCurrency(avgSalary);
+    document.querySelector('#total-payroll').textContent = SafeDataAccessor.formatCurrency(totalPayroll);
+    
+    // 부서 테이블 업데이트
+    updateDepartmentTable(departments);
+    
+    // 차트 업데이트
+    updateSalaryChart(departments);
+}
+
+// 부서 테이블 업데이트
+function updateDepartmentTable(departments) {
+    const tbody = document.querySelector('#department-table tbody');
+    tbody.innerHTML = '';
+    
+    if (departments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">데이터가 없습니다.</td></tr>';
+        return;
+    }
+    
+    departments.forEach(dept => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${SafeDataAccessor.getString(dept.departmentName, 'Unknown')}</strong></td>
+            <td>${SafeDataAccessor.get(dept, 'employeeCount', 0)}명</td>
+            <td>${calculatePercentage(dept.employeeCount, totalEmployees)}%</td>
+            <td>${SafeDataAccessor.formatCurrency(dept.avgSalary)}</td>
+            <td style="width: 200px;">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${calculatePercentage(dept.employeeCount, totalEmployees)}%;"></div>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 퍼센트 계산
+function calculatePercentage(value, total) {
+    if (!total || total === 0) return 0;
+    return Math.round((value / total) * 100);
+}
+
+// 에러 표시
+function showError(message) {
+    document.querySelectorAll('.stat-value').forEach(el => {
+        el.textContent = 'N/A';
+    });
+    console.error(message);
+}
+
+// 페이지 로드 시 데이터 가져오기
+document.addEventListener('DOMContentLoaded', fetchDashboardData);
+
+// 기존 차트 코드 수정
+let salaryChart = null;
+
+function updateSalaryChart(departments) {
+    const ctx = document.getElementById('salaryChart').getContext('2d');
+    
+    // 기존 차트 제거
+    if (salaryChart) {
+        salaryChart.destroy();
+    }
+    
+    // 상위 5개 부서만 표시
+    const topDepartments = departments.slice(0, 5);
+    
+    salaryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: topDepartments.map(d => SafeDataAccessor.getString(d.departmentName, 'Unknown')),
+            datasets: [{
+                data: topDepartments.map(d => SafeDataAccessor.get(d, 'employeeCount', 0)),
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// 새로고침 함수 수정
+function refreshDashboard() {
+    fetchDashboardData();
+}
+
+// 새로고침 버튼 이벤트 수정
+document.querySelector('button[onclick="location.reload()"]').onclick = refreshDashboard;
+
+function exportData() {
+    alert('데이터 내보내기 기능은 준비 중입니다.');
+}
+</script>
+{% endblock %}

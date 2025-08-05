@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}경영진 대시보드 - OK금융그룹 AI-Driven HR System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">경영진 대시보드</h1>
+        <p class="page-subtitle">핵심 인사 지표 요약</p>
+    </div>
+
+    <!-- KPI 카드 섹션 -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i data-lucide="users" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ total_employees|intcomma }}</h3>
+                    <p class="stat-label">전체 직원 수</p>
+                    <span class="stat-change positive">
+                        <i data-lucide="trending-up"></i> +{{ new_hires_month }}명 (이번달)
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i data-lucide="calendar" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ avg_tenure_years }}년</h3>
+                    <p class="stat-label">평균 근속연수</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                    <i data-lucide="user-minus" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ turnover_rate }}%</h3>
+                    <p class="stat-label">이직률 (3개월)</p>
+                    <span class="stat-change {% if turnover_rate > 10 %}negative{% else %}positive{% endif %}">
+                        {% if turnover_rate > 10 %}
+                        <i data-lucide="alert-triangle"></i> 주의 필요
+                        {% else %}
+                        <i data-lucide="check-circle"></i> 안정적
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info">
+                    <i data-lucide="clock" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ last_updated|date:"H:i" }}</h3>
+                    <p class="stat-label">마지막 업데이트</p>
+                    <span class="stat-info">{{ last_updated|date:"Y-m-d" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 부서별 현황 차트 -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">부서별 인원 현황</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="deptChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">주요 지표 현황</h3>
+                </div>
+                <div class="card-body">
+                    <div class="metric-list">
+                        {% for dept in dept_summary %}
+                        <div class="metric-item">
+                            <div class="metric-label">{{ dept.department }}</div>
+                            <div class="metric-value">{{ dept.count }}명</div>
+                            <div class="metric-bar">
+                                <div class="metric-bar-fill" style="width: {% widthratio dept.count total_employees 100 %}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.stat-label {
+    color: #666;
+    margin: 4px 0;
+}
+
+.stat-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.stat-change.positive {
+    color: #10b981;
+}
+
+.stat-change.negative {
+    color: #ef4444;
+}
+
+.metric-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.metric-item {
+    display: grid;
+    grid-template-columns: 120px 80px 1fr;
+    align-items: center;
+    gap: 16px;
+}
+
+.metric-bar {
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.metric-bar-fill {
+    height: 100%;
+    background: var(--ok-primary);
+    border-radius: 4px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 부서별 차트
+    const ctx = document.getElementById('deptChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for dept in dept_summary %}'{{ dept.department }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for dept in dept_summary %}{{ dept.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [
+                    '#4F46E5',
+                    '#7C3AED',
+                    '#EC4899',
+                    '#F59E0B',
+                    '#10B981'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

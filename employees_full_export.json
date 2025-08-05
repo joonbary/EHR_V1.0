@@ -1,0 +1,3580 @@
+[
+{
+  "model": "employees.hrcontractor",
+  "pk": 1,
+  "fields": {
+    "contractor_name": "상주",
+    "vendor_company": "에프엔비인포코리아",
+    "project_name": "",
+    "department": "",
+    "role": "",
+    "start_date": null,
+    "end_date": null,
+    "daily_rate": null,
+    "monthly_rate": null,
+    "status": "active",
+    "created_at": "2025-07-31T01:01:04.946Z",
+    "updated_at": "2025-07-31T01:01:04.947Z"
+  }
+},
+{
+  "model": "employees.hrcontractor",
+  "pk": 2,
+  "fields": {
+    "contractor_name": "비상주",
+    "vendor_company": "알체라",
+    "project_name": "",
+    "department": "",
+    "role": "",
+    "start_date": null,
+    "end_date": null,
+    "daily_rate": null,
+    "monthly_rate": null,
+    "status": "active",
+    "created_at": "2025-07-31T01:01:04.960Z",
+    "updated_at": "2025-07-31T01:01:04.960Z"
+  }
+},
+{
+  "model": "employees.hrcontractor",
+  "pk": 3,
+  "fields": {
+    "contractor_name": "상주",
+    "vendor_company": "펜타웍스",
+    "project_name": "",
+    "department": "",
+    "role": "",
+    "start_date": null,
+    "end_date": null,
+    "daily_rate": null,
+    "monthly_rate": null,
+    "status": "active",
+    "created_at": "2025-07-31T01:01:04.972Z",
+    "updated_at": "2025-07-31T01:01:04.972Z"
+  }
+},
+{
+  "model": "employees.hrcontractor",
+  "pk": 4,
+  "fields": {
+    "contractor_name": "프로젝트",
+    "vendor_company": "노아에이티에스",
+    "project_name": "",
+    "department": "",
+    "role": "",
+    "start_date": null,
+    "end_date": null,
+    "daily_rate": null,
+    "monthly_rate": null,
+    "status": "active",
+    "created_at": "2025-07-31T01:01:04.984Z",
+    "updated_at": "2025-07-31T01:01:04.984Z"
+  }
+},
+{
+  "model": "employees.hrcontractor",
+  "pk": 5,
+  "fields": {
+    "contractor_name": "비상주",
+    "vendor_company": "엠비아이솔루션",
+    "project_name": "",
+    "department": "",
+    "role": "",
+    "start_date": null,
+    "end_date": null,
+    "daily_rate": null,
+    "monthly_rate": null,
+    "status": "active",
+    "created_at": "2025-07-31T01:01:04.996Z",
+    "updated_at": "2025-07-31T01:01:04.996Z"
+  }
+},
+{
+  "model": "employees.hrcontractor",
+  "pk": 6,
+  "fields": {
+    "contractor_name": "상주",
+    "vendor_company": "플래닝코드",
+    "project_name": "",
+    "department": "",
+    "role": "",
+    "start_date": null,
+    "end_date": null,
+    "daily_rate": null,
+    "monthly_rate": null,
+    "status": "active",
+    "created_at": "2025-07-31T01:01:05.008Z",
+    "updated_at": "2025-07-31T01:01:05.008Z"
+  }
+},
+{
+  "model": "employees.hrcontractor",
+  "pk": 7,
+  "fields": {
+    "contractor_name": "프로젝트",
+    "vendor_company": "어니스트",
+    "project_name": "",
+    "department": "",
+    "role": "",
+    "start_date": null,
+    "end_date": null,
+    "daily_rate": null,
+    "monthly_rate": null,
+    "status": "active",
+    "created_at": "2025-07-31T01:01:05.019Z",
+    "updated_at": "2025-07-31T01:01:05.019Z"
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 46,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "계정계 개발 운영업무 지원 (에프엔비인포코리아)",
+    "staff_type": "resident",
+    "headcount": 15,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.103Z",
+    "updated_at": "2025-07-31T04:35:12.103Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 47,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "채널계 개발 운영업무 지원 (와이즈랩)",
+    "staff_type": "resident",
+    "headcount": 23,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.111Z",
+    "updated_at": "2025-07-31T04:35:12.111Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 48,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "UNIS 개발 운영업무 지원 (뱅크웨어글로벌)",
+    "staff_type": "resident",
+    "headcount": 15,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.119Z",
+    "updated_at": "2025-07-31T04:35:12.120Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 49,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "인프라 부분 통합 유지보수 (메타넷티플랫폼)",
+    "staff_type": "resident",
+    "headcount": 4,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.128Z",
+    "updated_at": "2025-07-31T04:35:12.128Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 50,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "보안관제 및 컨설팅 서비스 (SK쉴더스)",
+    "staff_type": "resident",
+    "headcount": 5,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.137Z",
+    "updated_at": "2025-07-31T04:35:12.137Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 51,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "본.지점 전산장비 유지보수 (케이원)",
+    "staff_type": "resident",
+    "headcount": 7,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.144Z",
+    "updated_at": "2025-07-31T04:35:12.144Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 52,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "OCR교체 및 얼굴인식 솔루션 도입 (알체라)",
+    "staff_type": "non_resident",
+    "headcount": 1,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.151Z",
+    "updated_at": "2025-07-31T04:35:12.151Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 53,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "가상화솔루션 PoC (이노그리드)",
+    "staff_type": "non_resident",
+    "headcount": 4,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.159Z",
+    "updated_at": "2025-07-31T04:35:12.159Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 54,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "25년 상반기 그룹사 자산실사 (케이원)",
+    "staff_type": "non_resident",
+    "headcount": 2,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.169Z",
+    "updated_at": "2025-07-31T04:35:12.169Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 55,
+  "fields": {
+    "company_name": "OK정보보호",
+    "project_name": "OK PAY 시스템 운영업무 지원 (펜타웍스)",
+    "staff_type": "resident",
+    "headcount": 3,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.176Z",
+    "updated_at": "2025-07-31T04:35:12.176Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 56,
+  "fields": {
+    "company_name": "OK홀딩스",
+    "project_name": "자산운용시스템 구축 (노아에이티에스)",
+    "staff_type": "project",
+    "headcount": 9,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.183Z",
+    "updated_at": "2025-07-31T04:35:12.183Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 57,
+  "fields": {
+    "company_name": "OK홀딩스",
+    "project_name": "스코어 검증 및 전략 컨설팅 (피플펀드)",
+    "staff_type": "project",
+    "headcount": 1,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.191Z",
+    "updated_at": "2025-07-31T04:35:12.191Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 58,
+  "fields": {
+    "company_name": "OK홀딩스",
+    "project_name": "통합컨택센터 오키톡 유지보수 (엠비아이솔루션)",
+    "staff_type": "non_resident",
+    "headcount": 1,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.199Z",
+    "updated_at": "2025-07-31T04:35:12.199Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 59,
+  "fields": {
+    "company_name": "OK홀딩스",
+    "project_name": "자산운용시스템 구축 (노아에이티에스)",
+    "staff_type": "non_resident",
+    "headcount": 3,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.206Z",
+    "updated_at": "2025-07-31T04:35:12.206Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 60,
+  "fields": {
+    "company_name": "OK캐피탈",
+    "project_name": "비교대출 플랫폼 운영업무 지원 (플래닝코드)",
+    "staff_type": "resident",
+    "headcount": 4,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.214Z",
+    "updated_at": "2025-07-31T04:35:12.214Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 61,
+  "fields": {
+    "company_name": "OK캐피탈",
+    "project_name": "거절자 연계 모형개발 & 분석 (어니스트)",
+    "staff_type": "project",
+    "headcount": 1,
+    "report_date": "2025-07-01",
+    "base_type": "week",
+    "previous_headcount": 0,
+    "headcount_change": 0,
+    "change_rate": "0.00",
+    "created_at": "2025-07-31T04:35:12.222Z",
+    "updated_at": "2025-07-31T04:35:12.222Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 62,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "계정계 개발 운영업무 지원 (에프엔비인포코리아)",
+    "staff_type": "resident",
+    "headcount": 15,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 15,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.785Z",
+    "updated_at": "2025-08-01T02:47:55.219Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 63,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "채널계 개발 운영업무 지원 (와이즈랩)",
+    "staff_type": "resident",
+    "headcount": 23,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 23,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.795Z",
+    "updated_at": "2025-08-01T02:47:55.227Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 64,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "UNIS 개발 운영업무 지원 (뱅크웨어글로벌)",
+    "staff_type": "resident",
+    "headcount": 15,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 15,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.804Z",
+    "updated_at": "2025-08-01T02:47:55.235Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 65,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "인프라 부분 통합 유지보수 (메타넷티플랫폼)",
+    "staff_type": "resident",
+    "headcount": 4,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 4,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.812Z",
+    "updated_at": "2025-08-01T02:47:55.242Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 66,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "보안관제 및 컨설팅 서비스 (SK쉴더스)",
+    "staff_type": "resident",
+    "headcount": 5,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 5,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.821Z",
+    "updated_at": "2025-08-01T02:47:55.251Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 67,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "본.지점 전산장비 유지보수 (케이원)",
+    "staff_type": "resident",
+    "headcount": 7,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 7,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.830Z",
+    "updated_at": "2025-08-01T02:47:55.257Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 68,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "OCR교체 및 얼굴인식 솔루션 도입 (알체라)",
+    "staff_type": "non_resident",
+    "headcount": 1,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 1,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.839Z",
+    "updated_at": "2025-08-01T02:47:55.265Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 69,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "가상화솔루션 PoC (이노그리드)",
+    "staff_type": "non_resident",
+    "headcount": 4,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 4,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.847Z",
+    "updated_at": "2025-08-01T02:47:55.272Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 70,
+  "fields": {
+    "company_name": "OK데이터시스템",
+    "project_name": "25년 상반기 그룹사 자산실사 (케이원)",
+    "staff_type": "non_resident",
+    "headcount": 2,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 2,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.856Z",
+    "updated_at": "2025-08-01T02:47:55.281Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 71,
+  "fields": {
+    "company_name": "OK정보보호",
+    "project_name": "OK PAY 시스템 운영업무 지원 (펜타웍스)",
+    "staff_type": "resident",
+    "headcount": 3,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 3,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.865Z",
+    "updated_at": "2025-08-01T02:47:55.289Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 72,
+  "fields": {
+    "company_name": "OK홀딩스",
+    "project_name": "자산운용시스템 구축 (노아에이티에스)",
+    "staff_type": "project",
+    "headcount": 9,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 9,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.873Z",
+    "updated_at": "2025-08-01T02:47:55.297Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 73,
+  "fields": {
+    "company_name": "OK홀딩스",
+    "project_name": "스코어 검증 및 전략 컨설팅 (피플펀드)",
+    "staff_type": "project",
+    "headcount": 1,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 1,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.882Z",
+    "updated_at": "2025-08-01T02:47:55.304Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 74,
+  "fields": {
+    "company_name": "OK홀딩스",
+    "project_name": "통합컨택센터 오키톡 유지보수 (엠비아이솔루션)",
+    "staff_type": "non_resident",
+    "headcount": 1,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 1,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.890Z",
+    "updated_at": "2025-08-01T02:47:55.313Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 75,
+  "fields": {
+    "company_name": "OK홀딩스",
+    "project_name": "자산운용시스템 구축 (노아에이티에스)",
+    "staff_type": "non_resident",
+    "headcount": 3,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 3,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.899Z",
+    "updated_at": "2025-08-01T02:47:55.321Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 76,
+  "fields": {
+    "company_name": "OK캐피탈",
+    "project_name": "비교대출 플랫폼 운영업무 지원 (플래닝코드)",
+    "staff_type": "resident",
+    "headcount": 4,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 4,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.912Z",
+    "updated_at": "2025-08-01T02:47:55.329Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.outsourcedstaff",
+  "pk": 77,
+  "fields": {
+    "company_name": "OK캐피탈",
+    "project_name": "거절자 연계 모형개발 & 분석 (어니스트)",
+    "staff_type": "project",
+    "headcount": 1,
+    "report_date": "2025-08-01",
+    "base_type": "year_end",
+    "previous_headcount": 0,
+    "headcount_change": 1,
+    "change_rate": "100.00",
+    "created_at": "2025-08-01T02:47:54.921Z",
+    "updated_at": "2025-08-01T02:47:55.337Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 6,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "contractor",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T01:01:04.627Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 7,
+    "success_records": 7,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 7,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T01:29:47.593Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 0,
+    "success_records": 0,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 8,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T01:31:40.360Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 0,
+    "success_records": 0,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 9,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T01:45:38.922Z",
+    "uploaded_by": null,
+    "processed_status": "processing",
+    "total_records": null,
+    "success_records": null,
+    "error_records": null,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 10,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T01:48:07.374Z",
+    "uploaded_by": null,
+    "processed_status": "processing",
+    "total_records": null,
+    "success_records": null,
+    "error_records": null,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 11,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T02:13:30.838Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 12,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T02:42:38.870Z",
+    "uploaded_by": null,
+    "processed_status": "processing",
+    "total_records": null,
+    "success_records": null,
+    "error_records": null,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 13,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T02:43:51.419Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 0,
+    "error_records": 16,
+    "error_log": "데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident"
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 14,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T02:44:12.286Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 15,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T03:07:15.595Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 16,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T03:14:54.258Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 0,
+    "error_records": 16,
+    "error_log": "데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류: NOT NULL constraint failed: hr_outsourced_staff.is_resident"
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 17,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T03:23:45.789Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 0,
+    "error_records": 16,
+    "error_log": "데이터 처리 오류 [1]: OK데이터시스템 - 계정계 개발 운영업무 지원 (에프엔비인포코리아): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [2]: OK데이터시스템 - 채널계 개발 운영업무 지원 (와이즈랩): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [3]: OK데이터시스템 - UNIS 개발 운영업무 지원 (뱅크웨어글로벌): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [4]: OK데이터시스템 - 인프라 부분 통합 유지보수 (메타넷티플랫폼): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [5]: OK데이터시스템 - 보안관제 및 컨설팅 서비스 (SK쉴더스): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [6]: OK데이터시스템 - 본.지점 전산장비 유지보수 (케이원): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [7]: OK데이터시스템 - OCR교체 및 얼굴인식 솔루션 도입 (알체라): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [8]: OK데이터시스템 - 가상화솔루션 PoC (이노그리드): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [9]: OK데이터시스템 - 25년 상반기 그룹사 자산실사 (케이원): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [10]: OK정보보호 - OK PAY 시스템 운영업무 지원 (펜타웍스): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [11]: OK - 자산운용시스템 구축 (노아에이티에스): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [12]: OK - 스코어 검증 및 전략 컨설팅 (피플펀드): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [13]: OK - 통합컨택센터 오키톡 유지보수 (엠비아이솔루션): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [14]: OK - 자산운용시스템 구축 (노아에이티에스): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [15]: OK캐피탈 - 비교대출 플랫폼 운영업무 지원 (플래닝코드): NOT NULL constraint failed: hr_outsourced_staff.is_resident\\n데이터 처리 오류 [16]: OK캐피탈 - 거절자 연계 모형개발 & 분석 (어니스트): NOT NULL constraint failed: hr_outsourced_staff.is_resident"
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 18,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T03:28:16.299Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 19,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T04:17:40.214Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 20,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T04:18:26.401Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 21,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T04:24:56.344Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 22,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T04:29:38.603Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 23,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T04:30:35.094Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 24,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T04:31:06.971Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 25,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250701.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-07-31",
+    "upload_date": "2025-07-31T04:33:08.998Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 26,
+  "fields": {
+    "file_name": "OK금융그룹 외주 현황_250801.xlsx",
+    "file_type": "outsourced_staff",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T02:47:54.723Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 16,
+    "success_records": 16,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 27,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T05:05:01.254Z",
+    "uploaded_by": null,
+    "processed_status": "processing",
+    "total_records": null,
+    "success_records": null,
+    "error_records": null,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 28,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T05:06:20.266Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 4,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 29,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T05:11:38.399Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 4,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 30,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T05:36:58.877Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 0,
+    "error_records": 4,
+    "error_log": "데이터 처리 오류 [1]: OK Bank (인니): Object of type date is not JSON serializable\n데이터 처리 오류 [2]: OK Asset (인니): Object of type date is not JSON serializable\n데이터 처리 오류 [3]: PPCBank (캄보디아): Object of type date is not JSON serializable\n데이터 처리 오류 [4]: 천진법인 (중국): Object of type date is not JSON serializable"
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 31,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T05:57:35.980Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 0,
+    "error_records": 4,
+    "error_log": "데이터 처리 오류 [1]: OK Bank (인니): Object of type date is not JSON serializable\n데이터 처리 오류 [2]: OK Asset (인니): Object of type date is not JSON serializable\n데이터 처리 오류 [3]: PPCBank (캄보디아): Object of type date is not JSON serializable\n데이터 처리 오류 [4]: 천진법인 (중국): Object of type date is not JSON serializable"
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 32,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T05:57:50.758Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 0,
+    "error_records": 4,
+    "error_log": "데이터 처리 오류 [1]: OK Bank (인니): Object of type date is not JSON serializable\n데이터 처리 오류 [2]: OK Asset (인니): Object of type date is not JSON serializable\n데이터 처리 오류 [3]: PPCBank (캄보디아): Object of type date is not JSON serializable\n데이터 처리 오류 [4]: 천진법인 (중국): Object of type date is not JSON serializable"
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 33,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T07:55:52.783Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 0,
+    "error_records": 4,
+    "error_log": "데이터 처리 오류 [1]: OK Bank (인니): Object of type date is not JSON serializable\n데이터 처리 오류 [2]: OK Asset (인니): Object of type date is not JSON serializable\n데이터 처리 오류 [3]: PPCBank (캄보디아): Object of type date is not JSON serializable\n데이터 처리 오류 [4]: 천진법인 (중국): Object of type date is not JSON serializable"
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 34,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T07:59:26.631Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 4,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 35,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T08:10:59.965Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 4,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 36,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T08:13:42.348Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 4,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 37,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T08:22:26.101Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 4,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 38,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T08:25:36.196Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 4,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.hrfileupload",
+  "pk": 39,
+  "fields": {
+    "file_name": "employee_global_250801.xlsx",
+    "file_type": "overseas_workforce",
+    "report_date": "2025-08-01",
+    "upload_date": "2025-08-01T08:50:11.068Z",
+    "uploaded_by": null,
+    "processed_status": "completed",
+    "total_records": 4,
+    "success_records": 4,
+    "error_records": 0,
+    "error_log": null
+  }
+},
+{
+  "model": "employees.overseasworkforce",
+  "pk": 9,
+  "fields": {
+    "corporation": "OK Bank (인니)",
+    "report_date": "2025-06-30",
+    "executive_count": 0,
+    "general_manager_count": 0,
+    "deputy_manager_count": 0,
+    "manager_count": 0,
+    "assistant_manager_count": 0,
+    "staff_count": 0,
+    "ceo_count": 0,
+    "division_head_count": 0,
+    "department_head_count": 0,
+    "branch_manager_count": 0,
+    "team_leader_count": 0,
+    "cbo_count": 0,
+    "evp_count": 0,
+    "svp_count": 0,
+    "vp_count": 0,
+    "total_count": 0,
+    "raw_data": {
+      "corporation": "OK Bank (인니)",
+      "report_date": "2025-06-30",
+      "structure": {
+        "headers": {
+          "positions": [
+            "대표이사",
+            "본부장",
+            "부서장",
+            "지점장/Br.Mg",
+            "팀장/T.leader/Staff"
+          ],
+          "categories": {
+            "종합직": {
+              "직급": [
+                "이사",
+                "부장",
+                "차장",
+                "과장",
+                "대리",
+                "계장",
+                "사원"
+              ],
+              "data": {
+                "이사": {
+                  "대표이사": 0,
+                  "본부장": 3,
+                  "부서장": 0,
+                  "지점장/Br.Mg": 0,
+                  "팀장/T.leader/Staff": 0,
+                  "계": 3
+                },
+                "부장": {
+                  "대표이사": 0,
+                  "본부장": 7,
+                  "부서장": 0,
+                  "지점장/Br.Mg": 5,
+                  "팀장/T.leader/Staff": 0,
+                  "계": 12
+                },
+                "차장": {
+                  "대표이사": 0,
+                  "본부장": 8,
+                  "부서장": 21,
+                  "지점장/Br.Mg": 7,
+                  "팀장/T.leader/Staff": 17,
+                  "계": 53
+                },
+                "과장": {
+                  "대표이사": 0,
+                  "본부장": 0,
+                  "부서장": 5,
+                  "지점장/Br.Mg": 0,
+                  "팀장/T.leader/Staff": 72,
+                  "계": 77
+                },
+                "대리": {
+                  "대표이사": 0,
+                  "본부장": 0,
+                  "부서장": 0,
+                  "지점장/Br.Mg": 0,
+                  "팀장/T.leader/Staff": 64,
+                  "계": 64
+                },
+                "계장": {
+                  "대표이사": 0,
+                  "본부장": 0,
+                  "부서장": 0,
+                  "지점장/Br.Mg": 0,
+                  "팀장/T.leader/Staff": 28,
+                  "계": 28
+                },
+                "사원": {
+                  "대표이사": 0,
+                  "본부장": 0,
+                  "부서장": 0,
+                  "지점장/Br.Mg": 0,
+                  "팀장/T.leader/Staff": 65,
+                  "계": 65
+                }
+              },
+              "소계": {
+                "대표이사": 0,
+                "본부장": 18,
+                "부서장": 26,
+                "지점장/Br.Mg": 12,
+                "팀장/T.leader/Staff": 246,
+                "계": 302
+              }
+            },
+            "계약직": {
+              "직급": [
+                "일반",
+                "수습"
+              ],
+              "data": {
+                "일반": {
+                  "대표이사": 0,
+                  "본부장": 1,
+                  "부서장": 1,
+                  "지점장/Br.Mg": 2,
+                  "팀장/T.leader/Staff": 4,
+                  "계": 8
+                },
+                "수습": {
+                  "대표이사": 0,
+                  "본부장": 0,
+                  "부서장": 1,
+                  "지점장/Br.Mg": 1,
+                  "팀장/T.leader/Staff": 16,
+                  "계": 18
+                }
+              },
+              "소계": {
+                "대표이사": 0,
+                "본부장": 1,
+                "부서장": 2,
+                "지점장/Br.Mg": 3,
+                "팀장/T.leader/Staff": 20,
+                "계": 26
+              }
+            },
+            "파견(도급)": {
+              "직급": [
+                "GA",
+                "Retail"
+              ],
+              "data": {
+                "GA": {
+                  "대표이사": 0,
+                  "본부장": 0,
+                  "부서장": 0,
+                  "지점장/Br.Mg": 0,
+                  "팀장/T.leader/Staff": 77,
+                  "계": 77
+                },
+                "Retail": {
+                  "대표이사": 0,
+                  "본부장": 0,
+                  "부서장": 0,
+                  "지점장/Br.Mg": 0,
+                  "팀장/T.leader/Staff": 76,
+                  "계": 76
+                }
+              },
+              "소계": {
+                "대표이사": 0,
+                "본부장": 0,
+                "부서장": 0,
+                "지점장/Br.Mg": 0,
+                "팀장/T.leader/Staff": 153,
+                "계": 153
+              }
+            }
+          }
+        }
+      },
+      "totals": {
+        "총계": {
+          "대표이사": 0,
+          "본부장": 19,
+          "부서장": 28,
+          "지점장/Br.Mg": 15,
+          "팀장/T.leader/Staff": 266,
+          "계": 328
+        },
+        "전월비증감(파견제외)": {
+          "대표이사": 0,
+          "본부장": 0,
+          "부서장": 0,
+          "지점장/Br.Mg": 0,
+          "팀장/T.leader/Staff": 0,
+          "계": 0
+        }
+      },
+      "summary": {}
+    },
+    "created_at": "2025-08-01T08:13:42.632Z",
+    "updated_at": "2025-08-01T08:50:11.623Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.overseasworkforce",
+  "pk": 10,
+  "fields": {
+    "corporation": "OK Asset (인니)",
+    "report_date": "2025-06-30",
+    "executive_count": 0,
+    "general_manager_count": 0,
+    "deputy_manager_count": 0,
+    "manager_count": 0,
+    "assistant_manager_count": 0,
+    "staff_count": 0,
+    "ceo_count": 0,
+    "division_head_count": 0,
+    "department_head_count": 0,
+    "branch_manager_count": 0,
+    "team_leader_count": 0,
+    "cbo_count": 0,
+    "evp_count": 0,
+    "svp_count": 0,
+    "vp_count": 0,
+    "total_count": 0,
+    "raw_data": {
+      "corporation": "OK Asset (인니)",
+      "report_date": "2025-06-30",
+      "structure": {
+        "headers": {
+          "positions": [
+            "최고사업책임자",
+            "본부장/Div Head",
+            "팀장/Team Head",
+            "직원/Staff"
+          ],
+          "categories": {
+            "종합직": {
+              "직급": [
+                "이사",
+                "부장",
+                "차장",
+                "과장",
+                "대리",
+                "계장",
+                "사원"
+              ],
+              "data": {
+                "이사": {
+                  "최고사업책임자": 1,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 0,
+                  "직원/Staff": 0,
+                  "계": 1
+                },
+                "부장": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 0,
+                  "직원/Staff": 0,
+                  "계": 0
+                },
+                "차장": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 2,
+                  "팀장/Team Head": 0,
+                  "직원/Staff": 0,
+                  "계": 2
+                },
+                "과장": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 3,
+                  "직원/Staff": 0,
+                  "계": 3
+                },
+                "대리": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 6,
+                  "직원/Staff": 5,
+                  "계": 11
+                },
+                "계장": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 11,
+                  "직원/Staff": 6,
+                  "계": 17
+                },
+                "사원": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 0,
+                  "직원/Staff": 44,
+                  "계": 44
+                }
+              },
+              "소계": {
+                "최고사업책임자": 1,
+                "본부장/Div Head": 2,
+                "팀장/Team Head": 20,
+                "직원/Staff": 55,
+                "계": 78
+              }
+            },
+            "계약직": {
+              "직급": [
+                "일반",
+                "수습"
+              ],
+              "data": {
+                "일반": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 0,
+                  "직원/Staff": 0,
+                  "계": 0
+                },
+                "수습": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 1,
+                  "직원/Staff": 7,
+                  "계": 8
+                }
+              },
+              "소계": {
+                "최고사업책임자": 0,
+                "본부장/Div Head": 0,
+                "팀장/Team Head": 1,
+                "직원/Staff": 7,
+                "계": 8
+              }
+            },
+            "파견(도급)": {
+              "직급": [
+                "GA",
+                "Retail"
+              ],
+              "data": {
+                "GA": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 0,
+                  "직원/Staff": 0,
+                  "계": 0
+                },
+                "Retail": {
+                  "최고사업책임자": 0,
+                  "본부장/Div Head": 0,
+                  "팀장/Team Head": 0,
+                  "직원/Staff": 0,
+                  "계": 0
+                }
+              },
+              "소계": {
+                "최고사업책임자": 0,
+                "본부장/Div Head": 0,
+                "팀장/Team Head": 0,
+                "직원/Staff": 0,
+                "계": 0
+              }
+            }
+          }
+        }
+      },
+      "totals": {
+        "총계": {
+          "최고사업책임자": 1,
+          "본부장/Div Head": 2,
+          "팀장/Team Head": 21,
+          "직원/Staff": 62,
+          "계": 86
+        },
+        "전월비증감(파견제외)": {
+          "최고사업책임자": 0,
+          "본부장/Div Head": 0,
+          "팀장/Team Head": 0,
+          "직원/Staff": 0,
+          "계": 0
+        }
+      },
+      "summary": {}
+    },
+    "created_at": "2025-08-01T08:13:42.655Z",
+    "updated_at": "2025-08-01T08:50:11.649Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.overseasworkforce",
+  "pk": 11,
+  "fields": {
+    "corporation": "PPCBank (캄보디아)",
+    "report_date": "2025-06-30",
+    "executive_count": 0,
+    "general_manager_count": 0,
+    "deputy_manager_count": 0,
+    "manager_count": 0,
+    "assistant_manager_count": 0,
+    "staff_count": 0,
+    "ceo_count": 0,
+    "division_head_count": 0,
+    "department_head_count": 0,
+    "branch_manager_count": 0,
+    "team_leader_count": 0,
+    "cbo_count": 0,
+    "evp_count": 0,
+    "svp_count": 0,
+    "vp_count": 0,
+    "total_count": 0,
+    "raw_data": {
+      "corporation": "PPCBank (캄보디아)",
+      "report_date": "2025-06-30",
+      "structure": {
+        "headers": {
+          "positions": [
+            "부문장/수석부사장",
+            "수석부사장",
+            "상무이사"
+          ],
+          "categories": {
+            "종합직": {
+              "직급": [
+                "이사",
+                "부장",
+                "차장",
+                "과장",
+                "대리",
+                "계장",
+                "사원"
+              ],
+              "data": {
+                "이사": {
+                  "부문장/수석부사장": 0,
+                  "수석부사장": 0,
+                  "상무이사": 0,
+                  "기타": 0,
+                  "계": 12
+                },
+                "부장": {
+                  "부문장/수석부사장": 20,
+                  "수석부사장": 5,
+                  "상무이사": 0,
+                  "기타": 0,
+                  "계": 25
+                },
+                "차장": {
+                  "부문장/수석부사장": 16,
+                  "수석부사장": 19,
+                  "상무이사": 20,
+                  "기타": 12,
+                  "계": 67
+                },
+                "과장": {
+                  "부문장/수석부사장": 6,
+                  "수석부사장": 21,
+                  "상무이사": 31,
+                  "기타": 39,
+                  "계": 97
+                },
+                "대리": {
+                  "부문장/수석부사장": 2,
+                  "수석부사장": 7,
+                  "상무이사": 19,
+                  "기타": 92,
+                  "계": 120
+                },
+                "계장": {
+                  "부문장/수석부사장": 0,
+                  "수석부사장": 1,
+                  "상무이사": 20,
+                  "기타": 98,
+                  "계": 119
+                },
+                "사원": {
+                  "부문장/수석부사장": 0,
+                  "수석부사장": 0,
+                  "상무이사": 0,
+                  "기타": 97,
+                  "계": 97
+                }
+              },
+              "소계": {
+                "부문장/수석부사장": 44,
+                "수석부사장": 53,
+                "상무이사": 90,
+                "기타": 338,
+                "계": 537
+              }
+            },
+            "계약직": {
+              "직급": [
+                "일반",
+                "수습"
+              ],
+              "data": {
+                "일반": {
+                  "부문장/수석부사장": 0,
+                  "수석부사장": 0,
+                  "상무이사": 0,
+                  "기타": 0,
+                  "계": 0
+                },
+                "수습": {
+                  "부문장/수석부사장": 0,
+                  "수석부사장": 0,
+                  "상무이사": 0,
+                  "기타": 0,
+                  "계": 0
+                }
+              },
+              "소계": {
+                "부문장/수석부사장": 0,
+                "수석부사장": 0,
+                "상무이사": 0,
+                "기타": 0,
+                "계": 0
+              }
+            },
+            "파견(도급)": {
+              "직급": [
+                "GA",
+                "Retail"
+              ],
+              "data": {
+                "GA": {
+                  "부문장/수석부사장": 0,
+                  "수석부사장": 0,
+                  "상무이사": 0,
+                  "기타": 0,
+                  "계": 0
+                },
+                "Retail": {
+                  "부문장/수석부사장": 0,
+                  "수석부사장": 0,
+                  "상무이사": 0,
+                  "기타": 0,
+                  "계": 0
+                }
+              },
+              "소계": {
+                "부문장/수석부사장": 0,
+                "수석부사장": 0,
+                "상무이사": 0,
+                "기타": 0,
+                "계": 0
+              }
+            }
+          }
+        }
+      },
+      "totals": {
+        "총계": {
+          "부문장/수석부사장": 44,
+          "수석부사장": 53,
+          "상무이사": 90,
+          "기타": 338,
+          "계": 537
+        },
+        "전월비증감(파견제외)": {
+          "부문장/수석부사장": 0,
+          "수석부사장": 0,
+          "상무이사": 0,
+          "기타": 0,
+          "계": 0
+        }
+      },
+      "summary": {}
+    },
+    "created_at": "2025-08-01T08:13:42.680Z",
+    "updated_at": "2025-08-01T08:50:11.668Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.overseasworkforce",
+  "pk": 12,
+  "fields": {
+    "corporation": "천진법인 (중국)",
+    "report_date": "2025-06-30",
+    "executive_count": 0,
+    "general_manager_count": 0,
+    "deputy_manager_count": 0,
+    "manager_count": 0,
+    "assistant_manager_count": 0,
+    "staff_count": 0,
+    "ceo_count": 0,
+    "division_head_count": 0,
+    "department_head_count": 0,
+    "branch_manager_count": 0,
+    "team_leader_count": 0,
+    "cbo_count": 0,
+    "evp_count": 0,
+    "svp_count": 0,
+    "vp_count": 0,
+    "total_count": 0,
+    "raw_data": {
+      "corporation": "천진법인 (중국)",
+      "report_date": "2025-06-30",
+      "structure": {
+        "headers": {
+          "positions": [
+            "인원"
+          ],
+          "categories": {
+            "종합직": {
+              "직급": [
+                "이사",
+                "부장",
+                "차장",
+                "과장",
+                "대리",
+                "계장",
+                "사원"
+              ],
+              "data": {
+                "이사": {
+                  "인원": 1,
+                  "계": 1
+                },
+                "부장": {
+                  "인원": 0,
+                  "계": 0
+                },
+                "차장": {
+                  "인원": 1,
+                  "계": 1
+                },
+                "과장": {
+                  "인원": 1,
+                  "계": 1
+                },
+                "대리": {
+                  "인원": 0,
+                  "계": 0
+                },
+                "계장": {
+                  "인원": 0,
+                  "계": 0
+                },
+                "사원": {
+                  "인원": 0,
+                  "계": 0
+                }
+              },
+              "소계": {
+                "인원": 3,
+                "계": 3
+              }
+            },
+            "계약직": {
+              "직급": [
+                "일반",
+                "수습"
+              ],
+              "data": {
+                "일반": {
+                  "인원": 0,
+                  "계": 0
+                },
+                "수습": {
+                  "인원": 0,
+                  "계": 0
+                }
+              },
+              "소계": {
+                "인원": 0,
+                "계": 0
+              }
+            },
+            "파견(도급)": {
+              "직급": [
+                "GA",
+                "Retail"
+              ],
+              "data": {
+                "GA": {
+                  "인원": 0,
+                  "계": 0
+                },
+                "Retail": {
+                  "인원": 0,
+                  "계": 0
+                }
+              },
+              "소계": {
+                "인원": 0,
+                "계": 0
+              }
+            }
+          }
+        }
+      },
+      "totals": {
+        "총계": {
+          "인원": 3,
+          "계": 3
+        },
+        "전월비증감(파견제외)": {
+          "인원": 0,
+          "계": 0
+        }
+      },
+      "summary": {}
+    },
+    "created_at": "2025-08-01T08:13:42.702Z",
+    "updated_at": "2025-08-01T08:50:11.685Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 433,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "ON/OKIP/OKV/EX",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.076Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 434,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "ON/OKIP/OKV/EX",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부장",
+    "contract_type": "계약직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.083Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 435,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "ON/OKIP/OKV/EX",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.085Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 436,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "ON/OKIP/OKV/EX",
+    "job_group": "Non-PL",
+    "grade": "사원(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.086Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 437,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "ON/OKIP/OKV/EX",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 6,
+    "uploaded_at": "2025-07-31T06:49:21.087Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 438,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "ON/OKIP/OKV/EX",
+    "job_group": "PL",
+    "grade": "선임이하",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 6,
+    "uploaded_at": "2025-07-31T06:49:21.088Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 439,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "ON/OKIP/OKV/EX",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "부장",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.089Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 440,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "ON/OKIP/OKV/EX",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.091Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 441,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이데이터시스템",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 9,
+    "uploaded_at": "2025-07-31T06:49:21.092Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 442,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이데이터시스템",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 5,
+    "uploaded_at": "2025-07-31T06:49:21.093Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 443,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이데이터시스템",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부장",
+    "contract_type": "계약직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.094Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 444,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이데이터시스템",
+    "job_group": "Non-PL",
+    "grade": "대리(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 25,
+    "uploaded_at": "2025-07-31T06:49:21.096Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 445,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이데이터시스템",
+    "job_group": "Non-PL",
+    "grade": "사원(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 18,
+    "uploaded_at": "2025-07-31T06:49:21.097Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 446,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이데이터시스템",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 28,
+    "uploaded_at": "2025-07-31T06:49:21.098Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 447,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이데이터시스템",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.099Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 448,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이데이터시스템",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.101Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 449,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부장",
+    "contract_type": "계약직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.102Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 450,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.103Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 451,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 11,
+    "uploaded_at": "2025-07-31T06:49:21.104Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 452,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "본사팀장",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.105Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 453,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 6,
+    "uploaded_at": "2025-07-31T06:49:21.106Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 454,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 9,
+    "uploaded_at": "2025-07-31T06:49:21.108Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 455,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "PL",
+    "grade": "관리전문직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 114,
+    "uploaded_at": "2025-07-31T06:49:21.109Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 456,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "PL",
+    "grade": "선임이하",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 59,
+    "uploaded_at": "2025-07-31T06:49:21.110Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 457,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 32,
+    "uploaded_at": "2025-07-31T06:49:21.111Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 458,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 4,
+    "uploaded_at": "2025-07-31T06:49:21.112Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 459,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이신용정보",
+    "job_group": "기타",
+    "grade": "개인사업자",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 21,
+    "uploaded_at": "2025-07-31T06:49:21.114Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 460,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 5,
+    "uploaded_at": "2025-07-31T06:49:21.115Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 461,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.115Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 462,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부장",
+    "contract_type": "계약직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.116Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 463,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "Non-PL",
+    "grade": "대리(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.117Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 464,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.119Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 465,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 18,
+    "uploaded_at": "2025-07-31T06:49:21.120Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 466,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "본사팀장",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.121Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 467,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 6,
+    "uploaded_at": "2025-07-31T06:49:21.122Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 468,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "PL",
+    "grade": "관리전문직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 58,
+    "uploaded_at": "2025-07-31T06:49:21.123Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 469,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "PL",
+    "grade": "선임이하",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 34,
+    "uploaded_at": "2025-07-31T06:49:21.124Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 470,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 15,
+    "uploaded_at": "2025-07-31T06:49:21.126Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 471,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "PL",
+    "grade": "파견사원",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.127Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 472,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.129Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 473,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "부장",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.130Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 474,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이에프앤아이",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.131Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 475,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 13,
+    "uploaded_at": "2025-07-31T06:49:21.132Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 476,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 19,
+    "uploaded_at": "2025-07-31T06:49:21.133Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 477,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부장",
+    "contract_type": "계약직",
+    "headcount": 13,
+    "uploaded_at": "2025-07-31T06:49:21.135Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 478,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "Non-PL",
+    "grade": "대리(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 53,
+    "uploaded_at": "2025-07-31T06:49:21.136Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 479,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.137Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 480,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "Non-PL",
+    "grade": "사원(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 25,
+    "uploaded_at": "2025-07-31T06:49:21.138Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 481,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 124,
+    "uploaded_at": "2025-07-31T06:49:21.139Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 482,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "Non-PL",
+    "grade": "파견사원",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.141Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 483,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "부지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.142Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 484,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "PL",
+    "grade": "관리전문직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 5,
+    "uploaded_at": "2025-07-31T06:49:21.143Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 485,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "PL",
+    "grade": "선임이하",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 45,
+    "uploaded_at": "2025-07-31T06:49:21.145Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 486,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.146Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 487,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "PL",
+    "grade": "파견사원",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.147Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 488,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.148Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 489,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "부장",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.148Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 490,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "계약직",
+    "grade": "별정직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.150Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 491,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(본사)",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.151Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 492,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부장",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.152Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 493,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부지점장/팀장",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.153Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 494,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "부지점장/팀장",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.154Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 495,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "센터장/지점장",
+    "contract_type": "계약직",
+    "headcount": 20,
+    "uploaded_at": "2025-07-31T06:49:21.155Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 496,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "센터장/지점장",
+    "contract_type": "계약직",
+    "headcount": 18,
+    "uploaded_at": "2025-07-31T06:49:21.157Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 497,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "대리(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 42,
+    "uploaded_at": "2025-07-31T06:49:21.158Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 498,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 5,
+    "uploaded_at": "2025-07-31T06:49:21.159Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 499,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "사원(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 10,
+    "uploaded_at": "2025-07-31T06:49:21.160Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 500,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 124,
+    "uploaded_at": "2025-07-31T06:49:21.162Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 501,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "PL",
+    "grade": "선임이하",
+    "position": "부지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.163Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 502,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "부지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.164Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 503,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "부지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 28,
+    "uploaded_at": "2025-07-31T06:49:21.164Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 504,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "센터장/지점장",
+    "contract_type": "정규직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.165Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 505,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "PL",
+    "grade": "관리전문직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 57,
+    "uploaded_at": "2025-07-31T06:49:21.166Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 506,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "PL",
+    "grade": "선임이하",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 232,
+    "uploaded_at": "2025-07-31T06:49:21.168Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 507,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 71,
+    "uploaded_at": "2025-07-31T06:49:21.169Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 508,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 15,
+    "uploaded_at": "2025-07-31T06:49:21.170Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 509,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "부장",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.174Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 510,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "계약직",
+    "grade": "별정직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 16,
+    "uploaded_at": "2025-07-31T06:49:21.177Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 511,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.178Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 512,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이저축은행(센터/지점)",
+    "job_group": "기타",
+    "grade": "도급",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 125,
+    "uploaded_at": "2025-07-31T06:49:21.180Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 513,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 6,
+    "uploaded_at": "2025-07-31T06:49:21.181Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 514,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 9,
+    "uploaded_at": "2025-07-31T06:49:21.182Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 515,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부장",
+    "contract_type": "계약직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.183Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 516,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "Non-PL",
+    "grade": "대리(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 6,
+    "uploaded_at": "2025-07-31T06:49:21.185Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 517,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.186Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 518,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "Non-PL",
+    "grade": "사원(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 7,
+    "uploaded_at": "2025-07-31T06:49:21.188Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 519,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 32,
+    "uploaded_at": "2025-07-31T06:49:21.190Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 520,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "본사팀장",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.191Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 521,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.193Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 522,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "지점장/팀장",
+    "contract_type": "정규직",
+    "headcount": 6,
+    "uploaded_at": "2025-07-31T06:49:21.195Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 523,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "PL",
+    "grade": "관리전문직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 59,
+    "uploaded_at": "2025-07-31T06:49:21.196Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 524,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "PL",
+    "grade": "선임이하",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 58,
+    "uploaded_at": "2025-07-31T06:49:21.198Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 525,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "PL",
+    "grade": "책임",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 12,
+    "uploaded_at": "2025-07-31T06:49:21.199Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 526,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "PL",
+    "grade": "프로",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.200Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 527,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "본사팀장",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.201Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 528,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "부장",
+    "contract_type": "정규직",
+    "headcount": 3,
+    "uploaded_at": "2025-07-31T06:49:21.203Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 529,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이캐피탈",
+    "job_group": "계약직",
+    "grade": "전문계약직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 9,
+    "uploaded_at": "2025-07-31T06:49:21.204Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 530,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.207Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 531,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "본사팀장",
+    "contract_type": "계약직",
+    "headcount": 9,
+    "uploaded_at": "2025-07-31T06:49:21.209Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 532,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "부장",
+    "contract_type": "계약직",
+    "headcount": 7,
+    "uploaded_at": "2025-07-31T06:49:21.211Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 533,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "Non-PL",
+    "grade": "대리(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 9,
+    "uploaded_at": "2025-07-31T06:49:21.213Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 534,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "Non-PL",
+    "grade": "부장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.214Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 535,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "Non-PL",
+    "grade": "사원(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 9,
+    "uploaded_at": "2025-07-31T06:49:21.215Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 536,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "Non-PL",
+    "grade": "차장(N)",
+    "position": "팀원",
+    "contract_type": "계약직",
+    "headcount": 27,
+    "uploaded_at": "2025-07-31T06:49:21.216Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 537,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "Non-PL",
+    "grade": "파견사원",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.217Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 538,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "PL",
+    "grade": "선임이하",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.219Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 539,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "계약직",
+    "grade": "별정직",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 2,
+    "uploaded_at": "2025-07-31T06:49:21.220Z",
+    "uploaded_by": null
+  }
+},
+{
+  "model": "employees.weeklyworkforcesnapshot",
+  "pk": 540,
+  "fields": {
+    "snapshot_date": "2025-07-31",
+    "company": "오케이홀딩스대부",
+    "job_group": "계약직",
+    "grade": "인턴/계약직 등",
+    "position": "팀원",
+    "contract_type": "정규직",
+    "headcount": 1,
+    "uploaded_at": "2025-07-31T06:49:21.222Z",
+    "uploaded_by": null
+  }
+}

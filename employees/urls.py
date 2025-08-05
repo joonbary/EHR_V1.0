@@ -1,0 +1,41 @@
+from django.urls import path, include
+from . import views, api_views
+from django.views.generic import TemplateView
+from core.views import under_construction
+from .views_test import test_database
+
+app_name = 'employees'
+
+urlpatterns = [
+    path('', TemplateView.as_view(template_name='employees/employee_management.html'), name='employee_management'),
+    path('create/', views.EmployeeCreateView.as_view(), name='employee_create'),
+    path('bulk-upload/', views.BulkUploadView.as_view(), name='employee_bulk_upload'),
+    path('download-template/', views.download_template, name='employee_download_template'),
+    path('org-chart/', views.organization_chart, name='organization_chart'),
+    path('hierarchy/', views.hierarchy_organization_view, name='hierarchy_organization'),
+    path('api/organization-data/', views.organization_data_api, name='organization_data_api'),
+    path('api/hierarchy-data/', views.hierarchy_organization_api, name='hierarchy_organization_api'),
+    
+    # REST API endpoints
+    path('api/test/', test_database, name='test-database'),  # 테스트 엔드포인트
+    path('api/employees/', api_views.EmployeeListCreateAPIView.as_view(), name='employee-list-create'),
+    path('api/employees/<int:pk>/', api_views.EmployeeDetailAPIView.as_view(), name='employee-detail'),
+    path('api/employees/<int:pk>/retire/', api_views.employee_retire_view, name='employee-retire'),
+    
+    path('<int:pk>/', views.EmployeeDetailView.as_view(), name='employee_detail'),
+    path('<int:pk>/update/', views.EmployeeUpdateView.as_view(), name='employee_update'),
+    path('<int:pk>/delete/', views.EmployeeDeleteView.as_view(), name='employee_delete'),
+    
+    # 미구현 기능
+    path('attendance/', under_construction, name='attendance_management'),
+    
+    # HR Dashboard
+    path('hr/dashboard/', views.hr_dashboard_view, name='hr_dashboard'),
+    path('hr/outsourced/', views.outsourced_dashboard_view, name='outsourced_dashboard'),
+    path('hr/monthly/', views.monthly_workforce_view, name='monthly_workforce'),
+    path('hr/full/', views.full_workforce_view, name='full_workforce'),
+    path('hr/overseas/', views.overseas_workforce_view, name='overseas_workforce'),
+    
+    # HR Dashboard API
+    path('hr/api/', include('employees.urls_hr')),
+] 

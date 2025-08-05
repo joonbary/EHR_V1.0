@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(python manage.py:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)",
+      "Bash(taskkill:*)",
+      "Bash(pip install:*)",
+      "Bash(mv:*)",
+      "Bash(sed:*)",
+      "Bash(touch:*)",
+      "Bash(dir /a .env*)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(true)",
+      "Bash(powershell:*)",
+      "Bash(copy:*)",
+      "Bash(pip show:*)",
+      "Bash(pkill:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(dir employees_only.json)",
+      "Bash(move managementcommandsload_initial_data.py employeesmanagementcommands)",
+      "Bash(git rm:*)",
+      "Bash(railway run:*)",
+      "Bash(railway login:*)",
+      "Bash(railway status:*)",
+      "Bash(if exist db.sqlite3 del db.sqlite3)",
+      "Bash(dir:*)",
+      "Bash(git checkout:*)",
+      "Bash(cmd /c:*)",
+      "Bash(robocopy:*)"
+    ],
+    "deny": []
+  }
+}

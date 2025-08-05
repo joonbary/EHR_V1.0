@@ -1,0 +1,424 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}월간 해외인력현황{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 그라디언트 배경 */
+    .gradient-bg {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    }
+    
+    .gradient-bg-subtle {
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+    }
+    
+    /* 글래스모피즘 효과 */
+    .glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .glass-dark {
+        background: rgba(26, 26, 26, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    /* 호버 애니메이션 */
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+    }
+    
+    /* 그라디언트 텍스트 */
+    .gradient-text {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* 법인별 색상 */
+    .corp-ok-bank { border-left: 4px solid #3b82f6; }
+    .corp-ok-asset { border-left: 4px solid #10b981; }
+    .corp-ppcbank { border-left: 4px solid #f59e0b; }
+    .corp-tianjin { border-left: 4px solid #ef4444; }
+    
+    /* 테이블 스타일 */
+    .table-row-spacing {
+        padding: 1rem 1.5rem;
+    }
+    
+    /* 숫자 정렬 */
+    .text-right {
+        text-align: right;
+    }
+    
+    /* 직급/직책 섹션 스타일 */
+    .position-section {
+        background: rgba(255, 107, 0, 0.03);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .position-header {
+        font-weight: 600;
+        color: #FF6B00;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* 테이블 헤더 스타일 */
+    .table-header-gradient {
+        background: linear-gradient(90deg, #f9fafb 0%, #f3f4f6 100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 페이지 헤더 (sticky 고정) -->
+<div class="sticky top-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 mb-8">
+    <div class="container mx-auto px-6 py-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold gradient-text mb-2">월간 해외인력현황</h1>
+                <p class="text-lg text-gray-600 dark:text-gray-300">해외 법인별 인력현황 관리</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">조회 월</label>
+                    <select id="selectedMonth" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <!-- 동적 로드 -->
+                    </select>
+                </div>
+                <select id="corporationFilter" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                    <option value="">전체 법인</option>
+                    <option value="OK Bank (인니)">OK Bank (인니)</option>
+                    <option value="OK Asset (인니)">OK Asset (인니)</option>
+                    <option value="PPCBank (캄보디아)">PPCBank (캄보디아)</option>
+                    <option value="천진법인 (중국)">천진법인 (중국)</option>
+                </select>
+                <button onclick="loadOverseasData()" class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors shadow-sm">
+                    <i data-lucide="search" class="w-5 h-5 inline mr-2"></i>
+                    조회
+                </button>
+                <button onclick="showUploadModal()" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-lg transition-all shadow-sm">
+                    <i data-lucide="upload" class="w-5 h-5 inline mr-2"></i>
+                    Excel 업로드
+                </button>
+                <a href="{% url 'employees:hr_dashboard' %}" class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors shadow-sm">
+                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                    대시보드로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-6">
+    <!-- 요약 카드 섹션 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">전체 인원</h4>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2" id="totalCount">0</div>
+                </div>
+                <div class="p-3 gradient-bg-subtle rounded-xl">
+                    <i data-lucide="users" class="w-6 h-6 text-primary"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">이사</h4>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2" id="executiveCount">0</div>
+                </div>
+                <div class="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-xl">
+                    <i data-lucide="crown" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">부장급</h4>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2" id="generalManagerCount">0</div>
+                </div>
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl">
+                    <i data-lucide="briefcase" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">차장</h4>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2" id="deputyManagerCount">0</div>
+                </div>
+                <div class="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
+                    <i data-lucide="user-check" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">과장 이하</h4>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2" id="staffCount">0</div>
+                </div>
+                <div class="p-3 bg-amber-100 dark:bg-amber-900/20 rounded-xl">
+                    <i data-lucide="users-2" class="w-6 h-6 text-amber-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 법인별 상세 현황 -->
+    <div class="glass dark:glass-dark rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">법인별 상세 현황</h2>
+            <div id="corporationDetails" class="space-y-8">
+                <!-- 동적 로드 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 업로드 모달 -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-xl font-semibold">해외인력현황 Excel 업로드</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Excel 파일 선택</label>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h6 class="font-semibold text-blue-900 mb-2">파일 형식:</h6>
+                    <ul class="space-y-1 text-sm text-blue-800">
+                        <li class="flex items-start">
+                            <i data-lucide="check" class="w-4 h-4 mr-2 mt-0.5 text-blue-600"></i>
+                            employee_global_YYMMDD.xlsx 형식의 파일
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check" class="w-4 h-4 mr-2 mt-0.5 text-blue-600"></i>
+                            OK Bank (인니), OK Asset (인니), PPCBank (캄보디아), 천진법인 (중국) 데이터 포함
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check" class="w-4 h-4 mr-2 mt-0.5 text-blue-600"></i>
+                            직급별 인원수 (이사, 부장급, 차장, 과장, 대리, 사원)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all" onclick="uploadFile()">업로드</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% csrf_token %}
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery (Bootstrap 모달을 위해 필요) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap 5 JS (모달을 위해 필요) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 새로운 V2 JavaScript -->
+<script src="{% static 'js/overseas_workforce_v2.js' %}"></script>
+<script>
+const API_BASE = '/employees/hr/api/overseas';
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    loadMonthList();
+    loadOverseasData();
+    
+    // Lucide 아이콘 초기화
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+});
+
+// 월 목록 로드
+async function loadMonthList() {
+    try {
+        const response = await fetch(`${API_BASE}/months/`);
+        const data = await response.json();
+        
+        const select = document.getElementById('selectedMonth');
+        select.innerHTML = '';
+        
+        if (data.months && data.months.length > 0) {
+            data.months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = month.value;
+                option.textContent = month.display;
+                if (index === 0) option.selected = true;
+                select.appendChild(option);
+            });
+        } else {
+            // 현재 월 추가
+            const now = new Date();
+            const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            const option = document.createElement('option');
+            option.value = currentMonth;
+            option.textContent = now.getFullYear() + '년 ' + String(now.getMonth() + 1).padStart(2, '0') + '월';
+            select.appendChild(option);
+        }
+    } catch (error) {
+        console.error('Error loading month list:', error);
+    }
+}
+
+// 해외인력 데이터 로드
+async function loadOverseasData() {
+    const selectedMonth = document.getElementById('selectedMonth').value;
+    const corporation = document.getElementById('corporationFilter').value;
+    
+    let url = `${API_BASE}/current/?`;
+    if (selectedMonth) url += `month=${selectedMonth}&`;
+    if (corporation) url += `corporation=${encodeURIComponent(corporation)}`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // 요약 정보 업데이트
+        updateSummary(data.summary);
+        
+        // 법인별 상세 정보 업데이트
+        updateCorporationDetails(data.data);
+        
+    } catch (error) {
+        console.error('Error loading overseas data:', error);
+    }
+}
+
+// 요약 정보 업데이트
+function updateSummary(summary) {
+    document.getElementById('totalCount').textContent = summary.total_count || 0;
+    document.getElementById('executiveCount').textContent = summary.total_executive || 0;
+    document.getElementById('generalManagerCount').textContent = summary.total_general_manager || 0;
+    document.getElementById('deputyManagerCount').textContent = summary.total_deputy_manager || 0;
+    
+    // 과장 이하 계산
+    const staffCount = (summary.total_manager || 0) + 
+                       (summary.total_assistant_manager || 0) + 
+                       (summary.total_staff || 0);
+    document.getElementById('staffCount').textContent = staffCount;
+}
+
+// updateCorporationDetails 함수는 overseas_workforce_v2.js에서 로드됨
+
+// 파일 업로드 모달 표시
+function showUploadModal() {
+    const modalElement = document.getElementById('uploadModal');
+    
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    } else {
+        modalElement.classList.add('show');
+        modalElement.style.display = 'block';
+        document.body.classList.add('modal-open');
+        
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+    }
+}
+
+// 파일 업로드
+async function uploadFile() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('파일을 선택해주세요.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch(`${API_BASE}/upload/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Upload failed:', response.status, errorText);
+            throw new Error(`업로드 실패: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(data.message);
+            // 모달 닫기
+            const modalElement = document.getElementById('uploadModal');
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+            // 파일 입력 초기화
+            document.getElementById('fileInput').value = '';
+            // 월 목록 다시 로드
+            loadMonthList();
+            // 데이터 다시 로드
+            loadOverseasData();
+        } else {
+            alert(data.error || '업로드 중 오류가 발생했습니다.');
+        }
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('파일 업로드 중 오류가 발생했습니다.');
+    }
+}
+
+// 쿠키 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

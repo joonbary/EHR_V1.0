@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}인력 현황 - OK금융그룹 AI-Driven HR System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">인력 현황</h1>
+        <p class="page-subtitle">상세 인력 구성 분석</p>
+    </div>
+
+    <!-- 직군별 현황 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">직군별 인원 현황</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="jobGroupChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 고용형태별 현황 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">고용형태별 현황</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="employmentTypeChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 근속연수 분포 -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">근속연수 분포</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="tenureChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 직종별 통계 테이블 -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">직종별 상세 현황</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>직종</th>
+                                    <th class="text-right">인원수</th>
+                                    <th class="text-right">비율</th>
+                                    <th>분포</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in job_type_stats %}
+                                <tr>
+                                    <td>{{ stat.job_type|default:"미지정" }}</td>
+                                    <td class="text-right">{{ stat.count|intcomma }}명</td>
+                                    <td class="text-right">
+                                        {% widthratio stat.count job_type_stats.0.count 100 %}%
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-primary" 
+                                                 style="width: {% widthratio stat.count job_type_stats.0.count 100 %}%">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">데이터가 없습니다</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.progress {
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #4F46E5, #7C3AED);
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 직군별 차트
+    const jobGroupCtx = document.getElementById('jobGroupChart').getContext('2d');
+    new Chart(jobGroupCtx, {
+        type: 'pie',
+        data: {
+            labels: [{% for stat in job_group_stats %}'{{ stat.job_group|default:"미지정" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for stat in job_group_stats %}{{ stat.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [
+                    '#4F46E5', '#7C3AED', '#EC4899', '#F59E0B', '#10B981',
+                    '#3B82F6', '#8B5CF6', '#F97316', '#14B8A6', '#EF4444'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+
+    // 고용형태별 차트
+    const employmentTypeCtx = document.getElementById('employmentTypeChart').getContext('2d');
+    new Chart(employmentTypeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for stat in employment_type_stats %}'{{ stat.employment_type|default:"미지정" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for stat in employment_type_stats %}{{ stat.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [
+                    '#10B981', '#F59E0B', '#EF4444', '#3B82F6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // 근속연수 차트
+    const tenureCtx = document.getElementById('tenureChart').getContext('2d');
+    new Chart(tenureCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for item in tenure_distribution %}'{{ item.label }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '인원수',
+                data: [{% for item in tenure_distribution %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#4F46E5',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

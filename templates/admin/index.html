@@ -1,0 +1,508 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+<style>
+/* 관리자 인덱스 페이지 완전 통일 디자인 - 깔끔하고 일관성 있게 */
+.app-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.app-list .module {
+    margin-bottom: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+    background: var(--bg-primary);
+    border: 1px solid var(--gray-200);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+}
+
+.app-list .module:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.app-list .module h2 {
+    background: var(--primary-orange);
+    color: white;
+    padding: 1.75rem;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.app-list .module h2::before {
+    font-size: 1.4rem;
+}
+
+/* 앱별 아이콘 */
+.app-list .module h2[data-app="compensation"]::before {
+    content: "💰";
+}
+
+.app-list .module h2[data-app="employees"]::before {
+    content: "👥";
+}
+
+.app-list .module h2[data-app="evaluations"]::before {
+    content: "📊";
+}
+
+.app-list .module h2[data-app="permissions"]::before {
+    content: "🔐";
+}
+
+.app-list .module h2[data-app="promotions"]::before {
+    content: "📈";
+}
+
+.app-list .module h2[data-app="reports"]::before {
+    content: "📋";
+}
+
+.app-list .module h2[data-app="auth"]::before {
+    content: "👤";
+}
+
+.app-list .module h2[data-app="sites"]::before {
+    content: "🌐";
+}
+
+.app-list .model-list {
+    flex: 1;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+}
+
+.app-list .model-list > div {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid var(--gray-200);
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-primary);
+}
+
+.app-list .model-list > div:hover {
+    background: var(--primary-orange-light);
+    border-left: 4px solid var(--primary-orange);
+    padding-left: 1.5rem;
+    transform: translateX(2px);
+}
+
+.app-list .model-list > div:last-child {
+    border-bottom: none;
+    border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.app-list .model-list a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.app-list .model-list a::before {
+    font-size: 1.1rem;
+    opacity: 0.7;
+    color: var(--primary-orange);
+}
+
+.app-list .model-list a:hover {
+    color: var(--primary-orange);
+    text-decoration: none;
+    transform: translateX(2px);
+}
+
+.app-list .model-list a:hover::before {
+    opacity: 1;
+}
+
+/* 모델별 아이콘 */
+.app-list .model-list a[href*="employee"]::before {
+    content: "👤";
+}
+
+.app-list .model-list a[href*="compensation"]::before {
+    content: "💰";
+}
+
+.app-list .model-list a[href*="evaluation"]::before {
+    content: "📊";
+}
+
+.app-list .model-list a[href*="promotion"]::before {
+    content: "📈";
+}
+
+.app-list .model-list a[href*="permission"]::before {
+    content: "🔐";
+}
+
+.app-list .model-list a[href*="report"]::before {
+    content: "📋";
+}
+
+.app-list .model-list a[href*="user"]::before {
+    content: "👤";
+}
+
+.app-list .model-list a[href*="group"]::before {
+    content: "👥";
+}
+
+/* 액션 링크 스타일 완전 통일 - 깔끔하게 */
+.addlink, .changelink, .viewlink {
+    background: var(--primary-orange);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 80px;
+    justify-content: center;
+    box-shadow: var(--shadow-light);
+    border: none;
+}
+
+.addlink:hover, .changelink:hover, .viewlink:hover {
+    background: var(--primary-orange-hover);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.addlink::before {
+    content: "+";
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.changelink::before {
+    content: "✏️";
+    font-size: 0.9rem;
+}
+
+.viewlink::before {
+    content: "👁️";
+    font-size: 0.9rem;
+}
+
+/* 최근 활동 섹션 완전 통일 - 깔끔하게 */
+.recent-actions {
+    grid-column: 1 / -1;
+    margin-top: 3rem;
+    background: var(--bg-primary);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-medium);
+    overflow: hidden;
+    border: 1px solid var(--gray-200);
+}
+
+.recent-actions h2 {
+    background: var(--gray-700);
+    color: white;
+    padding: 1.75rem;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.recent-actions h2::before {
+    content: "🕒";
+    font-size: 1.4rem;
+}
+
+.recent-actions ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    background: var(--bg-primary);
+}
+
+.recent-actions li {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid var(--gray-200);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-primary);
+}
+
+.recent-actions li:hover {
+    background: var(--bg-secondary);
+    border-left: 4px solid var(--gray-700);
+    padding-left: 1.5rem;
+    transform: translateX(2px);
+}
+
+.recent-actions li:last-child {
+    border-bottom: none;
+}
+
+.recent-actions a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    flex: 1;
+    transition: all 0.2s ease;
+}
+
+.recent-actions a:hover {
+    color: var(--gray-700);
+    text-decoration: none;
+    transform: translateX(2px);
+}
+
+.recent-actions .addlink,
+.recent-actions .changelink,
+.recent-actions .deletelink {
+    background: var(--gray-600);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-left: 0.75rem;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-light);
+    border: none;
+}
+
+.recent-actions .addlink:hover,
+.recent-actions .changelink:hover {
+    background: var(--gray-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.recent-actions .deletelink {
+    background: var(--gray-600);
+    box-shadow: var(--shadow-light);
+}
+
+.recent-actions .deletelink:hover {
+    background: var(--gray-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* 페이지 제목 스타일 - 깔끔하게 */
+#content-main h1 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#content-main h1::before {
+    content: "🏢";
+    font-size: 2.2rem;
+    color: var(--primary-orange);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+    .app-list {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-list {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .app-list .module h2 {
+        padding: 1.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .app-list .model-list > div {
+        padding: 1rem 1.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .app-list .model-list > div:hover {
+        padding-left: 1.25rem;
+    }
+    
+    .addlink, .changelink, .viewlink {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+    }
+    
+    .recent-actions h2 {
+        padding: 1.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .recent-actions li {
+        padding: 1rem 1.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .recent-actions li:hover {
+        padding-left: 1.25rem;
+    }
+    
+    .recent-actions .addlink,
+    .recent-actions .changelink,
+    .recent-actions .deletelink {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+    }
+}
+</style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>사이트 관리</h1>
+    
+    <div class="app-list">
+        {% if app_list %}
+            {% for app in app_list %}
+            <div class="module">
+                <h2 data-app="{{ app.app_label }}">
+                    <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">
+                        {{ app.name }}
+                    </a>
+                </h2>
+                <div class="model-list">
+                    {% for model in app.models %}
+                    <div>
+                        {% if model.admin_url %}
+                            <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                        {% else %}
+                            {{ model.name }}
+                        {% endif %}
+                        {% if model.add_url %}
+                            <a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a>
+                        {% endif %}
+                        {% if model.admin_url and show_changelinks %}
+                            {% if model.view_only %}
+                                <a href="{{ model.admin_url }}" class="viewlink">{% trans 'View' %}</a>
+                            {% else %}
+                                <a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>{% trans "You don't have permission to view or edit anything." %}</p>
+        {% endif %}
+    </div>
+    
+    {% if recent_actions %}
+    <div class="recent-actions">
+        <h2>{% trans 'Recent actions' %}</h2>
+        <ul>
+            {% for action in recent_actions %}
+            <li>
+                {% if action.is_addition %}
+                    <span class="addlink">{% trans 'Added' %}</span>
+                {% elif action.is_change %}
+                    <span class="changelink">{% trans 'Changed' %}</span>
+                {% elif action.is_deletion %}
+                    <span class="deletelink">{% trans 'Deleted' %}</span>
+                {% endif %}
+                {% if action.is_deletion or not action.get_admin_url %}
+                    {{ action.object_repr }}
+                {% else %}
+                    <a href="{{ action.get_admin_url }}">{{ action.object_repr }}</a>
+                {% endif %}
+                {% if action.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ action.content_type.name }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% trans 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% trans 'My actions' %}</h2>
+        {% load log %}
+        {% get_admin_log 10 as admin_log for_user user %}
+        {% if not admin_log %}
+        <p>{% trans 'None available' %}</p>
+        {% else %}
+        <ul class="actionlist">
+        {% for entry in admin_log %}
+        <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+            {% if entry.is_deletion or not entry.get_admin_url %}
+                {{ entry.object_repr }}
+            {% else %}
+                <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+            {% endif %}
+            <br>
+            {% if entry.content_type %}
+                <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+            {% else %}
+                <span class="mini quiet">{% trans 'Unknown content' %}</span>
+            {% endif %}
+        </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

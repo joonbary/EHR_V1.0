@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AI 챗봇 - OK금융그룹{% endblock %}
+
+{% block extra_css %}
+<style>
+.chatbot-container {
+    height: calc(100vh - 150px);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.chat-header {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chat-window {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.message.user .message-content {
+    background-color: #0067B8;
+    color: white;
+}
+
+.message.assistant .message-content {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+}
+
+.chat-input {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    background-color: #0067B8;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.chat-input button:hover {
+    background-color: #0052A3;
+}
+
+.suggested-questions {
+    margin-top: 10px;
+}
+
+.suggestion-chip {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 4px;
+    background-color: #f0f0f0;
+    border-radius: 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.suggestion-chip:hover {
+    background-color: #e0e0e0;
+}
+
+.typing-indicator {
+    display: none;
+    padding: 20px;
+}
+
+.typing-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #999;
+    margin: 0 2px;
+    animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        opacity: 0.3;
+    }
+    30% {
+        opacity: 1;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chatbot-container">
+    <div class="chat-header">
+        <h2>HR AI 어시스턴트</h2>
+        <p class="text-muted">인사 관련 질문에 대해 AI가 도움을 드립니다.</p>
+    </div>
+
+    <div class="chat-window">
+        <div class="chat-messages" id="chatMessages">
+            <!-- 환영 메시지 -->
+            <div class="message assistant">
+                <div>
+                    <div class="message-content">
+                        안녕하세요! OK금융그룹 HR AI 어시스턴트입니다. 
+                        인사 정책, 복리후생, 평가, 교육 등에 대해 궁금하신 점을 질문해 주세요.
+                    </div>
+                    <div class="message-time">오전 9:00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        </div>
+
+        <div class="chat-input">
+            <div class="input-group">
+                <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." 
+                       onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()">전송</button>
+            </div>
+            
+            <div class="suggested-questions">
+                <div class="suggestion-chip" onclick="askQuestion('연차 사용 규정이 어떻게 되나요?')">
+                    연차 사용 규정
+                </div>
+                <div class="suggestion-chip" onclick="askQuestion('평가 프로세스에 대해 설명해주세요')">
+                    평가 프로세스
+                </div>
+                <div class="suggestion-chip" onclick="askQuestion('교육 프로그램 신청은 어떻게 하나요?')">
+                    교육 신청 방법
+                </div>
+                <div class="suggestion-chip" onclick="askQuestion('재택근무 정책이 궁금합니다')">
+                    재택근무 정책
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // 사용자 메시지 추가
+    addMessage(message, 'user');
+    input.value = '';
+    
+    // 타이핑 인디케이터 표시
+    showTypingIndicator();
+    
+    // AI 응답 시뮬레이션 (실제로는 백엔드 API 호출)
+    setTimeout(() => {
+        hideTypingIndicator();
+        const response = getAIResponse(message);
+        addMessage(response, 'assistant');
+    }, 1500);
+}
+
+function addMessage(text, sender) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    
+    messageDiv.innerHTML = `
+        <div>
+            <div class="message-content">${text}</div>
+            <div class="message-time">${timeString}</div>
+        </div>
+    `;
+    
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function askQuestion(question) {
+    document.getElementById('messageInput').value = question;
+    sendMessage();
+}
+
+function showTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'block';
+}
+
+function hideTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'none';
+}
+
+// AI 응답 시뮬레이션 함수
+function getAIResponse(message) {
+    const responses = {
+        '연차': '연차휴가는 근속 1년차에 15일이 부여되며, 이후 2년마다 1일씩 추가됩니다. 최대 25일까지 부여 가능하며, 미사용 연차는 다음 해로 이월되지 않습니다.',
+        '평가': '성과평가는 연 2회(상반기/하반기) 실시되며, MBO 평가(60%)와 역량평가(40%)로 구성됩니다. 평가 결과는 승진과 보상에 반영됩니다.',
+        '교육': '교육 프로그램은 HR포털에서 신청 가능합니다. 직무교육, 리더십교육, 어학교육 등 다양한 과정이 있으며, 연간 교육시간은 최소 40시간입니다.',
+        '재택': '재택근무는 주 2회까지 가능하며, 부서장 승인이 필요합니다. 재택근무 시에도 정규 근무시간(9시-6시)을 준수해야 합니다.'
+    };
+    
+    for (const key in responses) {
+        if (message.includes(key)) {
+            return responses[key];
+        }
+    }
+    
+    return '해당 질문에 대한 답변을 찾을 수 없습니다. 더 구체적으로 질문해 주시거나, HR 담당자에게 직접 문의해 주세요.';
+}
+</script>
+{% endblock %}

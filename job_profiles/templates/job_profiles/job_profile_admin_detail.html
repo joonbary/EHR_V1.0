@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile.job_role.name }} - 직무기술서 관리{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'job_profiles:admin_list' %}">직무기술서 관리</a></li>
+            <li class="breadcrumb-item active">{{ profile.job_role.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- 헤더 정보 -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">{{ profile.job_role.name }}</h2>
+                    <div>
+                        {% if profile.is_active %}
+                        <span class="badge bg-success">활성</span>
+                        {% else %}
+                        <span class="badge bg-secondary">비활성</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>직무코드</strong>
+                            <p>{{ profile.job_role.code }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>직군</strong>
+                            <p>{{ profile.job_role.job_type.category.name }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>직종</strong>
+                            <p>{{ profile.job_role.job_type.name }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>UUID</strong>
+                            <p class="text-muted small">{{ profile.id }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 역할과 책임 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">역할과 책임</h4>
+                </div>
+                <div class="card-body">
+                    <div class="content-text">{{ profile.role_responsibility|linebreaks }}</div>
+                </div>
+            </div>
+            
+            <!-- 자격요건 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">자격요건</h4>
+                </div>
+                <div class="card-body">
+                    <div class="content-text">{{ profile.qualification|linebreaks }}</div>
+                </div>
+            </div>
+            
+            <!-- 성장경로 -->
+            {% if profile.growth_path %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">성장경로</h4>
+                </div>
+                <div class="card-body">
+                    <div class="content-text">{{ profile.growth_path|linebreaks }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- 관리 정보 -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">관리 정보</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">생성자</dt>
+                        <dd class="col-sm-8">{{ profile.created_by.username|default:"-" }}</dd>
+                        
+                        <dt class="col-sm-4">생성일</dt>
+                        <dd class="col-sm-8">{{ profile.created_at|date:"Y-m-d H:i" }}</dd>
+                        
+                        <dt class="col-sm-4">수정자</dt>
+                        <dd class="col-sm-8">{{ profile.updated_by.username|default:"-" }}</dd>
+                        
+                        <dt class="col-sm-4">수정일</dt>
+                        <dd class="col-sm-8">{{ profile.updated_at|date:"Y-m-d H:i" }}</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <!-- 스킬 정보 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">기본 기술/지식 ({{ profile.basic_skills|length }}개)</h5>
+                </div>
+                <div class="card-body">
+                    {% if profile.basic_skills %}
+                    <ul class="list-unstyled mb-0">
+                        {% for skill in profile.basic_skills %}
+                        <li class="mb-1"><i class="bi bi-check-circle text-primary"></i> {{ skill }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted mb-0">등록된 기본 스킬이 없습니다.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">응용 기술/지식 ({{ profile.applied_skills|length }}개)</h5>
+                </div>
+                <div class="card-body">
+                    {% if profile.applied_skills %}
+                    <ul class="list-unstyled mb-0">
+                        {% for skill in profile.applied_skills %}
+                        <li class="mb-1"><i class="bi bi-check-circle text-success"></i> {{ skill }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted mb-0">등록된 응용 스킬이 없습니다.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 관련 자격증 -->
+            {% if profile.related_certifications %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">관련 자격증</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        {% for cert in profile.related_certifications %}
+                        <li class="mb-1"><i class="bi bi-award text-warning"></i> {{ cert }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- 관리 버튼 -->
+            <div class="card">
+                <div class="card-body">
+                    <a href="{% url 'job_profiles:update' profile.id %}" class="btn btn-warning w-100 mb-2">
+                        <i class="bi bi-pencil"></i> 수정
+                    </a>
+                    {% if profile.is_active %}
+                    <a href="{% url 'job_profiles:delete' profile.id %}" class="btn btn-danger w-100">
+                        <i class="bi bi-trash"></i> 비활성화
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 변경 이력 -->
+    {% if histories %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4 class="mb-0">변경 이력</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>변경일시</th>
+                            <th>변경자</th>
+                            <th>변경 사유</th>
+                            <th>상세</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for history in histories %}
+                        <tr>
+                            <td>{{ history.changed_at|date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ history.changed_by.username|default:"-" }}</td>
+                            <td>{{ history.change_reason|default:"-" }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info" 
+                                        onclick="showHistoryDetail('{{ history.id }}')">
+                                    보기
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- 하단 네비게이션 -->
+    <div class="mt-4">
+        <a href="{% url 'job_profiles:admin_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 목록으로
+        </a>
+    </div>
+</div>
+
+<!-- 변경 이력 상세 모달 -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">변경 이력 상세</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="historyContent">
+                <!-- 동적으로 내용 추가 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.content-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+dl.row dt {
+    font-weight: 600;
+}
+
+dl.row dd {
+    color: #6c757d;
+}
+</style>
+
+<script>
+// 변경 이력 상세 보기
+function showHistoryDetail(historyId) {
+    // 실제 구현시에는 AJAX로 상세 정보를 가져와야 함
+    alert('변경 이력 상세 기능은 추후 구현 예정입니다.');
+}
+</script>
+{% endblock %}

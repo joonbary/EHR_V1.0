@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}부서 생성{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .form-group label {
+        color: #e5e7eb;
+        font-weight: 500;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.08);
+    }
+    .form-control option {
+        background: #1f2937;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <nav class="text-sm text-gray-400 mb-4">
+            <a href="{% url 'organization:dashboard' %}" class="hover:text-white">조직관리</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'organization:department_list' %}" class="hover:text-white">부서 목록</a>
+            <span class="mx-2">/</span>
+            <span class="text-white">부서 생성</span>
+        </nav>
+        
+        <h1 class="text-3xl font-bold text-white mb-2">새 부서 생성</h1>
+        <p class="text-gray-300">조직에 새로운 부서를 추가합니다</p>
+    </div>
+
+    <form method="post" action="{% url 'organization:department_create' %}">
+        {% csrf_token %}
+        
+        <!-- 기본 정보 -->
+        <div class="form-section">
+            <h3 class="text-xl font-semibold text-white mb-4">기본 정보</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="code">부서 코드 <span class="text-red-400">*</span></label>
+                    <input type="text" id="code" name="code" class="form-control" required 
+                           placeholder="예: DEV001, HR001" maxlength="20">
+                    <p class="text-xs text-gray-400 mt-1">고유한 부서 식별 코드</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="department_type">부서 유형 <span class="text-red-400">*</span></label>
+                    <select id="department_type" name="department_type" class="form-control" required>
+                        <option value="">선택하세요</option>
+                        {% for value, label in department_types %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">부서명 (한글) <span class="text-red-400">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control" required 
+                           placeholder="예: 개발팀, 인사팀" maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="name_en">부서명 (영문)</label>
+                    <input type="text" id="name_en" name="name_en" class="form-control" 
+                           placeholder="예: Development Team, HR Team" maxlength="100">
+                </div>
+            </div>
+        </div>
+
+        <!-- 조직 구조 -->
+        <div class="form-section">
+            <h3 class="text-xl font-semibold text-white mb-4">조직 구조</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="parent_id">상위 부서</label>
+                    <select id="parent_id" name="parent_id" class="form-control">
+                        <option value="">최상위 부서</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.get_full_path }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1">비워두면 최상위 부서가 됩니다</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="level">조직 레벨 <span class="text-red-400">*</span></label>
+                    <input type="number" id="level" name="level" class="form-control" required 
+                           value="1" min="1" max="10">
+                    <p class="text-xs text-gray-400 mt-1">1: 최상위, 2: 본부, 3: 팀 등</p>
+                </div>
+                
+                <div class="form-group md:col-span-2">
+                    <label for="manager_id">부서장</label>
+                    <select id="manager_id" name="manager_id" class="form-control">
+                        <option value="">선택하세요</option>
+                        {% for manager in managers %}
+                        <option value="{{ manager.id }}">{{ manager.name }} ({{ manager.new_position }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 부서 정보 -->
+        <div class="form-section">
+            <h3 class="text-xl font-semibold text-white mb-4">부서 정보</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group md:col-span-2">
+                    <label for="description">부서 설명</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" 
+                              placeholder="부서의 역할과 책임을 설명해주세요"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">위치</label>
+                    <input type="text" id="location" name="location" class="form-control" 
+                           placeholder="예: 본사 3층, 강남지점" maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">대표 전화</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" 
+                           placeholder="예: 02-1234-5678" maxlength="20">
+                </div>
+                
+                <div class="form-group md:col-span-2">
+                    <label for="email">대표 이메일</label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                           placeholder="예: dev@company.com">
+                </div>
+            </div>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="flex justify-end gap-4">
+            <a href="{% url 'organization:department_list' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors">
+                취소
+            </a>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
+                <i class="fas fa-save mr-2"></i>부서 생성
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 상위 부서 선택시 레벨 자동 조정
+document.getElementById('parent_id').addEventListener('change', function() {
+    const levelInput = document.getElementById('level');
+    if (this.value) {
+        // 상위 부서가 선택되면 레벨을 최소 2로 설정
+        if (levelInput.value < 2) {
+            levelInput.value = 2;
+        }
+    }
+});
+</script>
+{% endblock %}

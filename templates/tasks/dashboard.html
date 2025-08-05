@@ -1,0 +1,476 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}백그라운드 작업 관리{% endblock %}
+
+{% block extra_css %}
+<style>
+    .task-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .status-pending { background: #FFF3CD; color: #856404; }
+    .status-running { background: #CCE5FF; color: #004085; }
+    .status-completed { background: #D4EDDA; color: #155724; }
+    .status-failed { background: #F8D7DA; color: #721C24; }
+    
+    .task-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .progress-bar-container {
+        background: #E9ECEF;
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .progress-bar-fill {
+        background: #007BFF;
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+    
+    .priority-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    
+    .priority-CRITICAL { background: #DC3545; color: white; }
+    .priority-HIGH { background: #FD7E14; color: white; }
+    .priority-NORMAL { background: #28A745; color: white; }
+    .priority-LOW { background: #6C757D; color: white; }
+    
+    .stats-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .stats-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    .scheduled-task {
+        background: #F8F9FA;
+        border-left: 4px solid #667eea;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .action-buttons {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+    
+    .fab {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #667eea;
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="task-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1>백그라운드 작업 관리</h1>
+                <p class="mb-0">시스템 작업 모니터링 및 관리</p>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-light text-dark">
+                    {% if is_running %}
+                        <i class="fas fa-circle text-success"></i> 실행 중
+                    {% else %}
+                        <i class="fas fa-circle text-danger"></i> 중지됨
+                    {% endif %}
+                </span>
+                <span class="badge bg-light text-dark ms-2">
+                    워커: {{ worker_count }}개
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 통계 카드 -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h6 class="text-muted">활성 작업</h6>
+                <div class="stats-value">{{ active_tasks|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h6 class="text-muted">완료된 작업</h6>
+                <div class="stats-value">{{ completed_tasks|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h6 class="text-muted">예약된 작업</h6>
+                <div class="stats-value">{{ scheduled_tasks|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h6 class="text-muted">성공률</h6>
+                <div class="stats-value" id="successRate">-</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 활성 작업 -->
+    <div class="row">
+        <div class="col-md-6">
+            <h3>실행 중인 작업</h3>
+            <div id="activeTasks">
+                {% for task in active_tasks %}
+                <div class="task-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">{{ task.task_type }}</h6>
+                            <small class="text-muted">{{ task.task_id }}</small>
+                        </div>
+                        <span class="status-badge status-{{ task.status }}">{{ task.status }}</span>
+                    </div>
+                    {% if task.progress > 0 %}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: {{ task.progress }}%"></div>
+                    </div>
+                    <small class="text-muted">진행률: {{ task.progress }}%</small>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted">실행 중인 작업이 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>예약된 작업</h3>
+            <div id="scheduledTasks">
+                {% for task in scheduled_tasks %}
+                <div class="scheduled-task">
+                    <h6 class="mb-1">{{ task.task_type }}</h6>
+                    <small class="text-muted">
+                        <i class="fas fa-clock"></i> 
+                        {% if task.schedule.type == 'daily' %}
+                            매일 {{ task.schedule.hour }}:{{ task.schedule.minute|stringformat:"02d" }}
+                        {% elif task.schedule.type == 'weekly' %}
+                            매주 {{ task.schedule.hour }}:{{ task.schedule.minute|stringformat:"02d" }}
+                        {% elif task.schedule.type == 'monthly' %}
+                            매월 {{ task.schedule.day }}일 {{ task.schedule.hour }}:{{ task.schedule.minute|stringformat:"02d" }}
+                        {% endif %}
+                    </small>
+                    <br>
+                    <small class="text-muted">
+                        다음 실행: {{ task.next_run|date:"Y-m-d H:i" }}
+                    </small>
+                </div>
+                {% empty %}
+                <p class="text-muted">예약된 작업이 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 최근 완료 작업 -->
+    <div class="mt-4">
+        <h3>최근 완료된 작업</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>작업 ID</th>
+                        <th>유형</th>
+                        <th>상태</th>
+                        <th>우선순위</th>
+                        <th>시작 시간</th>
+                        <th>완료 시간</th>
+                        <th>소요 시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in completed_tasks %}
+                    <tr>
+                        <td><small>{{ task.task_id }}</small></td>
+                        <td>{{ task.task_type }}</td>
+                        <td>
+                            <span class="status-badge status-{{ task.status }}">
+                                {{ task.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-{{ task.priority }}">
+                                {% if task.priority == 4 %}CRITICAL
+                                {% elif task.priority == 3 %}HIGH
+                                {% elif task.priority == 2 %}NORMAL
+                                {% else %}LOW{% endif %}
+                            </span>
+                        </td>
+                        <td>{{ task.started_at|date:"m/d H:i:s" }}</td>
+                        <td>{{ task.completed_at|date:"m/d H:i:s" }}</td>
+                        <td>
+                            {% if task.started_at and task.completed_at %}
+                                <span id="duration-{{ forloop.counter }}"></span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 작업 통계 차트 -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="task-card">
+                <h5>작업 유형별 통계</h5>
+                <canvas id="taskTypeChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="task-card">
+                <h5>시간대별 작업 분포</h5>
+                <canvas id="hourlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 플로팅 액션 버튼 -->
+<div class="action-buttons">
+    <button class="fab" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+
+<!-- 새 작업 모달 -->
+<div class="modal fade" id="newTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">새 작업 실행</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newTaskForm">
+                    <div class="mb-3">
+                        <label class="form-label">작업 유형</label>
+                        <select class="form-select" id="taskType" required>
+                            <option value="">선택하세요</option>
+                            <option value="evaluation_processing">평가 처리</option>
+                            <option value="report_generation">리포트 생성</option>
+                            <option value="promotion_analysis">승진 분석</option>
+                            <option value="compensation_calculation">보상 계산</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">우선순위</label>
+                        <select class="form-select" id="taskPriority">
+                            <option value="LOW">낮음</option>
+                            <option value="NORMAL" selected>보통</option>
+                            <option value="HIGH">높음</option>
+                            <option value="CRITICAL">긴급</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">추가 옵션 (JSON)</label>
+                        <textarea class="form-control" id="taskMetadata" rows="3">{}</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" id="submitTaskBtn">실행</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 작업 제출
+    document.getElementById('submitTaskBtn').addEventListener('click', function() {
+        const taskType = document.getElementById('taskType').value;
+        const priority = document.getElementById('taskPriority').value;
+        const metadata = JSON.parse(document.getElementById('taskMetadata').value || '{}');
+        
+        if (!taskType) {
+            alert('작업 유형을 선택하세요.');
+            return;
+        }
+        
+        fetch("{% url 'submit_task' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                task_type: taskType,
+                priority: priority,
+                metadata: metadata
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`작업이 제출되었습니다. ID: ${data.task_id}`);
+                location.reload();
+            } else {
+                alert(`오류: ${data.error}`);
+            }
+        });
+        
+        // 모달 닫기
+        bootstrap.Modal.getInstance(document.getElementById('newTaskModal')).hide();
+    });
+    
+    // 소요 시간 계산
+    {% for task in completed_tasks %}
+        {% if task.started_at and task.completed_at %}
+        (function() {
+            const start = new Date('{{ task.started_at }}');
+            const end = new Date('{{ task.completed_at }}');
+            const duration = Math.floor((end - start) / 1000);
+            
+            let text = '';
+            if (duration < 60) {
+                text = duration + '초';
+            } else if (duration < 3600) {
+                text = Math.floor(duration / 60) + '분';
+            } else {
+                text = Math.floor(duration / 3600) + '시간';
+            }
+            
+            document.getElementById('duration-{{ forloop.counter }}').textContent = text;
+        })();
+        {% endif %}
+    {% endfor %}
+    
+    // 통계 로드 및 차트 생성
+    fetch("{% url 'task_statistics' %}")
+        .then(response => response.json())
+        .then(data => {
+            // 성공률 계산
+            let totalCompleted = 0;
+            let totalFailed = 0;
+            
+            Object.values(data.task_type_stats).forEach(stats => {
+                totalCompleted += stats.completed;
+                totalFailed += stats.failed;
+            });
+            
+            const successRate = totalCompleted + totalFailed > 0 
+                ? Math.round(totalCompleted / (totalCompleted + totalFailed) * 100)
+                : 0;
+            
+            document.getElementById('successRate').textContent = successRate + '%';
+            
+            // 작업 유형별 차트
+            const taskTypeCtx = document.getElementById('taskTypeChart').getContext('2d');
+            new Chart(taskTypeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.task_type_stats),
+                    datasets: [{
+                        data: Object.values(data.task_type_stats).map(s => s.count),
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#4facfe',
+                            '#43e97b'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // 시간대별 차트
+            const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+            new Chart(hourlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: 24}, (_, i) => i + '시'),
+                    datasets: [{
+                        label: '작업 수',
+                        data: data.hourly_distribution,
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    
+    // 실시간 업데이트 (10초마다)
+    setInterval(() => {
+        // 활성 작업 업데이트
+        // location.reload();
+    }, 10000);
+</script>
+{% endblock %}

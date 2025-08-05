@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Material-UI CSS -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{% static 'css/JobProfileTreeMap.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="job-tree-map-root">
+    <!-- React 컴포넌트가 마운트될 위치 -->
+    <div class="loading-container" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin fa-3x" style="color: #3B82F6;"></i>
+            <p style="margin-top: 16px; color: #6b7280;">직무 체계도를 불러오는 중...</p>
+        </div>
+    </div>
+</div>
+
+<!-- 직무 상세 모달 -->
+<div id="job-detail-modal" class="modal" style="display: none;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="job-detail-title">직무 상세 정보</h5>
+                <button type="button" class="btn-close" onclick="closeJobModal()"></button>
+            </div>
+            <div class="modal-body" id="job-detail-content">
+                <!-- 동적으로 채워질 내용 -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- React & Material-UI -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@mui/material@5.14.0/umd/material-ui.production.min.js"></script>
+
+<!-- Framer Motion -->
+<script src="https://unpkg.com/framer-motion@11.0.0/dist/framer-motion.js"></script>
+
+<!-- React Zoom Pan Pinch -->
+<script src="https://unpkg.com/react-zoom-pan-pinch@3.3.0/dist/index.min.js"></script>
+
+<!-- Font Awesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+// Django 컨텍스트
+const djangoContext = {
+    csrfToken: '{{ csrf_token }}',
+    apiBaseUrl: '/job-profiles/api/',
+    staticUrl: '{% static "" %}',
+    statistics: {
+        categories: {{ total_categories }},
+        jobTypes: {{ total_job_types }},
+        jobRoles: {{ total_job_roles }},
+        profiles: {{ total_profiles }}
+    }
+};
+
+// API 헬퍼
+const api = {
+    get: async (url) => {
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': djangoContext.csrfToken
+                }
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    }
+};
+
+// 직무 트리맵 데이터 로드 및 컴포넌트 초기화
+async function initializeTreeMap() {
+    try {
+        // 데이터 로드
+        const response = await api.get('/job-profiles/api/tree-map-data/');
+        if (!response.success) throw new Error(response.error);
+        
+        // React 컴포넌트 마운트
+        const { createElement } = React;
+        const root = ReactDOM.createRoot(document.getElementById('job-tree-map-root'));
+        
+        // JobProfileTreeMap 컴포넌트 (위에서 정의한 React 컴포넌트)
+        root.render(
+            createElement(JobProfileTreeMap, {
+                jobData: response.data,
+                onJobSelect: handleJobSelect
+            })
+        );
+        
+    } catch (error) {
+        console.error('초기화 실패:', error);
+        document.getElementById('job-tree-map-root').innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <i class="fas fa-exclamation-triangle fa-3x" style="color: #EF4444;"></i>
+                <p style="margin-top: 16px; color: #6b7280;">
+                    직무 체계도를 불러오는데 실패했습니다.<br>
+                    <small>${error.message}</small>
+                </p>
+                <button class="btn btn-primary mt-3" onclick="location.reload()">
+                    <i class="fas fa-redo me-2"></i>다시 시도
+                </button>
+            </div>
+        `;
+    }
+}
+
+// 직무 선택 핸들러
+async function handleJobSelect(jobInfo) {
+    console.log('Selected job:', jobInfo);
+    
+    try {
+        // 직무 상세 정보 로드
+        const response = await api.get(`/job-profiles/api/job-detail-modal/${jobInfo.jobId}/`);
+        if (!response.success) throw new Error(response.error);
+        
+        // 모달 표시
+        showJobDetailModal(response.data);
+        
+    } catch (error) {
+        console.error('직무 상세 정보 로드 실패:', error);
+        alert('직무 상세 정보를 불러올 수 없습니다.');
+    }
+}
+
+// 직무 상세 모달 표시
+function showJobDetailModal(data) {
+    const modal = document.getElementById('job-detail-modal');
+    const title = document.getElementById('job-detail-title');
+    const content = document.getElementById('job-detail-content');
+    
+    // 제목 설정
+    title.textContent = `${data.job.name} - ${data.job.full_path}`;
+    
+    // 내용 구성
+    let html = `
+        <div class="job-detail-container">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h4>${data.job.name}</h4>
+                    <p class="text-muted">${data.job.description || '설명이 없습니다.'}</p>
+                    <div class="d-flex gap-2 mt-2">
+                        <span class="badge bg-primary">${data.job.category}</span>
+                        <span class="badge bg-secondary">${data.job.job_type}</span>
+                    </div>
+                </div>
+                ${data.profile ? `
+                <div class="col-md-4 text-end">
+                    <a href="/job-profiles/${data.profile.id}/" class="btn btn-primary">
+                        <i class="fas fa-eye me-1"></i>상세보기
+                    </a>
+                    <a href="/job-profiles/admin/${data.profile.id}/" class="btn btn-outline-secondary">
+                        <i class="fas fa-edit me-1"></i>편집
+                    </a>
+                </div>
+                ` : ''}
+            </div>
+    `;
+    
+    if (data.profile) {
+        html += `
+            <div class="profile-section">
+                <h5><i class="fas fa-tasks me-2"></i>핵심 역할 및 책임</h5>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <pre class="mb-0">${data.profile.role_responsibility}</pre>
+                    </div>
+                </div>
+                
+                <h5><i class="fas fa-check-circle me-2"></i>자격 요건</h5>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <pre class="mb-0">${data.profile.qualification}</pre>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-star me-2"></i>기본 역량</h6>
+                        <div class="skill-tags">
+                            ${data.profile.basic_skills.map(skill => 
+                                `<span class="badge bg-light text-dark me-1 mb-1">${skill}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-star me-2"></i>우대 역량</h6>
+                        <div class="skill-tags">
+                            ${data.profile.applied_skills.map(skill => 
+                                `<span class="badge bg-info text-white me-1 mb-1">${skill}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                이 직무의 상세 기술서가 아직 작성되지 않았습니다.
+            </div>
+        `;
+    }
+    
+    if (data.related_jobs && data.related_jobs.length > 0) {
+        html += `
+            <hr class="my-4">
+            <h5><i class="fas fa-link me-2"></i>관련 직무</h5>
+            <div class="related-jobs">
+                ${data.related_jobs.map(job => `
+                    <span class="badge bg-light text-dark me-2 mb-2">
+                        ${job.name} ${job.has_profile ? '<i class="fas fa-check-circle text-success"></i>' : ''}
+                    </span>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    html += '</div>';
+    content.innerHTML = html;
+    
+    // 모달 표시
+    modal.style.display = 'block';
+    document.body.classList.add('modal-open');
+    
+    // 배경 오버레이 추가
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop fade show';
+    backdrop.onclick = closeJobModal;
+    document.body.appendChild(backdrop);
+}
+
+// 모달 닫기
+function closeJobModal() {
+    const modal = document.getElementById('job-detail-modal');
+    modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+    
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) backdrop.remove();
+}
+
+// ESC 키로 모달 닫기
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeJobModal();
+});
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', initializeTreeMap);
+</script>
+
+<!-- 여기에 React 컴포넌트 코드 포함 -->
+<script>
+${REACT_COMPONENT_CODE}
+</script>
+{% endblock %}

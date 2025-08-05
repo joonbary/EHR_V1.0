@@ -1,0 +1,207 @@
+{% extends 'selfservice/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .profile-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+    .profile-image-container {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto 20px;
+        border: 5px solid #dee2e6;
+    }
+    .profile-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .readonly-field {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+    .change-photo-btn {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    .change-photo-btn input[type=file] {
+        position: absolute;
+        left: -9999px;
+    }
+</style>
+{% endblock %}
+
+{% block selfservice_content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>내 정보 수정</h2>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- 프로필 사진 -->
+                <div class="profile-section text-center">
+                    <div class="profile-image-container">
+                        {% if employee.profile_image %}
+                            <img src="{{ employee.profile_image.url }}" alt="프로필" id="profilePreview">
+                        {% else %}
+                            <img src="{% static 'images/default-profile.png' %}" alt="프로필" id="profilePreview">
+                        {% endif %}
+                    </div>
+                    <label class="change-photo-btn btn btn-sm btn-secondary">
+                        <i class="fas fa-camera"></i> 사진 변경
+                        {{ form.profile_image }}
+                    </label>
+                </div>
+                
+                <!-- 기본 정보 (읽기 전용) -->
+                <div class="profile-section">
+                    <h5>기본 정보</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>사번</label>
+                                <input type="text" class="form-control readonly-field" 
+                                       value="{{ employee.id }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>이름</label>
+                                <input type="text" class="form-control readonly-field" 
+                                       value="{{ employee.name }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>부서</label>
+                                <input type="text" class="form-control readonly-field" 
+                                       value="{{ employee.department }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>직책</label>
+                                <input type="text" class="form-control readonly-field" 
+                                       value="{{ employee.position }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 연락처 정보 (수정 가능) -->
+                <div class="profile-section">
+                    <h5>연락처 정보</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ form.phone.label }}</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    <div class="text-danger">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ form.email.label }}</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{ form.address.label }}</label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                    <div class="text-danger">{{ form.address.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 비상연락처 -->
+                <div class="profile-section">
+                    <h5>비상연락처</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ form.emergency_contact.label }}</label>
+                                {{ form.emergency_contact }}
+                                {% if form.emergency_contact.errors %}
+                                    <div class="text-danger">{{ form.emergency_contact.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ form.emergency_phone.label }}</label>
+                                {{ form.emergency_phone }}
+                                {% if form.emergency_phone.errors %}
+                                    <div class="text-danger">{{ form.emergency_phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 버튼 -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 저장
+                    </button>
+                    <a href="{% url 'selfservice:dashboard' %}" class="btn btn-secondary">
+                        취소
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// 프로필 이미지 미리보기
+document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profilePreview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// 변경사항 확인
+const form = document.querySelector('form');
+const originalData = new FormData(form);
+
+form.addEventListener('submit', function(e) {
+    const currentData = new FormData(form);
+    let hasChanges = false;
+    
+    for (let [key, value] of currentData.entries()) {
+        if (originalData.get(key) !== value) {
+            hasChanges = true;
+            break;
+        }
+    }
+    
+    if (!hasChanges) {
+        e.preventDefault();
+        alert('변경된 내용이 없습니다.');
+    }
+});
+</script>
+{% endblock %} 

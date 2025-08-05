@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 대상자 목록{% endblock %}
+
+{% block extra_css %}
+<style>
+    .evaluation-card {
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .evaluation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border-color: #ff6b00;
+    }
+    
+    .evaluation-card.completed {
+        border-color: #10b981;
+        background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+    }
+    
+    .evaluation-card.in-progress {
+        border-color: #f59e0b;
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    }
+    
+    .evaluation-card.not-started {
+        border-color: #6b7280;
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    }
+    
+    .progress-bar {
+        height: 8px;
+        background-color: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%);
+        transition: width 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">기여도 평가 대상자</h1>
+                <p class="text-gray-600 mt-2">{{ active_period }} 평가 기간</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'evaluations:dashboard' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                    돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 통계 요약 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">{{ employees|length }}</div>
+                    <div class="text-sm text-gray-600">총 대상자</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">
+                        {% for emp in employees %}{% if emp.status == 'completed' %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
+                    </div>
+                    <div class="text-sm text-gray-600">평가 완료</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">
+                        {% for emp in employees %}{% if emp.status == 'in-progress' %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
+                    </div>
+                    <div class="text-sm text-gray-600">진행 중</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
+                    <i data-lucide="target" class="w-6 h-6 text-primary"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">
+                        {% for emp in employees %}{{ emp.total_tasks|add:forloop.counter0 }}{% endfor %}
+                    </div>
+                    <div class="text-sm text-gray-600">총 Task 수</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 대상자 목록 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold">평가 대상자</h2>
+            
+            <div class="flex space-x-2">
+                <select id="departmentFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">전체 부서</option>
+                    <option value="IT">IT</option>
+                    <option value="HR">인사</option>
+                    <option value="FINANCE">재무</option>
+                    <option value="MARKETING">마케팅</option>
+                    <option value="SALES">영업</option>
+                    <option value="OPERATIONS">운영</option>
+                </select>
+                
+                <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">전체 상태</option>
+                    <option value="completed">완료</option>
+                    <option value="in-progress">진행중</option>
+                    <option value="not-started">미시작</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {% for employee_data in employees %}
+            <div class="evaluation-card bg-gray-50 rounded-xl p-6 {{ employee_data.status }}"
+                 data-department="{{ employee_data.employee.department }}"
+                 data-status="{{ employee_data.status }}">
+                
+                <!-- 직원 정보 -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center">
+                            <span class="text-lg font-semibold text-primary">
+                                {{ employee_data.employee.name|first }}
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">{{ employee_data.employee.name }}</h3>
+                            <p class="text-sm text-gray-600">{{ employee_data.employee.get_department_display }} · {{ employee_data.employee.get_position_display }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if employee_data.contribution_score %}
+                    <div class="text-right">
+                        <div class="text-lg font-bold text-primary">{{ employee_data.contribution_score }}</div>
+                        <div class="text-xs text-gray-600">기여도 점수</div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Task 진행 상황 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Task 진행률</span>
+                        <span class="text-sm text-gray-600">{{ employee_data.completed_tasks }}/{{ employee_data.total_tasks }}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ employee_data.task_completion_rate }}%"></div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">{{ employee_data.task_completion_rate }}% 완료</div>
+                </div>
+                
+                <!-- 상태 및 액션 -->
+                <div class="flex justify-between items-center">
+                    <span class="px-3 py-1 rounded-full text-sm font-medium
+                        {% if employee_data.status == 'completed' %}bg-green-100 text-green-800
+                        {% elif employee_data.status == 'in-progress' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if employee_data.status == 'completed' %}완료
+                        {% elif employee_data.status == 'in-progress' %}진행중
+                        {% else %}미시작{% endif %}
+                    </span>
+                    
+                    <a href="{% url 'evaluations:contribution_evaluation' employee_data.employee.id %}" 
+                       class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors text-sm">
+                        평가하기
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-12">
+                <i data-lucide="users" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                <p class="text-gray-500">평가 대상자가 없습니다.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+// 필터링 기능
+document.getElementById('departmentFilter').addEventListener('change', filterEmployees);
+document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+
+function filterEmployees() {
+    const departmentFilter = document.getElementById('departmentFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const cards = document.querySelectorAll('.evaluation-card');
+    
+    cards.forEach(card => {
+        const department = card.dataset.department;
+        const status = card.dataset.status;
+        
+        const departmentMatch = !departmentFilter || department === departmentFilter;
+        const statusMatch = !statusFilter || status === statusFilter;
+        
+        if (departmentMatch && statusMatch) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// 페이지 로드시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

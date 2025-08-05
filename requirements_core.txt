@@ -1,0 +1,30 @@
+# Core Django dependencies
+Django==5.2.4
+djangorestframework==3.16.0
+django-environ==0.12.0
+django-filter==25.1
+dj-database-url==3.0.1
+
+# Database
+psycopg2-binary==2.9.9
+
+# Server
+gunicorn==21.2.0
+whitenoise==6.5.0
+
+# Essential packages
+Pillow==11.0.0
+pandas==2.3.0
+openpyxl==3.1.5
+python-dateutil==2.9.0
+pytz==2025.1
+
+# Authentication
+PyJWT==2.8.0
+
+# CORS
+django-cors-headers==4.5.0
+
+# Additional utilities
+requests==2.32.3
+python-dotenv==1.0.1

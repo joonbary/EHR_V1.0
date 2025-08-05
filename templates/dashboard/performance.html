@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}성과 분석 - OK금융그룹 AI-Driven HR System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">성과 분석</h1>
+        <p class="page-subtitle">{{ evaluation_period }} 평가 결과 분석</p>
+    </div>
+
+    <!-- 성과 등급 분포 카드 -->
+    <div class="row">
+        {% for grade in performance_distribution %}
+        <div class="col-md-2">
+            <div class="stat-card grade-{{ grade.grade|lower }}">
+                <div class="grade-icon">
+                    <span class="grade-letter">{{ grade.grade }}</span>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ grade.count }}명</h3>
+                    <p class="stat-label">{{ grade.percentage }}%</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 차트 섹션 -->
+    <div class="row mt-4">
+        <!-- 성과 등급 분포 차트 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">성과 등급 분포</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="gradeDistChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 부서별 평균 성과 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">부서별 평균 성과</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="deptPerformanceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 성과 상세 테이블 -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">부서별 성과 상세</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>부서</th>
+                                    <th class="text-center">평균 점수</th>
+                                    <th>성과 수준</th>
+                                    <th class="text-center">평가</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dept in dept_performance %}
+                                <tr>
+                                    <td>{{ dept.department }}</td>
+                                    <td class="text-center">
+                                        <span class="score-badge">{{ dept.avg_score }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar 
+                                                {% if dept.avg_score >= 90 %}bg-success
+                                                {% elif dept.avg_score >= 80 %}bg-info
+                                                {% elif dept.avg_score >= 70 %}bg-warning
+                                                {% else %}bg-danger{% endif %}" 
+                                                style="width: {{ dept.avg_score }}%">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if dept.avg_score >= 90 %}
+                                            <span class="badge bg-success">우수</span>
+                                        {% elif dept.avg_score >= 80 %}
+                                            <span class="badge bg-info">양호</span>
+                                        {% elif dept.avg_score >= 70 %}
+                                            <span class="badge bg-warning">보통</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">개선필요</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.grade-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.grade-s .grade-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.grade-a .grade-icon {
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    color: white;
+}
+
+.grade-b .grade-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%);
+    color: white;
+}
+
+.grade-c .grade-icon {
+    background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
+    color: white;
+}
+
+.grade-d .grade-icon {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.stat-label {
+    color: #666;
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 12px;
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.score-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #f0f0f0;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.badge {
+    padding: 6px 12px;
+    font-weight: 500;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 성과 등급 분포 차트
+    const gradeCtx = document.getElementById('gradeDistChart').getContext('2d');
+    new Chart(gradeCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for grade in performance_distribution %}'{{ grade.grade }}등급'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '인원수',
+                data: [{% for grade in performance_distribution %}{{ grade.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [
+                    '#667eea', '#4F46E5', '#3B82F6', '#F59E0B', '#EF4444'
+                ],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // 부서별 평균 성과 차트
+    const deptCtx = document.getElementById('deptPerformanceChart').getContext('2d');
+    new Chart(deptCtx, {
+        type: 'radar',
+        data: {
+            labels: [{% for dept in dept_performance %}'{{ dept.department }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '평균 성과 점수',
+                data: [{% for dept in dept_performance %}{{ dept.avg_score }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                borderColor: '#4F46E5',
+                borderWidth: 2,
+                pointBackgroundColor: '#4F46E5',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#4F46E5'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

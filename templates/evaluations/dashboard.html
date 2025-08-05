@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}평가관리 대시보드{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 진행률 애니메이션 */
+    .progress-fill {
+        transition: width 1s ease-out;
+    }
+    
+    /* 카드 호버 효과 */
+    .evaluation-card {
+        transition: all 0.3s ease;
+    }
+    
+    .evaluation-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 원형 진행률 */
+    .progress-circle {
+        transform: rotate(-90deg);
+    }
+    
+    .progress-circle-bg {
+        stroke: #e5e7eb;
+    }
+    
+    .progress-circle-fill {
+        stroke: #ff6b00;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1s ease-out;
+    }
+    
+    /* 상태 뱃지 애니메이션 */
+    .status-badge {
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">평가관리 대시보드</h1>
+                <p class="text-gray-600 mt-2">
+                    {% if active_period %}
+                        {{ active_period.year }}년 {{ active_period.get_period_type_display }} | 
+                        {{ active_period.start_date|date:"Y.m.d" }} ~ {{ active_period.end_date|date:"Y.m.d" }}
+                    {% else %}
+                        활성화된 평가 기간이 없습니다.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="flex space-x-3">
+                {% if not active_period %}
+                <a href="{% url 'evaluations:hr_admin_dashboard' %}" 
+                   class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
+                    <i data-lucide="settings" class="w-5 h-5 inline mr-2"></i>
+                    평가 기간 설정
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if active_period %}
+    <!-- 전체 진행률 -->
+    <div class="bg-gradient-to-r from-primary to-accent text-white rounded-2xl shadow-lg p-8 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold mb-4">{{ employee.name }}님의 평가 진행 현황</h2>
+                <p class="text-white/80">전체 평가 프로세스의 {{ total_progress }}% 완료</p>
+            </div>
+            <div class="relative">
+                <svg class="w-32 h-32">
+                    <circle cx="64" cy="64" r="56" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="12"></circle>
+                    <circle class="progress-circle progress-circle-fill" 
+                            cx="64" cy="64" r="56" 
+                            fill="none" 
+                            stroke="white" 
+                            stroke-width="12"
+                            stroke-dasharray="351.86"
+                            stroke-dashoffset="{{ 351.86|floatformat:2 }}"
+                            style="stroke-dashoffset: {{ 351.86|add:"-"|add:total_progress|floatformat:2 }}">
+                    </circle>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-3xl font-bold">{{ total_progress }}%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 진행률 바 -->
+        <div class="mt-6 bg-white/20 rounded-full h-4 overflow-hidden">
+            <div class="progress-fill bg-white h-full rounded-full" style="width: {{ total_progress }}%"></div>
+        </div>
+    </div>
+
+    <!-- 4단계 평가 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- 1. 기여도 평가 -->
+        <div class="evaluation-card bg-white rounded-2xl shadow-sm p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <i data-lucide="target" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    {% if contribution_eval %}
+                    <span class="status-badge px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                        완료
+                    </span>
+                    {% else %}
+                    <span class="status-badge px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                        미완료
+                    </span>
+                    {% endif %}
+                </div>
+                <h3 class="text-lg font-semibold mb-2">기여도 평가</h3>
+                <p class="text-sm text-gray-600 mb-4">업무 Task 기반 성과 평가</p>
+                
+                {% if contribution_eval %}
+                <div class="mb-4">
+                    <p class="text-2xl font-bold text-blue-600">{{ contribution_eval.total_score|default:"0" }}점</p>
+                    <p class="text-xs text-gray-500">
+                        {% if contribution_eval.is_achieved %}달성{% else %}미달성{% endif %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                <a href="{% url 'evaluations:contribution_evaluation' employee.id %}" 
+                   class="block w-full text-center py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                    {% if contribution_eval %}평가 수정{% else %}평가 시작{% endif %}
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. 전문성 평가 -->
+        <div class="evaluation-card bg-white rounded-2xl shadow-sm p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-full -mr-16 -mt-16"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                        <i data-lucide="brain" class="w-6 h-6 text-green-600"></i>
+                    </div>
+                    {% if expertise_eval %}
+                    <span class="status-badge px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                        완료
+                    </span>
+                    {% else %}
+                    <span class="status-badge px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                        미완료
+                    </span>
+                    {% endif %}
+                </div>
+                <h3 class="text-lg font-semibold mb-2">전문성 평가</h3>
+                <p class="text-sm text-gray-600 mb-4">10개 체크리스트 평가</p>
+                
+                {% if expertise_eval %}
+                <div class="mb-4">
+                    <p class="text-2xl font-bold text-green-600">{{ expertise_eval.total_score|default:"0" }}점</p>
+                    <p class="text-xs text-gray-500">
+                        {% if expertise_eval.is_achieved %}달성{% else %}미달성{% endif %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                <a href="{% url 'evaluations:expertise_evaluation' employee.id %}" 
+                   class="block w-full text-center py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors">
+                    {% if expertise_eval %}평가 수정{% else %}평가 시작{% endif %}
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. 영향력 평가 -->
+        <div class="evaluation-card bg-white rounded-2xl shadow-sm p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full -mr-16 -mt-16"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                        <i data-lucide="zap" class="w-6 h-6 text-purple-600"></i>
+                    </div>
+                    {% if impact_eval %}
+                    <span class="status-badge px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                        완료
+                    </span>
+                    {% else %}
+                    <span class="status-badge px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                        미완료
+                    </span>
+                    {% endif %}
+                </div>
+                <h3 class="text-lg font-semibold mb-2">영향력 평가</h3>
+                <p class="text-sm text-gray-600 mb-4">핵심가치 & 리더십 평가</p>
+                
+                {% if impact_eval %}
+                <div class="mb-4">
+                    <p class="text-2xl font-bold text-purple-600">{{ impact_eval.total_score|default:"0" }}점</p>
+                    <p class="text-xs text-gray-500">
+                        {% if impact_eval.is_achieved %}달성{% else %}미달성{% endif %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                <a href="{% url 'evaluations:impact_evaluation' employee.id %}" 
+                   class="block w-full text-center py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors">
+                    {% if impact_eval %}평가 수정{% else %}평가 시작{% endif %}
+                </a>
+            </div>
+        </div>
+
+        <!-- 4. 종합평가 -->
+        <div class="evaluation-card bg-white rounded-2xl shadow-sm p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-primary-light rounded-full -mr-16 -mt-16"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-primary-light rounded-xl flex items-center justify-center">
+                        <i data-lucide="award" class="w-6 h-6 text-primary"></i>
+                    </div>
+                    {% if comprehensive_eval %}
+                    <span class="status-badge px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                        완료
+                    </span>
+                    {% else %}
+                    <span class="status-badge px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                        대기
+                    </span>
+                    {% endif %}
+                </div>
+                <h3 class="text-lg font-semibold mb-2">종합평가</h3>
+                <p class="text-sm text-gray-600 mb-4">최종 등급 결정</p>
+                
+                {% if comprehensive_eval %}
+                <div class="mb-4">
+                    <p class="text-2xl font-bold text-primary">{{ comprehensive_eval.final_grade|default:"-" }}</p>
+                    <p class="text-xs text-gray-500">최종 등급</p>
+                </div>
+                {% else %}
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500">3대 평가 완료 후<br>자동 생성됩니다</p>
+                </div>
+                {% endif %}
+                
+                <button class="block w-full text-center py-2 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed" disabled>
+                    {% if progress.contribution == 25 and progress.expertise == 25 and progress.impact == 25 %}
+                        결과 확인
+                    {% else %}
+                        평가 미완료
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 빠른 링크 섹션 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 나의 평가 -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="user" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold">나의 평가</h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">본인의 평가 현황과 목표를 확인하세요</p>
+            <a href="{% url 'evaluations:my_evaluations' %}" 
+               class="text-primary hover:text-primary-hover font-medium text-sm">
+                바로가기 →
+            </a>
+        </div>
+
+        <!-- 평가자 대시보드 -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold">팀원 평가</h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">부하직원들의 평가를 진행하세요</p>
+            <a href="{% url 'evaluations:evaluator_dashboard' %}" 
+               class="text-primary hover:text-primary-hover font-medium text-sm">
+                바로가기 →
+            </a>
+        </div>
+
+        <!-- HR 관리자 -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="settings" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold">평가 관리</h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">평가 기간과 통계를 관리하세요</p>
+            <a href="{% url 'evaluations:hr_admin_dashboard' %}" 
+               class="text-primary hover:text-primary-hover font-medium text-sm">
+                바로가기 →
+            </a>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- 평가 기간이 없을 때 -->
+    <div class="bg-white rounded-2xl shadow-sm p-12 text-center">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="calendar-x" class="w-12 h-12 text-gray-400"></i>
+        </div>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">활성화된 평가 기간이 없습니다</h2>
+        <p class="text-gray-600 mb-8">HR 담당자가 평가 기간을 설정하면 평가를 시작할 수 있습니다.</p>
+        <a href="{% url 'evaluations:hr_admin_dashboard' %}" 
+           class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
+            <i data-lucide="settings" class="w-5 h-5 mr-2"></i>
+            평가 기간 관리
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// 페이지 로드 시 애니메이션
+document.addEventListener('DOMContentLoaded', function() {
+    // 진행률 바 애니메이션
+    setTimeout(() => {
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) {
+            progressFill.style.width = '{{ total_progress }}%';
+        }
+    }, 100);
+    
+    // 원형 진행률 애니메이션
+    const circle = document.querySelector('.progress-circle-fill');
+    if (circle) {
+        const circumference = 2 * Math.PI * 56;
+        const offset = circumference - ({{ total_progress }} / 100) * circumference;
+        setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+        }, 100);
+    }
+    
+    // Lucide 아이콘 초기화
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

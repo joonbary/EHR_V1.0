@@ -1,0 +1,235 @@
+{
+  "timestamp": "2025-07-26T17:07:55.803809",
+  "api_analysis": {
+    "endpoints": [
+      "dashboards/workforce-comp/"
+    ],
+    "response_structures": {
+      "compensation\\views.py": [
+        "success",
+        "error"
+      ]
+    },
+    "common_fields": [
+      "grade_distribution",
+      "error",
+      "high_performers",
+      "avg_pi_amount",
+      "avg_position_allowance",
+      "level_breakdown",
+      "avg_base_salary",
+      "total_pi_amount",
+      "role_comparison",
+      "avg_compensation",
+      "total_stats",
+      "job_type_compensation",
+      "avg_total_compensation",
+      "success",
+      "employee_count",
+      "performance_comparison",
+      "grade_compensation",
+      "managers",
+      "job_type_competency"
+    ],
+    "issues": []
+  },
+  "ui_bindings": {
+    "templates": {
+      "templates\\dashboards\\workforce_comp.html": {
+        "django_vars": [
+          "title",
+          "title",
+          "dept.department",
+          "dept.count",
+          "dept.department",
+          "dept.count"
+        ],
+        "js_bindings": []
+      },
+      "selfservice\\templates\\selfservice\\compensation_statement.html": {
+        "django_vars": [
+          "y",
+          "y",
+          "m",
+          "m",
+          "year",
+          "month",
+          "year",
+          "peer_comparison.percentile",
+          "peer_comparison.percentile",
+          "peer_comparison.percentile"
+        ],
+        "js_bindings": []
+      }
+    },
+    "javascript_bindings": {
+      "workforce_comp_fixes\\api_transformer.js": [
+        "json"
+      ],
+      "workforce_comp_fixes\\safe_data_accessor.js": [
+        "departments",
+        "employee"
+      ],
+      "workforce_comp_fixes\\WorkforceCompDashboard.jsx": [
+        "status",
+        "ok",
+        "json"
+      ]
+    },
+    "react_components": {},
+    "binding_patterns": [],
+    "issues": []
+  },
+  "field_mismatches": [
+    {
+      "backend_field": "total_salary",
+      "expected_frontend": "totalSalary",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "부서명",
+      "expected_frontend": "departmentName",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "employee_count",
+      "expected_frontend": "employeeCount",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "평균급여",
+      "expected_frontend": "avgSalary",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "hire_date",
+      "expected_frontend": "hireDate",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "직원수",
+      "expected_frontend": "employeeCount",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "department_name",
+      "expected_frontend": "departmentName",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "직급",
+      "expected_frontend": "jobTitle",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "총급여",
+      "expected_frontend": "totalSalary",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "avg_salary",
+      "expected_frontend": "avgSalary",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "job_title",
+      "expected_frontend": "jobTitle",
+      "found": false,
+      "severity": "high"
+    },
+    {
+      "backend_field": "employment_status",
+      "expected_frontend": "employmentStatus",
+      "found": false,
+      "severity": "high"
+    }
+  ],
+  "null_handling": [],
+  "test_results": {
+    "sample_data": {
+      "workforce_summary": {
+        "total_employees": 150,
+        "active_employees": 145,
+        "new_hires_month": 5,
+        "terminations_month": 2,
+        "departments": [
+          {
+            "name": "IT",
+            "count": 45,
+            "avg_salary": 80000
+          },
+          {
+            "name": "Sales",
+            "count": 30,
+            "avg_salary": 70000
+          },
+          {
+            "name": "HR",
+            "count": 15,
+            "avg_salary": 65000
+          }
+        ]
+      },
+      "compensation_summary": {
+        "total_payroll": 12500000,
+        "avg_salary": 75000,
+        "salary_range": {
+          "min": 45000,
+          "max": 150000,
+          "median": 72000
+        },
+        "benefits_cost": 2500000,
+        "bonus_pool": 1875000
+      },
+      "edge_cases": {
+        "null_department": null,
+        "empty_array": [],
+        "zero_value": 0,
+        "undefined_field": "undefined",
+        "nan_value": NaN,
+        "negative_value": -1
+      }
+    },
+    "validation_results": [
+      {
+        "field": "total_employees",
+        "message": "Must be positive",
+        "passed": true
+      },
+      {
+        "field": "departments",
+        "message": "Must be non-empty array",
+        "passed": true
+      },
+      {
+        "field": "avg_salary",
+        "message": "Must be reasonable salary",
+        "passed": true
+      },
+      {
+        "field": "null_department",
+        "message": "Should handle null",
+        "passed": true
+      }
+    ],
+    "coverage": {}
+  },
+  "recommendations": [
+    {
+      "category": "Field Naming",
+      "priority": "high",
+      "action": "Implement field name mapping layer between backend and frontend",
+      "details": "Create a transformation function to convert snake_case to camelCase"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+
+/* 스킬맵 대시보드 스타일 수정 */
+
+.skillmap-dashboard {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.dashboard-header {
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.dashboard-body {
+    padding: 0 20px;
+}
+
+/* 사이드바 패널 */
+.sidebar-panel {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.panel-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.panel-body {
+    /* 중요: 고정 높이와 스크롤 설정 */
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+/* 스크롤바 스타일링 */
+.panel-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.panel-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.panel-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.panel-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.employee-item {
+    transition: background-color 0.2s;
+}
+
+.employee-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* 히트맵 컨테이너 */
+.heatmap-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.heatmap-container.loading,
+.heatmap-container.error,
+.heatmap-container.empty {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+/* 로딩 상태 */
+.loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .panel-body {
+        max-height: 300px;
+    }
+    
+    .chart-wrapper {
+        height: 300px;
+    }
+}

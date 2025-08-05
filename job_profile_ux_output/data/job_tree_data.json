@@ -1,0 +1,884 @@
+{
+  "id": "root",
+  "name": "OK금융그룹 직무체계",
+  "type": "root",
+  "level": 0,
+  "parent_id": null,
+  "children": [
+    {
+      "id": "category_IT/디지털",
+      "name": "IT/디지털",
+      "type": "category",
+      "level": 1,
+      "parent_id": "root",
+      "children": [
+        {
+          "id": "type_IT/디지털_IT기획",
+          "name": "IT기획",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_IT/디지털",
+          "children": [
+            {
+              "id": "role_IT/디지털_IT기획_시스템기획",
+              "name": "시스템기획",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_IT/디지털_IT기획",
+              "children": [],
+              "metadata": {
+                "category": "IT/디지털",
+                "job_type": "IT기획",
+                "has_profile": true
+              },
+              "color": "#DBEAFE",
+              "icon": "fas fa-project-diagram",
+              "description": "시스템기획 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "IT/디지털",
+            "jobs_count": 1
+          },
+          "color": "#1D4ED8",
+          "icon": "fas fa-folder",
+          "description": "IT기획 직종",
+          "job_count": 1
+        },
+        {
+          "id": "type_IT/디지털_IT개발",
+          "name": "IT개발",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_IT/디지털",
+          "children": [
+            {
+              "id": "role_IT/디지털_IT개발_시스템개발",
+              "name": "시스템개발",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_IT/디지털_IT개발",
+              "children": [],
+              "metadata": {
+                "category": "IT/디지털",
+                "job_type": "IT개발",
+                "has_profile": true
+              },
+              "color": "#DBEAFE",
+              "icon": "fas fa-code",
+              "description": "시스템개발 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "IT/디지털",
+            "jobs_count": 1
+          },
+          "color": "#1D4ED8",
+          "icon": "fas fa-folder",
+          "description": "IT개발 직종",
+          "job_count": 1
+        },
+        {
+          "id": "type_IT/디지털_IT운영",
+          "name": "IT운영",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_IT/디지털",
+          "children": [
+            {
+              "id": "role_IT/디지털_IT운영_시스템관리",
+              "name": "시스템관리",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_IT/디지털_IT운영",
+              "children": [],
+              "metadata": {
+                "category": "IT/디지털",
+                "job_type": "IT운영",
+                "has_profile": true
+              },
+              "color": "#DBEAFE",
+              "icon": "fas fa-server",
+              "description": "시스템관리 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_IT/디지털_IT운영_서비스운영",
+              "name": "서비스운영",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_IT/디지털_IT운영",
+              "children": [],
+              "metadata": {
+                "category": "IT/디지털",
+                "job_type": "IT운영",
+                "has_profile": true
+              },
+              "color": "#DBEAFE",
+              "icon": "fas fa-cogs",
+              "description": "서비스운영 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "IT/디지털",
+            "jobs_count": 2
+          },
+          "color": "#1D4ED8",
+          "icon": "fas fa-folder",
+          "description": "IT운영 직종",
+          "job_count": 2
+        }
+      ],
+      "metadata": {
+        "job_types_count": 3,
+        "total_jobs": 4
+      },
+      "color": "#3B82F6",
+      "icon": "fas fa-layer-group",
+      "description": "IT/디지털 관련 업무",
+      "job_count": 4
+    },
+    {
+      "id": "category_경영지원",
+      "name": "경영지원",
+      "type": "category",
+      "level": 1,
+      "parent_id": "root",
+      "children": [
+        {
+          "id": "type_경영지원_경영관리",
+          "name": "경영관리",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_경영지원",
+          "children": [
+            {
+              "id": "role_경영지원_경영관리_감사",
+              "name": "감사",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-search",
+              "description": "감사 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_인사관리",
+              "name": "인사관리",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-users",
+              "description": "인사관리 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_인재개발",
+              "name": "인재개발",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-graduation-cap",
+              "description": "인재개발 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_경영지원",
+              "name": "경영지원",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-briefcase",
+              "description": "경영지원 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_비서",
+              "name": "비서",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-user-tie",
+              "description": "비서 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_홍보",
+              "name": "홍보",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-bullhorn",
+              "description": "홍보 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_경영기획",
+              "name": "경영기획",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-chart-line",
+              "description": "경영기획 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_디자인",
+              "name": "디자인",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-palette",
+              "description": "디자인 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_리스크관리",
+              "name": "리스크관리",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-shield-alt",
+              "description": "리스크관리 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_마케팅",
+              "name": "마케팅",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-megaphone",
+              "description": "마케팅 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_스포츠사무관리",
+              "name": "스포츠사무관리",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-running",
+              "description": "스포츠사무관리 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_자금",
+              "name": "자금",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-coins",
+              "description": "자금 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_재무회계",
+              "name": "재무회계",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-calculator",
+              "description": "재무회계 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_정보보안",
+              "name": "정보보안",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-lock",
+              "description": "정보보안 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_준법지원",
+              "name": "준법지원",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-balance-scale",
+              "description": "준법지원 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_경영지원_경영관리_총무",
+              "name": "총무",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_경영지원_경영관리",
+              "children": [],
+              "metadata": {
+                "category": "경영지원",
+                "job_type": "경영관리",
+                "has_profile": true
+              },
+              "color": "#D1FAE5",
+              "icon": "fas fa-building",
+              "description": "총무 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "경영지원",
+            "jobs_count": 16
+          },
+          "color": "#059669",
+          "icon": "fas fa-folder",
+          "description": "경영관리 직종",
+          "job_count": 16
+        }
+      ],
+      "metadata": {
+        "job_types_count": 1,
+        "total_jobs": 16
+      },
+      "color": "#10B981",
+      "icon": "fas fa-layer-group",
+      "description": "경영지원 관련 업무",
+      "job_count": 16
+    },
+    {
+      "id": "category_금융",
+      "name": "금융",
+      "type": "category",
+      "level": 1,
+      "parent_id": "root",
+      "children": [
+        {
+          "id": "type_금융_투자금융",
+          "name": "투자금융",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_금융",
+          "children": [
+            {
+              "id": "role_금융_투자금융_투자금융",
+              "name": "투자금융",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_투자금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "투자금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-chart-area",
+              "description": "투자금융 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "금융",
+            "jobs_count": 1
+          },
+          "color": "#D97706",
+          "icon": "fas fa-folder",
+          "description": "투자금융 직종",
+          "job_count": 1
+        },
+        {
+          "id": "type_금융_기업금융",
+          "name": "기업금융",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_금융",
+          "children": [
+            {
+              "id": "role_금융_기업금융_기업영업기획",
+              "name": "기업영업기획",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_기업금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "기업금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-handshake",
+              "description": "기업영업기획 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_기업금융_기업여신심사",
+              "name": "기업여신심사",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_기업금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "기업금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-file-contract",
+              "description": "기업여신심사 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_기업금융_기업여신관리",
+              "name": "기업여신관리",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_기업금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "기업금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-tasks",
+              "description": "기업여신관리 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "금융",
+            "jobs_count": 3
+          },
+          "color": "#D97706",
+          "icon": "fas fa-folder",
+          "description": "기업금융 직종",
+          "job_count": 3
+        },
+        {
+          "id": "type_금융_리테일금융",
+          "name": "리테일금융",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_금융",
+          "children": [
+            {
+              "id": "role_금융_리테일금융_데이터분석",
+              "name": "데이터분석",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_리테일금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "리테일금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-chart-bar",
+              "description": "데이터분석 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_리테일금융_디지털플랫폼",
+              "name": "디지털플랫폼",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_리테일금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "리테일금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-mobile-alt",
+              "description": "디지털플랫폼 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_리테일금융_NPL사업기획",
+              "name": "NPL사업기획",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_리테일금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "리테일금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-clipboard-list",
+              "description": "NPL사업기획 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_리테일금융_리테일심사기획",
+              "name": "리테일심사기획",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_리테일금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "리테일금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-user-check",
+              "description": "리테일심사기획 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_리테일금융_개인신용대출기획",
+              "name": "개인신용대출기획",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_리테일금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "리테일금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-credit-card",
+              "description": "개인신용대출기획 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_리테일금융_모기지기획",
+              "name": "모기지기획",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_리테일금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "리테일금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-home",
+              "description": "모기지기획 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_리테일금융_예금기획",
+              "name": "예금기획",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_리테일금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "리테일금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-piggy-bank",
+              "description": "예금기획 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_금융_리테일금융_예금영업",
+              "name": "예금영업",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_금융_리테일금융",
+              "children": [],
+              "metadata": {
+                "category": "금융",
+                "job_type": "리테일금융",
+                "has_profile": true
+              },
+              "color": "#FEF3C7",
+              "icon": "fas fa-money-bill-wave",
+              "description": "예금영업 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "금융",
+            "jobs_count": 8
+          },
+          "color": "#D97706",
+          "icon": "fas fa-folder",
+          "description": "리테일금융 직종",
+          "job_count": 8
+        }
+      ],
+      "metadata": {
+        "job_types_count": 3,
+        "total_jobs": 12
+      },
+      "color": "#F59E0B",
+      "icon": "fas fa-layer-group",
+      "description": "금융 관련 업무",
+      "job_count": 12
+    },
+    {
+      "id": "category_영업",
+      "name": "영업",
+      "type": "category",
+      "level": 1,
+      "parent_id": "root",
+      "children": [
+        {
+          "id": "type_영업_기업영업",
+          "name": "기업영업",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_영업",
+          "children": [
+            {
+              "id": "role_영업_기업영업_기업여신영업",
+              "name": "기업여신영업",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_영업_기업영업",
+              "children": [],
+              "metadata": {
+                "category": "영업",
+                "job_type": "기업영업",
+                "has_profile": true
+              },
+              "color": "#FECACA",
+              "icon": "fas fa-user-friends",
+              "description": "기업여신영업 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "영업",
+            "jobs_count": 1
+          },
+          "color": "#DC2626",
+          "icon": "fas fa-folder",
+          "description": "기업영업 직종",
+          "job_count": 1
+        }
+      ],
+      "metadata": {
+        "job_types_count": 1,
+        "total_jobs": 1
+      },
+      "color": "#EF4444",
+      "icon": "fas fa-layer-group",
+      "description": "영업 관련 업무",
+      "job_count": 1
+    },
+    {
+      "id": "category_고객서비스",
+      "name": "고객서비스",
+      "type": "category",
+      "level": 1,
+      "parent_id": "root",
+      "children": [
+        {
+          "id": "type_고객서비스_고객지원",
+          "name": "고객지원",
+          "type": "job_type",
+          "level": 2,
+          "parent_id": "category_고객서비스",
+          "children": [
+            {
+              "id": "role_고객서비스_고객지원_대출고객지원",
+              "name": "대출고객지원",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_고객서비스_고객지원",
+              "children": [],
+              "metadata": {
+                "category": "고객서비스",
+                "job_type": "고객지원",
+                "has_profile": true
+              },
+              "color": "#E0E7FF",
+              "icon": "fas fa-headset",
+              "description": "대출고객지원 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_고객서비스_고객지원_업무지원",
+              "name": "업무지원",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_고객서비스_고객지원",
+              "children": [],
+              "metadata": {
+                "category": "고객서비스",
+                "job_type": "고객지원",
+                "has_profile": true
+              },
+              "color": "#E0E7FF",
+              "icon": "fas fa-hands-helping",
+              "description": "업무지원 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_고객서비스_고객지원_예금고객지원",
+              "name": "예금고객지원",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_고객서비스_고객지원",
+              "children": [],
+              "metadata": {
+                "category": "고객서비스",
+                "job_type": "고객지원",
+                "has_profile": true
+              },
+              "color": "#E0E7FF",
+              "icon": "fas fa-user-shield",
+              "description": "예금고객지원 직무",
+              "job_count": 1
+            },
+            {
+              "id": "role_고객서비스_고객지원_채권관리",
+              "name": "채권관리",
+              "type": "job_role",
+              "level": 3,
+              "parent_id": "type_고객서비스_고객지원",
+              "children": [],
+              "metadata": {
+                "category": "고객서비스",
+                "job_type": "고객지원",
+                "has_profile": true
+              },
+              "color": "#E0E7FF",
+              "icon": "fas fa-file-invoice-dollar",
+              "description": "채권관리 직무",
+              "job_count": 1
+            }
+          ],
+          "metadata": {
+            "category": "고객서비스",
+            "jobs_count": 4
+          },
+          "color": "#7C3AED",
+          "icon": "fas fa-folder",
+          "description": "고객지원 직종",
+          "job_count": 4
+        }
+      ],
+      "metadata": {
+        "job_types_count": 1,
+        "total_jobs": 4
+      },
+      "color": "#8B5CF6",
+      "icon": "fas fa-layer-group",
+      "description": "고객서비스 관련 업무",
+      "job_count": 4
+    }
+  ],
+  "metadata": {
+    "total_categories": 5,
+    "total_jobs": 37
+  },
+  "color": "#1F2937",
+  "icon": "fas fa-sitemap",
+  "description": "전체 직무 체계도",
+  "job_count": 37
+}

@@ -1,0 +1,189 @@
+{
+    "data": [
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "\uacc4\uc815\uacc4 \uac1c\ubc1c \uc6b4\uc601\uc5c5\ubb34 \uc9c0\uc6d0 (\uc5d0\ud504\uc5d4\ube44\uc778\ud3ec\ucf54\ub9ac\uc544)",
+            "staff_type": "resident",
+            "headcount": 15,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "\ucc44\ub110\uacc4 \uac1c\ubc1c \uc6b4\uc601\uc5c5\ubb34 \uc9c0\uc6d0 (\uc640\uc774\uc988\ub7a9)",
+            "staff_type": "resident",
+            "headcount": 23,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "UNIS \uac1c\ubc1c \uc6b4\uc601\uc5c5\ubb34 \uc9c0\uc6d0 (\ubc45\ud06c\uc6e8\uc5b4\uae00\ub85c\ubc8c)",
+            "staff_type": "resident",
+            "headcount": 15,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "\uc778\ud504\ub77c \ubd80\ubd84 \ud1b5\ud569 \uc720\uc9c0\ubcf4\uc218 (\uba54\ud0c0\ub137\ud2f0\ud50c\ub7ab\ud3fc)",
+            "staff_type": "resident",
+            "headcount": 4,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "\ubcf4\uc548\uad00\uc81c \ubc0f \ucee8\uc124\ud305 \uc11c\ube44\uc2a4 (SK\uc274\ub354\uc2a4)",
+            "staff_type": "resident",
+            "headcount": 5,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "\ubcf8.\uc9c0\uc810 \uc804\uc0b0\uc7a5\ube44 \uc720\uc9c0\ubcf4\uc218 (\ucf00\uc774\uc6d0)",
+            "staff_type": "resident",
+            "headcount": 7,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "OCR\uad50\uccb4 \ubc0f \uc5bc\uad74\uc778\uc2dd \uc194\ub8e8\uc158 \ub3c4\uc785 (\uc54c\uccb4\ub77c)",
+            "staff_type": "non_resident",
+            "headcount": 1,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "\uac00\uc0c1\ud654\uc194\ub8e8\uc158 PoC (\uc774\ub178\uadf8\ub9ac\ub4dc)",
+            "staff_type": "non_resident",
+            "headcount": 4,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ub370\uc774\ud130\uc2dc\uc2a4\ud15c",
+            "project_name": "25\ub144 \uc0c1\ubc18\uae30 \uadf8\ub8f9\uc0ac \uc790\uc0b0\uc2e4\uc0ac (\ucf00\uc774\uc6d0)",
+            "staff_type": "non_resident",
+            "headcount": 2,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\uc815\ubcf4\ubcf4\ud638",
+            "project_name": "OK PAY \uc2dc\uc2a4\ud15c \uc6b4\uc601\uc5c5\ubb34 \uc9c0\uc6d0 (\ud39c\ud0c0\uc6cd\uc2a4)",
+            "staff_type": "resident",
+            "headcount": 3,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ud640\ub529\uc2a4",
+            "project_name": "\uc790\uc0b0\uc6b4\uc6a9\uc2dc\uc2a4\ud15c \uad6c\ucd95 (\ub178\uc544\uc5d0\uc774\ud2f0\uc5d0\uc2a4)",
+            "staff_type": "project",
+            "headcount": 9,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ud640\ub529\uc2a4",
+            "project_name": "\uc2a4\ucf54\uc5b4 \uac80\uc99d \ubc0f \uc804\ub7b5 \ucee8\uc124\ud305 (\ud53c\ud50c\ud380\ub4dc)",
+            "staff_type": "project",
+            "headcount": 1,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ud640\ub529\uc2a4",
+            "project_name": "\ud1b5\ud569\ucee8\ud0dd\uc13c\ud130 \uc624\ud0a4\ud1a1 \uc720\uc9c0\ubcf4\uc218 (\uc5e0\ube44\uc544\uc774\uc194\ub8e8\uc158)",
+            "staff_type": "non_resident",
+            "headcount": 1,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\ud640\ub529\uc2a4",
+            "project_name": "\uc790\uc0b0\uc6b4\uc6a9\uc2dc\uc2a4\ud15c \uad6c\ucd95 (\ub178\uc544\uc5d0\uc774\ud2f0\uc5d0\uc2a4)",
+            "staff_type": "non_resident",
+            "headcount": 3,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\uce90\ud53c\ud0c8",
+            "project_name": "\ube44\uad50\ub300\ucd9c \ud50c\ub7ab\ud3fc \uc6b4\uc601\uc5c5\ubb34 \uc9c0\uc6d0 (\ud50c\ub798\ub2dd\ucf54\ub4dc)",
+            "staff_type": "resident",
+            "headcount": 4,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        },
+        {
+            "company_name": "OK\uce90\ud53c\ud0c8",
+            "project_name": "\uac70\uc808\uc790 \uc5f0\uacc4 \ubaa8\ud615\uac1c\ubc1c & \ubd84\uc11d (\uc5b4\ub2c8\uc2a4\ud2b8)",
+            "staff_type": "project",
+            "headcount": 1,
+            "previous_headcount": 0,
+            "headcount_change": 0,
+            "change_rate": 0.0,
+            "change_status": "maintain",
+            "report_date": "2025-07-01"
+        }
+    ],
+    "summary": {
+        "total_headcount": 98,
+        "total_resident": 76,
+        "total_non_resident": 11,
+        "total_project": 11,
+        "company_count": 4,
+        "project_count": 15
+    },
+    "report_date": "2025-07-01"
+}

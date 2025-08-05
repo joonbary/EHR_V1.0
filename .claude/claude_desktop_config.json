@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:/Users/apro/OneDrive/Desktop/EHR_V1.0"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "task-manager": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_task_manager"
+      ],
+      "env": {
+        "TASK_STORAGE_PATH": "C:/Users/apro/OneDrive/Desktop/EHR_V1.0/.claude/tasks.json"
+      }
+    }
+  }
+}

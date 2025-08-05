@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ department.name }} - 부서 상세{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .employee-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        transition: all 0.3s ease;
+    }
+    .employee-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    .history-item {
+        position: relative;
+        padding-left: 30px;
+        padding-bottom: 20px;
+        border-left: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        background: #3b82f6;
+        border-radius: 50%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <nav class="text-sm text-gray-400 mb-4">
+            <a href="{% url 'organization:dashboard' %}" class="hover:text-white">조직관리</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'organization:department_list' %}" class="hover:text-white">부서 목록</a>
+            <span class="mx-2">/</span>
+            <span class="text-white">{{ department.name }}</span>
+        </nav>
+        
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">{{ department.name }}</h1>
+                <p class="text-gray-300">{{ full_path }}</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{% url 'organization:department_create' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-edit mr-2"></i>수정
+                </a>
+                {% if department.is_active %}
+                <button class="bg-green-500 bg-opacity-20 text-green-400 px-4 py-2 rounded-lg cursor-not-allowed">
+                    <i class="fas fa-check-circle mr-2"></i>활성
+                </button>
+                {% else %}
+                <button class="bg-red-500 bg-opacity-20 text-red-400 px-4 py-2 rounded-lg cursor-not-allowed">
+                    <i class="fas fa-times-circle mr-2"></i>비활성
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 부서 정보 -->
+        <div class="lg:col-span-1">
+            <div class="info-card mb-6">
+                <h3 class="text-lg font-semibold text-white mb-4">부서 정보</h3>
+                <dl class="space-y-3">
+                    <div>
+                        <dt class="text-sm text-gray-400">부서 코드</dt>
+                        <dd class="text-white font-medium">{{ department.code }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-400">부서 유형</dt>
+                        <dd class="text-white font-medium">{{ department.get_department_type_display }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-400">조직 레벨</dt>
+                        <dd class="text-white font-medium">Level {{ department.level }}</dd>
+                    </div>
+                    {% if department.manager %}
+                    <div>
+                        <dt class="text-sm text-gray-400">부서장</dt>
+                        <dd class="text-white font-medium">
+                            <i class="fas fa-user-tie mr-1"></i>{{ department.manager.name }}
+                        </dd>
+                    </div>
+                    {% endif %}
+                    {% if department.location %}
+                    <div>
+                        <dt class="text-sm text-gray-400">위치</dt>
+                        <dd class="text-white font-medium">{{ department.location }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if department.phone %}
+                    <div>
+                        <dt class="text-sm text-gray-400">대표 전화</dt>
+                        <dd class="text-white font-medium">{{ department.phone }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if department.email %}
+                    <div>
+                        <dt class="text-sm text-gray-400">대표 이메일</dt>
+                        <dd class="text-white font-medium">{{ department.email }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+
+            <!-- 하위 부서 -->
+            {% if sub_departments %}
+            <div class="info-card">
+                <h3 class="text-lg font-semibold text-white mb-4">하위 부서</h3>
+                <div class="space-y-2">
+                    {% for sub_dept in sub_departments %}
+                    <a href="{% url 'organization:department_detail' sub_dept.id %}" class="block bg-blue-500 bg-opacity-10 hover:bg-opacity-20 border border-blue-500 border-opacity-30 rounded-lg p-3 transition-all">
+                        <div class="flex justify-between items-center">
+                            <span class="text-white">{{ sub_dept.name }}</span>
+                            <span class="text-sm text-gray-400">{{ sub_dept.employee_count }}명</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 부서 직원 목록 -->
+        <div class="lg:col-span-2">
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-white mb-4">
+                    부서 직원 <span class="text-sm text-gray-400">({{ employees.count }}명)</span>
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for employee in employees %}
+                    <div class="employee-card">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h4 class="font-semibold text-white">{{ employee.name }}</h4>
+                                <p class="text-sm text-gray-300">{{ employee.new_position }}</p>
+                                <p class="text-sm text-gray-400 mt-1">
+                                    <span class="inline-block px-2 py-1 bg-purple-500 bg-opacity-20 text-purple-400 text-xs rounded">
+                                        Lv.{{ employee.growth_level }}
+                                    </span>
+                                    {% if employee.manager %}
+                                    <span class="ml-2">관리자: {{ employee.manager.name }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <a href="{% url 'employees:employee_detail' employee.id %}" class="text-blue-400 hover:text-blue-300">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-400 col-span-2">부서에 배치된 직원이 없습니다.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 부서 변경 이력 -->
+            {% if history %}
+            <div>
+                <h3 class="text-xl font-semibold text-white mb-4">부서 변경 이력</h3>
+                <div class="space-y-0">
+                    {% for hist in history %}
+                    <div class="history-item">
+                        <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="inline-block px-2 py-1 bg-blue-500 bg-opacity-20 text-blue-400 text-xs rounded">
+                                    {{ hist.get_change_type_display }}
+                                </span>
+                                <span class="text-sm text-gray-400">{{ hist.changed_date|date:"Y년 m월 d일" }}</span>
+                            </div>
+                            {% if hist.old_name or hist.new_name %}
+                            <p class="text-sm text-gray-300">
+                                {% if hist.old_name %}{{ hist.old_name }}{% endif %}
+                                {% if hist.old_name and hist.new_name %}→{% endif %}
+                                {% if hist.new_name %}{{ hist.new_name }}{% endif %}
+                            </p>
+                            {% endif %}
+                            <p class="text-sm text-gray-400 mt-1">{{ hist.reason }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

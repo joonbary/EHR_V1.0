@@ -1,0 +1,540 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}전문성 평가 - {{ employee.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 체크리스트 카드 스타일 */
+    .checklist-card {
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .checklist-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border-color: #ff6b00;
+    }
+    
+    /* 레벨 선택 버튼 */
+    .level-button {
+        transition: all 0.2s;
+        border: 2px solid #e5e7eb;
+    }
+    
+    .level-button:hover {
+        border-color: #ff6b00;
+        transform: scale(1.05);
+    }
+    
+    .level-button.selected {
+        background-color: #ff6b00;
+        color: white;
+        border-color: #ff6b00;
+    }
+    
+    /* 점수 표시 뱃지 */
+    .score-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 18px;
+    }
+    
+    .score-badge.level-1 { background-color: #fee2e2; color: #dc2626; }
+    .score-badge.level-2 { background-color: #fef3c7; color: #d97706; }
+    .score-badge.level-3 { background-color: #dbeafe; color: #2563eb; }
+    .score-badge.level-4 { background-color: #d1fae5; color: #059669; }
+    
+    /* 진행률 링 */
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    
+    .progress-ring__circle {
+        transition: stroke-dashoffset 0.35s;
+        transform-origin: 50% 50%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">전문성 평가</h1>
+                <p class="text-gray-600 mt-2">{{ employee.name }} ({{ employee.employee_id }}) | {{ active_period }}</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="saveEvaluation()" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    저장하기
+                </button>
+                <a href="{% url 'evaluations:dashboard' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                    돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 전문성 레벨 요구사항 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold mb-4">전문성 레벨 요구사항</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <p class="text-sm text-gray-600 mb-2">현재 성장레벨</p>
+                <div class="flex items-center space-x-3">
+                    <span class="text-3xl font-bold text-primary">{{ employee.growth_level }}</span>
+                    <span class="text-gray-600">레벨</span>
+                </div>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-2">전문성 목표 점수</p>
+                <div class="flex items-center space-x-3">
+                    <span class="text-3xl font-bold text-blue-600">{{ evaluation.required_level }}</span>
+                    <span class="text-gray-600">점 이상</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 점수 기준 설명 -->
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="font-medium mb-3">평가 레벨 기준</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="score-badge level-1 mx-auto mb-2">1</div>
+                    <p class="font-medium text-gray-900 mb-1">이해</p>
+                    <p class="text-xs text-gray-600">기본 개념을 이해하고 지시에 따라 수행</p>
+                </div>
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="score-badge level-2 mx-auto mb-2">2</div>
+                    <p class="font-medium text-gray-900 mb-1">적용</p>
+                    <p class="text-xs text-gray-600">지식을 실무에 적용하여 독립적으로 수행</p>
+                </div>
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="score-badge level-3 mx-auto mb-2">3</div>
+                    <p class="font-medium text-gray-900 mb-1">자문</p>
+                    <p class="text-xs text-gray-600">전문성으로 타인에게 조언과 가이드 제공</p>
+                </div>
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="score-badge level-4 mx-auto mb-2">4</div>
+                    <p class="font-medium text-gray-900 mb-1">창의</p>
+                    <p class="text-xs text-gray-600">새로운 방법론을 창출하고 혁신을 주도</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 평가 진행률 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-semibold">평가 진행률</h2>
+                <p class="text-sm text-gray-600 mt-1">10개 항목 중 <span id="completedCount">0</span>개 완료</p>
+            </div>
+            <div class="relative">
+                <svg class="progress-ring" width="120" height="120">
+                    <circle class="text-gray-200" stroke="currentColor" stroke-width="8" fill="none" cx="60" cy="60" r="52"></circle>
+                    <circle class="progress-ring__circle text-primary" stroke="currentColor" stroke-width="8" fill="none" cx="60" cy="60" r="52"
+                            style="stroke-dasharray: 326.73; stroke-dashoffset: 326.73;"></circle>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-2xl font-bold" id="progressPercent">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 전문성 체크리스트 -->
+    <form id="evaluationForm" method="post">
+        {% csrf_token %}
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold mb-6">전문성 평가 체크리스트</h2>
+            
+            <div class="space-y-4">
+                <!-- 1. 창의적 문제해결 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">1. 창의적 문제해결</h3>
+                            <p class="text-sm text-gray-600">새로운 아이디어나 접근방법으로 문제를 해결하고 업무 효율성을 높이는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('creative_solution', {{ i }})"
+                                    data-field="creative_solution" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="creative_solution" id="creative_solution" value="{{ evaluation.creative_solution|default:0 }}">
+                </div>
+
+                <!-- 2. 기술 혁신 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">2. 기술 혁신</h3>
+                            <p class="text-sm text-gray-600">새로운 기술이나 방법론을 도입하여 업무 프로세스를 개선하는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('technical_innovation', {{ i }})"
+                                    data-field="technical_innovation" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="technical_innovation" id="technical_innovation" value="{{ evaluation.technical_innovation|default:0 }}">
+                </div>
+
+                <!-- 3. 프로세스 개선 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">3. 프로세스 개선</h3>
+                            <p class="text-sm text-gray-600">업무 프로세스를 분석하고 개선하여 효율성을 향상시키는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('process_improvement', {{ i }})"
+                                    data-field="process_improvement" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="process_improvement" id="process_improvement" value="{{ evaluation.process_improvement|default:0 }}">
+                </div>
+
+                <!-- 4. 지식 공유 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">4. 지식 공유</h3>
+                            <p class="text-sm text-gray-600">전문 지식을 문서화하고 팀원들과 적극적으로 공유하는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('knowledge_sharing', {{ i }})"
+                                    data-field="knowledge_sharing" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="knowledge_sharing" id="knowledge_sharing" value="{{ evaluation.knowledge_sharing|default:0 }}">
+                </div>
+
+                <!-- 5. 멘토링 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">5. 멘토링</h3>
+                            <p class="text-sm text-gray-600">후배 직원들의 성장을 위해 적극적으로 멘토링을 수행하는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('mentoring', {{ i }})"
+                                    data-field="mentoring" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="mentoring" id="mentoring" value="{{ evaluation.mentoring|default:0 }}">
+                </div>
+
+                <!-- 6. 부서간 협업 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">6. 부서간 협업</h3>
+                            <p class="text-sm text-gray-600">다른 부서와 적극적으로 협업하여 시너지를 창출하는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('cross_functional', {{ i }})"
+                                    data-field="cross_functional" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="cross_functional" id="cross_functional" value="{{ evaluation.cross_functional|default:0 }}">
+                </div>
+
+                <!-- 7. 전략적 사고 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">7. 전략적 사고</h3>
+                            <p class="text-sm text-gray-600">장기적 관점에서 업무를 계획하고 전략적으로 접근하는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('strategic_thinking', {{ i }})"
+                                    data-field="strategic_thinking" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="strategic_thinking" id="strategic_thinking" value="{{ evaluation.strategic_thinking|default:0 }}">
+                </div>
+
+                <!-- 8. 비즈니스 통찰력 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">8. 비즈니스 통찰력</h3>
+                            <p class="text-sm text-gray-600">비즈니스 환경을 이해하고 업무에 적용하는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('business_acumen', {{ i }})"
+                                    data-field="business_acumen" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="business_acumen" id="business_acumen" value="{{ evaluation.business_acumen|default:0 }}">
+                </div>
+
+                <!-- 9. 업계 트렌드 파악 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">9. 업계 트렌드 파악</h3>
+                            <p class="text-sm text-gray-600">금융업계 트렌드를 파악하고 업무에 반영하는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('industry_trend', {{ i }})"
+                                    data-field="industry_trend" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="industry_trend" id="industry_trend" value="{{ evaluation.industry_trend|default:0 }}">
+                </div>
+
+                <!-- 10. 지속적 학습 -->
+                <div class="checklist-card bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">10. 지속적 학습</h3>
+                            <p class="text-sm text-gray-600">자기계발을 위해 지속적으로 학습하고 성장하는가?</p>
+                        </div>
+                        <div class="ml-6 flex space-x-2">
+                            {% for i in "1234"|make_list %}
+                            <button type="button" 
+                                    class="level-button w-12 h-12 rounded-lg flex items-center justify-center font-semibold"
+                                    onclick="selectLevel('continuous_learning', {{ i }})"
+                                    data-field="continuous_learning" data-level="{{ i }}">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="continuous_learning" id="continuous_learning" value="{{ evaluation.continuous_learning|default:0 }}">
+                </div>
+            </div>
+
+            <!-- 전문성 초점 선택 -->
+            <div class="mt-8 p-6 bg-primary-light rounded-xl">
+                <h3 class="font-semibold mb-4">전문성 초점 영역</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="flex items-center space-x-3 cursor-pointer p-4 border-2 border-transparent rounded-lg hover:border-primary transition-colors">
+                        <input type="radio" name="expertise_focus" value="hard_skill" 
+                               {% if evaluation.expertise_focus == 'hard_skill' %}checked{% endif %}
+                               class="w-4 h-4 text-primary focus:ring-primary">
+                        <div>
+                            <span class="font-medium">Hard Skill Focused</span>
+                            <p class="text-sm text-gray-600">기술적 역량과 전문 지식 중심</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer p-4 border-2 border-transparent rounded-lg hover:border-primary transition-colors">
+                        <input type="radio" name="expertise_focus" value="balanced" 
+                               {% if evaluation.expertise_focus == 'balanced' or not evaluation.expertise_focus %}checked{% endif %}
+                               class="w-4 h-4 text-primary focus:ring-primary">
+                        <div>
+                            <span class="font-medium">Balanced</span>
+                            <p class="text-sm text-gray-600">기술적 역량과 소프트 스킬의 균형</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 총점 및 평가 결과 -->
+            <div class="mt-8 p-6 bg-gray-100 rounded-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-lg">전문성 평가 결과</h3>
+                        <p class="text-sm text-gray-600 mt-1">10개 항목 평균 점수</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-bold text-primary" id="totalScore">0</div>
+                        <div class="text-sm mt-1">
+                            <span id="achievementStatus" class="px-3 py-1 rounded-full text-xs font-medium">
+                                평가 중
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 평가자 의견 -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">평가자 의견</label>
+                <textarea name="comments" 
+                          rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                          placeholder="평가 대상자의 전문성에 대한 종합적인 의견을 작성해주세요.">{{ evaluation.comments }}</textarea>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// 레벨 선택
+function selectLevel(field, level) {
+    // 이전 선택 제거
+    document.querySelectorAll(`button[data-field="${field}"]`).forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // 새 선택 추가
+    const selectedBtn = document.querySelector(`button[data-field="${field}"][data-level="${level}"]`);
+    selectedBtn.classList.add('selected');
+    
+    // 히든 필드 업데이트
+    document.getElementById(field).value = level;
+    
+    // 점수 재계산
+    calculateScore();
+    updateProgress();
+}
+
+// 점수 계산
+function calculateScore() {
+    const fields = [
+        'creative_solution', 'technical_innovation', 'process_improvement',
+        'knowledge_sharing', 'mentoring', 'cross_functional',
+        'strategic_thinking', 'business_acumen', 'industry_trend',
+        'continuous_learning'
+    ];
+    
+    let total = 0;
+    let count = 0;
+    
+    fields.forEach(field => {
+        const value = parseInt(document.getElementById(field).value) || 0;
+        if (value > 0) {
+            total += value;
+            count++;
+        }
+    });
+    
+    const average = count > 0 ? (total / count).toFixed(1) : 0;
+    document.getElementById('totalScore').textContent = average;
+    
+    // 달성 여부 표시
+    const requiredScore = {{ evaluation.required_level }};
+    const statusEl = document.getElementById('achievementStatus');
+    
+    if (average >= requiredScore) {
+        statusEl.textContent = '달성';
+        statusEl.className = 'px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+    } else {
+        statusEl.textContent = '미달성';
+        statusEl.className = 'px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+    }
+}
+
+// 진행률 업데이트
+function updateProgress() {
+    const fields = [
+        'creative_solution', 'technical_innovation', 'process_improvement',
+        'knowledge_sharing', 'mentoring', 'cross_functional',
+        'strategic_thinking', 'business_acumen', 'industry_trend',
+        'continuous_learning'
+    ];
+    
+    let completed = 0;
+    fields.forEach(field => {
+        const value = parseInt(document.getElementById(field).value) || 0;
+        if (value > 0) completed++;
+    });
+    
+    const percent = (completed / 10) * 100;
+    document.getElementById('completedCount').textContent = completed;
+    document.getElementById('progressPercent').textContent = Math.round(percent) + '%';
+    
+    // 진행률 링 업데이트
+    const circle = document.querySelector('.progress-ring__circle');
+    const radius = 52;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (percent / 100) * circumference;
+    circle.style.strokeDashoffset = offset;
+}
+
+// 평가 저장
+function saveEvaluation() {
+    document.getElementById('evaluationForm').submit();
+}
+
+// 페이지 로드시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    // 기존 값 표시
+    const fields = [
+        'creative_solution', 'technical_innovation', 'process_improvement',
+        'knowledge_sharing', 'mentoring', 'cross_functional',
+        'strategic_thinking', 'business_acumen', 'industry_trend',
+        'continuous_learning'
+    ];
+    
+    fields.forEach(field => {
+        const value = parseInt(document.getElementById(field).value) || 0;
+        if (value > 0) {
+            const btn = document.querySelector(`button[data-field="${field}"][data-level="${value}"]`);
+            if (btn) btn.classList.add('selected');
+        }
+    });
+    
+    calculateScore();
+    updateProgress();
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

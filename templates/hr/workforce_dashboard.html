@@ -1,0 +1,513 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}주간 인력현황 - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .stats-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    
+    .change-positive {
+        color: #10b981;
+    }
+    
+    .change-negative {
+        color: #ef4444;
+    }
+    
+    .upload-area {
+        border: 2px dashed #e5e7eb;
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-area:hover {
+        border-color: #3b82f6;
+        background-color: #f0f9ff;
+    }
+    
+    .upload-area.dragover {
+        border-color: #3b82f6;
+        background-color: #dbeafe;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- 헤더 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-1">주간 인력현황 관리</h2>
+            <p class="text-muted mb-0">매주 OK금융그룹 전체 인력현황을 관리하고 분석합니다</p>
+        </div>
+    </div>
+    
+    <!-- 요약 정보 카드 -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">전체 인원</h6>
+                        <h3 class="mb-0" id="totalHeadcount">0</h3>
+                        <small class="text-muted">기준일: <span id="snapshotDate">-</span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-success bg-opacity-10 text-success me-3">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">주간 입사</h6>
+                        <h3 class="mb-0" id="joinCount">0</h3>
+                        <small class="text-muted">최근 7일</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
+                        <i class="bi bi-person-dash-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">주간 퇴사</h6>
+                        <h3 class="mb-0" id="leaveCount">0</h3>
+                        <small class="text-muted">최근 7일</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">전주 대비</h6>
+                        <h3 class="mb-0">
+                            <span id="changeRate">0</span>%
+                        </h3>
+                        <small class="text-muted">증감률</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 파일 업로드 영역 -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">인력현황 파일 업로드</h5>
+                </div>
+                <div class="card-body">
+                    <div class="upload-area" id="snapshotUploadArea">
+                        <i class="bi bi-cloud-upload fs-1 text-muted mb-3"></i>
+                        <h6>emp_upload.xlsx 파일을 드래그하거나 클릭하여 업로드</h6>
+                        <p class="text-muted mb-0">파일 형식: 직급구분, 회사, 직책, 직위</p>
+                        <input type="file" id="snapshotFileInput" class="d-none" accept=".xlsx,.xls">
+                    </div>
+                    <div id="snapshotUploadResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">입/퇴사자 명단 업로드</h5>
+                </div>
+                <div class="card-body">
+                    <div class="upload-area" id="joinLeaveUploadArea">
+                        <i class="bi bi-cloud-upload fs-1 text-muted mb-3"></i>
+                        <h6>입/퇴사자 엑셀 파일을 드래그하거나 클릭하여 업로드</h6>
+                        <p class="text-muted mb-0">지원 형식: .xlsx, .xls</p>
+                        <input type="file" id="joinLeaveFileInput" class="d-none" accept=".xlsx,.xls">
+                    </div>
+                    <div id="joinLeaveUploadResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 인력 추이 차트 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">주간 인력 추이</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="trendChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 증감 분석 테이블 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">인력 증감 분석</h5>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="baseType" id="weekCompare" value="week" checked>
+                        <label class="btn btn-outline-primary btn-sm" for="weekCompare">전주 대비</label>
+                        
+                        <input type="radio" class="btn-check" name="baseType" id="monthCompare" value="month">
+                        <label class="btn btn-outline-primary btn-sm" for="monthCompare">전월 대비</label>
+                        
+                        <input type="radio" class="btn-check" name="baseType" id="yearEndCompare" value="year_end">
+                        <label class="btn btn-outline-primary btn-sm" for="yearEndCompare">전년말 대비</label>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>계열사</th>
+                                    <th>직군</th>
+                                    <th>직급</th>
+                                    <th>직책</th>
+                                    <th>신분</th>
+                                    <th class="text-end">현재 인원</th>
+                                    <th class="text-end">기준 인원</th>
+                                    <th class="text-end">증감</th>
+                                    <th class="text-end">증감률</th>
+                                </tr>
+                            </thead>
+                            <tbody id="changesTableBody">
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4">
+                                        데이터를 불러오는 중입니다...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+
+// 전역 변수
+let trendChart = null;
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    loadSummary();
+    loadTrendChart();
+    loadChanges('week');
+    
+    // 파일 업로드 이벤트 설정
+    setupFileUpload('snapshot');
+    setupFileUpload('joinLeave');
+    
+    // 비교 기준 변경 이벤트
+    document.querySelectorAll('input[name="baseType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            loadChanges(this.value);
+        });
+    });
+});
+
+// 요약 정보 로드
+function loadSummary() {
+    fetch('/employees/hr/api/workforce/summary/')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('totalHeadcount').textContent = data.total_headcount.toLocaleString();
+            document.getElementById('snapshotDate').textContent = data.snapshot_date || '-';
+            document.getElementById('joinCount').textContent = data.join_count.toLocaleString();
+            document.getElementById('leaveCount').textContent = data.leave_count.toLocaleString();
+            
+            const changeRate = document.getElementById('changeRate');
+            changeRate.textContent = data.change_rate.toFixed(1);
+            if (data.change_rate > 0) {
+                changeRate.classList.add('change-positive');
+            } else if (data.change_rate < 0) {
+                changeRate.classList.add('change-negative');
+            }
+        })
+        .catch(error => {
+            console.error('요약 정보 로드 실패:', error);
+            document.getElementById('totalHeadcount').textContent = '0';
+            document.getElementById('snapshotDate').textContent = '-';
+            document.getElementById('joinCount').textContent = '0';
+            document.getElementById('leaveCount').textContent = '0';
+            document.getElementById('changeRate').textContent = '0.0';
+        });
+}
+
+// 추이 차트 로드
+function loadTrendChart() {
+    fetch('/employees/hr/api/workforce/trend/')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            if (trendChart) {
+                trendChart.destroy();
+            }
+            
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('추이 차트 로드 실패:', error);
+        });
+}
+
+// 증감 분석 로드
+function loadChanges(baseType) {
+    fetch('/employees/hr/api/workforce/changes/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('changesTableBody');
+            tbody.innerHTML = '';
+            
+            if (!data || !data.changes) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            데이터를 불러올 수 없습니다.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            const filteredChanges = data.changes.filter(change => 
+                change.base_type.includes(getBaseTypeDisplay(baseType))
+            );
+            
+            if (filteredChanges.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            데이터가 없습니다.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredChanges.forEach(change => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${change.company}</td>
+                    <td>${change.job_group}</td>
+                    <td>${change.grade}</td>
+                    <td>${change.position || '-'}</td>
+                    <td>${change.contract_type}</td>
+                    <td class="text-end">${change.current_headcount.toLocaleString()}</td>
+                    <td class="text-end">${change.base_headcount.toLocaleString()}</td>
+                    <td class="text-end">
+                        <span class="${change.change_count > 0 ? 'change-positive' : change.change_count < 0 ? 'change-negative' : ''}">
+                            ${change.change_count > 0 ? '+' : ''}${change.change_count.toLocaleString()}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <span class="${change.change_rate > 0 ? 'change-positive' : change.change_rate < 0 ? 'change-negative' : ''}">
+                            ${change.change_rate.toFixed(1)}%
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('증감 분석 로드 실패:', error);
+        });
+}
+
+// 비교 기준 표시 텍스트 변환
+function getBaseTypeDisplay(baseType) {
+    const mapping = {
+        'week': '전주',
+        'month': '전월',
+        'year_end': '전년말'
+    };
+    return mapping[baseType] || baseType;
+}
+
+// 파일 업로드 설정
+function setupFileUpload(type) {
+    const uploadArea = document.getElementById(`${type}UploadArea`);
+    const fileInput = document.getElementById(`${type}FileInput`);
+    const uploadResult = document.getElementById(`${type}UploadResult`);
+    
+    // 클릭 이벤트
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    // 파일 선택 이벤트
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            uploadFile(type, e.target.files[0]);
+        }
+    });
+    
+    // 드래그 앤 드롭 이벤트
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        if (e.dataTransfer.files.length > 0) {
+            uploadFile(type, e.dataTransfer.files[0]);
+        }
+    });
+}
+
+// 파일 업로드
+function uploadFile(type, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const uploadResult = document.getElementById(`${type}UploadResult`);
+    uploadResult.innerHTML = `
+        <div class="alert alert-info">
+            <i class="bi bi-hourglass-split"></i> 업로드 중...
+        </div>
+    `;
+    
+    const endpoint = type === 'snapshot' 
+        ? '/employees/hr/api/workforce/upload/snapshot/' 
+        : '/employees/hr/api/workforce/upload/join-leave/';
+    
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            uploadResult.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> ${data.message}
+                </div>
+            `;
+            
+            // 데이터 새로고침
+            loadSummary();
+            loadTrendChart();
+            loadChanges(document.querySelector('input[name="baseType"]:checked').value);
+        } else {
+            uploadResult.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-x-circle"></i> ${data.error || '업로드 실패'}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        uploadResult.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-x-circle"></i> 업로드 중 오류가 발생했습니다.
+            </div>
+        `;
+        console.error('업로드 오류:', error);
+    });
+}
+</script>
+{% endblock %}

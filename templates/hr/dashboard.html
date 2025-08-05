@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}HR 인력현황 대시보드{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 그라디언트 배경 */
+    .gradient-bg {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    }
+    
+    .gradient-bg-subtle {
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+    }
+    
+    /* 글래스모피즘 효과 */
+    .glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .glass-dark {
+        background: rgba(26, 26, 26, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    /* 호버 애니메이션 */
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+    }
+    
+    /* 그라디언트 텍스트 */
+    .gradient-text {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .shadow-glow {
+        box-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<!-- 페이지 헤더 (sticky 고정) -->
+<div class="sticky top-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 mb-8">
+    <div class="container mx-auto px-6 py-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold gradient-text mb-2">
+                    HR 인력현황 대시보드
+                </h1>
+                <p class="text-lg text-gray-600 dark:text-gray-300">OK금융그룹 전체 인력현황을 실시간으로 관리하고 분석합니다</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'employees:outsourced_dashboard' %}" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-lg transition-all shadow-sm">
+                    <i data-lucide="users-2" class="w-5 h-5 inline mr-2"></i>
+                    외주인력 현황관리
+                </a>
+                <a href="{% url 'employees:monthly_workforce' %}" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-lg transition-all shadow-sm">
+                    <i data-lucide="calendar-days" class="w-5 h-5 inline mr-2"></i>
+                    월간 인력현황
+                </a>
+                <a href="{% url 'employees:overseas_workforce' %}" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-lg transition-all shadow-sm">
+                    <i data-lucide="globe" class="w-5 h-5 inline mr-2"></i>
+                    월간 해외인력현황
+                </a>
+                <button class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors shadow-sm">
+                    <i data-lucide="download" class="w-5 h-5 inline mr-2"></i>
+                    리포트 다운로드
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 파일 업로드 섹션 -->
+<div class="container mx-auto px-6 mb-8">
+    <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200/30 dark:border-gray-700/30 pb-3">엑셀 파일 업로드</h2>
+        <div id="uploadArea" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 text-center hover:border-orange-500 dark:hover:border-orange-400 transition-colors cursor-pointer gradient-bg-subtle">
+            <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow">
+                <i data-lucide="file-spreadsheet" class="w-8 h-8 text-white"></i>
+            </div>
+            <p class="text-lg font-semibold text-gray-900 dark:text-white mb-2">엑셀 파일을 드래그하거나 클릭하여 업로드</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">인력현황(국내/해외), 외주현황 엑셀 파일을 업로드하면 자동으로 분류됩니다</p>
+            <input type="file" id="fileInput" class="hidden" accept=".xlsx,.xls">
+        </div>
+        <div id="uploadProgress" class="mt-4 hidden">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div class="gradient-bg h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p class="text-center mt-2 text-sm text-gray-600 dark:text-gray-400" id="uploadStatus">파일 처리 중...</p>
+        </div>
+    </div>
+</div>
+
+<!-- 통계 카드 섹션 -->
+<div class="container mx-auto px-6 mb-8">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">주요 통계</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 전체 인원 -->
+        <div class="glass dark:glass-dark rounded-2xl p-6 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center shadow-glow">
+                    <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="flex items-center space-x-1 text-green-600 bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-lg">
+                    <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    <span class="text-sm font-medium">2.5%</span>
+                </div>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="totalCount">0</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">전체 인원</p>
+            </div>
+        </div>
+        
+        <!-- 해외 파견 -->
+        <div class="glass dark:glass-dark rounded-2xl p-6 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="globe" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="flex items-center space-x-1 text-green-600 bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-lg">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span class="text-sm font-medium">3</span>
+                </div>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="overseasCount">0</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">해외 파견</p>
+            </div>
+        </div>
+        
+        <!-- 외주 인력 -->
+        <div class="glass dark:glass-dark rounded-2xl p-6 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="briefcase" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="flex items-center space-x-1 text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 px-2 py-1 rounded-lg">
+                    <i data-lucide="minus" class="w-4 h-4"></i>
+                    <span class="text-sm font-medium">0</span>
+                </div>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="contractorCount">0</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">외주 인력</p>
+            </div>
+        </div>
+        
+        <!-- 월 외주비용 -->
+        <div class="glass dark:glass-dark rounded-2xl p-6 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="korean-won" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="flex items-center space-x-1 text-red-600 bg-red-100 dark:bg-red-900/20 px-2 py-1 rounded-lg">
+                    <i data-lucide="trending-down" class="w-4 h-4"></i>
+                    <span class="text-sm font-medium">5%</span>
+                </div>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="monthlyCost">0</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">월 외주비용</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 탭 네비게이션 -->
+<div class="container mx-auto px-6 mb-6">
+    <div class="glass dark:glass-dark rounded-2xl p-2 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+        <ul class="flex flex-wrap -mb-px" role="tablist">
+            <li class="mr-2">
+                <button class="inline-block p-4 text-sm font-medium text-center rounded-lg hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300 tab-active" data-tab="domestic">
+                    국내 인력
+                </button>
+            </li>
+            <li class="mr-2">
+                <button class="inline-block p-4 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300" data-tab="overseas">
+                    해외 인력
+                </button>
+            </li>
+            <li class="mr-2">
+                <button class="inline-block p-4 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300" data-tab="contractor">
+                    외주 현황
+                </button>
+            </li>
+            <li class="mr-2">
+                <button class="inline-block p-4 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300" data-tab="visualization">
+                    시각화
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- 탭 콘텐츠 -->
+<div class="container mx-auto px-6">
+    <!-- 국내 인력 탭 -->
+    <div id="domestic-tab" class="tab-content">
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <!-- 필터 섹션 -->
+            <div class="gradient-bg-subtle rounded-xl p-4 mb-6 border border-orange-100 dark:border-orange-900/20">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <select class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500" id="domesticCompanyFilter">
+                        <option value="">전체 회사</option>
+                        <option value="OK홀딩스">OK홀딩스</option>
+                        <option value="OK저축은행">OK저축은행</option>
+                        <option value="OK캐피탈">OK캐피탈</option>
+                        <option value="OK투자증권">OK투자증권</option>
+                    </select>
+                    <input type="text" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500" id="domesticSearchInput" placeholder="이름 검색">
+                    <button class="px-6 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all font-medium" onclick="searchDomesticEmployees()">
+                        <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>검색
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 테이블 -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사번</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">성명</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">회사</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">부서</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직급</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직책</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">입사일</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                        </tr>
+                    </thead>
+                    <tbody id="domesticTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <!-- 데이터 로딩 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 페이지네이션 -->
+            <div class="mt-6 flex justify-center">
+                <nav id="domesticPagination" class="flex space-x-2">
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 해외 인력 탭 -->
+    <div id="overseas-tab" class="tab-content hidden">
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <!-- 필터 섹션 -->
+            <div class="gradient-bg-subtle rounded-xl p-4 mb-6 border border-orange-100 dark:border-orange-900/20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <select class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500" id="overseasCountryFilter">
+                        <option value="">전체 국가</option>
+                        <option value="인도네시아">인도네시아</option>
+                        <option value="캄보디아">캄보디아</option>
+                        <option value="중국">중국</option>
+                    </select>
+                    <button class="px-6 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all font-medium" onclick="searchOverseasEmployees()">
+                        <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>검색
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 테이블 -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">성명</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">법인</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">국가</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직책</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직급</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overseasTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <!-- 데이터 로딩 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 페이지네이션 -->
+            <div class="mt-6 flex justify-center">
+                <nav id="overseasPagination" class="flex space-x-2">
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 외주 현황 탭 -->
+    <div id="contractor-tab" class="tab-content hidden">
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <!-- 필터 섹션 -->
+            <div class="gradient-bg-subtle rounded-xl p-4 mb-6 border border-orange-100 dark:border-orange-900/20">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500" id="vendorFilter" placeholder="업체명">
+                    <input type="text" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500" id="projectFilter" placeholder="프로젝트명">
+                    <select class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500" id="contractorStatusFilter">
+                        <option value="active">진행중</option>
+                        <option value="completed">종료</option>
+                        <option value="">전체</option>
+                    </select>
+                    <button class="px-6 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all font-medium" onclick="searchContractors()">
+                        <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>검색
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 테이블 -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">성명</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속업체</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">프로젝트</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">투입부서</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">담당업무</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">투입일</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">종료일</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">월단가</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contractorTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <!-- 데이터 로딩 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 페이지네이션 -->
+            <div class="mt-6 flex justify-center">
+                <nav id="contractorPagination" class="flex space-x-2">
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 시각화 탭 -->
+    <div id="visualization-tab" class="tab-content hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 회사별 인원 분포 -->
+            <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">회사별 인원 분포</h3>
+                <div class="h-80">
+                    <canvas id="companyChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 월별 인력 변동 추이 -->
+            <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">월별 인력 변동 추이</h3>
+                <div class="h-80">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 해외 파견 현황 -->
+            <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">해외 파견 현황</h3>
+                <div class="h-80">
+                    <canvas id="overseasChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 프로젝트별 외주 비용 -->
+            <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">프로젝트별 외주 비용</h3>
+                <div class="h-80">
+                    <canvas id="costChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tab-active {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/hr_dashboard.js' %}"></script>
+<script>
+    // 탭 전환 기능
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('[data-tab]');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // 모든 탭 버튼의 활성 상태 제거
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('tab-active', 'text-gray-900', 'dark:text-white');
+                    btn.classList.add('text-gray-500', 'dark:text-gray-400');
+                });
+                
+                // 클릭한 탭 버튼 활성화
+                this.classList.add('tab-active', 'text-gray-900', 'dark:text-white');
+                this.classList.remove('text-gray-500', 'dark:text-gray-400');
+                
+                // 모든 탭 콘텐츠 숨기기
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // 선택한 탭 콘텐츠 표시
+                document.getElementById(targetTab + '-tab').classList.remove('hidden');
+                
+                // 시각화 탭이 선택되면 차트 로드
+                if (targetTab === 'visualization') {
+                    loadCharts();
+                }
+            });
+        });
+        
+        // Lucide 아이콘 초기화
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    });
+</script>
+{% endblock %}

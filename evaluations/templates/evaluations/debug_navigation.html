@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Navigation Debug{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>평가 시스템 네비게이션 디버그</h1>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>현재 사용자 정보</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Is Authenticated:</strong> {{ user.is_authenticated }}</p>
+            <p><strong>Has Employee:</strong> {{ has_employee }}</p>
+            {% if employee %}
+                <p><strong>Employee Name:</strong> {{ employee.name }}</p>
+                <p><strong>Department:</strong> {{ employee.department }}</p>
+            {% endif %}
+            <p><strong>Current Path:</strong> {{ path }}</p>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>네비게이션 링크 테스트</h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <h4>Template Tag URLs:</h4>
+                <a href="{% url 'evaluations:dashboard' %}" class="btn btn-info me-2">
+                    평가 대시보드
+                </a>
+                <a href="{% url 'evaluations:my_evaluations' %}" class="btn btn-primary me-2">
+                    나의 평가
+                </a>
+                <a href="{% url 'evaluations:evaluator_dashboard' %}" class="btn btn-success me-2">
+                    평가자 대시보드
+                </a>
+                <a href="{% url 'evaluations:hr_admin_dashboard' %}" class="btn btn-warning">
+                    HR 관리자
+                </a>
+            </div>
+            
+            <div class="mt-3">
+                <h4>Direct URLs:</h4>
+                <a href="/evaluations/" class="btn btn-outline-info me-2">
+                    /evaluations/
+                </a>
+                <a href="/evaluations/my-evaluations/" class="btn btn-outline-primary me-2">
+                    /evaluations/my-evaluations/
+                </a>
+                <a href="/evaluations/evaluator/" class="btn btn-outline-success me-2">
+                    /evaluations/evaluator/
+                </a>
+                <a href="/evaluations/hr-admin/" class="btn btn-outline-warning">
+                    /evaluations/hr-admin/
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>JavaScript 링크 테스트</h3>
+        </div>
+        <div class="card-body">
+            <button onclick="window.location.href='{% url 'evaluations:my_evaluations' %}'" class="btn btn-primary me-2">
+                JS: 나의 평가
+            </button>
+            <button onclick="window.location.href='{% url 'evaluations:evaluator_dashboard' %}'" class="btn btn-success">
+                JS: 평가자 대시보드
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 링크 클릭 이벤트 로깅
+document.addEventListener('DOMContentLoaded', function() {
+    const links = document.querySelectorAll('a[href*="evaluations"]');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            console.log('Clicked link:', this.href);
+        });
+    });
+});
+</script>
+{% endblock %}

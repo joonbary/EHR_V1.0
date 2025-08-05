@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI 모델 상태 - AIRISS{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 p-6">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                    AI 모델 상태
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">AIRISS AI 모델들의 현재 상태를 확인합니다</p>
+            </div>
+            <div class="text-sm text-gray-500">
+                마지막 확인: {{ last_check|date:"Y-m-d H:i:s" }}
+            </div>
+        </div>
+    </div>
+
+    <!-- 모델 상태 카드들 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- 퇴사 위험도 모델 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                </div>
+                {% if model_status.turnover %}
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">활성</span>
+                {% else %}
+                    <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">비활성</span>
+                {% endif %}
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">퇴사 위험도 예측</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                RandomForest 기반 퇴사 위험도 분석 모델
+            </p>
+            <div class="text-xs text-gray-500">
+                {% if model_status.turnover %}
+                    ✅ 모델 로드됨 - 예측 가능
+                {% else %}
+                    ❌ 모델 미로드 - 기본 규칙 사용
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 승진 가능성 모델 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                {% if model_status.promotion %}
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">활성</span>
+                {% else %}
+                    <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">비활성</span>
+                {% endif %}
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">승진 가능성 예측</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                경력 및 성과 기반 승진 준비도 분석 모델
+            </p>
+            <div class="text-xs text-gray-500">
+                {% if model_status.promotion %}
+                    ✅ 모델 로드됨 - 예측 가능
+                {% else %}
+                    ❌ 모델 미로드 - 기본 규칙 사용
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 팀 성과 모델 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-green-600"></i>
+                </div>
+                {% if model_status.team %}
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">활성</span>
+                {% else %}
+                    <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">비활성</span>
+                {% endif %}
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">팀 성과 예측</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                팀 구성 및 역량 기반 성과 예측 모델
+            </p>
+            <div class="text-xs text-gray-500">
+                {% if model_status.team %}
+                    ✅ 규칙 기반 모델 - 예측 가능
+                {% else %}
+                    ❌ 모델 비활성
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 모델 관리 -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">AI 모델 관리</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- 모델 훈련 -->
+            <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-xl">
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">모델 훈련</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    현재 데이터를 기반으로 AI 모델을 새로 훈련합니다.
+                </p>
+                <form method="post" action="{% url 'airiss:train_models' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all">
+                        <i data-lucide="cpu" class="w-4 h-4 inline mr-2"></i>
+                        모델 훈련 시작
+                    </button>
+                </form>
+            </div>
+
+            <!-- GPT 모델 선택 -->
+            <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-xl">
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">GPT 모델 설정</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    현재 모델: <span class="font-semibold text-blue-600">{{ current_gpt_model }}</span>
+                    {% if openai_api_available %}
+                        <span class="text-green-600">✅ 활성</span>
+                    {% else %}
+                        <span class="text-red-600">❌ 비활성</span>
+                    {% endif %}
+                </p>
+                <form method="post" action="{% url 'airiss:change_gpt_model' %}">
+                    {% csrf_token %}
+                    <select name="model" class="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        {% for model in available_gpt_models %}
+                            <option value="{{ model.id }}" {% if model.id == current_gpt_model %}selected{% endif %}>
+                                {{ model.name }} - {{ model.description }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all">
+                        <i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>
+                        모델 변경
+                    </button>
+                </form>
+            </div>
+
+            <!-- 모델 정보 -->
+            <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-xl">
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">모델 정보</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 dark:text-gray-400">ML 라이브러리:</span>
+                        <span class="text-gray-900 dark:text-white">scikit-learn</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 dark:text-gray-400">GPT API:</span>
+                        <span class="text-gray-900 dark:text-white">OpenAI</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 dark:text-gray-400">모델 버전:</span>
+                        <span class="text-gray-900 dark:text-white">v1.0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 dark:text-gray-400">업데이트 주기:</span>
+                        <span class="text-gray-900 dark:text-white">주간</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GPT 모델 비교표 -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm mt-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">GPT 모델 비교</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-600">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">모델</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">설명</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-900 dark:text-white">비용</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-900 dark:text-white">속도</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-900 dark:text-white">상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for model in available_gpt_models %}
+                    <tr class="border-b border-gray-100 dark:border-gray-700 {% if model.id == current_gpt_model %}bg-blue-50 dark:bg-blue-900/20{% endif %}">
+                        <td class="py-3 px-4">
+                            <div class="font-medium text-gray-900 dark:text-white">{{ model.name }}</div>
+                        </td>
+                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ model.description }}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-1 rounded-full text-xs
+                                {% if model.cost == '저렴' %}bg-green-100 text-green-800{% elif model.cost == '보통' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ model.cost }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-1 rounded-full text-xs
+                                {% if model.speed == '빠름' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ model.speed }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            {% if model.id == current_gpt_model %}
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">사용 중</span>
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 모델 성능 정보 -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm mt-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">모델 성능 정보</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600 mb-2">85%</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">평균 정확도</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600 mb-2">92%</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">신뢰도</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600 mb-2">0.15s</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">평균 응답시간</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

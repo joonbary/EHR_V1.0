@@ -1,0 +1,494 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}조직도 - OK금융그룹 eHR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .org-chart-container {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        margin: 2rem 0;
+        min-height: 80vh;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .org-chart-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--ok-primary);
+    }
+
+    .org-chart-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--ok-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .org-chart-header p {
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+
+    .org-chart-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .control-btn {
+        background: white;
+        border: 2px solid var(--ok-primary);
+        color: var(--ok-primary);
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.9rem;
+    }
+
+    .control-btn:hover {
+        background: var(--ok-primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(24, 119, 242, 0.3);
+    }
+
+    .control-btn.active {
+        background: var(--ok-primary);
+        color: white;
+    }
+
+    #org-chart-svg {
+        width: 100%;
+        height: 600px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .node {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .node:hover {
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+    }
+
+    .node rect {
+        fill: white;
+        stroke: var(--ok-primary);
+        stroke-width: 2;
+        rx: 8;
+        ry: 8;
+        transition: all 0.3s ease;
+    }
+
+    .node:hover rect {
+        fill: var(--ok-accent);
+        stroke: var(--ok-primary);
+        stroke-width: 3;
+    }
+
+    .node text {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 12px;
+        fill: #1a202c;
+        text-anchor: middle;
+        dominant-baseline: central;
+        pointer-events: none;
+    }
+
+    .node .name {
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .node .position {
+        font-weight: 500;
+        font-size: 11px;
+        fill: var(--ok-primary);
+    }
+
+    .node .department {
+        font-weight: 400;
+        font-size: 10px;
+        fill: #64748b;
+    }
+
+    .link {
+        fill: none;
+        stroke: var(--ok-secondary);
+        stroke-width: 2;
+        stroke-opacity: 0.8;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 3rem;
+        color: #64748b;
+    }
+
+    .loading .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid var(--ok-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+        text-align: center;
+        padding: 2rem;
+        color: #dc2626;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        margin: 1rem 0;
+    }
+
+    .zoom-info {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #64748b;
+        backdrop-filter: blur(10px);
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .org-chart-header h1 {
+            font-size: 2rem;
+        }
+        
+        .control-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        #org-chart-svg {
+            height: 500px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="org-chart-container">
+        <div class="org-chart-header">
+            <h1>OK금융그룹 조직도</h1>
+            <p>계층형 조직 구조 시각화</p>
+        </div>
+
+        <div class="org-chart-controls">
+            <button class="control-btn" id="expand-all">전체 펼치기</button>
+            <button class="control-btn" id="collapse-all">전체 접기</button>
+            <button class="control-btn" id="reset-zoom">원본 크기</button>
+            <button class="control-btn" id="center-view">중앙 정렬</button>
+        </div>
+
+        <div class="zoom-info">
+            마우스 휠로 확대/축소, 드래그로 이동 가능
+        </div>
+
+        <div id="chart-container">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>조직도를 불러오는 중입니다...</p>
+            </div>
+            <svg id="org-chart-svg" style="display: none;"></svg>
+            <div class="error-message" id="error-message" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+class OrganizationChart {
+    constructor() {
+        this.svg = d3.select('#org-chart-svg');
+        this.width = document.getElementById('org-chart-svg').clientWidth;
+        this.height = 600;
+        this.margin = { top: 40, right: 40, bottom: 40, left: 40 };
+        this.nodeWidth = 200;
+        this.nodeHeight = 80;
+        this.levelHeight = 120;
+        
+        this.tree = d3.tree()
+            .size([this.width - this.margin.left - this.margin.right, 
+                   this.height - this.margin.top - this.margin.bottom])
+            .separation((a, b) => a.parent === b.parent ? 1.2 : 1.5);
+        
+        this.zoom = d3.zoom()
+            .scaleExtent([0.3, 3])
+            .on('zoom', (event) => {
+                this.g.attr('transform', event.transform);
+            });
+        
+        this.svg.call(this.zoom);
+        
+        this.g = this.svg.append('g')
+            .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+        
+        this.data = null;
+        this.root = null;
+        
+        this.setupEventListeners();
+        this.loadData();
+    }
+    
+    setupEventListeners() {
+        document.getElementById('expand-all').addEventListener('click', () => this.expandAll());
+        document.getElementById('collapse-all').addEventListener('click', () => this.collapseAll());
+        document.getElementById('reset-zoom').addEventListener('click', () => this.resetZoom());
+        document.getElementById('center-view').addEventListener('click', () => this.centerView());
+    }
+    
+    async loadData() {
+        try {
+            const response = await fetch('{% url "employees:organization_data_api" %}');
+            const result = await response.json();
+            
+            if (result.success) {
+                this.data = result.data;
+                this.render();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('org-chart-svg').style.display = 'block';
+            } else {
+                throw new Error(result.error || '데이터를 불러올 수 없습니다.');
+            }
+        } catch (error) {
+            console.error('Error loading organization data:', error);
+            document.getElementById('loading').style.display = 'none';
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = error.message;
+            errorEl.style.display = 'block';
+        }
+    }
+    
+    render() {
+        if (!this.data || this.data.length === 0) {
+            document.getElementById('error-message').textContent = '조직도 데이터가 없습니다.';
+            document.getElementById('error-message').style.display = 'block';
+            return;
+        }
+        
+        // 계층 구조 생성
+        this.root = d3.hierarchy({ children: this.data }, d => d.children);
+        this.root.x0 = 0;
+        this.root.y0 = 0;
+        
+        // 초기에는 최상위 레벨만 펼쳐진 상태
+        if (this.root.children) {
+            this.root.children.forEach(this.collapse);
+        }
+        
+        this.update(this.root);
+        this.centerView();
+    }
+    
+    update(source) {
+        const treeData = this.tree(this.root);
+        const nodes = treeData.descendants();
+        const links = treeData.descendants().slice(1);
+        
+        // 노드 높이 조정
+        nodes.forEach(d => {
+            d.y = d.depth * this.levelHeight;
+        });
+        
+        // 노드 업데이트
+        const node = this.g.selectAll('g.node')
+            .data(nodes, d => d.id || (d.id = ++this.i));
+        
+        const nodeEnter = node.enter().append('g')
+            .attr('class', 'node')
+            .attr('transform', d => `translate(${source.x0}, ${source.y0})`)
+            .on('click', (event, d) => this.toggle(d));
+        
+        nodeEnter.append('rect')
+            .attr('width', this.nodeWidth)
+            .attr('height', this.nodeHeight)
+            .attr('x', -this.nodeWidth/2)
+            .attr('y', -this.nodeHeight/2)
+            .style('fill-opacity', 1e-6);
+        
+        // 텍스트 추가
+        nodeEnter.append('text')
+            .attr('class', 'name')
+            .attr('dy', '-15px')
+            .text(d => d.data.name || '');
+        
+        nodeEnter.append('text')
+            .attr('class', 'position')
+            .attr('dy', '0px')
+            .text(d => d.data.position || '');
+        
+        nodeEnter.append('text')
+            .attr('class', 'department')
+            .attr('dy', '15px')
+            .text(d => `${d.data.department || ''} | Level ${d.data.level || ''}`);
+        
+        // 노드 업데이트
+        const nodeUpdate = nodeEnter.merge(node);
+        
+        nodeUpdate.transition()
+            .duration(500)
+            .attr('transform', d => `translate(${d.x}, ${d.y})`);
+        
+        nodeUpdate.select('rect')
+            .style('fill-opacity', 1)
+            .style('stroke-opacity', 1);
+        
+        // 노드 제거
+        const nodeExit = node.exit().transition()
+            .duration(500)
+            .attr('transform', d => `translate(${source.x}, ${source.y})`)
+            .remove();
+        
+        nodeExit.select('rect')
+            .style('fill-opacity', 1e-6)
+            .style('stroke-opacity', 1e-6);
+        
+        nodeExit.select('text')
+            .style('fill-opacity', 1e-6);
+        
+        // 링크 업데이트
+        const link = this.g.selectAll('path.link')
+            .data(links, d => d.id);
+        
+        const linkEnter = link.enter().insert('path', 'g')
+            .attr('class', 'link')
+            .attr('d', d => {
+                const o = {x: source.x0, y: source.y0};
+                return this.diagonal(o, o);
+            });
+        
+        const linkUpdate = linkEnter.merge(link);
+        
+        linkUpdate.transition()
+            .duration(500)
+            .attr('d', d => this.diagonal(d, d.parent));
+        
+        const linkExit = link.exit().transition()
+            .duration(500)
+            .attr('d', d => {
+                const o = {x: source.x, y: source.y};
+                return this.diagonal(o, o);
+            })
+            .remove();
+        
+        // 이전 위치 저장
+        nodes.forEach(d => {
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
+    }
+    
+    diagonal(s, d) {
+        const path = `M ${s.x} ${s.y}
+                     C ${s.x} ${(s.y + d.y) / 2},
+                       ${d.x} ${(s.y + d.y) / 2},
+                       ${d.x} ${d.y}`;
+        return path;
+    }
+    
+    toggle(d) {
+        if (d.children) {
+            d._children = d.children;
+            d.children = null;
+        } else {
+            d.children = d._children;
+            d._children = null;
+        }
+        this.update(d);
+    }
+    
+    collapse = (d) => {
+        if (d.children) {
+            d._children = d.children;
+            d._children.forEach(this.collapse);
+            d.children = null;
+        }
+    }
+    
+    expand = (d) => {
+        if (d._children) {
+            d.children = d._children;
+            d.children.forEach(this.expand);
+            d._children = null;
+        }
+    }
+    
+    expandAll() {
+        this.expand(this.root);
+        this.update(this.root);
+    }
+    
+    collapseAll() {
+        if (this.root.children) {
+            this.root.children.forEach(this.collapse);
+        }
+        this.update(this.root);
+    }
+    
+    resetZoom() {
+        this.svg.transition().duration(500)
+            .call(this.zoom.transform, d3.zoomIdentity);
+    }
+    
+    centerView() {
+        const bounds = this.g.node().getBBox();
+        const parent = this.g.node().parentElement;
+        const fullWidth = parent.clientWidth;
+        const fullHeight = parent.clientHeight;
+        const width = bounds.width;
+        const height = bounds.height;
+        const midX = bounds.x + width / 2;
+        const midY = bounds.y + height / 2;
+        
+        if (width == 0 || height == 0) return;
+        
+        const scale = Math.min(fullWidth / width, fullHeight / height) * 0.8;
+        const translate = [fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY];
+        
+        this.svg.transition().duration(500)
+            .call(this.zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+    }
+}
+
+// 페이지 로드 시 조직도 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    new OrganizationChart();
+});
+
+// 화면 크기 변경 시 대응
+window.addEventListener('resize', function() {
+    // 필요시 차트 크기 재조정 로직
+});
+</script>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}직무 체계도 - OK금융그룹{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/job_tree_unified.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="job-tree-container">
+    <!-- 페이지 헤더 -->
+    <header class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-sitemap"></i>
+            OK금융그룹 직무 체계도
+        </h1>
+        <p class="page-subtitle">직군 → 직종 → 직무 구조를 한눈에 확인하세요</p>
+    </header>
+
+    <!-- 통계 카드 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_categories }}</div>
+            <div class="stat-label">직군</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_job_types }}</div>
+            <div class="stat-label">직종</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_job_roles }}</div>
+            <div class="stat-label">직무</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_profiles }}</div>
+            <div class="stat-label">직무기술서</div>
+        </div>
+    </div>
+
+    <!-- 필터 바 -->
+    <div class="filter-bar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="jobSearch" placeholder="직무 검색...">
+        </div>
+        <div class="filter-chips">
+            <button class="chip active" data-filter="all">전체</button>
+            <button class="chip" data-filter="with-profile">기술서 있음</button>
+            <button class="chip" data-filter="no-profile">기술서 없음</button>
+        </div>
+    </div>
+
+    <!-- 트리맵 메인 컨텐츠 -->
+    <div class="tree-map-content">
+        <!-- Non-PL 직군 -->
+        <section class="job-group non-pl-group">
+            <h2 class="group-title">
+                <span class="group-badge non-pl">Non-PL</span>
+                일반 직군
+            </h2>
+            <div id="non-pl-content" class="group-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>데이터를 불러오는 중...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PL 직군 -->
+        <section class="job-group pl-group">
+            <h2 class="group-title">
+                <span class="group-badge pl">PL</span>
+                고객서비스 직군
+            </h2>
+            <div id="pl-content" class="group-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>데이터를 불러오는 중...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- 직무 상세 모달 -->
+<div id="jobDetailModal" class="modal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <div class="modal-actions">
+                    <button class="btn-icon" onclick="toggleFullscreen()" title="전체화면">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button class="btn-icon" onclick="closeModal()" title="닫기">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <!-- 동적 콘텐츠 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="editJobProfile()">
+                    <i class="fas fa-edit"></i> 편집
+                </button>
+                <button class="btn btn-danger" onclick="deleteJobProfile()">
+                    <i class="fas fa-trash"></i> 삭제
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 전체화면 상세보기 -->
+<div id="fullscreenDetail" class="fullscreen-detail" style="display: none;">
+    <div class="fullscreen-header">
+        <button class="btn-back" onclick="exitFullscreen()">
+            <i class="fas fa-arrow-left"></i> 돌아가기
+        </button>
+        <h1 id="fullscreenTitle"></h1>
+        <div class="fullscreen-actions">
+            <button class="btn btn-primary" onclick="editJobProfile()">
+                <i class="fas fa-edit"></i> 편집
+            </button>
+            <button class="btn btn-danger" onclick="deleteJobProfile()">
+                <i class="fas fa-trash"></i> 삭제
+            </button>
+        </div>
+    </div>
+    <div id="fullscreenBody" class="fullscreen-body">
+        <!-- 동적 콘텐츠 -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/job_tree_unified.js' %}"></script>
+{% endblock %}

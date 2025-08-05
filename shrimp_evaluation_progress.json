@@ -1,0 +1,42 @@
+{
+  "current_phase": 1,
+  "completed_tasks": [],
+  "timestamp": "2025-07-30T11:27:27.103922",
+  "summary": [
+    {
+      "phase": 1,
+      "name": "Phase 1: 기본 템플릿 및 URL 구조",
+      "task_count": 3,
+      "estimated_hours": 5,
+      "status": "current"
+    },
+    {
+      "phase": 2,
+      "name": "Phase 2: 기여도 평가 구현",
+      "task_count": 3,
+      "estimated_hours": 7,
+      "status": "pending"
+    },
+    {
+      "phase": 3,
+      "name": "Phase 3: 전문성/영향력 평가 구현",
+      "task_count": 3,
+      "estimated_hours": 7,
+      "status": "pending"
+    },
+    {
+      "phase": 4,
+      "name": "Phase 4: 종합평가 및 Calibration",
+      "task_count": 3,
+      "estimated_hours": 8,
+      "status": "pending"
+    },
+    {
+      "phase": 5,
+      "name": "Phase 5: 성장레벨 및 분석",
+      "task_count": 3,
+      "estimated_hours": 8,
+      "status": "pending"
+    }
+  ]
+}

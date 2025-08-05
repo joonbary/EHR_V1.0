@@ -1,0 +1,563 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OK금융그룹 e-HR System{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // OK금융그룹 브랜드 컬러로 변경
+                        primary: {
+                            DEFAULT: '#FF6B00',
+                            hover: '#E55A00',
+                            light: '#FFF4ED',
+                            lighter: '#FFEDE5',
+                            dark: '#CC5500'
+                        },
+                        accent: {
+                            DEFAULT: '#FFAA00',
+                            hover: '#E69900',
+                            light: '#FFF8E6'
+                        },
+                        brand: {
+                            brown: '#55474A',
+                            gray: '#E3DFDA',
+                            dark: '#1A1A1A'
+                        },
+                        status: {
+                            success: '#10B981',
+                            warning: '#F59E0B',
+                            error: '#EF4444',
+                            info: '#3B82F6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'Noto Sans KR', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(255, 107, 0, 0.15)',
+                        'glow-lg': '0 0 30px rgba(255, 107, 0, 0.2)',
+                        'neumorphic': '8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.7)'
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        /* 그라디언트 배경 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        }
+        
+        .gradient-bg-subtle {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+        }
+        
+        /* 글래스모피즘 효과 */
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .glass-dark {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* 호버 애니메이션 */
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+        }
+        
+        /* 플로팅 애니메이션 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* 그라디언트 텍스트 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* 서브메뉴 스타일 */
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .submenu.open {
+            max-height: 500px;
+            transition: max-height 0.3s ease-in;
+        }
+        
+        .menu-chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .menu-chevron.rotate {
+            transform: rotate(180deg);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50 dark:bg-brand-dark">
+    <!-- 배경 장식 요소 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/3 w-60 h-60 bg-primary/5 rounded-full blur-2xl float-animation"></div>
+    </div>
+    
+    <!-- 상단 네비게이션 바 (글래스모피즘 적용) -->
+    <nav class="glass dark:glass-dark fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50 dark:border-gray-700/50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- 로고 영역 -->
+                <div class="flex items-center space-x-4">
+                    <button id="menuToggle" class="p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors lg:hidden focus:ring-2 focus:ring-primary/50" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sidebar">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    
+                    <a href="/" class="flex items-center space-x-3">
+                        <div class="w-12 h-12 gradient-bg rounded-2xl flex items-center justify-center shadow-glow hover-lift">
+                            <span class="text-white font-black text-xl">OK</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold gradient-text">OK금융그룹</h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">e-HR System</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- 중앙 검색바 -->
+                <div class="hidden lg:flex items-center flex-1 max-w-2xl mx-8">
+                    <div class="relative w-full">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+                        <input type="search" 
+                               placeholder="직원, 부서, 문서 검색..." 
+                               class="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all">
+                        <kbd class="absolute right-4 top-1/2 transform -translate-y-1/2 px-2 py-1 text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 rounded">Ctrl+K</kbd>
+                    </div>
+                </div>
+                
+                <!-- 우측 액션 버튼 -->
+                <div class="flex items-center space-x-2">
+                    
+                    <!-- 알림 -->
+                    <button class="relative p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <i data-lucide="bell" class="w-6 h-6"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                    </button>
+                    
+                    <!-- 다크모드 토글 -->
+                    <button id="themeToggle" class="p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <i data-lucide="sun" class="w-6 h-6 dark:hidden"></i>
+                        <i data-lucide="moon" class="w-6 h-6 hidden dark:block"></i>
+                    </button>
+                    
+                    <!-- 프로필 -->
+                    <div class="relative ml-3">
+                        <button class="flex items-center space-x-3 p-2 pr-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center text-white font-semibold">
+                                {{ user.get_full_name|default:user.username|slice:":2"|upper }}
+                            </div>
+                            <div class="hidden sm:block text-left">
+                                <p class="text-sm font-medium">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-500">{{ user.groups.first.name|default:"사용자" }}</p>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="relative min-h-full">
+        <!-- 모바일 오버레이 -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden opacity-0 pointer-events-none transition-opacity" aria-hidden="true"></div>
+        
+        <!-- 좌측 사이드바 (글래스모피즘 적용) -->
+        <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-72 glass dark:glass-dark border-r border-gray-200/50 dark:border-gray-700/50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40" role="navigation" aria-label="메인 네비게이션">
+            <div class="h-full flex flex-col pt-20">
+                
+                <!-- 네비게이션 메뉴 -->
+                <nav class="flex-1 p-4 overflow-y-auto">
+                    <!-- 7개 핵심 모듈 -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">핵심 모듈</h3>
+                        <div class="space-y-1">
+                    
+                            <!-- 1. 대시보드 -->
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-primary/50 {% if request.resolver_match.url_name == 'home' or 'dashboard' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-primary/10 dark:hover:bg-primary/10{% endif %}" aria-label="대시보드" onclick="toggleSubmenu('dashboard-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if request.resolver_match.url_name == 'home' or 'dashboard' in request.resolver_match.url_name %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="layout-dashboard" class="w-5 h-5 {% if request.resolver_match.url_name == 'home' or 'dashboard' in request.resolver_match.url_name %}text-white{% else %}text-primary{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">대시보드</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if request.resolver_match.url_name == 'home' or 'dashboard' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="dashboard-submenu" class="submenu {% if request.resolver_match.url_name == 'home' or 'dashboard' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'home' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">메인 대시보드</a>
+                                    <a href="{% url 'dashboard:executive' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">경영진 대시보드</a>
+                                    <a href="{% url 'dashboard:hr_analytics' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">HR 대시보드</a>
+                                    <a href="{% url 'dashboard:workforce' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">인력 현황</a>
+                                    <a href="{% url 'dashboard:performance' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">성과 분석</a>
+                                    <a href="{% url 'dashboard:compensation' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">보상 분석</a>
+                                </div>
+                            </div>
+                    
+                            <!-- 2. 직원관리 -->
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-blue-500/50 {% if 'employee' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-blue-50 dark:hover:bg-blue-900/20{% endif %}" aria-label="직원관리" onclick="toggleSubmenu('employees-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if 'employee' in request.resolver_match.url_name %}bg-white/20{% else %}bg-blue-100 group-hover:bg-blue-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="users" class="w-5 h-5 {% if 'employee' in request.resolver_match.url_name %}text-white{% else %}text-blue-600{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">직원관리</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'employee' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="employees-submenu" class="submenu {% if 'employee' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'employees:employee_management' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직원 목록</a>
+                                    <a href="{% url 'employees:hr_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">HR 인력현황</a>
+                                    <a href="{% url 'employees:employee_create' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직원 등록</a>
+                                    <a href="{% url 'employees:attendance_management' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">근태 관리</a>
+                                    <a href="{% url 'employees:employee_bulk_upload' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">대량 업로드</a>
+                                </div>
+                            </div>
+                    
+                            <!-- 3. 평가관리 -->
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-green-500/50 {% if 'evaluation' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-green-50 dark:hover:bg-green-900/20{% endif %}" aria-label="평가관리" onclick="toggleSubmenu('evaluations-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if 'evaluation' in request.resolver_match.url_name %}bg-white/20{% else %}bg-green-100 group-hover:bg-green-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="clipboard-check" class="w-5 h-5 {% if 'evaluation' in request.resolver_match.url_name %}text-white{% else %}text-green-600{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">평가관리</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'evaluation' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="evaluations-submenu" class="submenu {% if 'evaluation' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'evaluations:dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">평가 대시보드</a>
+                                    <a href="{% url 'evaluations:contribution_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">기여도 평가</a>
+                                    <a href="{% url 'evaluations:expertise_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">전문성 평가</a>
+                                    <a href="{% url 'evaluations:impact_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">영향력 평가</a>
+                                    <a href="{% url 'evaluations:my_evaluations' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">나의 평가</a>
+                                    <a href="{% url 'evaluations:evaluator_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">평가자 대시보드</a>
+                                    <a href="{% url 'evaluations:hr_admin_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">HR 관리자</a>
+                                </div>
+                            </div>
+                    
+                            <!-- 4. 보상관리 -->
+                            <a href="{% url 'compensation:dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-yellow-500/50 {% if 'compensation' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-yellow-50 dark:hover:bg-yellow-900/20{% endif %}" aria-label="보상관리" {% if 'compensation' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+                                <div class="w-10 h-10 {% if 'compensation' in request.resolver_match.url_name %}bg-white/20{% else %}bg-yellow-100 group-hover:bg-yellow-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                    <i data-lucide="coins" class="w-5 h-5 {% if 'compensation' in request.resolver_match.url_name %}text-white{% else %}text-yellow-600{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">보상관리</span>
+                            </a>
+                    
+                            <!-- 5. 조직관리 -->
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-orange-500/50 {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}gradient-bg text-white shadow-glow{% else %}hover:bg-orange-50 dark:hover:bg-orange-900/20{% endif %}" aria-label="조직관리" onclick="toggleSubmenu('organization-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}bg-white/20{% else %}bg-orange-100 group-hover:bg-orange-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="building" class="w-5 h-5 {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}text-white{% else %}text-orange-600{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">조직관리</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="organization-submenu" class="submenu {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'employees:organization_chart' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">조직도</a>
+                                    <a href="{% url 'organization:department_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">부서 관리</a>
+                                    <a href="{% url 'organization:position_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직위 관리</a>
+                                    <a href="{% url 'job_profiles:list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직무 체계도</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 6. 채용관리 -->
+                            <a href="{% url 'recruitment:dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-purple-500/50 {% if 'recruitment' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-purple-50 dark:hover:bg-purple-900/20{% endif %}" aria-label="채용관리" {% if 'recruitment' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+                                <div class="w-10 h-10 {% if 'recruitment' in request.resolver_match.url_name %}bg-white/20{% else %}bg-purple-100 group-hover:bg-purple-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                    <i data-lucide="user-check" class="w-5 h-5 {% if 'recruitment' in request.resolver_match.url_name %}text-white{% else %}text-purple-600{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">채용관리</span>
+                            </a>
+                            
+                            <!-- 7. AIRISS -->
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-pink-500/50 {% if 'airiss' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-pink-50 dark:hover:bg-pink-900/20{% endif %}" aria-label="AIRISS" onclick="toggleSubmenu('airiss-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if 'airiss' in request.resolver_match.url_name %}bg-white/20{% else %}bg-pink-100 group-hover:bg-pink-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="brain" class="w-5 h-5 {% if 'airiss' in request.resolver_match.url_name %}text-white{% else %}text-pink-600{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">AIRISS</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'airiss' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="airiss-submenu" class="submenu {% if 'airiss' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'airiss:executive_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg font-semibold">경영진 대시보드 📊</a>
+                                    <a href="{% url 'airiss:employee_analysis_all' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg font-semibold">전직원 분석 👥</a>
+                                    <a href="{% url 'airiss:msa_integration' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg font-semibold">AI 직원 분석 🤖</a>
+                                    <hr class="my-2 border-gray-200 dark:border-gray-700">
+                                    <a href="{% url 'airiss:dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">AIRISS 대시보드</a>
+                                    <a href="{% url 'airiss:analytics' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">HR 분석</a>
+                                    <a href="{% url 'airiss:predictions' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">AI 예측</a>
+                                    <a href="{% url 'airiss:insights' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">인사이트</a>
+                                    <a href="{% url 'airiss:chatbot' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">HR 챗봇</a>
+                                    <a href="{% url 'airiss:airiss_v4_portal' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg font-semibold">AIRISS v4 ✨</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- 분석 도구 -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">분석 도구</h3>
+                        <div class="space-y-1">
+                    
+                            <a href="{% url 'leader_kpi_dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="trending-up" class="w-5 h-5 text-purple-600"></i>
+                                </div>
+                                <span class="font-medium">경영진 KPI</span>
+                            </a>
+                    
+                            <a href="{% url 'workforce_comp_dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-indigo-100 group-hover:bg-indigo-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="users-2" class="w-5 h-5 text-indigo-600"></i>
+                                </div>
+                                <span class="font-medium">인력/보상 현황</span>
+                            </a>
+                            
+                            <a href="{% url 'skillmap_dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-pink-100 group-hover:bg-pink-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="network" class="w-5 h-5 text-pink-600"></i>
+                                </div>
+                                <span class="font-medium">스킬맵</span>
+                            </a>
+                        </div>
+                    </div>
+                
+                    <!-- AI 도구 -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">AI 도구</h3>
+                        <div class="space-y-1">
+                    
+                            <a href="{% url 'ai_chatbot' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 gradient-bg-subtle rounded-lg flex items-center justify-center">
+                                    <i data-lucide="bot" class="w-5 h-5 text-primary"></i>
+                                </div>
+                                <span class="font-medium">AI 챗봇</span>
+                            </a>
+                            
+                            <a href="{% url 'leader_ai_assistant' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-orange-100 group-hover:bg-orange-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="brain" class="w-5 h-5 text-orange-600"></i>
+                                </div>
+                                <span class="font-medium">리더 AI 어시스턴트</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- 내 정보 -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">내 정보</h3>
+                        <div class="space-y-1">
+                    
+                            <a href="{% url 'selfservice:dashboard' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                                </div>
+                                <span class="font-medium">내 정보</span>
+                            </a>
+                            
+                            <a href="{% url 'selfservice:my_evaluation' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="award" class="w-5 h-5 text-gray-600"></i>
+                                </div>
+                                <span class="font-medium">내 평가</span>
+                            </a>
+                            
+                            <a href="{% url 'selfservice:my_compensation' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="wallet" class="w-5 h-5 text-gray-600"></i>
+                                </div>
+                                <span class="font-medium">내 보상</span>
+                            </a>
+                        </div>
+                    </div>
+                
+                
+                </nav>
+                
+                <!-- 하단 정보 -->
+                <div class="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
+                    <div class="p-4 bg-gradient-bg-subtle rounded-xl">
+                        <p class="text-sm font-medium mb-1">시스템 상태</p>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-xs text-gray-600">모든 서비스 정상</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- 모바일 오버레이 -->
+        <div id="overlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
+        
+        <!-- 메인 콘텐츠 -->
+        <main id="main-content" class="lg:ml-72 pt-20 min-h-screen">
+            <div class="p-6 lg:p-8">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    
+    <!-- Scripts -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+            lucide.createIcons();
+        });
+        
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        
+        menuToggle.addEventListener('click', () => {
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            
+            if (isOpen) {
+                // Close sidebar
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                menuToggle.setAttribute('aria-label', '메뉴 열기');
+            } else {
+                // Open sidebar
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+                menuToggle.setAttribute('aria-expanded', 'true');
+                menuToggle.setAttribute('aria-label', '메뉴 닫기');
+            }
+        });
+        
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            overlay.classList.remove('opacity-100');
+            menuToggle.setAttribute('aria-expanded', 'false');
+            menuToggle.setAttribute('aria-label', '메뉴 열기');
+        });
+        
+        // ESC 키로 사이드바 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                menuToggle.setAttribute('aria-label', '메뉴 열기');
+            }
+        });
+        
+        // Search shortcut
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('input[type="search"]').focus();
+            }
+        });
+        
+        // 서브메뉴 토글 함수
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const chevron = submenu.previousElementSibling.querySelector('.menu-chevron');
+            
+            // 다른 모든 서브메뉴 닫기
+            document.querySelectorAll('.submenu').forEach(menu => {
+                if (menu.id !== submenuId) {
+                    menu.classList.remove('open');
+                    const otherChevron = menu.previousElementSibling.querySelector('.menu-chevron');
+                    if (otherChevron) otherChevron.classList.remove('rotate');
+                }
+            });
+            
+            // 현재 서브메뉴 토글
+            submenu.classList.toggle('open');
+            chevron.classList.toggle('rotate');
+        }
+        
+        // 페이지 로드 시 현재 메뉴 열기
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.submenu a').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    const submenu = link.closest('.submenu');
+                    if (submenu) {
+                        submenu.classList.add('open');
+                        const chevron = submenu.previousElementSibling.querySelector('.menu-chevron');
+                        if (chevron) chevron.classList.add('rotate');
+                    }
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

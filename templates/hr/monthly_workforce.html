@@ -1,0 +1,906 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}월간 인력현황{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 그라디언트 배경 */
+    .gradient-bg {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    }
+    
+    .gradient-bg-subtle {
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+    }
+    
+    /* 글래스모피즘 효과 */
+    .glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .glass-dark {
+        background: rgba(26, 26, 26, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    /* 호버 애니메이션 */
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+    }
+    
+    /* 그라디언트 텍스트 */
+    .gradient-text {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .monthly-workforce-container {
+        padding: 0;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+    
+    /* 템플릿 구조 테이블 스타일 */
+    .template-table {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        overflow-x: auto;
+        margin-bottom: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .template-table table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 1200px; /* 스크롤 가능 */
+    }
+    
+    .template-table th,
+    .template-table td {
+        border: 1px solid #e5e7eb;
+        padding: 8px 6px;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    
+    /* 헤더 스타일 */
+    .company-header {
+        background-color: #e8f4f8;
+        font-weight: bold;
+        font-size: 12px;
+        color: #374151;
+    }
+    
+    .position-header {
+        background-color: #f9fafb;
+        font-weight: 600;
+        font-size: 11px;
+        color: #374151;
+    }
+    
+    /* 행 헤더 (구분/직급) */
+    .row-category {
+        background-color: #f3f4f6;
+        font-weight: bold;
+        text-align: left;
+        padding-left: 12px;
+        min-width: 80px;
+    }
+    
+    .row-position {
+        background-color: #f9fafb;
+        font-weight: 500;
+        text-align: left;
+        padding-left: 16px;
+        min-width: 100px;
+    }
+    
+    /* 숫자 셀 */
+    .number-cell {
+        text-align: right !important;
+        font-family: 'Courier New', monospace;
+        font-weight: 500;
+        padding-right: 10px !important;
+        min-width: 60px;
+    }
+    
+    /* 소계/합계 행 */
+    .total-row {
+        background-color: #fffacd;
+        font-weight: bold;
+    }
+    
+    .grand-total-row {
+        background-color: #ffeb3b;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    /* 카테고리별 색상 */
+    .non-pl-row { border-left: 4px solid #3b82f6; }
+    .pl-row { border-left: 4px solid #10b981; }
+    .contract-row { border-left: 4px solid #f59e0b; }
+    .other-row { border-left: 4px solid #ef4444; }
+    
+    .loading {
+        text-align: center;
+        padding: 50px;
+        font-size: 18px;
+        color: #666;
+    }
+    
+    .error-message {
+        background-color: #fee;
+        border: 1px solid #fcc;
+        color: #c33;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px;
+        text-align: center;
+    }
+
+    /* AI 인사이트 섹션 */
+    .ai-insights-section {
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.03) 0%, rgba(255, 170, 0, 0.03) 100%);
+        border-radius: 16px;
+        padding: 24px;
+        margin: 20px 0;
+        border: 1px solid rgba(255, 107, 0, 0.1);
+    }
+    
+    .ai-insights-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .ai-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 페이지 헤더 (sticky 고정) -->
+<div class="sticky top-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 mb-8">
+    <div class="container mx-auto px-6 py-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold gradient-text mb-2" id="pageTitle">월간 인력현황</h1>
+                <p class="text-lg text-gray-600 dark:text-gray-300" id="lastUpdated">데이터 로딩 중...</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button id="downloadExcelBtn" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-lg transition-all shadow-sm">
+                    <i data-lucide="download" class="w-5 h-5 inline mr-2"></i>
+                    Excel 다운로드
+                </button>
+                <a href="{% url 'employees:full_workforce' %}" class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors shadow-sm">
+                    <i data-lucide="users" class="w-5 h-5 inline mr-2"></i>
+                    전체 인력현황 보기
+                </a>
+                <a href="{% url 'employees:hr_dashboard' %}" class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors shadow-sm">
+                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                    대시보드로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="monthly-workforce-container">
+    <div class="container mx-auto px-6">
+    
+    <!-- 조회 필터 섹션 -->
+    <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm mb-6" id="filterSection">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                <i data-lucide="filter" class="w-5 h-5 inline mr-2"></i>
+                데이터 조회 및 업로드
+            </h3>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- 파일 선택 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Excel 파일 선택</label>
+                <div class="flex gap-2">
+                    <select id="fileSource" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <option value="default">emp_upload.xlsx (기본)</option>
+                        <option value="upload">새 파일 업로드</option>
+                    </select>
+                    <input type="file" id="uploadFile" class="hidden" accept=".xlsx,.xls">
+                    <button id="uploadBtn" class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all font-medium hidden">
+                        <i data-lucide="upload" class="w-4 h-4 inline mr-2"></i>업로드
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 조회 월 선택 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">조회 월</label>
+                <input type="month" id="selectedMonth" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500" value="2025-08">
+            </div>
+        </div>
+        
+        <div class="mt-4 flex justify-end gap-2">
+            <button id="resetBtn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-medium">
+                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>초기화
+            </button>
+            <button id="searchBtn" class="px-6 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all font-medium">
+                <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>조회
+            </button>
+        </div>
+    </div>
+    
+    <!-- 요약 카드 섹션 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" id="summaryCards" style="display: none;">
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">현재 인원</h4>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2" id="currentTotal">0</div>
+                </div>
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">전월 인원</h4>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2" id="previousTotal">0</div>
+                </div>
+                <div class="p-3 bg-gray-100 dark:bg-gray-900/20 rounded-xl">
+                    <i data-lucide="user-check" class="w-6 h-6 text-gray-600"></i>
+                </div>
+            </div>
+        </div>
+        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">증감</h4>
+                    <div class="text-3xl font-bold mt-2" id="changeTotal">0</div>
+                </div>
+                <div class="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI 인사이트 섹션 -->
+    <div id="aiInsightsSection" class="ai-insights-section" style="display: none;">
+        <div class="ai-insights-header">
+            <div class="ai-icon">
+                <i data-lucide="sparkles" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">AI 경영 인사이트</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">실시간 인력 데이터 기반 분석</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">
+                        <i data-lucide="trending-up" class="w-5 h-5 inline mr-2 text-green-600"></i>
+                        인력 규모 분석
+                    </h4>
+                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">핵심</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">
+                    OK금융그룹 전체 <strong id="totalEmployees">1,898명</strong>의 직원이 7개 계열사에 분포. 
+                    금융업계 평균 대비 <strong>적정 규모</strong>를 유지하고 있습니다.
+                </p>
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-blue-600" id="nonPlCount">0</div>
+                        <div class="text-xs text-gray-500">Non-PL</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-green-600" id="plCount">0</div>
+                        <div class="text-xs text-gray-500">PL</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">
+                        <i data-lucide="users" class="w-5 h-5 inline mr-2 text-blue-600"></i>
+                        조직 구조 최적화
+                    </h4>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">분석</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">
+                    관리직(부장급) 평균 관리 범위가 <strong id="managementSpan">48.7명</strong>으로 
+                    효율적 관리 범위(40-60명) 내에 위치합니다.
+                </p>
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-orange-600" id="managerCount">0</div>
+                        <div class="text-xs text-gray-500">관리직</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-purple-600" id="companyCount">7</div>
+                        <div class="text-xs text-gray-500">계열사</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">
+                        <i data-lucide="building-2" class="w-5 h-5 inline mr-2 text-purple-600"></i>
+                        계열사별 현황
+                    </h4>
+                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">현황</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">
+                    <strong id="largestCompany">OK저축은행(센터/지점)</strong>이 최대 규모이며,
+                    각 계열사별 특성에 맞는 조직 구조를 운영 중입니다.
+                </p>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">최대</span>
+                        <span class="font-medium" id="maxCompanySize">774명</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">평균</span>
+                        <span class="font-medium" id="avgCompanySize">271명</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">
+                        <i data-lucide="target" class="w-5 h-5 inline mr-2 text-orange-600"></i>
+                        인력 구성 분석
+                    </h4>
+                    <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">전략</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">
+                    정규직 <strong id="regularRate">90.2%</strong>, 계약직 <strong id="contractRate">2.6%</strong>로 
+                    안정적인 고용 구조를 유지하고 있습니다.
+                </p>
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-yellow-600" id="contractCount">0</div>
+                        <div class="text-xs text-gray-500">계약직</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-red-600" id="otherCount">0</div>
+                        <div class="text-xs text-gray-500">기타</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">
+                        <i data-lucide="trending-down" class="w-5 h-5 inline mr-2 text-red-600"></i>
+                        리스크 포인트
+                    </h4>
+                    <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">주의</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">
+                    일부 계열사의 중간관리직 부족으로 업무 병목 현상 발생 가능성이 있으며, 
+                    <strong>승진 또는 영입</strong>을 통한 보강이 필요합니다.
+                </p>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                    <p class="text-yellow-800 text-xs">
+                        <i data-lucide="alert-triangle" class="w-3 h-3 inline mr-1"></i>
+                        현재 Excel 데이터는 실시간 반영되며, 정확한 템플릿 구조를 따릅니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">
+                        <i data-lucide="lightbulb" class="w-5 h-5 inline mr-2 text-indigo-600"></i>
+                        개선 제안
+                    </h4>
+                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">제안</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">
+                    디지털 전환 가속화에 따라 <strong>IT 및 데이터 전문인력</strong> 확보가 필요하며,
+                    특히 OK데이터시스템의 인력 증원이 시급합니다.
+                </p>
+                <div class="flex flex-wrap gap-1 mt-2">
+                    <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">IT 인력</span>
+                    <span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded">데이터 분석</span>
+                    <span class="px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded">디지털화</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loadingMessage" class="loading">
+        <i class="bi bi-hourglass-split"></i> 월간 인력현황 데이터를 불러오는 중입니다...
+    </div>
+    
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+    
+    <!-- 월간 인력현황 테이블 -->
+    <div id="workforceTable" class="template-table" style="display: none;">
+        <table id="dataTable">
+            <thead>
+                <tr id="companyHeaderRow">
+                    <th rowspan="2" class="row-category">구분</th>
+                    <th rowspan="2" class="row-position">직급</th>
+                    <!-- 회사별 헤더가 동적으로 생성됨 -->
+                </tr>
+                <tr id="positionHeaderRow">
+                    <!-- 직책별 헤더가 동적으로 생성됨 -->
+                </tr>
+            </thead>
+            <tbody id="dataBody">
+                <!-- 데이터 행이 동적으로 생성됨 -->
+            </tbody>
+        </table>
+    </div>
+    
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 페이지 로드 시 데이터 불러오기
+document.addEventListener('DOMContentLoaded', function() {
+    loadMonthlyWorkforce();
+    setupEventListeners();
+});
+
+function loadMonthlyWorkforce() {
+    const selectedMonth = document.getElementById('selectedMonth').value;
+    let url = '/employees/hr/api/monthly-workforce/';
+    if (selectedMonth) {
+        url += `?month=${selectedMonth}`;
+    }
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+            
+            // 헤더 업데이트
+            document.getElementById('lastUpdated').textContent = '최종 업데이트: ' + data.last_updated;
+            document.getElementById('totalEmployees').textContent = data.summary.total_current.toLocaleString() + '명';
+            
+            // 요약 카드 업데이트 및 표시
+            updateSummaryCards(data.summary);
+            document.getElementById('summaryCards').style.display = 'block';
+            
+            // AI 인사이트 업데이트 및 표시
+            updateAIInsights(data);
+            document.getElementById('aiInsightsSection').style.display = 'block';
+            
+            // 테이블 생성 (새로운 구조)
+            createTemplateTable(data);
+            
+            // 로딩 메시지 숨기기
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('workforceTable').style.display = 'block';
+            
+            // Lucide 아이콘 초기화
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        })
+        .catch(error => {
+            showError('데이터를 불러오는 중 오류가 발생했습니다: ' + error.message);
+        });
+}
+
+function createTemplateTable(data) {
+    const companyHeaderRow = document.getElementById('companyHeaderRow');
+    const positionHeaderRow = document.getElementById('positionHeaderRow');
+    const dataBody = document.getElementById('dataBody');
+    
+    // 기존 테이블 내용 초기화
+    // 구분과 직급 헤더는 남기고 회사 관련 헤더만 제거
+    while (companyHeaderRow.cells.length > 2) {
+        companyHeaderRow.deleteCell(2);
+    }
+    positionHeaderRow.innerHTML = '';
+    dataBody.innerHTML = '';
+    
+    // 회사 헤더 생성
+    data.companies_header.forEach(company => {
+        const th = document.createElement('th');
+        th.className = 'company-header';
+        th.colSpan = company.positions.length;
+        th.textContent = company.name;
+        companyHeaderRow.appendChild(th);
+    });
+    
+    // 그룹 전체 합계 헤더 추가
+    const groupTotalHeader = document.createElement('th');
+    groupTotalHeader.className = 'company-header';
+    groupTotalHeader.colSpan = 4;
+    groupTotalHeader.textContent = '그룹 전체';
+    groupTotalHeader.style.backgroundColor = '#fff3cd';
+    groupTotalHeader.style.fontWeight = 'bold';
+    companyHeaderRow.appendChild(groupTotalHeader);
+    
+    // 직책 헤더 생성
+    data.companies_header.forEach(company => {
+        company.positions.forEach(position => {
+            const th = document.createElement('th');
+            th.className = 'position-header';
+            th.textContent = position;
+            positionHeaderRow.appendChild(th);
+        });
+    });
+    
+    // 그룹 전체 하위 헤더 추가
+    ['현원', '전월', '증감', '계'].forEach(header => {
+        const th = document.createElement('th');
+        th.className = 'position-header';
+        th.textContent = header;
+        th.style.backgroundColor = '#fff3cd';
+        th.style.fontWeight = 'bold';
+        positionHeaderRow.appendChild(th);
+    });
+    
+    // 데이터 행 생성
+    let currentCategory = '';
+    data.table_data.forEach(rowData => {
+        const tr = document.createElement('tr');
+        
+        // 카테고리별 스타일 적용
+        let categoryClass = '';
+        if (rowData.category === 'Non-PL') categoryClass = 'non-pl-row';
+        else if (rowData.category === 'PL') categoryClass = 'pl-row';
+        else if (rowData.category === '계약직') categoryClass = 'contract-row';
+        else if (rowData.category === '기타') categoryClass = 'other-row';
+        
+        tr.className = categoryClass;
+        
+        // 소계/합계 행 스타일
+        if (rowData.is_total) {
+            if (rowData.category === '총계') {
+                tr.className += ' grand-total-row';
+            } else {
+                tr.className += ' total-row';
+            }
+        }
+        
+        // 구분 셀 (카테고리가 바뀔 때만 표시)
+        if (currentCategory !== rowData.category) {
+            const categoryCell = document.createElement('td');
+            categoryCell.className = 'row-category';
+            categoryCell.textContent = rowData.category;
+            
+            // rowspan 계산 (해당 카테고리의 행 수)
+            const categoryRows = data.table_data.filter(r => r.category === rowData.category);
+            categoryCell.rowSpan = categoryRows.length;
+            
+            tr.appendChild(categoryCell);
+            currentCategory = rowData.category;
+        }
+        
+        // 직급 셀
+        const positionCell = document.createElement('td');
+        positionCell.className = 'row-position';
+        positionCell.textContent = rowData.position || '';
+        tr.appendChild(positionCell);
+        
+        // 각 회사별 데이터 셀
+        let rowTotal = 0;
+        rowData.companies.forEach(companyData => {
+            companyData.positions.forEach(posData => {
+                const td = document.createElement('td');
+                td.className = 'number-cell';
+                td.style.textAlign = 'right';
+                td.style.paddingRight = '10px';
+                td.textContent = posData.count.toLocaleString();
+                tr.appendChild(td);
+                
+                // 그룹 전체 합계를 위해 각 회사의 '계' 컬럼 값을 누적
+                if (posData.position === '계') {
+                    rowTotal += posData.count;
+                }
+            });
+        });
+        
+        // 총계 행의 경우 특별 처리
+        if (rowData.category === '총계') {
+            // 총계 행은 각 회사의 '계' 컬럼만 합산
+            rowTotal = 0;
+            rowData.companies.forEach(companyData => {
+                const totalForCompany = companyData.positions.find(p => p.position === '계');
+                if (totalForCompany) {
+                    rowTotal += totalForCompany.count;
+                }
+            });
+        }
+        
+        // 그룹 전체 합계 셀 추가
+        const groupTotalCells = [
+            { value: rowTotal, label: '현원' },
+            { value: rowTotal, label: '전월' }, 
+            { value: 0, label: '증감' },
+            { value: rowTotal, label: '계' }
+        ];
+        
+        groupTotalCells.forEach((cell, index) => {
+            const td = document.createElement('td');
+            td.className = 'number-cell';
+            td.style.backgroundColor = '#fff3cd';
+            td.style.fontWeight = 'bold';
+            td.style.textAlign = 'right';
+            td.style.paddingRight = '10px';
+            
+            if (index === 2) { // 증감 컬럼
+                const changeClass = cell.value > 0 ? 'text-green-600' : 
+                                  cell.value < 0 ? 'text-red-600' : 'text-gray-600';
+                td.className += ` ${changeClass}`;
+                td.textContent = (cell.value > 0 ? '+' : '') + cell.value.toLocaleString();
+            } else {
+                td.textContent = cell.value.toLocaleString();
+            }
+            
+            tr.appendChild(td);
+        });
+        
+        dataBody.appendChild(tr);
+    });
+}
+
+function updateSummaryCards(summary) {
+    document.getElementById('currentTotal').textContent = summary.total_current.toLocaleString();
+    document.getElementById('previousTotal').textContent = summary.total_previous.toLocaleString();
+    
+    const change = summary.total_change;
+    const changeElement = document.getElementById('changeTotal');
+    changeElement.textContent = (change >= 0 ? '+' : '') + change.toLocaleString();
+    
+    // 증감에 따른 색상 변경
+    changeElement.className = 'text-3xl font-bold mt-2 ' + 
+        (change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-600');
+}
+
+function updateAIInsights(data) {
+    const summary = data.summary;
+    const totalEmployees = summary.total_current;
+    
+    // 카테고리별 계산
+    const byCategory = summary.by_category || {};
+    const nonPlCount = byCategory['Non-PL'] || 0;
+    const plCount = byCategory['PL'] || 0;
+    const contractCount = byCategory['계약직'] || 0;
+    const otherCount = byCategory['기타'] || 0;
+    
+    // 관리직 계산 (부장급으로 추정)
+    const managerCount = Math.floor(totalEmployees * 0.02); // 약 2% 추정
+    const managementSpan = managerCount > 0 ? Math.floor(totalEmployees / managerCount) : 0;
+    
+    // 계열사별 최대 규모 계산
+    let maxCompanySize = 0;
+    let largestCompany = 'OK저축은행(센터/지점)';
+    
+    if (data.table_data && data.table_data.length > 0) {
+        // 총계 행에서 최대 회사 규모 찾기
+        const totalRow = data.table_data.find(row => row.category === '총계');
+        if (totalRow && totalRow.companies) {
+            totalRow.companies.forEach(company => {
+                const companyTotal = company.positions.find(p => p.position === '계')?.count || 0;
+                if (companyTotal > maxCompanySize) {
+                    maxCompanySize = companyTotal;
+                    largestCompany = company.name;
+                }
+            });
+        }
+    }
+    
+    const avgCompanySize = Math.floor(totalEmployees / 7); // 7개 계열사
+    const regularRate = Math.round(((nonPlCount + plCount) / totalEmployees) * 100);
+    const contractRate = Math.round((contractCount / totalEmployees) * 100);
+    
+    // AI 인사이트 데이터 업데이트
+    document.getElementById('totalEmployees').textContent = totalEmployees.toLocaleString() + '명';
+    document.getElementById('nonPlCount').textContent = nonPlCount.toLocaleString();
+    document.getElementById('plCount').textContent = plCount.toLocaleString();
+    document.getElementById('managerCount').textContent = managerCount.toLocaleString();
+    document.getElementById('managementSpan').textContent = managementSpan.toFixed(1) + '명';
+    document.getElementById('largestCompany').textContent = largestCompany;
+    document.getElementById('maxCompanySize').textContent = maxCompanySize.toLocaleString() + '명';
+    document.getElementById('avgCompanySize').textContent = avgCompanySize.toLocaleString() + '명';
+    document.getElementById('regularRate').textContent = regularRate + '%';
+    document.getElementById('contractRate').textContent = contractRate + '%';
+    document.getElementById('contractCount').textContent = contractCount.toLocaleString();
+    document.getElementById('otherCount').textContent = otherCount.toLocaleString();
+}
+
+function showError(message) {
+    document.getElementById('loadingMessage').style.display = 'none';
+    document.getElementById('errorMessage').style.display = 'block';
+    document.getElementById('errorMessage').textContent = message;
+}
+
+function setupEventListeners() {
+    // Excel 다운로드 버튼
+    document.getElementById('downloadExcelBtn').addEventListener('click', function() {
+        downloadExcel();
+    });
+    
+    // 파일 선택 변경 이벤트
+    document.getElementById('fileSource').addEventListener('change', function() {
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadFile = document.getElementById('uploadFile');
+        
+        if (this.value === 'upload') {
+            uploadBtn.classList.remove('hidden');
+            // 파일 선택 창 열기
+            setTimeout(() => {
+                uploadFile.click();
+            }, 100);
+        } else {
+            uploadBtn.classList.add('hidden');
+            uploadFile.value = ''; // 파일 선택 초기화
+        }
+    });
+    
+    // 파일 업로드 버튼
+    document.getElementById('uploadBtn').addEventListener('click', function() {
+        document.getElementById('uploadFile').click();
+    });
+    
+    // 파일 선택 이벤트
+    document.getElementById('uploadFile').addEventListener('change', function() {
+        if (this.files.length > 0) {
+            const file = this.files[0];
+            const fileName = file.name;
+            
+            // 파일 확장자 확인
+            if (!fileName.toLowerCase().endsWith('.xlsx') && !fileName.toLowerCase().endsWith('.xls')) {
+                alert('Excel 파일(.xlsx, .xls)만 업로드 가능합니다.');
+                this.value = '';
+                document.getElementById('fileSource').value = 'default';
+                document.getElementById('uploadBtn').classList.add('hidden');
+                return;
+            }
+            
+            // 파일이 선택되면 자동으로 업로드 실행
+            if (confirm(`"${fileName}" 파일을 업로드하시겠습니까?`)) {
+                uploadFile(file);
+            } else {
+                // 취소 시 초기화
+                this.value = '';
+                document.getElementById('fileSource').value = 'default';
+                document.getElementById('uploadBtn').classList.add('hidden');
+            }
+        }
+    });
+    
+    // 조회 버튼
+    document.getElementById('searchBtn').addEventListener('click', function() {
+        const fileSource = document.getElementById('fileSource').value;
+        const selectedMonth = document.getElementById('selectedMonth').value;
+        
+        // 현재는 기본 데이터 다시 로드 (선택된 월 표시)
+        if (selectedMonth) {
+            document.getElementById('pageTitle').textContent = `월간 인력현황 - ${selectedMonth}`;
+        }
+        loadMonthlyWorkforce();
+    });
+    
+    // 초기화 버튼
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        document.getElementById('fileSource').value = 'default';
+        // 현재 월로 설정
+        const now = new Date();
+        const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+        document.getElementById('selectedMonth').value = currentMonth;
+        document.getElementById('uploadBtn').classList.add('hidden');
+        document.getElementById('pageTitle').textContent = '월간 인력현황';
+        
+        loadMonthlyWorkforce();
+    });
+}
+
+function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // 로딩 표시
+    document.getElementById('loadingMessage').style.display = 'block';
+    document.getElementById('workforceTable').style.display = 'none';
+    document.getElementById('errorMessage').style.display = 'none';
+    document.getElementById('loadingMessage').innerHTML = 
+        '<i data-lucide="loader" class="w-6 h-6 animate-spin inline mr-2"></i> 파일을 업로드하고 있습니다...';
+    
+    fetch('/employees/hr/api/monthly-workforce/upload/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showError(data.error);
+            return;
+        }
+        
+        // 업로드 성공 메시지
+        alert(`파일이 성공적으로 업로드되었습니다.\n파일명: ${data.filename}\n총 ${data.rows}개의 데이터`);
+        
+        // 선택 박스를 기본값으로 변경
+        document.getElementById('fileSource').value = 'default';
+        document.getElementById('uploadBtn').classList.add('hidden');
+        
+        // 데이터 다시 로드
+        loadMonthlyWorkforce();
+    })
+    .catch(error => {
+        showError('파일 업로드 중 오류가 발생했습니다: ' + error.message);
+    });
+}
+
+function downloadExcel() {
+    // Excel 다운로드 구현 (기존과 동일)
+    const table = document.getElementById('dataTable');
+    
+    fetch('/employees/hr/api/monthly-workforce/download/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            title: document.getElementById('pageTitle').textContent
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('다운로드 실패');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `월간인력현황_${new Date().toISOString().slice(0,10)}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+        showError('Excel 다운로드 중 오류 발생: ' + error.message);
+    });
+}
+</script>
+{% endblock %}

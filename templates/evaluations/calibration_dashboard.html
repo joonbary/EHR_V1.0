@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calibration Dashboard - {{ period.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calibration-header {
+        background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #FF6B00;
+    }
+    
+    .adjustment-case {
+        background: #FFF9F5;
+        border: 1px solid #FFE5D5;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .grade-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.875rem;
+    }
+    
+    .grade-S { background: #FFE5CC; color: #CC5200; }
+    .grade-A { background: #D4E6FF; color: #0056B3; }
+    .grade-B { background: #D4F1D4; color: #155724; }
+    .grade-C { background: #FFE6E6; color: #DC3545; }
+    
+    .chart-container {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .action-buttons {
+        position: sticky;
+        bottom: 20px;
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="calibration-header">
+        <h1>Calibration Dashboard</h1>
+        <p class="mb-0">평가 기간: {{ period.name }} ({{ period.start_date|date:"Y.m.d" }} ~ {{ period.end_date|date:"Y.m.d" }})</p>
+    </div>
+    
+    <!-- 통계 카드 -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h6 class="text-muted">총 평가 건수</h6>
+                <div class="stat-value">{{ calibration_data.total_evaluations }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h6 class="text-muted">조정 검토 대상</h6>
+                <div class="stat-value">{{ calibration_data.adjustment_needed }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h6 class="text-muted">참여 부서</h6>
+                <div class="stat-value">{{ department_stats|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h6 class="text-muted">처리 일시</h6>
+                <div class="stat-value fs-6">{{ calibration_data.process_date|date:"m/d H:i" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 부서별 등급 분포 차트 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5>부서별 등급 분포</h5>
+                <canvas id="deptGradeChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5>전체 등급 분포</h5>
+                <canvas id="overallGradeChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 조정 검토 케이스 -->
+    <div class="mt-4">
+        <h3>조정 검토 대상 목록</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>사번</th>
+                        <th>이름</th>
+                        <th>부서</th>
+                        <th>직급</th>
+                        <th>기본등급</th>
+                        <th>상대등급</th>
+                        <th>권장등급</th>
+                        <th>조정사유</th>
+                        <th>작업</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for case in adjustment_cases %}
+                    <tr class="adjustment-case">
+                        <td>{{ case.employee_id }}</td>
+                        <td>{{ case.employee_name }}</td>
+                        <td>{{ case.department }}</td>
+                        <td>{{ case.position }}</td>
+                        <td><span class="grade-badge grade-{{ case.base_grade }}">{{ case.base_grade }}</span></td>
+                        <td><span class="grade-badge grade-{{ case.relative_grade }}">{{ case.relative_grade }}</span></td>
+                        <td><span class="grade-badge grade-{{ case.recommended_grade }}">{{ case.recommended_grade }}</span></td>
+                        <td>{{ case.adjustment_reason }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary review-btn" 
+                                    data-evaluation-id="{{ case.evaluation_id }}"
+                                    data-employee-name="{{ case.employee_name }}">
+                                검토
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 액션 버튼 -->
+    <div class="action-buttons">
+        <button id="startSessionBtn" class="btn btn-primary">
+            <i class="fas fa-play"></i> Calibration 세션 시작
+        </button>
+        <button id="exportBtn" class="btn btn-secondary">
+            <i class="fas fa-download"></i> 결과 내보내기
+        </button>
+        <a href="{% url 'evaluations:evaluation_list' %}" class="btn btn-outline-secondary">
+            목록으로
+        </a>
+    </div>
+</div>
+
+<!-- 검토 모달 -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">평가 등급 조정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="employeeInfo"></div>
+                <hr>
+                <form id="calibrationForm">
+                    <input type="hidden" id="evaluationId">
+                    <div class="mb-3">
+                        <label class="form-label">최종 등급</label>
+                        <select class="form-select" id="finalGrade" required>
+                            <option value="">선택하세요</option>
+                            <option value="S">S</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">조정 사유</label>
+                        <textarea class="form-control" id="rationale" rows="3" required></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="unanimous" checked>
+                        <label class="form-check-label" for="unanimous">
+                            만장일치 결정
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" id="saveDecisionBtn">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 차트 데이터 준비
+    const departmentStats = {{ department_stats|safe }};
+    
+    // 부서별 등급 분포 차트
+    const deptCtx = document.getElementById('deptGradeChart').getContext('2d');
+    const deptGradeChart = new Chart(deptCtx, {
+        type: 'bar',
+        data: {
+            labels: departmentStats.map(d => d.department),
+            datasets: [{
+                label: '평균 점수',
+                data: departmentStats.map(d => d.avg_score),
+                backgroundColor: 'rgba(255, 107, 0, 0.6)',
+                borderColor: 'rgba(255, 107, 0, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 4
+                }
+            }
+        }
+    });
+    
+    // 전체 등급 분포 차트
+    const overallCtx = document.getElementById('overallGradeChart').getContext('2d');
+    
+    // 세션 관리
+    let sessionActive = false;
+    
+    document.getElementById('startSessionBtn').addEventListener('click', function() {
+        if (!sessionActive) {
+            startCalibrationSession();
+        } else {
+            endCalibrationSession();
+        }
+    });
+    
+    function startCalibrationSession() {
+        fetch("{% url 'evaluations:calibration_session' period.id %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                participants: [{{ request.user.id }}]
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                sessionActive = true;
+                document.getElementById('startSessionBtn').innerHTML = 
+                    '<i class="fas fa-stop"></i> 세션 종료';
+                document.getElementById('startSessionBtn').classList.replace('btn-primary', 'btn-danger');
+                alert('Calibration 세션이 시작되었습니다.');
+            }
+        });
+    }
+    
+    // 검토 모달
+    document.querySelectorAll('.review-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const evaluationId = this.dataset.evaluationId;
+            const employeeName = this.dataset.employeeName;
+            
+            document.getElementById('evaluationId').value = evaluationId;
+            document.getElementById('employeeInfo').innerHTML = 
+                `<h6>직원: ${employeeName}</h6>`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+            modal.show();
+        });
+    });
+    
+    // 결정 저장
+    document.getElementById('saveDecisionBtn').addEventListener('click', function() {
+        const decision = {
+            evaluation_id: document.getElementById('evaluationId').value,
+            final_grade: document.getElementById('finalGrade').value,
+            rationale: document.getElementById('rationale').value,
+            unanimous: document.getElementById('unanimous').checked
+        };
+        
+        // 여기에 결정 저장 로직 추가
+        console.log('Decision:', decision);
+        
+        // 모달 닫기
+        bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+    });
+</script>
+{% endblock %}

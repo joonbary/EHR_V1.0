@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ transfer.employee.name }} 인사이동 상세{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .status-approved {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .status-pending {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+        border: 1px solid rgba(251, 146, 60, 0.3);
+    }
+    .transfer-flow {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+    .transfer-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        min-width: 200px;
+        text-align: center;
+    }
+    .transfer-box.old {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.05);
+    }
+    .transfer-box.new {
+        border-color: rgba(34, 197, 94, 0.3);
+        background: rgba(34, 197, 94, 0.05);
+    }
+    .flow-arrow {
+        color: #3b82f6;
+        font-size: 1.5rem;
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 30px;
+        padding-bottom: 20px;
+        border-left: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        background: #3b82f6;
+        border-radius: 50%;
+    }
+    .timeline-item:last-child {
+        border-left-color: transparent;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <nav class="text-sm text-gray-400 mb-4">
+            <a href="{% url 'organization:dashboard' %}" class="hover:text-white">조직관리</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'organization:transfer_list' %}" class="hover:text-white">인사이동 관리</a>
+            <span class="mx-2">/</span>
+            <span class="text-white">{{ transfer.employee.name }} 인사이동</span>
+        </nav>
+        
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">{{ transfer.employee.name }} 인사이동</h1>
+                <p class="text-gray-300">{{ transfer.get_transfer_type_display }} • {{ transfer.transfer_date|date:"Y년 m월 d일" }}</p>
+            </div>
+            <div class="flex gap-3">
+                {% if transfer.approved_date %}
+                <span class="status-badge status-approved">
+                    <i class="fas fa-check-circle"></i>승인완료
+                </span>
+                {% else %}
+                <span class="status-badge status-pending">
+                    <i class="fas fa-clock"></i>승인대기
+                </span>
+                <form method="post" action="{% url 'organization:transfer_approve' transfer.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+                            onclick="return confirm('인사이동을 승인하시겠습니까?')">
+                        <i class="fas fa-check mr-2"></i>승인
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 인사이동 흐름 -->
+    <div class="detail-card">
+        <h3 class="text-xl font-semibold text-white mb-6">인사이동 내역</h3>
+        
+        <div class="transfer-flow">
+            <!-- 이전 정보 -->
+            <div class="transfer-box old">
+                <h4 class="text-sm font-semibold text-red-400 mb-3">이전</h4>
+                <div class="space-y-2">
+                    <p class="text-white font-medium">{{ transfer.old_department.name }}</p>
+                    <p class="text-gray-300">{{ transfer.old_position }}</p>
+                    <p class="text-gray-400">Lv.{{ transfer.old_growth_level }}</p>
+                </div>
+            </div>
+            
+            <!-- 화살표 -->
+            <div class="flow-arrow">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            
+            <!-- 새 정보 -->
+            <div class="transfer-box new">
+                <h4 class="text-sm font-semibold text-green-400 mb-3">새로운</h4>
+                <div class="space-y-2">
+                    <p class="text-white font-medium">{{ transfer.new_department.name }}</p>
+                    <p class="text-white font-medium">{{ transfer.new_position }}</p>
+                    <p class="text-green-400 font-medium">Lv.{{ transfer.new_growth_level }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 변화 요약 -->
+        <div class="mt-6 bg-blue-500 bg-opacity-10 border border-blue-500 border-opacity-30 rounded-lg p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-400">부서 변경:</span>
+                    <p class="text-white">
+                        {% if transfer.old_department != transfer.new_department %}
+                        <i class="fas fa-check text-green-400 mr-1"></i>변경됨
+                        {% else %}
+                        <i class="fas fa-minus text-gray-500 mr-1"></i>변경없음
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <span class="text-gray-400">직위 변경:</span>
+                    <p class="text-white">
+                        {% if transfer.old_position != transfer.new_position %}
+                        <i class="fas fa-check text-green-400 mr-1"></i>변경됨
+                        {% else %}
+                        <i class="fas fa-minus text-gray-500 mr-1"></i>변경없음
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <span class="text-gray-400">성장레벨:</span>
+                    <p class="text-white">
+                        {% if transfer.old_growth_level != transfer.new_growth_level %}
+                            {% if transfer.new_growth_level > transfer.old_growth_level %}
+                            <i class="fas fa-arrow-up text-green-400 mr-1"></i>상승
+                            {% else %}
+                            <i class="fas fa-arrow-down text-red-400 mr-1"></i>하락
+                            {% endif %}
+                        {% else %}
+                        <i class="fas fa-minus text-gray-500 mr-1"></i>변경없음
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 정보 -->
+    <div class="detail-card">
+        <h3 class="text-xl font-semibold text-white mb-6">상세 정보</h3>
+        
+        <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <dt class="text-sm text-gray-400 mb-1">이동 유형</dt>
+                <dd class="text-white font-medium">{{ transfer.get_transfer_type_display }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-gray-400 mb-1">이동일</dt>
+                <dd class="text-white font-medium">{{ transfer.transfer_date|date:"Y년 m월 d일" }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-gray-400 mb-1">등록자</dt>
+                <dd class="text-white font-medium">{{ transfer.created_by.username }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-gray-400 mb-1">등록일</dt>
+                <dd class="text-white font-medium">{{ transfer.created_at|date:"Y년 m월 d일 H:i" }}</dd>
+            </div>
+        </dl>
+        
+        <div class="mt-6">
+            <dt class="text-sm text-gray-400 mb-2">이동 사유</dt>
+            <dd class="text-white bg-gray-800 bg-opacity-50 rounded-lg p-4">
+                {{ transfer.reason|linebreaks }}
+            </dd>
+        </div>
+        
+        {% if transfer.remarks %}
+        <div class="mt-4">
+            <dt class="text-sm text-gray-400 mb-2">비고</dt>
+            <dd class="text-gray-300 bg-gray-800 bg-opacity-30 rounded-lg p-4">
+                {{ transfer.remarks|linebreaks }}
+            </dd>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 승인 정보 -->
+    {% if transfer.approved_date %}
+    <div class="detail-card">
+        <h3 class="text-xl font-semibold text-white mb-6">승인 정보</h3>
+        
+        <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <dt class="text-sm text-gray-400 mb-1">승인자</dt>
+                <dd class="text-white font-medium">{{ transfer.approved_by.username }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-gray-400 mb-1">승인일</dt>
+                <dd class="text-white font-medium">{{ transfer.approved_date|date:"Y년 m월 d일 H:i" }}</dd>
+            </div>
+        </dl>
+        
+        <div class="mt-4 bg-green-500 bg-opacity-10 border border-green-500 border-opacity-30 rounded-lg p-4">
+            <p class="text-green-400 text-sm">
+                <i class="fas fa-info-circle mr-2"></i>
+                이 인사이동은 승인되어 직원의 정보가 업데이트되었습니다.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 이력 -->
+    <div class="detail-card">
+        <h3 class="text-xl font-semibold text-white mb-6">처리 이력</h3>
+        
+        <div class="space-y-0">
+            <div class="timeline-item">
+                <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-blue-400 font-medium">인사이동 등록</span>
+                        <span class="text-sm text-gray-400">{{ transfer.created_at|date:"Y.m.d H:i" }}</span>
+                    </div>
+                    <p class="text-sm text-gray-300">{{ transfer.created_by.username }}님이 인사이동을 등록했습니다.</p>
+                </div>
+            </div>
+            
+            {% if transfer.approved_date %}
+            <div class="timeline-item">
+                <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-green-400 font-medium">인사이동 승인</span>
+                        <span class="text-sm text-gray-400">{{ transfer.approved_date|date:"Y.m.d H:i" }}</span>
+                    </div>
+                    <p class="text-sm text-gray-300">{{ transfer.approved_by.username }}님이 인사이동을 승인했습니다.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 액션 버튼 -->
+    <div class="flex justify-end gap-4">
+        <a href="{% url 'organization:transfer_list' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors">
+            목록으로
+        </a>
+        <a href="{% url 'employees:employee_detail' transfer.employee.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
+            <i class="fas fa-user mr-2"></i>직원 프로필
+        </a>
+    </div>
+</div>
+{% endblock %}

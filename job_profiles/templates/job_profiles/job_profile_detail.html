@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile.job_role.name }} - 직무기술서{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'job_profiles:list' %}">직무기술서</a></li>
+            <li class="breadcrumb-item">{{ profile.job_role.job_type.category.name }}</li>
+            <li class="breadcrumb-item">{{ profile.job_role.job_type.name }}</li>
+            <li class="breadcrumb-item active">{{ profile.job_role.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- 직무 정보 헤더 -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ profile.job_role.name }}</h2>
+                    <small>{{ profile.job_role.code }}</small>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>직군</strong>
+                            <p class="mb-0">{{ profile.job_role.job_type.category.name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>직종</strong>
+                            <p class="mb-0">{{ profile.job_role.job_type.name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>최종 수정일</strong>
+                            <p class="mb-0">{{ profile.updated_at|date:"Y-m-d" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 역할과 책임 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="bi bi-person-badge"></i> 역할과 책임</h4>
+                </div>
+                <div class="card-body">
+                    <div class="content-text">
+                        {{ profile.role_responsibility|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 자격요건 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="bi bi-check-circle"></i> 자격요건</h4>
+                </div>
+                <div class="card-body">
+                    <div class="content-text">
+                        {{ profile.qualification|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 성장경로 -->
+            {% if profile.growth_path %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="bi bi-graph-up-arrow"></i> 성장경로</h4>
+                </div>
+                <div class="card-body">
+                    <div class="content-text">
+                        {{ profile.growth_path|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- 필요 스킬 -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-tools"></i> 기본 기술/지식</h4>
+                </div>
+                <div class="card-body">
+                    {% if profile.basic_skills %}
+                    <div class="skill-tags">
+                        {% for skill in profile.basic_skills %}
+                        <span class="badge bg-light text-dark mb-2">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">등록된 기본 스킬이 없습니다.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-lightbulb"></i> 응용 기술/지식</h4>
+                </div>
+                <div class="card-body">
+                    {% if profile.applied_skills %}
+                    <div class="skill-tags">
+                        {% for skill in profile.applied_skills %}
+                        <span class="badge bg-light text-dark mb-2">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">등록된 응용 스킬이 없습니다.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 관련 자격증 -->
+            {% if profile.related_certifications %}
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0"><i class="bi bi-award"></i> 관련 자격증</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        {% for cert in profile.related_certifications %}
+                        <li class="mb-2">
+                            <i class="bi bi-check2-circle text-success"></i> {{ cert }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- 관련 직무 -->
+            {% if related_profiles %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">관련 직무</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for related in related_profiles %}
+                    <a href="{% url 'job_profiles:detail' related.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ related.job_role.name }}</h6>
+                        </div>
+                        <small class="text-muted">{{ related.job_role.job_type.name }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- 하단 액션 버튼 -->
+    <div class="mt-4 text-center">
+        <a href="{% url 'job_profiles:list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 목록으로
+        </a>
+        <button class="btn btn-outline-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> 인쇄
+        </button>
+    </div>
+</div>
+
+<style>
+.content-text {
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+.skill-tags .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    border: 1px solid #dee2e6;
+}
+
+@media print {
+    .breadcrumb, .btn {
+        display: none;
+    }
+}
+</style>
+{% endblock %}

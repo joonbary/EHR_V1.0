@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AIRISS JavaScript Test</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4">AIRISS JavaScript 테스트 페이지</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-4">
+            <h2 class="text-lg font-semibold mb-2">JavaScript 실행 테스트</h2>
+            <button onclick="testFunction()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                테스트 버튼 (콘솔 확인)
+            </button>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-2">AI 설정 테스트</h2>
+            <button onclick="showAISettings()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                AI 설정 열기
+            </button>
+            
+            <div id="aiSettingsCard" class="hidden mt-4 border-2 border-green-500 p-4 rounded">
+                <h3 class="font-bold">AI 설정이 표시됩니다</h3>
+                <p>이 메시지가 보이면 JavaScript가 정상 작동 중입니다.</p>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-sm text-gray-600">
+            <p>콘솔을 열어 메시지를 확인하세요 (F12 → Console)</p>
+        </div>
+    </div>
+    
+    <script>
+        console.log('🚀 페이지 로드됨 - JavaScript 정상 작동');
+        
+        function testFunction() {
+            console.log('✅ 테스트 버튼 클릭됨!');
+            alert('JavaScript가 정상적으로 작동합니다!');
+        }
+        
+        function showAISettings() {
+            console.log('🔧 AI 설정 표시');
+            const card = document.getElementById('aiSettingsCard');
+            if (card) {
+                card.classList.toggle('hidden');
+            }
+        }
+        
+        // 페이지 로드 시 자동 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM 로드 완료');
+            console.log('현재 URL:', window.location.href);
+        });
+    </script>
+</body>
+</html>
