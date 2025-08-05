@@ -230,5 +230,9 @@ def chatbot(request):
     return render(request, "airiss/chatbot.html", {"page_title": "HR 챗봇"})
 
 def airiss_v4_portal(request):
-    """AIRISS v4 포털 - 준비중"""
-    return render(request, "airiss/airiss_v4_portal.html", {"page_title": "AIRISS v4 포털"})
+    """AIRISS v4 포털"""
+    context = {
+        "page_title": "AIRISS v4 포털",
+        "airiss_v4_url": "https://web-production-4066.up.railway.app"  # 실제 AIRISS v4 MSA URL
+    }
+    return render(request, "airiss/airiss_v4_portal.html", context)
