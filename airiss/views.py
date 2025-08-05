@@ -87,7 +87,12 @@ def executive_dashboard(request):
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
     if use_react:
-        return render(request, "airiss/executive_dashboard_react.html", context)
+        try:
+            return render(request, "airiss/executive_dashboard_react.html", context)
+        except Exception as e:
+            print(f"[ERROR] React template not found: {e}")
+            # React 템플릿이 없으면 simple 버전으로 폴백
+            return render(request, "airiss/executive_dashboard_simple.html", context)
     else:
         return render(request, "airiss/executive_dashboard_simple.html", context)
 
@@ -172,7 +177,12 @@ def employee_analysis_all(request):
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
     if use_react:
-        return render(request, "airiss/employee_analysis_all_react.html", context)
+        try:
+            return render(request, "airiss/employee_analysis_all_react.html", context)
+        except Exception as e:
+            print(f"[ERROR] React template not found: {e}")
+            # React 템플릿이 없으면 simple 버전으로 폴백
+            return render(request, "airiss/employee_analysis_all_simple.html", context)
     else:
         return render(request, "airiss/employee_analysis_all_simple.html", context)
 
