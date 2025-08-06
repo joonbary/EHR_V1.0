@@ -65,25 +65,41 @@ def msa_integration(request):
                         print(f"MSA API 응답: {result}")  # 응답 구조 확인용 로그
                         
                         # AIRISS API 응답에서 데이터 추출
-                        # 응답 구조: {"data": {"prediction": {...}, "analysis": {...}}}
-                        if "data" in result:
-                            prediction = result["data"].get("prediction", {})
-                            analysis = result["data"].get("analysis", {})
+                        # 실제 응답 구조: {"success": true, "result": {...}}
+                        if result.get("success") and "result" in result:
+                            api_result = result["result"]
                             
-                            # 점수 계산 (여러 카테고리의 평균)
-                            scores = []
-                            for category in ["성과", "역량", "태도", "리더십", "팀워크"]:
-                                if category in prediction:
-                                    scores.append(prediction[category])
+                            # 실제 AI 점수와 분석 데이터 추출
+                            ai_score = api_result.get("hybrid_score", api_result.get("text_score", 70))
+                            confidence = api_result.get("confidence", 0.85)
+                            insights_text = api_result.get("summary", f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다.")
                             
-                            ai_score = sum(scores) / len(scores) if scores else random.randint(60, 95)
-                            confidence = prediction.get("confidence", 0.85)
-                            insights_text = analysis.get("summary", f"{employee.name}님의 종합 성과 점수는 {ai_score:.1f}점입니다.")
+                            # 세부 점수들
+                            dimension_scores = api_result.get("dimension_scores", {})
+                            
+                            # result_data에 실제 AI 분석 결과 저장
+                            result_data = {
+                                "hybrid_score": ai_score,
+                                "text_score": api_result.get("text_score", 0),
+                                "sentiment_score": api_result.get("sentiment_score", 0),
+                                "dimension_scores": dimension_scores,
+                                "strengths": api_result.get("strengths", []),
+                                "weaknesses": api_result.get("weaknesses", []),
+                                "processing_time": api_result.get("processing_time", 0),
+                                "model_version": api_result.get("model_version", "v1.0")
+                            }
                         else:
-                            # 예상과 다른 응답 구조
+                            # API 응답이 예상과 다른 경우
+                            print(f"예상과 다른 API 응답: {result}")
                             ai_score = random.randint(60, 95)
                             confidence = 0.85
                             insights_text = f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다."
+                            result_data = {
+                                "goalAchievement": random.randint(70, 100),
+                                "projectSuccess": random.randint(70, 100),
+                                "customerSatisfaction": random.randint(70, 100),
+                                "attendance": random.randint(85, 100),
+                            }
                     else:
                         # API 호출 실패 시 기본값 사용
                         print(f"MSA API 호출 실패: {response.status_code}")
@@ -91,6 +107,10 @@ def msa_integration(request):
                         ai_score = random.randint(60, 95)
                         confidence = random.uniform(0.7, 0.95)
                         insights_text = f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다."
+                        result_data = {
+                            "error": f"API 호출 실패: {response.status_code}",
+                            "fallback": True
+                        }
                         
                 except requests.exceptions.RequestException as e:
                     # 네트워크 오류 등의 경우 기본값 사용
@@ -98,6 +118,10 @@ def msa_integration(request):
                     ai_score = random.randint(60, 95)
                     confidence = random.uniform(0.7, 0.95)
                     insights_text = f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다."
+                    result_data = {
+                        "error": "MSA 서버 연결 실패",
+                        "fallback": True
+                    }
                 
                 # 분석 결과 저장
                 AIAnalysisResult.objects.create(
@@ -105,12 +129,7 @@ def msa_integration(request):
                     employee=employee,
                     score=ai_score,
                     confidence=confidence,
-                    result_data={
-                        "goalAchievement": random.randint(70, 100),
-                        "projectSuccess": random.randint(70, 100),
-                        "customerSatisfaction": random.randint(70, 100),
-                        "attendance": random.randint(85, 100),
-                    },
+                    result_data=result_data,  # 실제 AI 분석 결과 데이터 저장
                     insights=insights_text,
                     created_by=request.user if request.user.is_authenticated else None
                 )
