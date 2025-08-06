@@ -3,7 +3,15 @@ from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.db.models import Count, Prefetch
 import json
-from .models import JobCategory, JobType, JobRole, JobProfile
+
+# Conditional import to prevent import errors
+try:
+    from .models import JobCategory, JobType, JobRole, JobProfile
+except ImportError:
+    JobCategory = None
+    JobType = None
+    JobRole = None
+    JobProfile = None
 
 
 class JobHierarchyView(TemplateView):
@@ -58,8 +66,6 @@ class JobTreeMapView(TemplateView):
 def job_tree_map_data_api(request):
     """트리맵 데이터 API"""
     try:
-        from .models import JobCategory, JobType, JobRole, JobProfile
-        
         # 카테고리별 데이터 구성 (수정됨 - 고객서비스 제거)
         non_pl_categories = ['IT/디지털', '경영지원', '금융', '영업']
         print(f"DEBUG: non_pl_categories = {non_pl_categories}")  # 디버그 로그
