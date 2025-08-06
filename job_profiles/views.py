@@ -16,7 +16,7 @@ except ImportError:
 
 class JobHierarchyView(TemplateView):
     """새로운 직무체계도 계층 뷰"""
-    template_name = 'job_profiles/simple_hierarchy.html'  # 안정적인 간단한 템플릿 사용
+    template_name = 'job_profiles/job_hierarchy.html'  # 원래의 세련된 계층형 UI 복원
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

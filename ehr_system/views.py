@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 class DashboardView(TemplateView):
     """메인 대시보드 뷰"""
-    template_name = 'simple_dashboard.html'  # 안정적인 독립 템플릿 사용
+    template_name = 'dashboard.html'  # 원래의 세련된 대시보드 복원
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
