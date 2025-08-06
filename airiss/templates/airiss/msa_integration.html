@@ -3,6 +3,11 @@
 
 {% block title %}{{ page_title }} - OK금융그룹 e-HR{% endblock %}
 
+{% block extra_head %}
+<!-- AIRISS API Configuration -->
+<script src="{% static 'js/airiss_config.js' %}"></script>
+{% endblock %}
+
 {% block extra_css %}
 <style>
     /* AIRISS MSA Integration Styles */

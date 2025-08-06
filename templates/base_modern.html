@@ -62,6 +62,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     
+    <!-- Sidebar Auto-Hide Styles -->
+    <link rel="stylesheet" href="{% static 'css/sidebar-autohide.css' %}">
+    
     <!-- Custom Styles -->
     <style>
         /* 그라디언트 배경 */
@@ -215,8 +218,8 @@
         <!-- 모바일 오버레이 -->
         <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden opacity-0 pointer-events-none transition-opacity" aria-hidden="true"></div>
         
-        <!-- 좌측 사이드바 (글래스모피즘 적용) -->
-        <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-72 glass dark:glass-dark border-r border-gray-200/50 dark:border-gray-700/50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40" role="navigation" aria-label="메인 네비게이션">
+        <!-- 좌측 사이드바 (글래스모피즘 적용, 자동 숨김 기능) -->
+        <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-72 glass dark:glass-dark border-r border-gray-200/50 dark:border-gray-700/50 transform -translate-x-full transition-transform duration-300 z-40" role="navigation" aria-label="메인 네비게이션">
             <div class="h-full flex flex-col pt-20">
                 
                 <!-- 네비게이션 메뉴 -->
@@ -433,6 +436,21 @@
                 
                 <!-- 하단 정보 -->
                 <div class="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
+                    <!-- 자동 숨김 토글 -->
+                    <div class="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <i data-lucide="eye-off" class="w-4 h-4 inline mr-2"></i>
+                                자동 숨김
+                            </span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="sidebarAutoHideToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">메뉴 클릭 시 사이드바 자동 숨김</p>
+                    </div>
+                    
                     <div class="p-4 bg-gradient-bg-subtle rounded-xl">
                         <p class="text-sm font-medium mb-1">시스템 상태</p>
                         <div class="flex items-center space-x-2">
@@ -447,8 +465,8 @@
         <!-- 모바일 오버레이 -->
         <div id="overlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
         
-        <!-- 메인 콘텐츠 -->
-        <main id="main-content" class="lg:ml-72 pt-20 min-h-screen">
+        <!-- 메인 콘텐츠 (자동 조정) -->
+        <main id="main-content" class="pt-20 min-h-screen transition-all duration-300">
             <div class="p-6 lg:p-8">
                 {% block content %}{% endblock %}
             </div>
@@ -471,49 +489,8 @@
             lucide.createIcons();
         });
         
-        // Mobile menu toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        
-        menuToggle.addEventListener('click', () => {
-            const isOpen = !sidebar.classList.contains('-translate-x-full');
-            
-            if (isOpen) {
-                // Close sidebar
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('opacity-0', 'pointer-events-none');
-                overlay.classList.remove('opacity-100');
-                menuToggle.setAttribute('aria-expanded', 'false');
-                menuToggle.setAttribute('aria-label', '메뉴 열기');
-            } else {
-                // Open sidebar
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('opacity-0', 'pointer-events-none');
-                overlay.classList.add('opacity-100');
-                menuToggle.setAttribute('aria-expanded', 'true');
-                menuToggle.setAttribute('aria-label', '메뉴 닫기');
-            }
-        });
-        
-        overlay.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('opacity-0', 'pointer-events-none');
-            overlay.classList.remove('opacity-100');
-            menuToggle.setAttribute('aria-expanded', 'false');
-            menuToggle.setAttribute('aria-label', '메뉴 열기');
-        });
-        
-        // ESC 키로 사이드바 닫기
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('opacity-0', 'pointer-events-none');
-                overlay.classList.remove('opacity-100');
-                menuToggle.setAttribute('aria-expanded', 'false');
-                menuToggle.setAttribute('aria-label', '메뉴 열기');
-            }
-        });
+        // Note: Mobile menu toggle is now handled by sidebar-autohide.js
+        // The script provides auto-hide functionality with hover detection
         
         // Search shortcut
         document.addEventListener('keydown', (e) => {
@@ -557,6 +534,9 @@
             });
         });
     </script>
+    
+    <!-- Load Sidebar Auto-Hide Script -->
+    <script src="{% static 'js/sidebar-autohide.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

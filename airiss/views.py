@@ -13,6 +13,13 @@ except ImportError:
     # Railway 환경에서 모델 임포트 문제 대비
     Employee = None
 
+def file_upload(request):
+    """AIRISS 파일 업로드 페이지"""
+    context = {
+        "page_title": "AIRISS 파일 업로드",
+    }
+    return render(request, "airiss/file_upload.html", context)
+
 def msa_integration(request):
     """AIRISS MSA 통합 페이지"""
     from .models import AIAnalysisResult, AIAnalysisType

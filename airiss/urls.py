@@ -13,6 +13,9 @@ urlpatterns = [
     # AI 분석 결과 조회
     path("analysis-results/", views.analysis_results, name="analysis_results"),
     
+    # 파일 업로드
+    path("file-upload/", views.file_upload, name="file_upload"),
+    
     # 더미 URL들 - base_modern.html 호환성을 위해
     path("", views.dashboard, name="dashboard"),
     path("analytics/", views.analytics, name="analytics"),
