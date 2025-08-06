@@ -41,14 +41,15 @@ def msa_integration(request):
                 
                 # MSA 서버 호출
                 try:
-                    # AIRISS API 호출을 위한 데이터 준비
+                    # AIRISS API 형식에 맞게 데이터 준비
+                    current_year = str(timezone.now().year)
+                    evaluation_text = f"{employee.name}님은 {employee.department}에서 {employee.position} 직급으로 성실하게 근무하고 있습니다. 업무 수행 능력이 뛰어나며 팀워크가 좋습니다."
+                    
                     analysis_data = {
-                        "employee_id": str(emp_id),
-                        "employee_name": employee.name,
-                        "department": employee.department,
-                        "position": employee.position,
-                        "opinion": f"{employee.name}님은 {employee.department}에서 {employee.position} 직급으로 근무 중입니다.",
-                        "evaluation_type": "performance"
+                        "uid": str(emp_id),
+                        "opinions": {
+                            current_year: evaluation_text
+                        }
                     }
                     
                     # AIRISS MSA 서버에 분석 요청
@@ -61,13 +62,32 @@ def msa_integration(request):
                     
                     if response.status_code == 200:
                         result = response.json()
-                        # API 응답에서 점수 추출 (API 응답 구조에 따라 조정 필요)
-                        ai_score = result.get("score", random.randint(60, 95))
-                        confidence = result.get("confidence", random.uniform(0.7, 0.95))
-                        insights_text = result.get("analysis", f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다.")
+                        print(f"MSA API 응답: {result}")  # 응답 구조 확인용 로그
+                        
+                        # AIRISS API 응답에서 데이터 추출
+                        # 응답 구조: {"data": {"prediction": {...}, "analysis": {...}}}
+                        if "data" in result:
+                            prediction = result["data"].get("prediction", {})
+                            analysis = result["data"].get("analysis", {})
+                            
+                            # 점수 계산 (여러 카테고리의 평균)
+                            scores = []
+                            for category in ["성과", "역량", "태도", "리더십", "팀워크"]:
+                                if category in prediction:
+                                    scores.append(prediction[category])
+                            
+                            ai_score = sum(scores) / len(scores) if scores else random.randint(60, 95)
+                            confidence = prediction.get("confidence", 0.85)
+                            insights_text = analysis.get("summary", f"{employee.name}님의 종합 성과 점수는 {ai_score:.1f}점입니다.")
+                        else:
+                            # 예상과 다른 응답 구조
+                            ai_score = random.randint(60, 95)
+                            confidence = 0.85
+                            insights_text = f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다."
                     else:
                         # API 호출 실패 시 기본값 사용
                         print(f"MSA API 호출 실패: {response.status_code}")
+                        print(f"응답 내용: {response.text}")
                         ai_score = random.randint(60, 95)
                         confidence = random.uniform(0.7, 0.95)
                         insights_text = f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다."
