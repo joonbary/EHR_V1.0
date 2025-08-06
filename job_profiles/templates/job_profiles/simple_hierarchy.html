@@ -41,16 +41,27 @@
     
     <script>
     // 데이터 로드
+    console.log('Starting data load...');
+    
     fetch('/job-profiles/api/tree-map-data/')
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('API Data:', data);
             if (data.success) {
                 displayJobs(data.data);
+            } else {
+                document.getElementById('jobList').innerHTML = `<p class="text-red-600">API 에러: ${data.error || 'Unknown error'}</p>`;
             }
         })
         .catch(error => {
             console.error('Error loading data:', error);
-            document.getElementById('jobList').innerHTML = '<p class="text-red-600">데이터 로드 중 오류가 발생했습니다.</p>';
+            document.getElementById('jobList').innerHTML = `<p class="text-red-600">데이터 로드 중 오류: ${error.message}</p>`;
         });
     
     function displayJobs(data) {

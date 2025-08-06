@@ -7,9 +7,25 @@ app_name = 'job_profiles'
 def health_check(request):
     """Health check endpoint"""
     try:
-        from .models import JobCategory
-        count = JobCategory.objects.count()
-        return JsonResponse({'status': 'ok', 'categories': count})
+        from .models import JobCategory, JobType, JobRole, JobProfile
+        categories = JobCategory.objects.count()
+        types = JobType.objects.count()
+        roles = JobRole.objects.count()
+        profiles = JobProfile.objects.count()
+        
+        # 실제 데이터 샘플
+        sample_categories = list(JobCategory.objects.values('name')[:5])
+        
+        return JsonResponse({
+            'status': 'ok', 
+            'counts': {
+                'categories': categories,
+                'types': types,
+                'roles': roles,
+                'profiles': profiles
+            },
+            'sample_categories': sample_categories
+        })
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
 
