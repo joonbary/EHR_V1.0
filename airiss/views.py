@@ -210,8 +210,75 @@ def employee_analysis_detail(request, employee_id):
 
 # 더미 뷰들 - base_modern.html의 URL 참조를 위해
 def dashboard(request):
-    """AIRISS 대시보드 - 준비중"""
-    return render(request, "airiss/dashboard.html", {"page_title": "AIRISS 대시보드"})
+    """AIRISS 대시보드"""
+    # 간단한 대시보드 정보
+    context = {
+        "page_title": "AIRISS 대시보드",
+        "total_employees": 0,
+        "total_analyses": 0,
+        "recent_insights": []
+    }
+    
+    if Employee:
+        try:
+            context["total_employees"] = Employee.objects.filter(employment_status="재직").count()
+        except:
+            pass
+    
+    # 간단한 HTML 응답 반환 (템플릿 문제 회피)
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AIRISS 대시보드</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body {{ background-color: #f5f7fa; }}
+            .header {{ background: linear-gradient(135deg, #FF6B00 0%, #E55A00 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; }}
+            .feature-card {{ background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: all 0.3s ease; text-decoration: none; color: inherit; display: block; height: 100%; }}
+            .feature-card:hover {{ transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); text-decoration: none; color: inherit; }}
+        </style>
+    </head>
+    <body>
+        <div class="container mt-4">
+            <div class="header">
+                <h1>AIRISS - AI 기반 HR 지원 시스템</h1>
+                <p class="mb-0">OK금융그룹 e-HR System과 통합된 AI 직원 성과/역량 평가 시스템</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <a href="/airiss/executive/" class="feature-card">
+                        <h3>📊 경영진 대시보드</h3>
+                        <p>전사 직원 현황 및 AI 분석 결과</p>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <a href="/airiss/employee-analysis/all/" class="feature-card">
+                        <h3>👥 전직원 분석</h3>
+                        <p>모든 직원의 AI 성과 점수 조회</p>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <a href="/airiss/msa-integration/" class="feature-card">
+                        <h3>🤖 AI 분석 실행</h3>
+                        <p>마이크로서비스 기반 AI 분석</p>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-5 text-center">
+                <a href="/" class="btn btn-outline-secondary">e-HR 메인으로</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    from django.http import HttpResponse
+    return HttpResponse(html)
 
 def analytics(request):
     """HR 분석 - 준비중"""
