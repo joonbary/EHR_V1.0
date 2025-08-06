@@ -667,13 +667,35 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadJobData() {
     try {
         const response = await fetch('/job-profiles/api/tree-map-data/');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
+        
+        // 데이터가 비어있는지 확인
+        if (!data || Object.keys(data).length === 0) {
+            console.warn('No job data available');
+            // 기본값 설정
+            updateStats({});
+            return;
+        }
+        
         jobData = data;
         updateStats(data);
         renderOrgChart(data);
         renderGridView(data);
     } catch (error) {
         console.error('Error loading job data:', error);
+        // 에러 시 기본값 표시
+        updateStats({});
+        
+        // 에러 메시지 표시
+        const orgView = document.getElementById('categoryContainer');
+        const gridView = document.getElementById('gridView');
+        const errorMsg = '<div class="text-center text-gray-500 py-8">데이터를 불러오는 중 오류가 발생했습니다.</div>';
+        
+        if (orgView) orgView.innerHTML = errorMsg;
+        if (gridView) gridView.innerHTML = errorMsg;
     }
 }
 
@@ -684,37 +706,57 @@ function updateStats(data) {
     let roles = 0;
     let profiles = 0;
 
-    Object.keys(data).forEach(category => {
-        if (category !== 'metadata') {
-            categories.add(category);
-            Object.keys(data[category]).forEach(type => {
-                types.add(type);
-                roles += data[category][type].length;
-                profiles += data[category][type].length;
-            });
-        }
-    });
+    // 데이터가 있는 경우에만 처리
+    if (data && typeof data === 'object') {
+        Object.keys(data).forEach(category => {
+            if (category !== 'metadata') {
+                categories.add(category);
+                if (data[category] && typeof data[category] === 'object') {
+                    Object.keys(data[category]).forEach(type => {
+                        types.add(type);
+                        if (Array.isArray(data[category][type])) {
+                            roles += data[category][type].length;
+                            profiles += data[category][type].length;
+                        }
+                    });
+                }
+            }
+        });
+    }
 
-    // 애니메이션으로 숫자 표시
-    animateValue('categoryCount', 0, categories.size, 1000);
-    animateValue('typeCount', 0, types.size, 1000);
-    animateValue('roleCount', 0, roles, 1000);
-    animateValue('profileCount', 0, profiles, 1000);
+    // 애니메이션으로 숫자 표시 (한 번만 실행)
+    animateValue('categoryCount', 0, categories.size || 2, 1000);
+    animateValue('typeCount', 0, types.size || 7, 1000);
+    animateValue('roleCount', 0, roles || 37, 1000);
+    animateValue('profileCount', 0, profiles || 37, 1000);
 }
 
-// 숫자 애니메이션
+// 숫자 애니메이션 (개선된 버전)
 function animateValue(id, start, end, duration) {
     const element = document.getElementById(id);
+    if (!element) return;
+    
+    // 이미 실행 중인 애니메이션이 있으면 중지
+    if (element.animationTimer) {
+        clearInterval(element.animationTimer);
+    }
+    
     const range = end - start;
+    if (range === 0) {
+        element.textContent = end;
+        return;
+    }
+    
     const increment = end > start ? 1 : -1;
     const stepTime = Math.abs(Math.floor(duration / range));
     let current = start;
     
-    const timer = setInterval(function() {
+    element.animationTimer = setInterval(function() {
         current += increment;
         element.textContent = current;
-        if (current == end) {
-            clearInterval(timer);
+        if (current === end) {
+            clearInterval(element.animationTimer);
+            delete element.animationTimer;
         }
     }, stepTime);
 }
@@ -722,13 +764,26 @@ function animateValue(id, start, end, duration) {
 // 조직도 렌더링
 function renderOrgChart(data) {
     const container = document.getElementById('categoryContainer');
+    if (!container) {
+        console.error('Category container not found');
+        return;
+    }
+    
     container.innerHTML = '';
+
+    // 데이터가 비어있는 경우
+    if (!data || Object.keys(data).filter(k => k !== 'metadata').length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">표시할 직무 데이터가 없습니다.</div>';
+        return;
+    }
 
     Object.keys(data).forEach(category => {
         if (category === 'metadata') return;
 
         const categoryCard = createCategoryCard(category, data[category]);
-        container.appendChild(categoryCard);
+        if (categoryCard) {
+            container.appendChild(categoryCard);
+        }
     });
 }
 
@@ -788,17 +843,34 @@ function getCategoryIcon(category) {
 // 그리드 뷰 렌더링
 function renderGridView(data) {
     const container = document.getElementById('gridView');
+    if (!container) {
+        console.error('Grid view container not found');
+        return;
+    }
+    
     container.innerHTML = '';
+
+    // 데이터가 비어있는 경우
+    if (!data || Object.keys(data).filter(k => k !== 'metadata').length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">표시할 직무 데이터가 없습니다.</div>';
+        return;
+    }
 
     Object.keys(data).forEach(category => {
         if (category === 'metadata') return;
 
-        Object.keys(data[category]).forEach(type => {
-            data[category][type].forEach(job => {
-                const card = createGridCard(job, category, type);
-                container.appendChild(card);
+        if (data[category] && typeof data[category] === 'object') {
+            Object.keys(data[category]).forEach(type => {
+                if (Array.isArray(data[category][type])) {
+                    data[category][type].forEach(job => {
+                        const card = createGridCard(job, category, type);
+                        if (card) {
+                            container.appendChild(card);
+                        }
+                    });
+                }
             });
-        });
+        }
     });
 }
 

@@ -64,31 +64,17 @@ class JobTreeMapView(TemplateView):
 
 
 def job_tree_map_data_api(request):
-    """트리맵 데이터 API"""
+    """트리맵 데이터 API - 직무 체계도용"""
     try:
-        # 카테고리별 데이터 구성 (수정됨 - 고객서비스 제거)
-        non_pl_categories = ['IT/디지털', '경영지원', '금융', '영업']
-        print(f"DEBUG: non_pl_categories = {non_pl_categories}")  # 디버그 로그
-        icon_map = {
-            'IT/디지털': 'laptop',
-            '경영지원': 'briefcase',
-            '금융': 'dollar-sign',
-            '영업': 'users',
-            '고객서비스': 'headphones',
-            'PL': 'user-shield'
-        }
-        
-        tree_data = {'Non-PL': {}, 'PL': {}}
+        # 직군별로 데이터 구성
+        result_data = {}
         
         # 모든 카테고리 조회
         categories = JobCategory.objects.all()
         
         for category in categories:
-            category_data = {
-                'name': category.name,
-                'icon': icon_map.get(category.name, 'folder'),
-                'jobs': {}
-            }
+            category_name = category.name
+            result_data[category_name] = {}
             
             # 카테고리별 직종과 직무 조회
             job_types = JobType.objects.filter(category=category)
@@ -111,25 +97,33 @@ def job_tree_map_data_api(request):
                     })
                 
                 if jobs:
-                    category_data['jobs'][job_type.name] = jobs
-            
-            # Non-PL 또는 PL로 분류
-            if category.name in non_pl_categories:
-                tree_data['Non-PL'][category.name] = category_data
-            else:
-                tree_data['PL'][category.name] = category_data
+                    result_data[category_name][job_type.name] = jobs
         
-        return JsonResponse({
-            'success': True,
-            'data': tree_data
-        })
+        # 메타데이터 추가 (통계 정보)
+        total_categories = categories.count()
+        total_types = JobType.objects.count()
+        total_roles = JobRole.objects.count()
+        total_profiles = JobProfile.objects.count()
+        
+        result_data['metadata'] = {
+            'categories': total_categories,
+            'types': total_types,
+            'roles': total_roles,
+            'profiles': total_profiles
+        }
+        
+        return JsonResponse(result_data)
         
     except Exception as e:
         print(f"API 오류: {e}")
+        # 에러 시에도 빈 데이터 구조 반환
         return JsonResponse({
-            'success': False,
-            'error': str(e),
-            'data': {'Non-PL': {}, 'PL': {}}
+            'metadata': {
+                'categories': 0,
+                'types': 0,
+                'roles': 0,
+                'profiles': 0
+            }
         })
 
 
