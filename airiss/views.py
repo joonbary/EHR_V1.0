@@ -2,8 +2,10 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Count, Avg, Q
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django.conf import settings
 import json
 import random
+import os
 
 try:
     from employees.models import Employee
@@ -15,6 +17,7 @@ def msa_integration(request):
     """AIRISS MSA 통합 페이지"""
     from .models import AIAnalysisResult, AIAnalysisType
     from django.contrib.auth.models import User
+    from django.conf import settings
     import requests
     
     employees_with_data = []
@@ -53,8 +56,11 @@ def msa_integration(request):
                     }
                     
                     # AIRISS MSA 서버에 분석 요청
+                    # Railway 환경에서는 내부 URL 사용 (더 빠르고 안전)
+                    airiss_api_url = settings.AIRISS_INTERNAL_URL if os.getenv('RAILWAY_ENVIRONMENT') else settings.AIRISS_SERVICE_URL
+                    
                     response = requests.post(
-                        "https://web-production-4066.up.railway.app/api/v1/analysis/analyze",
+                        f"{airiss_api_url}/api/v1/analysis/analyze",
                         json=analysis_data,
                         headers={"Content-Type": "application/json"},
                         timeout=10
@@ -181,7 +187,7 @@ def msa_integration(request):
     
     context = {
         "employees": json.dumps(employees_with_data, ensure_ascii=False),
-        "msa_url": "https://web-production-4066.up.railway.app",
+        "msa_url": settings.AIRISS_SERVICE_URL,
         "page_title": "AIRISS AI 직원 분석",
         "message": message,
     }
@@ -223,7 +229,7 @@ def executive_dashboard(request):
         "dept_stats": json.dumps(dept_stats, ensure_ascii=False),  # React를 위해 JSON으로 변환
         "ai_analysis_summary": {"high_performers": [], "risk_employees": [], "promotion_candidates": []},
         "grade_distribution": json.dumps({"S": 15, "A": 50, "B": 100, "C": 30, "D": 10}),
-        "msa_url": "https://web-production-4066.up.railway.app",
+        "msa_url": settings.AIRISS_SERVICE_URL,
         "last_updated": timezone.now()
     }
     
@@ -307,7 +313,7 @@ def employee_analysis_all(request):
         "employees_page": employees_page,
         "departments": json.dumps(departments, ensure_ascii=False) if use_react else departments,
         "positions": json.dumps(positions, ensure_ascii=False) if use_react else positions,
-        "msa_url": "https://web-production-4066.up.railway.app"
+        "msa_url": settings.AIRISS_SERVICE_URL
     }
     
     # React 버전 사용 (원본 AIRISS UI 완전 통합)
@@ -345,7 +351,7 @@ def employee_analysis_detail(request, employee_id):
     context = {
         "page_title": f"{employee.name}님의 분석 결과" if employee else "직원 분석 결과",
         "employee": employee,
-        "msa_url": "https://web-production-4066.up.railway.app"
+        "msa_url": settings.AIRISS_SERVICE_URL
     }
     return render(request, "airiss/employee_analysis_detail_simple.html", context)
 
@@ -448,7 +454,7 @@ def airiss_v4_portal(request):
     """AIRISS v4 포털"""
     context = {
         "page_title": "AIRISS v4 포털",
-        "airiss_v4_url": "https://web-production-4066.up.railway.app"  # 실제 AIRISS v4 MSA URL
+        "airiss_v4_url": settings.AIRISS_SERVICE_URL  # 실제 AIRISS v4 MSA URL
     }
     return render(request, "airiss/airiss_v4_portal.html", context)
 

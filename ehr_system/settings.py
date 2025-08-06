@@ -43,6 +43,12 @@ else:
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo')
 
+# AIRISS 서비스 설정
+# Railway 내부 통신을 위한 내부 도메인 사용 (더 빠르고 안전함)
+AIRISS_INTERNAL_URL = os.getenv('AIRISS_INTERNAL_URL', 'http://airiss.railway.internal')
+# 외부 접근용 URL (사용자가 브라우저에서 접근할 때)
+AIRISS_SERVICE_URL = os.getenv('AIRISS_SERVICE_URL', 'https://web-production-4066.up.railway.app')
+
 
 # Application definition
 
