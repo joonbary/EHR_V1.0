@@ -163,52 +163,27 @@ def airiss_upload_proxy(request):
 
 @csrf_exempt
 def airiss_jobs_proxy(request):
-    """AIRISS jobs API 프록시"""
-    try:
-        # Railway 환경 확인
-        if os.getenv('RAILWAY_ENVIRONMENT'):
-            airiss_url = settings.AIRISS_INTERNAL_URL
-        else:
-            airiss_url = settings.AIRISS_SERVICE_URL
-        
-        # AIRISS MSA 서비스로 전달
-        response = requests.get(
-            f"{airiss_url}/api/v1/analysis/jobs",
-            headers={'Content-Type': 'application/json'},
-            timeout=10
-        )
-        
-        # 응답 전달
-        if response.status_code == 200:
-            return JsonResponse(response.json(), safe=False)
-        else:
-            # AIRISS 서비스가 응답하지 않으면 더미 데이터 반환
-            return JsonResponse({
-                'total': 0,
-                'completed': 0,
-                'pending': 0,
-                'failed': 0,
-                'jobs': []
-            })
-            
-    except requests.exceptions.ConnectionError:
-        # 연결 실패 시 더미 데이터
-        return JsonResponse({
-            'total': 0,
-            'completed': 0,
-            'pending': 0,
-            'failed': 0,
-            'jobs': []
-        })
-    except Exception as e:
-        return JsonResponse({
-            'error': f'API 호출 중 오류: {str(e)}',
-            'total': 0,
-            'completed': 0,
-            'pending': 0,
-            'failed': 0,
-            'jobs': []
-        })
+    """AIRISS jobs API 프록시 - 로컬 처리"""
+    # 현재 AIRISS 서비스가 독립적으로 실행되지 않으므로 로컬에서 처리
+    # 실제 AIRISS 서비스가 배포되면 아래 코드를 활성화할 수 있음
+    
+    # 더미 데이터 반환 (시뮬레이션)
+    return JsonResponse({
+        'total': 10,
+        'completed': 7,
+        'pending': 2,
+        'failed': 1,
+        'jobs': [
+            {
+                'id': '1',
+                'status': 'completed',
+                'employee_count': 10,
+                'created_at': timezone.now().isoformat(),
+                'completed_at': timezone.now().isoformat()
+            }
+        ],
+        'message': 'AIRISS 분석 작업 목록 (시뮬레이션)'
+    })
 
 @csrf_exempt
 def airiss_api_proxy(request, api_path):

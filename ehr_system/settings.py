@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",  # CORS support for AIRISS
     "rest_framework",
     "django_filters",
     "employees",
@@ -85,6 +86,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # WhiteNoise 추가
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # CORS middleware for AIRISS
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -256,6 +258,25 @@ REST_FRAMEWORK = {
     ],
 }
 
+# CORS 설정 (AIRISS iframe 통합을 위해)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # AIRISS React 개발 서버
+    "http://localhost:8000",  # Django 개발 서버
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 # Railway 배포 추가 설정
 if os.getenv('RAILWAY_ENVIRONMENT'):
     # HTTPS 설정
@@ -269,3 +290,9 @@ if os.getenv('RAILWAY_ENVIRONMENT'):
         'https://*.railway.app',
         'https://*.up.railway.app',
     ]
+    
+    # CORS 설정 (프로덕션)
+    CORS_ALLOWED_ORIGINS.extend([
+        "https://ehrv10-production.up.railway.app",
+        "https://web-production-4066.up.railway.app",  # AIRISS 서비스
+    ])
