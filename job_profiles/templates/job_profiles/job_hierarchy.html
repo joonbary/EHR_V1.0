@@ -12,6 +12,56 @@
     padding: 2rem 1rem;
 }
 
+/* 트리맵 스타일 */
+#treemapView {
+    min-height: 600px;
+    background: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.treemap-node {
+    position: absolute;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 2px solid white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: 600;
+}
+
+.treemap-node:hover {
+    z-index: 10;
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.treemap-label {
+    font-size: 0.875rem;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    padding: 0.5rem;
+    word-wrap: break-word;
+}
+
+.treemap-value {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 0.25rem;
+}
+
+/* 트리맵 색상 테마 */
+.treemap-it { background: linear-gradient(135deg, #667eea, #764ba2); }
+.treemap-경영 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.treemap-금융 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.treemap-영업 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.treemap-pl { background: linear-gradient(135deg, #fa709a, #fee140); }
+
 /* 헤더 섹션 */
 .header-section {
     text-align: center;
@@ -433,17 +483,283 @@
 .modal-content {
     background: white;
     border-radius: 1rem;
-    max-width: 600px;
+    max-width: 1000px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     animation: slideUp 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* 직무 상세 모달 스타일 */
+.job-detail-header {
+    background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.job-path {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+}
+
+.job-title-large {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.job-meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    opacity: 0.95;
+}
+
+.job-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 탭 네비게이션 */
+.job-tabs {
+    display: flex;
+    border-bottom: 2px solid #E3DFDA;
+    background: #F8F6F3;
+    padding: 0 1.5rem;
+}
+
+.job-tab {
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    color: #55474A;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.job-tab:hover {
+    color: #FF6B00;
+}
+
+.job-tab.active {
+    color: #FF6B00;
+}
+
+.job-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #FF6B00;
+}
+
+/* 탭 콘텐츠 */
+.job-tab-content {
+    display: none;
+    padding: 2rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.job-tab-content.active {
+    display: block;
+}
+
+/* 콘텐츠 섹션 */
+.content-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-icon {
+    color: #FF6B00;
+    font-size: 1.125rem;
+}
+
+.content-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.content-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #E3DFDA;
+    display: flex;
+    align-items: flex-start;
+}
+
+.content-list li:last-child {
+    border-bottom: none;
+}
+
+.content-list li::before {
+    content: '✓';
+    color: #FF6B00;
+    font-weight: bold;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* 스킬 바디지 */
+.skill-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.skill-badge {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #FF6B00, #FFAA00);
+    color: white;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+}
+
+.skill-badge:hover {
+    transform: scale(1.05);
+}
+
+.skill-badge.secondary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.skill-badge.tertiary {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+/* 경력 개발 카드 */
+.career-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.career-card {
+    background: #F8F6F3;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.career-card:hover {
+    border-color: #FF6B00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.15);
+}
+
+.career-level {
+    font-size: 0.875rem;
+    color: #FF6B00;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.career-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+}
+
+.career-description {
+    font-size: 0.875rem;
+    color: #55474A;
+    line-height: 1.5;
+}
+
+/* 자격증 그리드 */
+.cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.cert-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: white;
+    border: 2px solid #E3DFDA;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.cert-item:hover {
+    border-color: #FF6B00;
+    background: #FFF4ED;
+}
+
+.cert-icon {
+    font-size: 1.5rem;
+    color: #FF6B00;
+}
+
+.cert-name {
+    font-weight: 600;
+    color: #1A1A1A;
+    font-size: 0.875rem;
+}
+
+/* 통계 카드 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, #FFF4ED, #FFEDE5);
+    border-radius: 0.75rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #FF6B00;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #55474A;
+    font-weight: 600;
 }
 
 .modal-header {
     padding: 1.5rem;
     border-bottom: 2px solid #E3DFDA;
     position: relative;
+    background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
 }
 
 .modal-title {
@@ -475,6 +791,367 @@
 
 .modal-body {
     padding: 1.5rem;
+}
+
+/* 개선된 직무 상세 스타일 */
+.job-detail-enhanced {
+    padding: 0.5rem;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8F00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.summary-card {
+    background: linear-gradient(135deg, #FFF4ED 0%, white 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.gradient-border {
+    position: relative;
+    border: 2px solid transparent;
+    background-image: linear-gradient(white, white), linear-gradient(135deg, #FF6B00, #FF8F00);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1.5rem;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.summary-item i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.summary-item .label {
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.summary-item .value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A1A;
+}
+
+.detail-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #E3DFDA;
+    overflow-x: auto;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    color: #666;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: #FF6B00;
+}
+
+.tab-btn.active {
+    color: #FF6B00;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #FF6B00;
+}
+
+.tab-content {
+    min-height: 300px;
+}
+
+.tab-pane {
+    animation: fadeIn 0.3s ease;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title i {
+    color: #FF6B00;
+}
+
+.description {
+    color: #55474A;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.highlight-box {
+    background: #FFF4ED;
+    border-left: 4px solid #FF6B00;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.highlight-box h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.value-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.value-list li {
+    padding: 0.5rem 0;
+    color: #55474A;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.text-success {
+    color: #28a745;
+}
+
+.text-primary {
+    color: #FF6B00;
+}
+
+.responsibility-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.responsibility-card {
+    background: #F8F8F8;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.responsibility-card:hover {
+    background: #FFF4ED;
+    transform: translateY(-2px);
+}
+
+.icon-wrapper {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.responsibility-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+}
+
+.responsibility-card p {
+    font-size: 0.875rem;
+    color: #666;
+    line-height: 1.5;
+}
+
+.requirement-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #E3DFDA;
+}
+
+.requirement-section:last-child {
+    border-bottom: none;
+}
+
+.requirement-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.requirement-section p {
+    color: #55474A;
+    line-height: 1.6;
+}
+
+.cert-tags, .skill-tags, .related-job-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.cert-tag, .skill-tag, .related-tag {
+    padding: 0.5rem 1rem;
+    background: #E3DFDA;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    color: #55474A;
+    transition: all 0.3s ease;
+}
+
+.cert-tag:hover, .skill-tag:hover, .related-tag:hover {
+    background: #FF6B00;
+    color: white;
+}
+
+.skills-section {
+    margin-bottom: 2rem;
+}
+
+.skills-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.skill-bars {
+    space: 1rem;
+}
+
+.skill-item {
+    margin-bottom: 1rem;
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #55474A;
+}
+
+.skill-bar {
+    height: 8px;
+    background: #E3DFDA;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.skill-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #FF6B00, #FF8F00);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.career-path {
+    margin-bottom: 2rem;
+}
+
+.career-step {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.career-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    width: 2px;
+    height: calc(100% + 1rem);
+    background: #E3DFDA;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: #FF6B00;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+}
+
+.step-content p {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.step-duration {
+    font-size: 0.75rem;
+    color: #FF6B00;
+    font-weight: 500;
+}
+
+.related-jobs h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 /* 애니메이션 */
@@ -636,7 +1313,7 @@
 <div id="jobModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title" id="modalTitle">직무 상세</h2>
+            <h2 class="modal-title" id="modalTitle">직무 상세 정보</h2>
             <button class="modal-close" onclick="closeModal()">
                 <i class="fas fa-times"></i>
             </button>
@@ -953,34 +1630,229 @@ function toggleJobRoles(element) {
     }
 }
 
-// 직무 상세 보기
+// 직무 상세 보기 (개선된 UI)
 async function showJobDetail(jobName, category, type) {
     try {
-        // API 호출하여 상세 정보 가져오기
         const modal = document.getElementById('jobModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
         
-        modalTitle.textContent = jobName;
+        // 직무별 상세 정보 데이터 (예시)
+        const jobDetails = getJobDetailData(jobName, category, type);
+        
+        modalTitle.innerHTML = `<i class="fas fa-briefcase"></i> ${jobName} 직무 상세 정보`;
+        
         modalBody.innerHTML = `
-            <div class="job-detail">
-                <div class="detail-section">
-                    <h3><i class="fas fa-sitemap"></i> 직무 정보</h3>
-                    <p><strong>직군:</strong> ${category}</p>
-                    <p><strong>직종:</strong> ${type}</p>
-                    <p><strong>직무:</strong> ${jobName}</p>
+            <div class="job-detail-container">
+                <!-- 헤더 정보 -->
+                <div class="job-detail-header">
+                    <div class="job-path">
+                        <i class="fas fa-sitemap"></i> ${category} > ${type} > ${jobName}
+                    </div>
+                    <h2 class="job-title-large">${jobName}</h2>
+                    <div class="job-meta">
+                        <div class="job-meta-item">
+                            <i class="fas fa-layer-group"></i>
+                            <span>성장레벨 ${jobDetails.growthLevel || '1-6'}</span>
+                        </div>
+                        <div class="job-meta-item">
+                            <i class="fas fa-users"></i>
+                            <span>현원 ${jobDetails.currentCount || '5'}명</span>
+                        </div>
+                        <div class="job-meta-item">
+                            <i class="fas fa-building"></i>
+                            <span>${category}</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="detail-section">
-                    <h3><i class="fas fa-tasks"></i> 주요 책임</h3>
-                    <p>• ${jobName} 관련 주요 업무 수행</p>
-                    <p>• 업무 기획 및 실행</p>
-                    <p>• 성과 관리 및 개선</p>
+                
+                <!-- 탭 메뉴 -->
+                <div class="job-tabs">
+                    <button class="job-tab active" onclick="switchDetailTab(event, 'overview')">
+                        <i class="fas fa-info-circle"></i> 개요
+                    </button>
+                    <button class="job-tab" onclick="switchDetailTab(event, 'responsibilities')">
+                        <i class="fas fa-tasks"></i> 주요 책임
+                    </button>
+                    <button class="job-tab" onclick="switchDetailTab(event, 'requirements')">
+                        <i class="fas fa-graduation-cap"></i> 자격 요건
+                    </button>
+                    <button class="job-tab" onclick="switchDetailTab(event, 'skills')">
+                        <i class="fas fa-cogs"></i> 필요 역량
+                    </button>
+                    <button class="job-tab" onclick="switchDetailTab(event, 'career')">
+                        <i class="fas fa-route"></i> 경력 개발
+                    </button>
                 </div>
-                <div class="detail-section">
-                    <h3><i class="fas fa-graduation-cap"></i> 자격 요건</h3>
-                    <p>• 관련 분야 전문성</p>
-                    <p>• 문제 해결 능력</p>
-                    <p>• 커뮤니케이션 능력</p>
+                
+                <!-- 탭 컨텐츠 -->
+                <div class="detail-content">
+                    <!-- 개요 탭 -->
+                    <div id="overview" class="job-tab-content active">
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="section-icon fas fa-info-circle"></i> 직무 개요
+                            </h3>
+                            <p style="line-height: 1.8; color: #55474A;">${jobDetails.description}</p>
+                        </div>
+                        
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="section-icon fas fa-star"></i> 핵심 가치
+                            </h3>
+                            <ul class="content-list">
+                                ${jobDetails.coreValues.map(v => `<li>${v}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="section-icon fas fa-chart-line"></i> 직무 통계
+                            </h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value">${jobDetails.currentCount || '5'}</div>
+                                    <div class="stat-label">현재 인원</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${jobDetails.growthLevel || '1-6'}</div>
+                                    <div class="stat-label">성장 레벨</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${jobDetails.responsibilities.length}</div>
+                                    <div class="stat-label">주요 책임</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${jobDetails.appliedSkills.length}</div>
+                                    <div class="stat-label">필요 역량</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 주요 책임 탭 -->
+                    <div id="responsibilities" class="job-tab-content">
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="section-icon fas fa-tasks"></i> 주요 책임 및 역할
+                            </h3>
+                            <div class="career-cards">
+                                ${jobDetails.responsibilities.map(r => `
+                                    <div class="career-card">
+                                        <div class="career-level">
+                                            <i class="${r.icon}"></i> 핵심 업무
+                                        </div>
+                                        <div class="career-title">${r.title}</div>
+                                        <div class="career-description">${r.description}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 자격 요건 탭 -->
+                    <div id="requirements" class="job-tab-content">
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="section-icon fas fa-graduation-cap"></i> 자격 요건
+                            </h3>
+                            
+                            <div class="content-section">
+                                <h4 class="section-title">
+                                    <i class="section-icon fas fa-university"></i> 학력
+                                </h4>
+                                <p style="line-height: 1.8; color: #55474A;">${jobDetails.education}</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4 class="section-title">
+                                    <i class="section-icon fas fa-briefcase"></i> 경력
+                                </h4>
+                                <p style="line-height: 1.8; color: #55474A;">${jobDetails.experience}</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4 class="section-title">
+                                    <i class="section-icon fas fa-certificate"></i> 자격증
+                                </h4>
+                                <div class="cert-grid">
+                                    ${jobDetails.certifications.map(c => `
+                                        <div class="cert-item">
+                                            <i class="cert-icon fas fa-award"></i>
+                                            <span class="cert-name">${c}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 필요 역량 탭 -->
+                    <div id="skills" class="job-tab-content">
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="section-icon fas fa-cogs"></i> 필요 역량
+                            </h3>
+                            
+                            <div class="content-section">
+                                <h4 class="section-title">
+                                    <i class="section-icon fas fa-brain"></i> 기본 역량
+                                </h4>
+                                <div class="stats-grid">
+                                    ${jobDetails.basicSkills.map(s => `
+                                        <div class="stat-item">
+                                            <div class="stat-value">${s.level}%</div>
+                                            <div class="stat-label">${s.name}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4 class="section-title">
+                                    <i class="section-icon fas fa-tools"></i> 응용 역량
+                                </h4>
+                                <div class="skill-badges">
+                                    ${jobDetails.appliedSkills.map((s, i) => `
+                                        <span class="skill-badge ${i % 3 === 1 ? 'secondary' : i % 3 === 2 ? 'tertiary' : ''}">${s}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 경력 개발 탭 -->
+                    <div id="career" class="job-tab-content">
+                        <div class="content-section">
+                            <h3 class="section-title">
+                                <i class="section-icon fas fa-route"></i> 경력 개발 경로
+                            </h3>
+                            
+                            <div class="career-cards">
+                                ${jobDetails.careerPath.map((step, index) => `
+                                    <div class="career-card">
+                                        <div class="career-level">단계 ${index + 1}</div>
+                                        <div class="career-title">${step.title}</div>
+                                        <div class="career-description">${step.description}</div>
+                                        <div class="career-level" style="margin-top: 0.5rem;">
+                                            <i class="fas fa-clock"></i> ${step.duration}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="content-section">
+                            <h4 class="section-title">
+                                <i class="section-icon fas fa-share-alt"></i> 연관 직무
+                            </h4>
+                            <div class="skill-badges">
+                                ${jobDetails.relatedJobs.map(j => `
+                                    <span class="skill-badge secondary">${j}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -989,6 +1861,136 @@ async function showJobDetail(jobName, category, type) {
     } catch (error) {
         console.error('Error loading job detail:', error);
     }
+}
+
+// 직무별 상세 데이터 가져오기
+function getJobDetailData(jobName, category, type) {
+    // 실제로는 API에서 가져와야 하지만, 예시 데이터 사용
+    const defaultData = {
+        description: `${jobName}은(는) ${category} 분야의 ${type} 직종에 속하는 핵심 직무입니다. OK금융그룹의 비전 달성을 위해 전문성과 혁신을 바탕으로 업무를 수행합니다.`,
+        growthLevel: '1-6',
+        currentCount: Math.floor(Math.random() * 20) + 5,
+        coreValues: [
+            '전문성과 혁신을 통한 가치 창출',
+            '고객 중심의 서비스 제공',
+            '팀워크와 협업을 통한 시너지 창출'
+        ],
+        responsibilities: [
+            {
+                icon: 'fas fa-project-diagram',
+                title: '업무 기획 및 설계',
+                description: `${type} 분야의 전문 지식을 활용하여 효율적인 업무 프로세스를 설계합니다.`
+            },
+            {
+                icon: 'fas fa-users',
+                title: '이해관계자 협업',
+                description: '내·외부 이해관계자와 효과적으로 소통하고 협업합니다.'
+            },
+            {
+                icon: 'fas fa-chart-line',
+                title: '성과 관리 및 개선',
+                description: '업무 성과를 분석하고 지속적인 개선 방안을 도출합니다.'
+            }
+        ],
+        education: '학사 이상 (관련 분야 전공 우대)',
+        experience: `${type} 분야 ${Math.floor(Math.random() * 3) + 1}년 이상 경력 우대`,
+        certifications: getCertificationsByType(type),
+        basicSkills: [
+            { name: '문제 해결 능력', level: 85 },
+            { name: '커뮤니케이션', level: 90 },
+            { name: '분석적 사고', level: 80 },
+            { name: '협업 능력', level: 88 }
+        ],
+        appliedSkills: getSkillsByType(type),
+        careerPath: [
+            {
+                title: '주니어 레벨',
+                description: '기본 업무 습득 및 역량 개발',
+                duration: '1-2년'
+            },
+            {
+                title: '시니어 레벨',
+                description: '전문 업무 수행 및 프로젝트 리드',
+                duration: '3-5년'
+            },
+            {
+                title: '매니저 레벨',
+                description: '팀 관리 및 전략 수립',
+                duration: '5년 이상'
+            }
+        ],
+        relatedJobs: getRelatedJobs(jobName, type)
+    };
+    
+    return defaultData;
+}
+
+// 직종별 자격증 가져오기
+function getCertificationsByType(type) {
+    const certMap = {
+        'IT개발': ['정보처리기사', 'AWS', 'PMP', 'SQLD'],
+        'IT기획': ['PMP', 'CBAP', '정보처리기사'],
+        'IT운영': ['ITIL', '네트워크관리사', '정보보안기사'],
+        '경영관리': ['PHR', 'SHRM-CP', '공인회계사', 'CPA'],
+        '기업금융': ['CFA', 'FRM', '신용분석사'],
+        '리테일금융': ['신용상담사', 'CFP', 'AFPK'],
+        '투자금융': ['CFA', '투자자산운용사'],
+        '기업영업': ['금융투자상담사', '신용분석사'],
+        '고객지원': ['CS리더', '서비스경영자격']        
+    };
+    
+    return certMap[type] || ['관련 분야 전문 자격증'];
+}
+
+// 직종별 필요 역량 가져오기
+function getSkillsByType(type) {
+    const skillMap = {
+        'IT개발': ['Java', 'Python', 'Spring', 'React', 'AWS', 'Docker'],
+        'IT기획': ['BA', 'BPM', 'SQL', 'Agile', 'JIRA'],
+        'IT운영': ['Linux', 'Network', 'Security', 'Monitoring', 'ITIL'],
+        '경영관리': ['Excel', 'PowerPoint', 'ERP', 'HR Analytics', 'Labor Law'],
+        '기업금융': ['Financial Modeling', 'Credit Analysis', 'Risk Management'],
+        '리테일금융': ['Customer Service', 'Product Knowledge', 'Sales'],
+        '투자금융': ['Portfolio Management', 'Market Analysis', 'Bloomberg'],
+        '기업영업': ['B2B Sales', 'CRM', 'Negotiation', 'Presentation'],
+        '고객지원': ['Customer Care', 'Communication', 'Problem Solving']
+    };
+    
+    return skillMap[type] || ['전문 역량', '분석 능력', '협업 능력'];
+}
+
+// 연관 직무 가져오기
+function getRelatedJobs(jobName, type) {
+    // 같은 직종 내 다른 직무들을 반환
+    const relatedJobs = [];
+    
+    if (jobData) {
+        Object.keys(jobData).forEach(cat => {
+            if (jobData[cat][type]) {
+                jobData[cat][type].forEach(job => {
+                    if (job.name !== jobName) {
+                        relatedJobs.push(job.name);
+                    }
+                });
+            }
+        });
+    }
+    
+    return relatedJobs.slice(0, 4); // 최대 4개까지만
+}
+
+// 상세 탭 전환
+function switchDetailTab(event, tabName) {
+    // 모든 탭 버튼과 패널 비활성화
+    const tabBtns = document.querySelectorAll('.job-tab');
+    const tabPanes = document.querySelectorAll('.job-tab-content');
+    
+    tabBtns.forEach(btn => btn.classList.remove('active'));
+    tabPanes.forEach(pane => pane.classList.remove('active'));
+    
+    // 선택한 탭 활성화
+    event.currentTarget.classList.add('active');
+    document.getElementById(tabName).classList.add('active');
 }
 
 // 모달 닫기
@@ -1079,8 +2081,159 @@ function searchJobs(query) {
 
 // 트리맵 렌더링
 function renderTreemap() {
-    // D3.js를 사용한 트리맵 구현
-    // 기존 트리맵 코드 활용
+    const container = document.getElementById('treemap');
+    container.innerHTML = ''; // 기존 내용 지우기
+    
+    // 데이터가 없으면 종료
+    if (!jobData || Object.keys(jobData).length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">트리맵을 표시할 데이터가 없습니다.</div>';
+        return;
+    }
+    
+    // 데이터 구조 변환
+    const hierarchyData = {
+        name: 'OK금융그룹',
+        children: []
+    };
+    
+    Object.keys(jobData).forEach(category => {
+        if (category === 'metadata') return;
+        
+        const categoryNode = {
+            name: category,
+            children: []
+        };
+        
+        Object.keys(jobData[category]).forEach(type => {
+            if (Array.isArray(jobData[category][type])) {
+                const typeNode = {
+                    name: type,
+                    children: jobData[category][type].map(job => ({
+                        name: job.name,
+                        value: Math.random() * 5 + 1, // 랜덤 크기로 시각적 다양성
+                        category: category,
+                        type: type,
+                        id: job.id
+                    }))
+                };
+                if (typeNode.children.length > 0) {
+                    categoryNode.children.push(typeNode);
+                }
+            }
+        });
+        
+        if (categoryNode.children.length > 0) {
+            hierarchyData.children.push(categoryNode);
+        }
+    });
+    
+    // 데이터가 비었는지 확인
+    if (hierarchyData.children.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">트리맵을 표시할 데이터가 없습니다.</div>';
+        return;
+    }
+    
+    // D3.js 트리맵 구현
+    const width = container.clientWidth || 1200;
+    const height = 600;
+    
+    // 컨테이너 스타일 설정
+    container.style.position = 'relative';
+    container.style.width = '100%';
+    container.style.height = height + 'px';
+    
+    // 컴피터다이베이스 색상 테마
+    const colorMap = {
+        'IT/디지털': 'linear-gradient(135deg, #667eea, #764ba2)',
+        '경영지원': 'linear-gradient(135deg, #f093fb, #f5576c)',
+        '금융': 'linear-gradient(135deg, #4facfe, #00f2fe)',
+        '영업': 'linear-gradient(135deg, #43e97b, #38f9d7)',
+        'PL': 'linear-gradient(135deg, #fa709a, #fee140)',
+        '고객지원': 'linear-gradient(135deg, #ff6b6b, #ffd93d)'
+    };
+    
+    // 단색 배경색 맵
+    const solidColorMap = {
+        'IT/디지털': '#667eea',
+        '경영지원': '#f093fb',
+        '금융': '#4facfe',
+        '영업': '#43e97b',
+        'PL': '#fa709a',
+        '고객지원': '#ff6b6b'
+    };
+    
+    const root = d3.hierarchy(hierarchyData)
+        .sum(d => d.value)
+        .sort((a, b) => b.value - a.value);
+    
+    d3.treemap()
+        .size([width, height])
+        .paddingTop(20)
+        .paddingInner(3)
+        .paddingOuter(5)
+        .round(true)(root);
+    
+    // 각 노드를 div로 렌더링 (gradient 지원을 위해)
+    const nodes = root.leaves();
+    
+    nodes.forEach(d => {
+        const node = document.createElement('div');
+        node.className = 'treemap-node';
+        node.style.left = d.x0 + 'px';
+        node.style.top = d.y0 + 'px';
+        node.style.width = (d.x1 - d.x0) + 'px';
+        node.style.height = (d.y1 - d.y0) + 'px';
+        node.style.background = colorMap[d.data.category] || 'linear-gradient(135deg, #FF6B00, #FFAA00)';
+        
+        // 레이블 추가
+        const label = document.createElement('div');
+        label.className = 'treemap-label';
+        label.textContent = d.data.name;
+        node.appendChild(label);
+        
+        // 크기가 충분히 클 때만 추가 정보 표시
+        if ((d.x1 - d.x0) > 80 && (d.y1 - d.y0) > 60) {
+            const value = document.createElement('div');
+            value.className = 'treemap-value';
+            value.textContent = d.data.type;
+            node.appendChild(value);
+        }
+        
+        // 클릭 이벤트
+        node.addEventListener('click', () => {
+            showJobDetail(d.data.name, d.data.category, d.data.type);
+        });
+        
+        container.appendChild(node);
+    });
+    
+    // 카테고리 레이블 추가 (충분히 큰 그룹에만)
+    const categoryGroups = d3.group(nodes, d => d.data.category);
+    categoryGroups.forEach((group, category) => {
+        if (group.length > 2) {
+            const bounds = {
+                x0: Math.min(...group.map(d => d.x0)),
+                y0: Math.min(...group.map(d => d.y0)),
+                x1: Math.max(...group.map(d => d.x1)),
+                y1: Math.max(...group.map(d => d.y1))
+            };
+            
+            if ((bounds.x1 - bounds.x0) > 150 && (bounds.y1 - bounds.y0) > 50) {
+                const categoryLabel = document.createElement('div');
+                categoryLabel.style.position = 'absolute';
+                categoryLabel.style.left = bounds.x0 + 5 + 'px';
+                categoryLabel.style.top = bounds.y0 + 5 + 'px';
+                categoryLabel.style.fontSize = '14px';
+                categoryLabel.style.fontWeight = 'bold';
+                categoryLabel.style.color = solidColorMap[category] || '#FF6B00';
+                categoryLabel.style.textShadow = '0 0 3px white';
+                categoryLabel.style.pointerEvents = 'none';
+                categoryLabel.style.zIndex = '20';
+                categoryLabel.textContent = category;
+                container.appendChild(categoryLabel);
+            }
+        }
+    });
 }
 </script>
 {% endblock %}
