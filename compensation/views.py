@@ -48,148 +48,148 @@ def compensation_dashboard(request):
         
         # 총 직원 수
         total_employees = employees.count()
-    
-    # 평균 기본급
-    avg_base_salary = compensations.aggregate(
-        avg=Avg('base_salary')
-    )['avg'] or 0
-    
-    # 평균 총 보상
-    avg_total_compensation = compensations.aggregate(
-        avg=Avg('total_compensation')
-    )['avg'] or 0
-    
-    # 총 성과급
-    total_pi = compensations.aggregate(
-        sum=Sum('pi_amount')
-    )['sum'] or 0
-    
-    # 평가등급별 보상 분포
-    grade_stats = []
-    grades = ['S', 'A+', 'A', 'B+', 'B', 'C', 'D']
-    
-    for grade in grades:
-        # 해당 등급의 직원들 찾기
-        employees_with_grade = ComprehensiveEvaluation.objects.filter(
-            manager_grade=grade
-        ).values_list('employee_id', flat=True)
         
-        # 해당 직원들의 보상 데이터
-        grade_compensation = compensations.filter(
-            employee_id__in=employees_with_grade
-        ).aggregate(
-            avg_compensation=Avg('total_compensation')
-        )['avg_compensation'] or 0
+        # 평균 기본급
+        avg_base_salary = compensations.aggregate(
+            avg=Avg('base_salary')
+        )['avg'] or 0
         
-        grade_stats.append({
-            'grade': grade,
-            'avg_compensation': float(grade_compensation)
-        })
+        # 평균 총 보상
+        avg_total_compensation = compensations.aggregate(
+            avg=Avg('total_compensation')
+        )['avg'] or 0
+        
+        # 총 성과급
+        total_pi = compensations.aggregate(
+            sum=Sum('pi_amount')
+        )['sum'] or 0
+        
+        # 평가등급별 보상 분포
+        grade_stats = []
+        grades = ['S', 'A+', 'A', 'B+', 'B', 'C', 'D']
     
-    # 직종별 평균 보상
-    job_stats = []
-    job_types = employees.values_list('job_type', flat=True).distinct()
-    
-    for job_type in job_types:
-        if job_type:
-            job_compensation = compensations.filter(
-                employee__job_type=job_type
+        for grade in grades:
+            # 해당 등급의 직원들 찾기
+            employees_with_grade = ComprehensiveEvaluation.objects.filter(
+                manager_grade=grade
+            ).values_list('employee_id', flat=True)
+            
+            # 해당 직원들의 보상 데이터
+            grade_compensation = compensations.filter(
+                employee_id__in=employees_with_grade
             ).aggregate(
                 avg_compensation=Avg('total_compensation')
             )['avg_compensation'] or 0
             
-            job_stats.append({
-                'job_type': job_type,
-                'avg_compensation': float(job_compensation)
+            grade_stats.append({
+                'grade': grade,
+                'avg_compensation': float(grade_compensation)
             })
-    
-    # 부서별 평균 보상
-    department_stats = []
-    departments = employees.values_list('department', flat=True).distinct()
-    
-    for dept in departments:
-        if dept:
-            dept_compensation = compensations.filter(
-                employee__department=dept
-            ).aggregate(
-                avg_compensation=Avg('total_compensation')
-            )['avg_compensation'] or 0
-            
-            department_stats.append({
-                'department': dept,
-                'avg_compensation': float(dept_compensation)
-            })
-    
-    # 직급별 보상 분포
-    position_stats = []
-    positions = employees.values_list('position', flat=True).distinct()
-    
-    for pos in positions:
-        if pos:
-            pos_compensation = compensations.filter(
-                employee__position=pos
-            ).aggregate(
-                avg_compensation=Avg('total_compensation')
-            )['avg_compensation'] or 0
-            
-            position_stats.append({
-                'position': pos,
-                'avg_compensation': float(pos_compensation)
-            })
-    
-    # 인사이트 데이터
-    top_compensation_employee = employees.filter(
-        compensations__isnull=False
-    ).annotate(
-        total_comp=Sum('compensations__total_compensation')
-    ).order_by('-total_comp').first()
-    
-    top_employee_name = top_compensation_employee.name if top_compensation_employee else "없음"
-    
-    # 평균 성과급 비율
-    avg_pi_ratio = 0
-    if avg_total_compensation > 0:
-        avg_pi_ratio = (total_pi / (avg_total_compensation * total_employees)) * 100
-    
-    # 보상 격차
-    max_compensation = compensations.aggregate(max=Sum('total_compensation'))['max'] or 0
-    min_compensation = compensations.aggregate(min=Sum('total_compensation'))['min'] or 0
-    compensation_gap = max_compensation - min_compensation
-    
-    # 차트 데이터 준비
-    grade_labels = [item['grade'] for item in grade_stats]
-    grade_data = [item['avg_compensation'] for item in grade_stats]
-    
-    job_labels = [item['job_type'] for item in job_stats]
-    job_data = [item['avg_compensation'] for item in job_stats]
-    
-    department_labels = [item['department'] for item in department_stats]
-    department_data = [item['avg_compensation'] for item in department_stats]
-    
-    position_labels = [item['position'] for item in position_stats]
-    position_data = [item['avg_compensation'] for item in position_stats]
-    
-    context = {
-        'title': '보상 분석 대시보드',
-        'total_employees': total_employees,
-        'avg_base_salary': avg_base_salary,
-        'avg_total_compensation': avg_total_compensation,
-        'total_pi': total_pi,
-        'top_compensation_employee': top_employee_name,
-        'avg_pi_ratio': avg_pi_ratio,
-        'compensation_gap': compensation_gap,
-        'grade_labels': json.dumps(grade_labels),
-        'grade_data': json.dumps(grade_data),
-        'job_labels': json.dumps(job_labels),
-        'job_data': json.dumps(job_data),
-        'department_labels': json.dumps(department_labels),
-        'department_data': json.dumps(department_data),
-        'position_labels': json.dumps(position_labels),
-        'position_data': json.dumps(position_data),
-    }
-    
-    return render(request, 'compensation/dashboard.html', context)
-    
+        
+        # 직종별 평균 보상
+        job_stats = []
+        job_types = employees.values_list('job_type', flat=True).distinct()
+        
+        for job_type in job_types:
+            if job_type:
+                job_compensation = compensations.filter(
+                    employee__job_type=job_type
+                ).aggregate(
+                    avg_compensation=Avg('total_compensation')
+                )['avg_compensation'] or 0
+                
+                job_stats.append({
+                    'job_type': job_type,
+                    'avg_compensation': float(job_compensation)
+                })
+        
+        # 부서별 평균 보상
+        department_stats = []
+        departments = employees.values_list('department', flat=True).distinct()
+        
+        for dept in departments:
+            if dept:
+                dept_compensation = compensations.filter(
+                    employee__department=dept
+                ).aggregate(
+                    avg_compensation=Avg('total_compensation')
+                )['avg_compensation'] or 0
+                
+                department_stats.append({
+                    'department': dept,
+                    'avg_compensation': float(dept_compensation)
+                })
+        
+        # 직급별 보상 분포
+        position_stats = []
+        positions = employees.values_list('position', flat=True).distinct()
+        
+        for pos in positions:
+            if pos:
+                pos_compensation = compensations.filter(
+                    employee__position=pos
+                ).aggregate(
+                    avg_compensation=Avg('total_compensation')
+                )['avg_compensation'] or 0
+                
+                position_stats.append({
+                    'position': pos,
+                    'avg_compensation': float(pos_compensation)
+                })
+        
+        # 인사이트 데이터
+        top_compensation_employee = employees.filter(
+            compensations__isnull=False
+        ).annotate(
+            total_comp=Sum('compensations__total_compensation')
+        ).order_by('-total_comp').first()
+        
+        top_employee_name = top_compensation_employee.name if top_compensation_employee else "없음"
+        
+        # 평균 성과급 비율
+        avg_pi_ratio = 0
+        if avg_total_compensation > 0:
+            avg_pi_ratio = (total_pi / (avg_total_compensation * total_employees)) * 100
+        
+        # 보상 격차
+        max_compensation = compensations.aggregate(max=Sum('total_compensation'))['max'] or 0
+        min_compensation = compensations.aggregate(min=Sum('total_compensation'))['min'] or 0
+        compensation_gap = max_compensation - min_compensation
+        
+        # 차트 데이터 준비
+        grade_labels = [item['grade'] for item in grade_stats]
+        grade_data = [item['avg_compensation'] for item in grade_stats]
+        
+        job_labels = [item['job_type'] for item in job_stats]
+        job_data = [item['avg_compensation'] for item in job_stats]
+        
+        department_labels = [item['department'] for item in department_stats]
+        department_data = [item['avg_compensation'] for item in department_stats]
+        
+        position_labels = [item['position'] for item in position_stats]
+        position_data = [item['avg_compensation'] for item in position_stats]
+        
+        context = {
+            'title': '보상 분석 대시보드',
+            'total_employees': total_employees,
+            'avg_base_salary': avg_base_salary,
+            'avg_total_compensation': avg_total_compensation,
+            'total_pi': total_pi,
+            'top_compensation_employee': top_employee_name,
+            'avg_pi_ratio': avg_pi_ratio,
+            'compensation_gap': compensation_gap,
+            'grade_labels': json.dumps(grade_labels),
+            'grade_data': json.dumps(grade_data),
+            'job_labels': json.dumps(job_labels),
+            'job_data': json.dumps(job_data),
+            'department_labels': json.dumps(department_labels),
+            'department_data': json.dumps(department_data),
+            'position_labels': json.dumps(position_labels),
+            'position_data': json.dumps(position_data),
+            }
+        
+        return render(request, 'compensation/dashboard.html', context)
+        
     except Exception as e:
         # Handle any database errors
         context = {
