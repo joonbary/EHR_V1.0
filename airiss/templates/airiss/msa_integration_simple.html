@@ -14,11 +14,26 @@
             border-radius: 10px;
             margin-bottom: 20px;
         }
+        .employee-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .analyzed {
+            background-color: #d4edda;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-4">
         <h1 class="mb-4">AIRISS AI 직원 분석</h1>
+        
+        {% if message %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
         
         <!-- MSA 상태 -->
         <div class="msa-status">
@@ -27,51 +42,81 @@
         </div>
 
         <!-- 분석 대상 직원 -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">분석 대상 직원 (샘플)</h5>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>이름</th>
-                            <th>부서</th>
-                            <th>직급</th>
-                            <th>상태</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>홍길동</td>
-                            <td>개발팀</td>
-                            <td>선임</td>
-                            <td><span class="badge bg-success">분석 완료</span></td>
-                        </tr>
-                        <tr>
-                            <td>김철수</td>
-                            <td>영업팀</td>
-                            <td>과장</td>
-                            <td><span class="badge bg-warning">분석 중</span></td>
-                        </tr>
-                        <tr>
-                            <td>이영희</td>
-                            <td>인사팀</td>
-                            <td>대리</td>
-                            <td><span class="badge bg-secondary">대기 중</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+        <form method="post" action="{% url 'airiss:msa_integration' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="analyze">
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">분석 대상 직원 선택</h5>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">전체 선택</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">선택 해제</button>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th width="50">선택</th>
+                                <th>이름</th>
+                                <th>부서</th>
+                                <th>직급</th>
+                                <th>AI 점수</th>
+                                <th>최근 분석일</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <script>
+                                const employees = {{ employees|safe }};
+                                employees.forEach(emp => {
+                                    document.write(`
+                                        <tr class="${emp.ai_score ? 'analyzed' : ''}">
+                                            <td>
+                                                <input type="checkbox" class="employee-checkbox" 
+                                                    name="employee_ids" value="${emp.id}">
+                                            </td>
+                                            <td>${emp.name}</td>
+                                            <td>${emp.department}</td>
+                                            <td>${emp.position}</td>
+                                            <td>
+                                                ${emp.ai_score ? 
+                                                    `<span class="badge bg-primary">${emp.ai_score}점</span>` : 
+                                                    '<span class="badge bg-secondary">미분석</span>'}
+                                            </td>
+                                            <td>${emp.analyzed_at || '-'}</td>
+                                        </tr>
+                                    `);
+                                });
+                            </script>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <!-- 액션 버튼 -->
-        <div class="mt-4">
-            <button class="btn btn-primary btn-lg" onclick="alert('AI 분석이 시작되었습니다.')">
-                전체 직원 AI 분석 시작
-            </button>
-            <a href="{% url 'airiss:executive_dashboard' %}" class="btn btn-secondary btn-lg">
-                대시보드로 돌아가기
-            </a>
-        </div>
+            <!-- 액션 버튼 -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    선택한 직원 AI 분석 시작
+                </button>
+                <a href="{% url 'airiss:analysis_results' %}" class="btn btn-info btn-lg">
+                    분석 결과 조회
+                </a>
+                <a href="{% url 'airiss:dashboard' %}" class="btn btn-secondary btn-lg">
+                    대시보드로 돌아가기
+                </a>
+            </div>
+        </form>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectAll() {
+            document.querySelectorAll('.employee-checkbox').forEach(cb => cb.checked = true);
+        }
+        
+        function deselectAll() {
+            document.querySelectorAll('.employee-checkbox').forEach(cb => cb.checked = false);
+        }
+    </script>
 </body>
 </html>
