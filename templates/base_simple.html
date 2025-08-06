@@ -163,7 +163,7 @@
                 {% endcomment %}
                 
                 <li class="sidebar-nav-item">
-                    <a href="{% url 'job_profiles:list' %}" class="sidebar-nav-link {% if 'job_profiles' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'job_profiles:hierarchy' %}" class="sidebar-nav-link {% if 'job_profiles' in request.resolver_match.url_name %}active{% endif %}">
                         <i data-lucide="briefcase" class="w-4 h-4"></i>
                         <span>직무기술서</span>
                     </a>
