@@ -5,21 +5,49 @@ from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 import json
 
-from employees.models import Employee
-from compensation.models import EmployeeCompensation, SalaryTable, CompetencyPayTable
-from evaluations.models import ComprehensiveEvaluation
+# Conditional imports to handle missing models
+try:
+    from employees.models import Employee
+except ImportError:
+    Employee = None
+
+try:
+    from compensation.models import EmployeeCompensation, SalaryTable, CompetencyPayTable
+except ImportError:
+    EmployeeCompensation = None
+    SalaryTable = None
+    CompetencyPayTable = None
+
+try:
+    from evaluations.models import ComprehensiveEvaluation
+except ImportError:
+    ComprehensiveEvaluation = None
 
 
 @login_required
 def compensation_dashboard(request):
     """보상 분석 대시보드"""
     
-    # 기본 통계
-    compensations = EmployeeCompensation.objects.all()
-    employees = Employee.objects.all()
+    # Check if models exist
+    if not all([Employee, EmployeeCompensation, ComprehensiveEvaluation]):
+        # Return basic template with no data
+        context = {
+            'total_employees': 0,
+            'avg_base_salary': 0,
+            'avg_total_compensation': 0,
+            'total_pi': 0,
+            'grade_stats': [],
+            'no_data': True
+        }
+        return render(request, 'compensation/dashboard.html', context)
     
-    # 총 직원 수
-    total_employees = employees.count()
+    try:
+        # 기본 통계
+        compensations = EmployeeCompensation.objects.all()
+        employees = Employee.objects.all()
+        
+        # 총 직원 수
+        total_employees = employees.count()
     
     # 평균 기본급
     avg_base_salary = compensations.aggregate(
@@ -161,10 +189,36 @@ def compensation_dashboard(request):
     }
     
     return render(request, 'compensation/dashboard.html', context)
+    
+    except Exception as e:
+        # Handle any database errors
+        context = {
+            'total_employees': 0,
+            'avg_base_salary': 0,
+            'avg_total_compensation': 0,
+            'total_pi': 0,
+            'grade_stats': [],
+            'no_data': True,
+            'error_message': str(e)
+        }
+        return render(request, 'compensation/dashboard.html', context)
 
 
 def api_compensation_summary(request):
     """보상 요약 데이터 API"""
+    
+    # Check if models exist
+    if not all([Employee, EmployeeCompensation, ComprehensiveEvaluation]):
+        return JsonResponse({
+            'error': 'Models not available',
+            'data': {
+                'avg_base_salary': 0,
+                'avg_total_compensation': 0,
+                'total_pi_amount': 0,
+                'compensation_count': 0
+            }
+        })
+    
     try:
         # 전체 보상 통계
         total_stats = EmployeeCompensation.objects.aggregate(
