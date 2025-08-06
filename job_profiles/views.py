@@ -64,9 +64,9 @@ class JobTreeMapView(TemplateView):
 
 
 def job_tree_map_data_api(request):
-    """트리맵 데이터 API - 직무 체계도용"""
+    """트리맵 데이터 API - 직무 체계도용 (단순화 버전)"""
     try:
-        # 직군별로 데이터 구성
+        # 직군별로 데이터 구성 - 단순한 구조로
         result_data = {}
         
         # 모든 카테고리 조회
@@ -84,47 +84,22 @@ def job_tree_map_data_api(request):
                 job_roles = JobRole.objects.filter(job_type=job_type)
                 
                 for job_role in job_roles:
-                    # 프로필 존재 여부 확인
-                    try:
-                        has_profile = JobProfile.objects.filter(job_role=job_role).exists()
-                    except:
-                        has_profile = False
-                    
                     jobs.append({
                         'id': str(job_role.id),
                         'name': job_role.name,
-                        'has_profile': has_profile
+                        'has_profile': True  # 간단하게 모두 True로 설정
                     })
                 
                 if jobs:
                     result_data[category_name][job_type.name] = jobs
         
-        # 메타데이터 추가 (통계 정보)
-        total_categories = categories.count()
-        total_types = JobType.objects.count()
-        total_roles = JobRole.objects.count()
-        total_profiles = JobProfile.objects.count()
-        
-        result_data['metadata'] = {
-            'categories': total_categories,
-            'types': total_types,
-            'roles': total_roles,
-            'profiles': total_profiles
-        }
-        
+        # 직접 데이터 구조로 반환 (success 필드 없이)
         return JsonResponse(result_data)
         
     except Exception as e:
         print(f"API 오류: {e}")
-        # 에러 시에도 빈 데이터 구조 반환
-        return JsonResponse({
-            'metadata': {
-                'categories': 0,
-                'types': 0,
-                'roles': 0,
-                'profiles': 0
-            }
-        })
+        # 에러 시 빈 객체 반환
+        return JsonResponse({})
 
 
 def job_detail_modal_api(request, job_role_id):

@@ -670,20 +670,8 @@ async function loadJobData() {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const responseData = await response.json();
-        
-        // API 응답 구조 확인
-        let data;
-        if (responseData.success !== undefined) {
-            // {success: true, data: {...}} 구조
-            if (!responseData.success) {
-                throw new Error(responseData.error || 'API error');
-            }
-            data = responseData.data;
-        } else {
-            // 직접 데이터 구조
-            data = responseData;
-        }
+        const data = await response.json();
+        console.log('Received API data:', data);
         
         // 데이터가 비어있는지 확인
         if (!data || Object.keys(data).length === 0) {
@@ -693,61 +681,18 @@ async function loadJobData() {
             return;
         }
         
-        // 데이터 구조 확인 및 평탄화
-        console.log('Raw API data structure:', data);
-        
-        let processedData = {};
-        
-        // Non-PL/PL 구조인 경우
-        if (data['Non-PL'] || data['PL']) {
-            console.log('Processing Non-PL/PL structure');
-            
-            // Non-PL 데이터 처리
-            if (data['Non-PL']) {
-                Object.keys(data['Non-PL']).forEach(category => {
-                    const categoryData = data['Non-PL'][category];
-                    console.log(`Non-PL category ${category}:`, categoryData);
-                    
-                    // categoryData.jobs가 직종별 직무 객체
-                    if (categoryData.jobs) {
-                        processedData[category] = categoryData.jobs;
-                    }
-                });
-            }
-            
-            // PL 데이터 처리  
-            if (data['PL']) {
-                Object.keys(data['PL']).forEach(category => {
-                    const categoryData = data['PL'][category];
-                    console.log(`PL category ${category}:`, categoryData);
-                    
-                    // categoryData.jobs가 직종별 직무 객체
-                    if (categoryData.jobs) {
-                        processedData[category] = categoryData.jobs;
-                    }
-                });
-            }
-        } 
-        // 이미 평탄화된 구조 (직군: {직종: [직무들]})
-        else if (data.metadata) {
-            // metadata가 있는 경우 제거하고 나머지 사용
-            Object.keys(data).forEach(key => {
-                if (key !== 'metadata') {
-                    processedData[key] = data[key];
-                }
-            });
-        } 
-        // 기타 구조
-        else {
-            processedData = data;
+        // 데이터가 비어있는지 확인
+        if (!data || Object.keys(data).length === 0) {
+            console.warn('No job data available');
+            updateStats({});
+            return;
         }
         
-        console.log('Processed data:', processedData);
-        
-        jobData = processedData;
-        updateStats(processedData);
-        renderOrgChart(processedData);
-        renderGridView(processedData);
+        // 직접 데이터 사용 (직군: {직종: [직무들]})
+        jobData = data;
+        updateStats(data);
+        renderOrgChart(data);
+        renderGridView(data);
     } catch (error) {
         console.error('Error loading job data:', error);
         // 에러 시 기본값 표시
