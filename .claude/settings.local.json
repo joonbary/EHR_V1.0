@@ -39,7 +39,8 @@
       "Bash(if [ -f .env ])",
       "Bash(then grep AIRISS .env)",
       "Bash(else echo \"No .env file found\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "WebFetch(domain:ehrv10-production.up.railway.app)"
     ],
     "deny": []
   }
