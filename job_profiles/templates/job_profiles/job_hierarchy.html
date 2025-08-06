@@ -1,0 +1,970 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}직무 체계도 - OK금융그룹{% endblock %}
+
+{% block extra_css %}
+<style>
+/* 메인 컨테이너 */
+.hierarchy-container {
+    min-height: calc(100vh - 64px);
+    background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
+    padding: 2rem 1rem;
+}
+
+/* 헤더 섹션 */
+.header-section {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeInDown 0.8s ease;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.page-subtitle {
+    font-size: 1.125rem;
+    color: #55474A;
+    opacity: 0.9;
+}
+
+/* 통계 카드 */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.8s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #FF6B00 0%, #FFAA00 100%);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #55474A;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* 필터 섹션 */
+.filter-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.filter-wrapper {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 2px solid #E3DFDA;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #FF6B00;
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #55474A;
+    opacity: 0.5;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-btn {
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    border: 2px solid #E3DFDA;
+    background: white;
+    color: #55474A;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: #FF6B00;
+    color: #FF6B00;
+    background: #FFF4ED;
+}
+
+.filter-btn.active {
+    background: #FF6B00;
+    color: white;
+    border-color: #FF6B00;
+}
+
+/* 계층 구조 뷰 */
+.hierarchy-view {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* 뷰 전환 탭 */
+.view-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #E3DFDA;
+}
+
+.view-tab {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: #55474A;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.view-tab:hover {
+    color: #FF6B00;
+}
+
+.view-tab.active {
+    color: #FF6B00;
+}
+
+.view-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #FF6B00;
+}
+
+/* 조직도 뷰 */
+.org-chart {
+    padding: 2rem 0;
+    overflow-x: auto;
+}
+
+.category-row {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    min-width: max-content;
+}
+
+.category-card {
+    background: linear-gradient(135deg, #FFF4ED 0%, white 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    min-width: 250px;
+    border: 2px solid #E3DFDA;
+    transition: all 0.3s ease;
+}
+
+.category-card:hover {
+    border-color: #FF6B00;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(255, 107, 0, 0.15);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #E3DFDA;
+}
+
+.category-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.category-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+.category-count {
+    margin-left: auto;
+    background: #FF6B00;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.job-types {
+    margin-top: 1rem;
+}
+
+.job-type {
+    margin-bottom: 1rem;
+}
+
+.job-type-header {
+    font-weight: 600;
+    color: #55474A;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: #FFF4ED;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.job-type-header:hover {
+    background: #FFEDE5;
+}
+
+.job-roles {
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+}
+
+.job-role {
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem 0;
+    background: white;
+    border-left: 3px solid #FFAA00;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    color: #1A1A1A;
+}
+
+.job-role:hover {
+    background: #FFF8E6;
+    border-left-color: #FF6B00;
+    padding-left: 1rem;
+}
+
+/* 그리드 뷰 */
+.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.job-grid-card {
+    background: white;
+    border: 2px solid #E3DFDA;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.job-grid-card:hover {
+    border-color: #FF6B00;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(255, 107, 0, 0.15);
+}
+
+.job-grid-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #FF6B00 0%, #FFAA00 100%);
+}
+
+.job-grid-header {
+    margin-bottom: 1rem;
+}
+
+.job-grid-category {
+    font-size: 0.75rem;
+    color: #FF6B00;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.job-grid-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-top: 0.25rem;
+}
+
+.job-grid-type {
+    font-size: 0.875rem;
+    color: #55474A;
+    margin-top: 0.25rem;
+}
+
+.job-grid-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #E3DFDA;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.view-details-btn {
+    color: #FF6B00;
+    font-weight: 500;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* 모달 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 1rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid #E3DFDA;
+    position: relative;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 32px;
+    height: 32px;
+    background: #F5F5F5;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: #FF6B00;
+    color: white;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .hierarchy-container {
+        padding: 1rem 0.5rem;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .category-row {
+        flex-direction: column;
+    }
+    
+    .grid-view {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hierarchy-container">
+    <!-- 헤더 섹션 -->
+    <div class="header-section">
+        <h1 class="page-title">직무 체계도</h1>
+        <p class="page-subtitle">OK금융그룹의 체계적인 직무 구조를 한눈에 확인하세요</p>
+    </div>
+
+    <!-- 통계 카드 -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <div>
+                <div class="stat-value" id="categoryCount">0</div>
+                <div class="stat-label">직군 Categories</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div>
+                <div class="stat-value" id="typeCount">0</div>
+                <div class="stat-label">직종 Job Types</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <div class="stat-value" id="roleCount">0</div>
+                <div class="stat-label">직무 Job Roles</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div>
+                <div class="stat-value" id="profileCount">0</div>
+                <div class="stat-label">직무기술서 Profiles</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 필터 섹션 -->
+    <div class="filter-section">
+        <div class="filter-wrapper">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="직무명, 직종, 직군으로 검색...">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">전체</button>
+                <button class="filter-btn" data-filter="non-pl">Non-PL</button>
+                <button class="filter-btn" data-filter="pl">PL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 계층 구조 뷰 -->
+    <div class="hierarchy-view">
+        <!-- 뷰 전환 탭 -->
+        <div class="view-tabs">
+            <button class="view-tab active" data-view="org">조직도 보기</button>
+            <button class="view-tab" data-view="grid">그리드 보기</button>
+            <button class="view-tab" data-view="tree">트리맵 보기</button>
+        </div>
+
+        <!-- 조직도 뷰 -->
+        <div id="orgView" class="org-chart view-content">
+            <div class="category-row" id="categoryContainer">
+                <!-- 동적으로 생성됨 -->
+            </div>
+        </div>
+
+        <!-- 그리드 뷰 -->
+        <div id="gridView" class="grid-view view-content" style="display: none;">
+            <!-- 동적으로 생성됨 -->
+        </div>
+
+        <!-- 트리맵 뷰 -->
+        <div id="treeView" class="tree-view view-content" style="display: none;">
+            <div id="treemap" style="height: 600px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 상세 모달 -->
+<div id="jobModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle">직무 상세</h2>
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- 동적으로 생성됨 -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+// 전역 변수
+let jobData = [];
+let currentView = 'org';
+let currentFilter = 'all';
+
+// 페이지 로드 시
+document.addEventListener('DOMContentLoaded', function() {
+    loadJobData();
+    setupEventListeners();
+});
+
+// 데이터 로드
+async function loadJobData() {
+    try {
+        const response = await fetch('/job-profiles/api/tree-map-data/');
+        const data = await response.json();
+        jobData = data;
+        updateStats(data);
+        renderOrgChart(data);
+        renderGridView(data);
+    } catch (error) {
+        console.error('Error loading job data:', error);
+    }
+}
+
+// 통계 업데이트
+function updateStats(data) {
+    const categories = new Set();
+    const types = new Set();
+    let roles = 0;
+    let profiles = 0;
+
+    Object.keys(data).forEach(category => {
+        if (category !== 'metadata') {
+            categories.add(category);
+            Object.keys(data[category]).forEach(type => {
+                types.add(type);
+                roles += data[category][type].length;
+                profiles += data[category][type].length;
+            });
+        }
+    });
+
+    // 애니메이션으로 숫자 표시
+    animateValue('categoryCount', 0, categories.size, 1000);
+    animateValue('typeCount', 0, types.size, 1000);
+    animateValue('roleCount', 0, roles, 1000);
+    animateValue('profileCount', 0, profiles, 1000);
+}
+
+// 숫자 애니메이션
+function animateValue(id, start, end, duration) {
+    const element = document.getElementById(id);
+    const range = end - start;
+    const increment = end > start ? 1 : -1;
+    const stepTime = Math.abs(Math.floor(duration / range));
+    let current = start;
+    
+    const timer = setInterval(function() {
+        current += increment;
+        element.textContent = current;
+        if (current == end) {
+            clearInterval(timer);
+        }
+    }, stepTime);
+}
+
+// 조직도 렌더링
+function renderOrgChart(data) {
+    const container = document.getElementById('categoryContainer');
+    container.innerHTML = '';
+
+    Object.keys(data).forEach(category => {
+        if (category === 'metadata') return;
+
+        const categoryCard = createCategoryCard(category, data[category]);
+        container.appendChild(categoryCard);
+    });
+}
+
+// 카테고리 카드 생성
+function createCategoryCard(categoryName, categoryData) {
+    const card = document.createElement('div');
+    card.className = 'category-card';
+    
+    let totalJobs = 0;
+    Object.values(categoryData).forEach(jobs => {
+        totalJobs += jobs.length;
+    });
+
+    const icon = getCategoryIcon(categoryName);
+    
+    card.innerHTML = `
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="${icon}"></i>
+            </div>
+            <div class="category-name">${categoryName}</div>
+            <div class="category-count">${totalJobs}</div>
+        </div>
+        <div class="job-types">
+            ${Object.keys(categoryData).map(type => `
+                <div class="job-type">
+                    <div class="job-type-header" onclick="toggleJobRoles(this)">
+                        <i class="fas fa-chevron-right"></i> ${type} (${categoryData[type].length})
+                    </div>
+                    <div class="job-roles" style="display: none;">
+                        ${categoryData[type].map(job => `
+                            <div class="job-role" onclick="showJobDetail('${job.name}', '${categoryName}', '${type}')">
+                                ${job.name}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    return card;
+}
+
+// 카테고리별 아이콘
+function getCategoryIcon(category) {
+    const icons = {
+        'IT/디지털': 'fas fa-laptop-code',
+        '경영지원': 'fas fa-chart-line',
+        '금융': 'fas fa-coins',
+        '영업': 'fas fa-handshake',
+        'PL': 'fas fa-headset'
+    };
+    return icons[category] || 'fas fa-briefcase';
+}
+
+// 그리드 뷰 렌더링
+function renderGridView(data) {
+    const container = document.getElementById('gridView');
+    container.innerHTML = '';
+
+    Object.keys(data).forEach(category => {
+        if (category === 'metadata') return;
+
+        Object.keys(data[category]).forEach(type => {
+            data[category][type].forEach(job => {
+                const card = createGridCard(job, category, type);
+                container.appendChild(card);
+            });
+        });
+    });
+}
+
+// 그리드 카드 생성
+function createGridCard(job, category, type) {
+    const card = document.createElement('div');
+    card.className = 'job-grid-card';
+    
+    card.innerHTML = `
+        <div class="job-grid-header">
+            <div class="job-grid-category">${category}</div>
+            <div class="job-grid-title">${job.name}</div>
+            <div class="job-grid-type">${type}</div>
+        </div>
+        <div class="job-grid-footer">
+            <span class="view-details-btn" onclick="showJobDetail('${job.name}', '${category}', '${type}')">
+                상세보기 <i class="fas fa-arrow-right"></i>
+            </span>
+        </div>
+    `;
+    
+    return card;
+}
+
+// 직무 역할 토글
+function toggleJobRoles(element) {
+    const roles = element.nextElementSibling;
+    const icon = element.querySelector('i');
+    
+    if (roles.style.display === 'none') {
+        roles.style.display = 'block';
+        icon.className = 'fas fa-chevron-down';
+    } else {
+        roles.style.display = 'none';
+        icon.className = 'fas fa-chevron-right';
+    }
+}
+
+// 직무 상세 보기
+async function showJobDetail(jobName, category, type) {
+    try {
+        // API 호출하여 상세 정보 가져오기
+        const modal = document.getElementById('jobModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        
+        modalTitle.textContent = jobName;
+        modalBody.innerHTML = `
+            <div class="job-detail">
+                <div class="detail-section">
+                    <h3><i class="fas fa-sitemap"></i> 직무 정보</h3>
+                    <p><strong>직군:</strong> ${category}</p>
+                    <p><strong>직종:</strong> ${type}</p>
+                    <p><strong>직무:</strong> ${jobName}</p>
+                </div>
+                <div class="detail-section">
+                    <h3><i class="fas fa-tasks"></i> 주요 책임</h3>
+                    <p>• ${jobName} 관련 주요 업무 수행</p>
+                    <p>• 업무 기획 및 실행</p>
+                    <p>• 성과 관리 및 개선</p>
+                </div>
+                <div class="detail-section">
+                    <h3><i class="fas fa-graduation-cap"></i> 자격 요건</h3>
+                    <p>• 관련 분야 전문성</p>
+                    <p>• 문제 해결 능력</p>
+                    <p>• 커뮤니케이션 능력</p>
+                </div>
+            </div>
+        `;
+        
+        modal.classList.add('active');
+    } catch (error) {
+        console.error('Error loading job detail:', error);
+    }
+}
+
+// 모달 닫기
+function closeModal() {
+    const modal = document.getElementById('jobModal');
+    modal.classList.remove('active');
+}
+
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 뷰 전환
+    document.querySelectorAll('.view-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const view = this.dataset.view;
+            switchView(view);
+        });
+    });
+
+    // 필터
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            applyFilter(filter);
+        });
+    });
+
+    // 검색
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        searchJobs(e.target.value);
+    });
+
+    // 모달 외부 클릭 시 닫기
+    document.getElementById('jobModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+}
+
+// 뷰 전환
+function switchView(view) {
+    // 탭 활성화
+    document.querySelectorAll('.view-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+    // 컨텐츠 전환
+    document.querySelectorAll('.view-content').forEach(content => {
+        content.style.display = 'none';
+    });
+
+    switch(view) {
+        case 'org':
+            document.getElementById('orgView').style.display = 'block';
+            break;
+        case 'grid':
+            document.getElementById('gridView').style.display = 'block';
+            break;
+        case 'tree':
+            document.getElementById('treeView').style.display = 'block';
+            if (!document.getElementById('treemap').hasChildNodes()) {
+                renderTreemap();
+            }
+            break;
+    }
+}
+
+// 필터 적용
+function applyFilter(filter) {
+    currentFilter = filter;
+    
+    // 버튼 활성화
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+
+    // 필터링 로직 구현
+    // TODO: 실제 필터링 구현
+}
+
+// 검색
+function searchJobs(query) {
+    // TODO: 검색 로직 구현
+    console.log('Searching for:', query);
+}
+
+// 트리맵 렌더링
+function renderTreemap() {
+    // D3.js를 사용한 트리맵 구현
+    // 기존 트리맵 코드 활용
+}
+</script>
+{% endblock %}

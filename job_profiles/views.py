@@ -5,6 +5,31 @@ from django.db.models import Count, Prefetch
 import json
 
 
+class JobHierarchyView(TemplateView):
+    """새로운 직무체계도 계층 뷰"""
+    template_name = 'job_profiles/job_hierarchy.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        try:
+            from .models import JobCategory, JobType, JobRole, JobProfile
+            
+            context['total_categories'] = JobCategory.objects.count()
+            context['total_job_types'] = JobType.objects.count()
+            context['total_job_roles'] = JobRole.objects.count()
+            context['total_profiles'] = JobProfile.objects.count()
+            
+        except Exception as e:
+            print(f"Job 모델 통계 오류: {e}")
+            context['total_categories'] = 0
+            context['total_job_types'] = 0
+            context['total_job_roles'] = 0
+            context['total_profiles'] = 0
+        
+        return context
+
+
 class JobTreeMapView(TemplateView):
     """직무체계도 트리맵 뷰"""
     template_name = 'job_profiles/job_treemap.html'
@@ -186,3 +211,51 @@ def job_profile_edit_view(request, job_role_id):
                 'success': False,
                 'error': str(e)
             }, status=400)
+
+
+def job_detail_api(request, job_role_id):
+    """직무 상세 정보 API (새로운 UI용)"""
+    try:
+        from .models import JobRole, JobProfile
+        
+        job_role = get_object_or_404(JobRole, id=job_role_id)
+        
+        # JobProfile 정보 가져오기
+        try:
+            profile = JobProfile.objects.get(job_role=job_role)
+            profile_data = {
+                'role_responsibility': profile.role_responsibility,
+                'qualification': profile.qualification,
+                'basic_skills': profile.basic_skills,
+                'applied_skills': profile.applied_skills,
+                'related_certifications': profile.related_certifications,
+                'growth_path': profile.growth_path,
+            }
+        except JobProfile.DoesNotExist:
+            profile_data = None
+        
+        # 응답 데이터 구성
+        data = {
+            'success': True,
+            'job_role': {
+                'id': str(job_role.id),
+                'name': job_role.name,
+                'code': job_role.code,
+                'description': job_role.description,
+                'job_type': {
+                    'name': job_role.job_type.name if job_role.job_type else None,
+                    'category': {
+                        'name': job_role.job_type.category.name if job_role.job_type and job_role.job_type.category else None
+                    }
+                } if job_role.job_type else None
+            },
+            'profile': profile_data
+        }
+        
+        return JsonResponse(data)
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
