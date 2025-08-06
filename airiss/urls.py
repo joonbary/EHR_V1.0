@@ -13,9 +13,12 @@ urlpatterns = [
     # AI 분석 결과 조회
     path("analysis-results/", views.analysis_results, name="analysis_results"),
     
-    # 파일 업로드
+    # 파일 업로드 및 API 프록시
     path("file-upload/", views.file_upload, name="file_upload"),
     path("api/upload-proxy/", views.airiss_upload_proxy, name="upload_proxy"),
+    path("api/v1/upload", views.airiss_upload_proxy, name="api_upload"),
+    path("api/v1/analysis/jobs", views.airiss_jobs_proxy, name="api_jobs"),
+    path("api/<path:api_path>", views.airiss_api_proxy, name="api_proxy"),
     
     # 더미 URL들 - base_modern.html 호환성을 위해
     path("", views.dashboard, name="dashboard"),

@@ -150,12 +150,15 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- AIRISS Upload Configuration - Must load before iframe -->
+<!-- AIRISS Bridge Configuration -->
 <script>
     // Set global AIRISS service URL
     window.AIRISS_SERVICE_URL = '{{ airiss_v4_url }}';
+    window.AIRISS_PROXY_URL = '{{ request.build_absolute_uri }}'.replace(/\/[^\/]*$/, '') + '/airiss/api/upload-proxy/';
 </script>
-<script src="{% static 'js/airiss_upload_config.js' %}?v=1.0.0"></script>
+
+<!-- AIRISS iframe Bridge - 부모 창에서 실행 -->
+<script src="{% static 'js/airiss_iframe_bridge.js' %}?v=2.0.0"></script>
 
 <script>
     let loadTimeout;
@@ -168,6 +171,24 @@
         document.getElementById('airissError').style.display = 'none';
         
         console.log('AIRISS v4 로드 완료');
+        
+        // iframe에 injector 스크립트 주입 시도
+        try {
+            const iframe = document.getElementById('airissFrame');
+            if (iframe && iframe.contentWindow) {
+                // 설정 메시지 전송
+                setTimeout(() => {
+                    iframe.contentWindow.postMessage({
+                        type: 'AIRISS_CONFIG',
+                        apiBaseUrl: window.AIRISS_PROXY_URL,
+                        proxyUrl: window.AIRISS_PROXY_URL
+                    }, '{{ airiss_v4_url }}');
+                    console.log('AIRISS 설정 메시지 전송됨');
+                }, 1000);
+            }
+        } catch(e) {
+            console.log('iframe 접근 불가 (cross-origin):', e);
+        }
     }
     
     function handleIframeError() {

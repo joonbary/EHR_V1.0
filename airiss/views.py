@@ -3,7 +3,7 @@ from django.db.models import Count, Avg, Q
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 import json
@@ -78,6 +78,102 @@ def airiss_upload_proxy(request):
             }, status=500)
     
     return JsonResponse({'error': 'POST 요청만 허용됩니다'}, status=405)
+
+@csrf_exempt
+def airiss_jobs_proxy(request):
+    """AIRISS jobs API 프록시"""
+    try:
+        # Railway 환경 확인
+        if os.getenv('RAILWAY_ENVIRONMENT'):
+            airiss_url = settings.AIRISS_INTERNAL_URL
+        else:
+            airiss_url = settings.AIRISS_SERVICE_URL
+        
+        # AIRISS MSA 서비스로 전달
+        response = requests.get(
+            f"{airiss_url}/api/v1/analysis/jobs",
+            headers={'Content-Type': 'application/json'},
+            timeout=10
+        )
+        
+        # 응답 전달
+        if response.status_code == 200:
+            return JsonResponse(response.json(), safe=False)
+        else:
+            # AIRISS 서비스가 응답하지 않으면 더미 데이터 반환
+            return JsonResponse({
+                'total': 0,
+                'completed': 0,
+                'pending': 0,
+                'failed': 0,
+                'jobs': []
+            })
+            
+    except requests.exceptions.ConnectionError:
+        # 연결 실패 시 더미 데이터
+        return JsonResponse({
+            'total': 0,
+            'completed': 0,
+            'pending': 0,
+            'failed': 0,
+            'jobs': []
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': f'API 호출 중 오류: {str(e)}',
+            'total': 0,
+            'completed': 0,
+            'pending': 0,
+            'failed': 0,
+            'jobs': []
+        })
+
+@csrf_exempt
+def airiss_api_proxy(request, api_path):
+    """AIRISS 일반 API 프록시"""
+    try:
+        # Railway 환경 확인
+        if os.getenv('RAILWAY_ENVIRONMENT'):
+            airiss_url = settings.AIRISS_INTERNAL_URL
+        else:
+            airiss_url = settings.AIRISS_SERVICE_URL
+        
+        # 요청 메서드에 따른 처리
+        url = f"{airiss_url}/api/{api_path}"
+        
+        # 헤더 복사
+        headers = {}
+        for key, value in request.headers.items():
+            if key.lower() not in ['host', 'cookie', 'x-csrftoken']:
+                headers[key] = value
+        
+        # 요청 전달
+        if request.method == 'GET':
+            response = requests.get(url, headers=headers, params=request.GET, timeout=10)
+        elif request.method == 'POST':
+            response = requests.post(url, headers=headers, json=json.loads(request.body) if request.body else {}, timeout=10)
+        elif request.method == 'PUT':
+            response = requests.put(url, headers=headers, json=json.loads(request.body) if request.body else {}, timeout=10)
+        elif request.method == 'DELETE':
+            response = requests.delete(url, headers=headers, timeout=10)
+        else:
+            return JsonResponse({'error': f'{request.method} 메서드는 지원되지 않습니다'}, status=405)
+        
+        # 응답 전달
+        if response.headers.get('content-type', '').startswith('application/json'):
+            return JsonResponse(response.json(), safe=False, status=response.status_code)
+        else:
+            return HttpResponse(response.content, content_type=response.headers.get('content-type', 'text/plain'), status=response.status_code)
+            
+    except requests.exceptions.ConnectionError:
+        return JsonResponse({
+            'error': 'AIRISS 서비스에 연결할 수 없습니다',
+            'service_url': airiss_url
+        }, status=503)
+    except Exception as e:
+        return JsonResponse({
+            'error': f'API 호출 중 오류: {str(e)}'
+        }, status=500)
 
 def msa_integration(request):
     """AIRISS MSA 통합 페이지"""
