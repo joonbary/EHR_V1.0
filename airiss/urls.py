@@ -15,6 +15,7 @@ urlpatterns = [
     
     # 파일 업로드 및 API 프록시
     path("file-upload/", views.file_upload, name="file_upload"),
+    path("upload/", views.upload_integrated, name="upload_integrated"),
     path("api/upload-proxy/", views.airiss_upload_proxy, name="upload_proxy"),
     path("api/v1/upload", views.airiss_upload_proxy, name="api_upload"),
     path("api/v1/analysis/jobs", views.airiss_jobs_proxy, name="api_jobs"),

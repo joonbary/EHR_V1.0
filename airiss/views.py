@@ -24,6 +24,13 @@ def file_upload(request):
     }
     return render(request, "airiss/file_upload.html", context)
 
+def upload_integrated(request):
+    """AIRISS 통합 업로드 페이지 (iframe 없이 직접 처리)"""
+    context = {
+        "page_title": "AIRISS v4 직원 평가 분석",
+    }
+    return render(request, "airiss/upload_integrated.html", context)
+
 @csrf_exempt
 def airiss_upload_proxy(request):
     """AIRISS 업로드 프록시 - MSA 서비스로 파일 전달"""

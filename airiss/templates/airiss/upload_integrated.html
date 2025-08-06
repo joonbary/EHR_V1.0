@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AIRISS v4 - 직원 평가 분석{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .upload-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(255, 107, 0, 0.08);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .upload-zone {
+        border: 2px dashed #FF6B00;
+        border-radius: 12px;
+        padding: 3rem;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .upload-zone:hover {
+        border-color: #E55A00;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 170, 0, 0.1) 100%);
+    }
+    
+    .upload-zone.dragover {
+        border-color: #E55A00;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 170, 0, 0.15) 100%);
+    }
+    
+    .upload-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
+        color: #FF6B00;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .upload-btn {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        color: white;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .upload-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 107, 0, 0.3);
+    }
+    
+    .file-list {
+        margin-top: 2rem;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: #f8f8f8;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .file-name {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .file-size {
+        color: #666;
+        font-size: 0.875rem;
+    }
+    
+    .remove-btn {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 4px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e5e5e5;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #FF6B00 0%, #FFAA00 100%);
+        transition: width 0.3s;
+    }
+    
+    .result-container {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+    }
+    
+    .error-container {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h1 class="text-3xl font-bold mb-2">AIRISS v4 직원 평가 분석</h1>
+    <p class="text-gray-600 mb-6">10명의 직원 평가 정보가 담긴 엑셀 파일을 업로드하세요</p>
+    
+    <div class="upload-card">
+        <div class="upload-zone" id="uploadZone">
+            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                </path>
+            </svg>
+            <h3 class="text-xl font-semibold mb-2">파일을 드래그하거나 클릭하여 선택</h3>
+            <p class="text-gray-500 mb-4">Excel (.xlsx, .xls) 파일만 지원됩니다</p>
+            <button class="upload-btn">파일 선택</button>
+            <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" />
+        </div>
+        
+        <div id="fileList" class="file-list" style="display: none;">
+            <h4 class="font-semibold mb-2">선택된 파일</h4>
+            <div id="fileItems"></div>
+        </div>
+        
+        <div id="progressContainer" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+            </div>
+            <p class="text-sm text-gray-600 mt-2" id="progressText">업로드 중...</p>
+        </div>
+        
+        <div id="resultContainer" class="result-container" style="display: none;">
+            <h4 class="font-semibold text-green-700 mb-2">✅ 업로드 성공!</h4>
+            <p id="resultText"></p>
+        </div>
+        
+        <div id="errorContainer" class="error-container" style="display: none;">
+            <h4 class="font-semibold text-red-700 mb-2">❌ 오류 발생</h4>
+            <p id="errorText"></p>
+        </div>
+        
+        <div class="mt-4" id="actionButtons" style="display: none;">
+            <button id="uploadBtn" class="upload-btn mr-2">분석 시작</button>
+            <button id="clearBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg">초기화</button>
+        </div>
+    </div>
+    
+    <!-- 분석 결과 표시 영역 -->
+    <div id="analysisResults" class="upload-card" style="display: none;">
+        <h3 class="text-xl font-semibold mb-4">분석 결과</h3>
+        <div id="resultsContent"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const fileItems = document.getElementById('fileItems');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const resultContainer = document.getElementById('resultContainer');
+    const resultText = document.getElementById('resultText');
+    const errorContainer = document.getElementById('errorContainer');
+    const errorText = document.getElementById('errorText');
+    const actionButtons = document.getElementById('actionButtons');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const analysisResults = document.getElementById('analysisResults');
+    const resultsContent = document.getElementById('resultsContent');
+    
+    let selectedFile = null;
+    
+    // 클릭으로 파일 선택
+    uploadZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    // 파일 선택 이벤트
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+    
+    // 드래그 앤 드롭
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragover');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+    
+    // 파일 처리
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                selectedFile = file;
+                displayFile(file);
+                hideMessages();
+            } else {
+                showError('Excel 파일(.xlsx, .xls)만 업로드 가능합니다.');
+            }
+        }
+    }
+    
+    // 파일 표시
+    function displayFile(file) {
+        fileItems.innerHTML = `
+            <div class="file-item">
+                <div class="file-name">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 100 4h2a2 2 0 100-4h-.5a1 1 0 000-2H8a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2H6z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${file.name}</span>
+                    <span class="file-size">(${formatFileSize(file.size)})</span>
+                </div>
+                <button class="remove-btn" onclick="clearFile()">제거</button>
+            </div>
+        `;
+        fileList.style.display = 'block';
+        actionButtons.style.display = 'block';
+    }
+    
+    // 파일 크기 포맷
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    // 업로드
+    uploadBtn.addEventListener('click', async () => {
+        if (!selectedFile) {
+            showError('파일을 선택해주세요.');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('analysis_type', 'performance');
+        
+        progressContainer.style.display = 'block';
+        hideMessages();
+        uploadBtn.disabled = true;
+        
+        // 프로그레스 시뮬레이션
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            if (progress <= 90) {
+                progressFill.style.width = progress + '%';
+                progressText.textContent = `업로드 중... ${progress}%`;
+            }
+        }, 200);
+        
+        try {
+            const response = await fetch('/airiss/api/upload-proxy/', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+            
+            clearInterval(progressInterval);
+            progressFill.style.width = '100%';
+            progressText.textContent = '업로드 완료!';
+            
+            if (response.ok) {
+                const data = await response.json();
+                showSuccess('파일이 성공적으로 업로드되었습니다. 분석을 시작합니다...');
+                
+                // 분석 시뮬레이션
+                setTimeout(() => {
+                    showAnalysisResults();
+                }, 2000);
+            } else {
+                const error = await response.json();
+                showError(error.error || '업로드 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            clearInterval(progressInterval);
+            console.error('Upload error:', error);
+            showError('서버 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        } finally {
+            uploadBtn.disabled = false;
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+            }, 2000);
+        }
+    });
+    
+    // 분석 결과 표시
+    function showAnalysisResults() {
+        analysisResults.style.display = 'block';
+        resultsContent.innerHTML = `
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-semibold text-blue-700">전체 직원 수</h4>
+                    <p class="text-2xl font-bold text-blue-900">10명</p>
+                </div>
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <h4 class="font-semibold text-green-700">평균 성과 점수</h4>
+                    <p class="text-2xl font-bold text-green-900">82.5점</p>
+                </div>
+            </div>
+            <div class="p-4 bg-yellow-50 rounded-lg">
+                <h4 class="font-semibold text-yellow-700 mb-2">분석 요약</h4>
+                <ul class="list-disc list-inside text-yellow-900">
+                    <li>우수 성과자: 4명 (40%)</li>
+                    <li>보통 성과자: 5명 (50%)</li>
+                    <li>개선 필요: 1명 (10%)</li>
+                </ul>
+            </div>
+            <div class="mt-4">
+                <button class="upload-btn" onclick="window.location.href='/airiss/analysis-results/'">
+                    상세 분석 결과 보기
+                </button>
+            </div>
+        `;
+    }
+    
+    // 메시지 표시 함수들
+    function showSuccess(message) {
+        resultText.textContent = message;
+        resultContainer.style.display = 'block';
+    }
+    
+    function showError(message) {
+        errorText.textContent = message;
+        errorContainer.style.display = 'block';
+    }
+    
+    function hideMessages() {
+        resultContainer.style.display = 'none';
+        errorContainer.style.display = 'none';
+    }
+    
+    // 초기화
+    window.clearFile = function() {
+        selectedFile = null;
+        fileInput.value = '';
+        fileList.style.display = 'none';
+        actionButtons.style.display = 'none';
+        analysisResults.style.display = 'none';
+        hideMessages();
+    };
+    
+    clearBtn.addEventListener('click', clearFile);
+});
+</script>
+{% endblock %}
