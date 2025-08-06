@@ -13,35 +13,108 @@ except ImportError:
 
 def msa_integration(request):
     """AIRISS MSA 통합 페이지"""
-    employees_with_data = []
+    from .models import AIAnalysisResult, AIAnalysisType
+    from django.contrib.auth.models import User
+    import requests
     
+    employees_with_data = []
+    message = ""
+    
+    # POST 요청 처리 - AI 분석 실행 및 저장
+    if request.method == "POST" and request.POST.get("action") == "analyze":
+        selected_employees = request.POST.getlist("employee_ids")
+        
+        # AI 분석 타입 가져오기 (없으면 생성)
+        analysis_type, created = AIAnalysisType.objects.get_or_create(
+            type_code="TEAM_PERFORMANCE",
+            defaults={
+                "name": "팀 성과 예측",
+                "description": "AI 기반 직원 성과 분석"
+            }
+        )
+        
+        # 선택된 직원들에 대해 AI 분석 실행 및 저장
+        analyzed_count = 0
+        for emp_id in selected_employees:
+            try:
+                employee = Employee.objects.get(id=emp_id)
+                
+                # TODO: 실제 MSA 서버 호출 구현
+                # response = requests.post(
+                #     "https://web-production-4066.up.railway.app/api/analyze",
+                #     json={"employee_id": emp_id}
+                # )
+                # ai_score = response.json()["score"]
+                
+                # 임시로 랜덤 점수 생성 (실제 구현 시 MSA 호출로 대체)
+                ai_score = random.randint(60, 95)
+                
+                # 분석 결과 저장
+                AIAnalysisResult.objects.create(
+                    analysis_type=analysis_type,
+                    employee=employee,
+                    score=ai_score,
+                    confidence=random.uniform(0.7, 0.95),
+                    result_data={
+                        "goalAchievement": random.randint(70, 100),
+                        "projectSuccess": random.randint(70, 100),
+                        "customerSatisfaction": random.randint(70, 100),
+                        "attendance": random.randint(85, 100),
+                    },
+                    insights=f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다.",
+                    created_by=request.user if request.user.is_authenticated else None
+                )
+                analyzed_count += 1
+                
+            except Exception as e:
+                print(f"Error analyzing employee {emp_id}: {e}")
+        
+        message = f"{analyzed_count}명의 직원에 대한 AI 분석이 완료되어 저장되었습니다."
+    
+    # 직원 목록 조회
     if Employee:
         try:
             employees = Employee.objects.filter(employment_status="재직").values("id", "name", "department", "position")[:50]
             for emp in employees:
-                emp_data = {
-                    "id": emp["id"], "name": emp["name"], "department": emp["department"], "position": emp["position"],
-                    "goalAchievement": random.randint(70, 100), "projectSuccess": random.randint(70, 100),
-                    "customerSatisfaction": random.randint(70, 100), "attendance": random.randint(85, 100),
-                }
+                # 최근 분석 결과 조회
+                latest_analysis = AIAnalysisResult.objects.filter(
+                    employee_id=emp["id"]
+                ).order_by("-analyzed_at").first()
+                
+                if latest_analysis:
+                    # 저장된 분석 결과 사용
+                    emp_data = {
+                        "id": emp["id"], 
+                        "name": emp["name"], 
+                        "department": emp["department"], 
+                        "position": emp["position"],
+                        "ai_score": latest_analysis.score,
+                        "analyzed_at": latest_analysis.analyzed_at.strftime("%Y-%m-%d %H:%M"),
+                        **latest_analysis.result_data
+                    }
+                else:
+                    # 분석 결과가 없으면 기본값
+                    emp_data = {
+                        "id": emp["id"], 
+                        "name": emp["name"], 
+                        "department": emp["department"], 
+                        "position": emp["position"],
+                        "ai_score": None,
+                        "analyzed_at": None,
+                        "goalAchievement": 0, 
+                        "projectSuccess": 0,
+                        "customerSatisfaction": 0, 
+                        "attendance": 0,
+                    }
                 employees_with_data.append(emp_data)
         except Exception as e:
-            # 오류 발생 시 샘플 데이터 사용
-            employees_with_data = [
-                {"id": 1, "name": "홍길동", "department": "개발팀", "position": "선임",
-                 "goalAchievement": 85, "projectSuccess": 90, "customerSatisfaction": 88, "attendance": 95}
-            ]
-    else:
-        # Employee 모델이 없을 때 샘플 데이터
-        employees_with_data = [
-            {"id": 1, "name": "홍길동", "department": "개발팀", "position": "선임",
-             "goalAchievement": 85, "projectSuccess": 90, "customerSatisfaction": 88, "attendance": 95}
-        ]
+            print(f"Error loading employees: {e}")
     
     context = {
         "employees": json.dumps(employees_with_data, ensure_ascii=False),
         "msa_url": "https://web-production-4066.up.railway.app",
         "page_title": "AIRISS AI 직원 분석",
+        "message": message,
     }
     return render(request, "airiss/msa_integration_simple.html", context)
 
@@ -249,22 +322,28 @@ def dashboard(request):
             </div>
             
             <div class="row g-4">
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-3">
                     <a href="/airiss/executive/" class="feature-card">
                         <h3>📊 경영진 대시보드</h3>
                         <p>전사 직원 현황 및 AI 분석 결과</p>
                     </a>
                 </div>
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-3">
                     <a href="/airiss/employee-analysis/all/" class="feature-card">
                         <h3>👥 전직원 분석</h3>
                         <p>모든 직원의 AI 성과 점수 조회</p>
                     </a>
                 </div>
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-3">
                     <a href="/airiss/msa-integration/" class="feature-card">
                         <h3>🤖 AI 분석 실행</h3>
                         <p>마이크로서비스 기반 AI 분석</p>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <a href="/airiss/analysis-results/" class="feature-card">
+                        <h3>📈 분석 결과 조회</h3>
+                        <p>저장된 AI 분석 결과 확인</p>
                     </a>
                 </div>
             </div>
@@ -303,3 +382,40 @@ def airiss_v4_portal(request):
         "airiss_v4_url": "https://web-production-4066.up.railway.app"  # 실제 AIRISS v4 MSA URL
     }
     return render(request, "airiss/airiss_v4_portal.html", context)
+
+def analysis_results(request):
+    """저장된 AI 분석 결과 조회"""
+    from .models import AIAnalysisResult
+    from django.core.paginator import Paginator
+    
+    # 필터링
+    department = request.GET.get('department')
+    analysis_type = request.GET.get('analysis_type')
+    
+    # 쿼리셋
+    results = AIAnalysisResult.objects.select_related('employee', 'analysis_type').order_by('-analyzed_at')
+    
+    if department:
+        results = results.filter(employee__department=department)
+    if analysis_type:
+        results = results.filter(analysis_type__type_code=analysis_type)
+    
+    # 페이지네이션
+    paginator = Paginator(results, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # 부서 목록
+    departments = []
+    if Employee:
+        departments = Employee.objects.values_list('department', flat=True).distinct()
+    
+    context = {
+        "page_title": "AI 분석 결과 조회",
+        "page_obj": page_obj,
+        "departments": departments,
+        "selected_department": department,
+        "selected_analysis_type": analysis_type,
+    }
+    
+    return render(request, "airiss/analysis_results.html", context)

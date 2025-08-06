@@ -10,6 +10,9 @@ urlpatterns = [
     path("employee/<int:employee_id>/analysis/", views.employee_analysis_detail, name="employee_analysis_detail"),
     path("msa-integration/", views.msa_integration, name="msa_integration"),
     
+    # AI 분석 결과 조회
+    path("analysis-results/", views.analysis_results, name="analysis_results"),
+    
     # 더미 URL들 - base_modern.html 호환성을 위해
     path("", views.dashboard, name="dashboard"),
     path("analytics/", views.analytics, name="analytics"),
