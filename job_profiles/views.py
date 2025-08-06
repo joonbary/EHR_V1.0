@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.db.models import Count, Prefetch
 import json
+from .models import JobCategory, JobType, JobRole, JobProfile
 
 
 class JobHierarchyView(TemplateView):
@@ -13,7 +14,6 @@ class JobHierarchyView(TemplateView):
         context = super().get_context_data(**kwargs)
         
         try:
-            from .models import JobCategory, JobType, JobRole, JobProfile
             
             context['total_categories'] = JobCategory.objects.count()
             context['total_job_types'] = JobType.objects.count()
@@ -39,7 +39,6 @@ class JobTreeMapView(TemplateView):
         
         # 통계 데이터 - 모델이 있으면 사용, 없으면 0
         try:
-            from .models import JobCategory, JobType, JobRole, JobProfile
             
             context['total_categories'] = JobCategory.objects.count()
             context['total_job_types'] = JobType.objects.count()
@@ -131,8 +130,7 @@ def job_tree_map_data_api(request):
 def job_detail_modal_api(request, job_role_id):
     """직무 상세 정보 API"""
     try:
-        from .models import JobRole, JobProfile
-        
+            
         job_role = get_object_or_404(JobRole, id=job_role_id)
         
         data = {
@@ -175,7 +173,6 @@ def job_detail_modal_api(request, job_role_id):
 
 def job_profile_edit_view(request, job_role_id):
     """직무기술서 편집 뷰"""
-    from .models import JobRole, JobProfile
     
     job_role = get_object_or_404(JobRole, id=job_role_id)
     
@@ -216,8 +213,7 @@ def job_profile_edit_view(request, job_role_id):
 def job_detail_api(request, job_role_id):
     """직무 상세 정보 API (새로운 UI용)"""
     try:
-        from .models import JobRole, JobProfile
-        
+            
         job_role = get_object_or_404(JobRole, id=job_role_id)
         
         # JobProfile 정보 가져오기

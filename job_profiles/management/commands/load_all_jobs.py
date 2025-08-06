@@ -5,6 +5,13 @@ from job_profiles.models import JobCategory, JobType, JobRole, JobProfile
 
 class Command(BaseCommand):
     help = 'Load complete OK Financial Group job profiles data (37 jobs)'
+    
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--noinput', '--no-input',
+            action='store_true',
+            help='Do not prompt for user input',
+        )
 
     def handle(self, *args, **kwargs):
         self.stdout.write('Loading complete job profiles data (37 jobs)...')
