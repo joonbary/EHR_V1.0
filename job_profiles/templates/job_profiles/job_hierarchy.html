@@ -670,7 +670,20 @@ async function loadJobData() {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
+        const responseData = await response.json();
+        
+        // API 응답 구조 확인
+        let data;
+        if (responseData.success !== undefined) {
+            // {success: true, data: {...}} 구조
+            if (!responseData.success) {
+                throw new Error(responseData.error || 'API error');
+            }
+            data = responseData.data;
+        } else {
+            // 직접 데이터 구조
+            data = responseData;
+        }
         
         // 데이터가 비어있는지 확인
         if (!data || Object.keys(data).length === 0) {
@@ -680,10 +693,37 @@ async function loadJobData() {
             return;
         }
         
-        jobData = data;
-        updateStats(data);
-        renderOrgChart(data);
-        renderGridView(data);
+        // Non-PL/PL 구조인 경우 평탄화
+        if (data['Non-PL'] || data['PL']) {
+            const flatData = {};
+            
+            // Non-PL 데이터 처리
+            if (data['Non-PL']) {
+                Object.keys(data['Non-PL']).forEach(category => {
+                    const categoryData = data['Non-PL'][category];
+                    flatData[category] = categoryData.jobs || {};
+                });
+            }
+            
+            // PL 데이터 처리
+            if (data['PL']) {
+                Object.keys(data['PL']).forEach(category => {
+                    const categoryData = data['PL'][category];
+                    flatData[category] = categoryData.jobs || {};
+                });
+            }
+            
+            jobData = flatData;
+            updateStats(flatData);
+            renderOrgChart(flatData);
+            renderGridView(flatData);
+        } else {
+            // 직접 구조인 경우
+            jobData = data;
+            updateStats(data);
+            renderOrgChart(data);
+            renderGridView(data);
+        }
     } catch (error) {
         console.error('Error loading job data:', error);
         // 에러 시 기본값 표시
@@ -701,6 +741,8 @@ async function loadJobData() {
 
 // 통계 업데이트
 function updateStats(data) {
+    console.log('Updating stats with data:', data);
+    
     const categories = new Set();
     const types = new Set();
     let roles = 0;
@@ -723,6 +765,8 @@ function updateStats(data) {
             }
         });
     }
+
+    console.log(`Stats - Categories: ${categories.size}, Types: ${types.size}, Roles: ${roles}, Profiles: ${profiles}`);
 
     // 애니메이션으로 숫자 표시 (한 번만 실행)
     animateValue('categoryCount', 0, categories.size || 2, 1000);
@@ -763,6 +807,8 @@ function animateValue(id, start, end, duration) {
 
 // 조직도 렌더링
 function renderOrgChart(data) {
+    console.log('Rendering org chart with data:', data);
+    
     const container = document.getElementById('categoryContainer');
     if (!container) {
         console.error('Category container not found');
@@ -780,6 +826,7 @@ function renderOrgChart(data) {
     Object.keys(data).forEach(category => {
         if (category === 'metadata') return;
 
+        console.log(`Creating card for category: ${category}`, data[category]);
         const categoryCard = createCategoryCard(category, data[category]);
         if (categoryCard) {
             container.appendChild(categoryCard);
