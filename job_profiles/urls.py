@@ -1,9 +1,22 @@
 from django.urls import path
+from django.http import JsonResponse
 from . import views
 
 app_name = 'job_profiles'
 
+def health_check(request):
+    """Health check endpoint"""
+    try:
+        from .models import JobCategory
+        count = JobCategory.objects.count()
+        return JsonResponse({'status': 'ok', 'categories': count})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
 urlpatterns = [
+    # Health check
+    path('health/', health_check, name='health_check'),
+    
     # 새로운 직무체계도 뷰 (기본)
     path('', views.JobHierarchyView.as_view(), name='hierarchy'),
     

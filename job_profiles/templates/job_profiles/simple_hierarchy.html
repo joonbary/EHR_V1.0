@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>직무 체계도 - OK금융그룹</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8 text-orange-600">직무 체계도</h1>
+        
+        <!-- 통계 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="text-2xl font-bold text-gray-800">{{ total_categories|default:0 }}</div>
+                <div class="text-sm text-gray-600">직군</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="text-2xl font-bold text-gray-800">{{ total_job_types|default:0 }}</div>
+                <div class="text-sm text-gray-600">직종</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="text-2xl font-bold text-gray-800">{{ total_job_roles|default:0 }}</div>
+                <div class="text-sm text-gray-600">직무</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="text-2xl font-bold text-gray-800">{{ total_profiles|default:0 }}</div>
+                <div class="text-sm text-gray-600">직무기술서</div>
+            </div>
+        </div>
+        
+        <!-- 직무 목록 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">직무 계층 구조</h2>
+            <div id="jobList" class="space-y-2">
+                <p class="text-gray-600">직무 데이터를 로드 중...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    // 데이터 로드
+    fetch('/job-profiles/api/tree-map-data/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayJobs(data.data);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading data:', error);
+            document.getElementById('jobList').innerHTML = '<p class="text-red-600">데이터 로드 중 오류가 발생했습니다.</p>';
+        });
+    
+    function displayJobs(data) {
+        const container = document.getElementById('jobList');
+        let html = '';
+        
+        // Non-PL 카테고리
+        if (data['Non-PL']) {
+            html += '<div class="mb-6"><h3 class="font-semibold text-lg mb-2">Non-PL</h3>';
+            for (const [category, categoryData] of Object.entries(data['Non-PL'])) {
+                html += `<div class="ml-4 mb-4">
+                    <h4 class="font-medium text-orange-600">${categoryData.name}</h4>
+                    <div class="ml-4">`;
+                
+                for (const [jobType, jobs] of Object.entries(categoryData.jobs)) {
+                    html += `<div class="mb-2">
+                        <span class="text-gray-700">${jobType}:</span>
+                        <span class="text-gray-600">${jobs.map(j => j.name).join(', ')}</span>
+                    </div>`;
+                }
+                html += '</div></div>';
+            }
+            html += '</div>';
+        }
+        
+        // PL 카테고리
+        if (data['PL']) {
+            html += '<div class="mb-6"><h3 class="font-semibold text-lg mb-2">PL</h3>';
+            for (const [category, categoryData] of Object.entries(data['PL'])) {
+                html += `<div class="ml-4 mb-4">
+                    <h4 class="font-medium text-orange-600">${categoryData.name}</h4>
+                    <div class="ml-4">`;
+                
+                for (const [jobType, jobs] of Object.entries(categoryData.jobs)) {
+                    html += `<div class="mb-2">
+                        <span class="text-gray-700">${jobType}:</span>
+                        <span class="text-gray-600">${jobs.map(j => j.name).join(', ')}</span>
+                    </div>`;
+                }
+                html += '</div></div>';
+            }
+            html += '</div>';
+        }
+        
+        container.innerHTML = html || '<p class="text-gray-600">데이터가 없습니다.</p>';
+    }
+    </script>
+</body>
+</html>
