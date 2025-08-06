@@ -1095,6 +1095,8 @@ class GrowthLevel(models.Model):
         verbose_name='레벨명'
     )
     description = models.TextField(
+        default='',
+        blank=True,
         verbose_name='레벨 설명'
     )
     
@@ -1460,7 +1462,7 @@ class PerformanceTrend(models.Model):
         verbose_name='레벨'
     )
     name = models.CharField(max_length=50, verbose_name='레벨명')
-    description = models.TextField(verbose_name='레벨 설명')
+    description = models.TextField(default='', blank=True, verbose_name='레벨 설명')
     
     # 기존 마이그레이션에서 생성된 필드들
     min_contribution_score = models.DecimalField(
