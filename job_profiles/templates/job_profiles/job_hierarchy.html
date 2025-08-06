@@ -840,11 +840,40 @@ function createCategoryCard(categoryName, categoryData) {
     card.className = 'category-card';
     
     let totalJobs = 0;
-    Object.values(categoryData).forEach(jobs => {
-        totalJobs += jobs.length;
-    });
+    
+    // categoryData가 배열이 아니라 객체 구조임
+    if (categoryData && typeof categoryData === 'object') {
+        Object.values(categoryData).forEach(jobs => {
+            if (Array.isArray(jobs)) {
+                totalJobs += jobs.length;
+            }
+        });
+    }
 
     const icon = getCategoryIcon(categoryName);
+    
+    let jobTypesHTML = '';
+    if (categoryData && typeof categoryData === 'object') {
+        jobTypesHTML = Object.keys(categoryData).map(type => {
+            const jobs = categoryData[type];
+            if (!Array.isArray(jobs)) return '';
+            
+            return `
+                <div class="job-type">
+                    <div class="job-type-header" onclick="toggleJobRoles(this)">
+                        <i class="fas fa-chevron-right"></i> ${type} (${jobs.length})
+                    </div>
+                    <div class="job-roles" style="display: none;">
+                        ${jobs.map(job => `
+                            <div class="job-role" onclick="showJobDetail('${job.name}', '${categoryName}', '${type}')">
+                                ${job.name}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
     
     card.innerHTML = `
         <div class="category-header">
@@ -855,20 +884,7 @@ function createCategoryCard(categoryName, categoryData) {
             <div class="category-count">${totalJobs}</div>
         </div>
         <div class="job-types">
-            ${Object.keys(categoryData).map(type => `
-                <div class="job-type">
-                    <div class="job-type-header" onclick="toggleJobRoles(this)">
-                        <i class="fas fa-chevron-right"></i> ${type} (${categoryData[type].length})
-                    </div>
-                    <div class="job-roles" style="display: none;">
-                        ${categoryData[type].map(job => `
-                            <div class="job-role" onclick="showJobDetail('${job.name}', '${categoryName}', '${type}')">
-                                ${job.name}
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('')}
+            ${jobTypesHTML}
         </div>
     `;
     
@@ -889,6 +905,8 @@ function getCategoryIcon(category) {
 
 // 그리드 뷰 렌더링
 function renderGridView(data) {
+    console.log('Rendering grid view with data:', data);
+    
     const container = document.getElementById('gridView');
     if (!container) {
         console.error('Grid view container not found');
@@ -903,6 +921,7 @@ function renderGridView(data) {
         return;
     }
 
+    let cardCount = 0;
     Object.keys(data).forEach(category => {
         if (category === 'metadata') return;
 
@@ -913,16 +932,25 @@ function renderGridView(data) {
                         const card = createGridCard(job, category, type);
                         if (card) {
                             container.appendChild(card);
+                            cardCount++;
                         }
                     });
                 }
             });
         }
     });
+    
+    console.log(`Grid view rendered with ${cardCount} cards`);
+    
+    if (cardCount === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">표시할 직무 데이터가 없습니다.</div>';
+    }
 }
 
 // 그리드 카드 생성
 function createGridCard(job, category, type) {
+    if (!job || !job.name) return null;
+    
     const card = document.createElement('div');
     card.className = 'job-grid-card';
     

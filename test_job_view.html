@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job View Test</title>
+</head>
+<body>
+    <h1>API Response Test</h1>
+    <div id="result"></div>
+    
+    <script>
+    // API 데이터를 직접 테스트
+    const testData = {"success": true, "data": {"Non-PL": {"IT/디지털": {"name": "IT/디지털", "icon": "laptop", "jobs": {"IT개발": [{"id": "test1", "name": "시스템개발", "has_profile": true}], "IT기획": [{"id": "test2", "name": "시스템기획", "has_profile": true}]}}, "경영지원": {"name": "경영지원", "icon": "briefcase", "jobs": {"경영관리": [{"id": "test3", "name": "HRD", "has_profile": true}]}}}, "PL": {}}};
+    
+    // 데이터 평탄화 처리
+    let flatData = {};
+    
+    if (testData.success && testData.data) {
+        const data = testData.data;
+        
+        if (data['Non-PL']) {
+            Object.keys(data['Non-PL']).forEach(category => {
+                const categoryData = data['Non-PL'][category];
+                flatData[category] = categoryData.jobs || {};
+            });
+        }
+        
+        if (data['PL']) {
+            Object.keys(data['PL']).forEach(category => {
+                const categoryData = data['PL'][category];
+                flatData[category] = categoryData.jobs || {};
+            });
+        }
+    }
+    
+    console.log('Flat data:', flatData);
+    document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(flatData, null, 2) + '</pre>';
+    </script>
+</body>
+</html>
