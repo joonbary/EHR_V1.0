@@ -1,1 +1,1 @@
-web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn ehr_system.wsgi:application -c gunicorn.conf.py
+web: python manage.py migrate --noinput --verbosity 2 && python manage.py migrate job_profiles --noinput && python manage.py collectstatic --noinput && gunicorn ehr_system.wsgi:application -c gunicorn.conf.py

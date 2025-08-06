@@ -1453,68 +1453,14 @@ class PerformanceTrend(models.Model):
         unique_together = ['employee', 'evaluation_period']
         ordering = ['-evaluation_period__year', '-evaluation_period__period_type']
 
+    # 성장레벨 추가
+    level = models.IntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        verbose_name='현재 레벨'
+    )
+    
     def __str__(self):
         return f"{self.employee.name} - {self.evaluation_period} 트렌드"
-    """성장레벨 정의"""
-    level = models.IntegerField(
-        unique=True,
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
-        verbose_name='레벨'
-    )
-    name = models.CharField(max_length=50, verbose_name='레벨명')
-    description = models.TextField(default='', blank=True, verbose_name='레벨 설명')
-    
-    # 기존 마이그레이션에서 생성된 필드들
-    min_contribution_score = models.DecimalField(
-        max_digits=3,
-        decimal_places=1,
-        default=2.0,
-        verbose_name='최소 기여도 점수'
-    )
-    min_expertise_score = models.DecimalField(
-        max_digits=3,
-        decimal_places=1,
-        default=2.0,
-        verbose_name='최소 전문성 점수'
-    )
-    min_impact_score = models.DecimalField(
-        max_digits=3,
-        decimal_places=1,
-        default=2.0,
-        verbose_name='최소 영향력 점수'
-    )
-    required_evaluation_periods = models.IntegerField(
-        default=2,
-        verbose_name='필요 평가기간 수',
-        help_text='해당 레벨에서 몇 번의 평가를 받아야 하는지'
-    )
-    min_consecutive_achievements = models.IntegerField(
-        default=1,
-        verbose_name='연속 달성 필요 횟수',
-        help_text='연속으로 목표를 달성해야 하는 횟수'
-    )
-    
-    # 새로 추가된 필드들
-    min_score_requirement = models.DecimalField(
-        max_digits=3,
-        decimal_places=1,
-        default=3.0,
-        verbose_name='최소 점수 요구사항'
-    )
-    consecutive_achievements_required = models.IntegerField(
-        default=3,
-        verbose_name='연속 달성 횟수 요구'
-    )
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = '성장레벨'
-        verbose_name_plural = '성장레벨'
-        ordering = ['level']
-
-    def __str__(self):
-        return f"레벨 {self.level}: {self.name}"
 
 
