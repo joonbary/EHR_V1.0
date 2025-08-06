@@ -535,8 +535,115 @@
         });
     </script>
     
-    <!-- Load Sidebar Auto-Hide Script -->
-    <script src="{% static 'js/sidebar-autohide.js' %}?v=1.0.1"></script>
+    <!-- Sidebar Auto-Hide Inline Script -->
+    <script>
+    // Sidebar Auto-Hide Functionality (Inline for production)
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const autoHideToggle = document.getElementById('sidebarAutoHideToggle');
+        
+        if (!sidebar || !mainContent) return;
+        
+        let autoHideEnabled = localStorage.getItem('sidebarAutoHide') !== 'false';
+        let isDesktop = window.innerWidth >= 1024;
+        let hoverTimer = null;
+        
+        // Set initial toggle state
+        if (autoHideToggle) {
+            autoHideToggle.checked = autoHideEnabled;
+        }
+        
+        // Create hover zone
+        const hoverZone = document.createElement('div');
+        hoverZone.style.cssText = 'position:fixed;left:0;top:0;bottom:0;width:30px;z-index:35;';
+        document.body.appendChild(hoverZone);
+        
+        // Hide sidebar initially if auto-hide is enabled
+        if (isDesktop && autoHideEnabled) {
+            sidebar.classList.add('-translate-x-full');
+            mainContent.style.marginLeft = '0';
+        }
+        
+        // Menu link clicks - auto-hide sidebar
+        sidebar.querySelectorAll('a[href]:not([href="#"])').forEach(link => {
+            link.addEventListener('click', function() {
+                if (isDesktop && autoHideEnabled) {
+                    setTimeout(() => {
+                        sidebar.classList.add('-translate-x-full');
+                        mainContent.style.marginLeft = '0';
+                    }, 100);
+                }
+            });
+        });
+        
+        // Hover zone - show sidebar
+        hoverZone.addEventListener('mouseenter', function() {
+            if (isDesktop && autoHideEnabled && sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                mainContent.style.marginLeft = '18rem';
+            }
+        });
+        
+        // Sidebar mouse leave - hide after delay
+        sidebar.addEventListener('mouseleave', function() {
+            if (isDesktop && autoHideEnabled) {
+                clearTimeout(hoverTimer);
+                hoverTimer = setTimeout(() => {
+                    sidebar.classList.add('-translate-x-full');
+                    mainContent.style.marginLeft = '0';
+                }, 500);
+            }
+        });
+        
+        // Sidebar mouse enter - cancel hide
+        sidebar.addEventListener('mouseenter', function() {
+            clearTimeout(hoverTimer);
+        });
+        
+        // Toggle switch handler
+        if (autoHideToggle) {
+            autoHideToggle.addEventListener('change', function(e) {
+                autoHideEnabled = e.target.checked;
+                localStorage.setItem('sidebarAutoHide', autoHideEnabled);
+                
+                if (isDesktop) {
+                    if (autoHideEnabled) {
+                        sidebar.classList.add('-translate-x-full');
+                        mainContent.style.marginLeft = '0';
+                    } else {
+                        sidebar.classList.remove('-translate-x-full');
+                        mainContent.style.marginLeft = '18rem';
+                    }
+                }
+            });
+        }
+        
+        // Ctrl+B shortcut
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+                e.preventDefault();
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                    mainContent.style.marginLeft = '18rem';
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    mainContent.style.marginLeft = '0';
+                }
+            }
+        });
+        
+        // Handle resize
+        window.addEventListener('resize', function() {
+            isDesktop = window.innerWidth >= 1024;
+            if (!isDesktop) {
+                hoverZone.style.display = 'none';
+            } else {
+                hoverZone.style.display = 'block';
+            }
+        });
+    });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>

@@ -3,9 +3,13 @@ from django.db.models import Count, Avg, Q
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.db import connection
 import json
 import random
 import os
+import requests
 
 try:
     from employees.models import Employee
@@ -19,6 +23,61 @@ def file_upload(request):
         "page_title": "AIRISS 파일 업로드",
     }
     return render(request, "airiss/file_upload.html", context)
+
+@csrf_exempt
+def airiss_upload_proxy(request):
+    """AIRISS 업로드 프록시 - MSA 서비스로 파일 전달"""
+    if request.method == 'POST':
+        try:
+            # Railway 환경 확인
+            if os.getenv('RAILWAY_ENVIRONMENT'):
+                airiss_url = settings.AIRISS_INTERNAL_URL
+            else:
+                airiss_url = settings.AIRISS_SERVICE_URL
+            
+            # 파일 가져오기
+            uploaded_file = request.FILES.get('file')
+            if not uploaded_file:
+                return JsonResponse({'error': '파일이 없습니다'}, status=400)
+            
+            # AIRISS MSA 서비스로 전달
+            files = {'file': (uploaded_file.name, uploaded_file, uploaded_file.content_type)}
+            
+            # 추가 데이터
+            data = {}
+            if request.POST.get('employee_id'):
+                data['employee_id'] = request.POST.get('employee_id')
+            if request.POST.get('analysis_type'):
+                data['analysis_type'] = request.POST.get('analysis_type')
+            
+            # MSA 서비스 호출
+            response = requests.post(
+                f"{airiss_url}/api/v1/upload",
+                files=files,
+                data=data,
+                timeout=30
+            )
+            
+            # 응답 전달
+            if response.status_code == 200:
+                return JsonResponse(response.json())
+            else:
+                return JsonResponse({
+                    'error': f'업로드 실패: {response.status_code}',
+                    'message': response.text
+                }, status=response.status_code)
+                
+        except requests.exceptions.ConnectionError:
+            return JsonResponse({
+                'error': 'AIRISS 서비스에 연결할 수 없습니다',
+                'service_url': airiss_url
+            }, status=503)
+        except Exception as e:
+            return JsonResponse({
+                'error': f'업로드 중 오류 발생: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({'error': 'POST 요청만 허용됩니다'}, status=405)
 
 def msa_integration(request):
     """AIRISS MSA 통합 페이지"""
@@ -105,357 +164,283 @@ def msa_integration(request):
                             # API 응답이 예상과 다른 경우
                             print(f"예상과 다른 API 응답: {result}")
                             ai_score = random.randint(60, 95)
-                            confidence = 0.85
-                            insights_text = f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다."
-                            result_data = {
-                                "goalAchievement": random.randint(70, 100),
-                                "projectSuccess": random.randint(70, 100),
-                                "customerSatisfaction": random.randint(70, 100),
-                                "attendance": random.randint(85, 100),
-                            }
+                            confidence = 0.7
+                            insights_text = f"{employee.name}님의 예상 성과 점수는 {ai_score}점입니다."
+                            result_data = {"status": "success", "score": ai_score}
                     else:
-                        # API 호출 실패 시 기본값 사용
+                        # API 호출 실패 시 더미 데이터
                         print(f"MSA API 호출 실패: {response.status_code}")
-                        print(f"응답 내용: {response.text}")
                         ai_score = random.randint(60, 95)
-                        confidence = random.uniform(0.7, 0.95)
-                        insights_text = f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다."
-                        result_data = {
-                            "error": f"API 호출 실패: {response.status_code}",
-                            "fallback": True
-                        }
+                        confidence = 0.6
+                        insights_text = f"{employee.name}님의 추정 성과 점수는 {ai_score}점입니다."
+                        result_data = {"status": "error", "message": "MSA API 호출 실패"}
                         
-                except requests.exceptions.RequestException as e:
-                    # 네트워크 오류 등의 경우 기본값 사용
-                    print(f"MSA 서버 연결 오류: {e}")
+                except Exception as e:
+                    # 네트워크 오류 등 예외 처리
+                    print(f"MSA 연결 오류: {e}")
                     ai_score = random.randint(60, 95)
-                    confidence = random.uniform(0.7, 0.95)
-                    insights_text = f"{employee.name}님의 종합 성과 점수는 {ai_score}점입니다."
-                    result_data = {
-                        "error": "MSA 서버 연결 실패",
-                        "fallback": True
-                    }
+                    confidence = 0.5
+                    insights_text = f"{employee.name}님의 임시 성과 점수는 {ai_score}점입니다."
+                    result_data = {"status": "error", "message": str(e)}
                 
                 # 분석 결과 저장
                 AIAnalysisResult.objects.create(
                     analysis_type=analysis_type,
                     employee=employee,
-                    score=ai_score,
-                    confidence=confidence,
-                    result_data=result_data,  # 실제 AI 분석 결과 데이터 저장
+                    analyzed_by=request.user if request.user.is_authenticated else None,
+                    ai_score=ai_score,
+                    confidence_score=confidence,
                     insights=insights_text,
-                    created_by=request.user if request.user.is_authenticated else None
+                    result_data=result_data
                 )
                 analyzed_count += 1
                 
+            except Employee.DoesNotExist:
+                print(f"직원을 찾을 수 없습니다: ID {emp_id}")
+                continue
             except Exception as e:
-                print(f"Error analyzing employee {emp_id}: {e}")
+                print(f"분석 중 오류 발생: {e}")
+                continue
         
-        message = f"{analyzed_count}명의 직원에 대한 AI 분석이 완료되어 저장되었습니다."
+        message = f"{analyzed_count}명의 직원에 대한 AI 분석이 완료되었습니다!"
     
-    # 직원 목록 조회
+    # GET 요청 - 직원 목록 표시
     if Employee:
-        try:
-            employees = Employee.objects.filter(employment_status="재직").values("id", "name", "department", "position")[:50]
-            for emp in employees:
-                # 최근 분석 결과 조회
-                latest_analysis = AIAnalysisResult.objects.filter(
-                    employee_id=emp["id"]
-                ).order_by("-analyzed_at").first()
-                
-                if latest_analysis:
-                    # 저장된 분석 결과 사용
-                    emp_data = {
-                        "id": emp["id"], 
-                        "name": emp["name"], 
-                        "department": emp["department"], 
-                        "position": emp["position"],
-                        "ai_score": latest_analysis.score,
-                        "analyzed_at": latest_analysis.analyzed_at.strftime("%Y-%m-%d %H:%M"),
-                        **latest_analysis.result_data
-                    }
-                else:
-                    # 분석 결과가 없으면 기본값
-                    emp_data = {
-                        "id": emp["id"], 
-                        "name": emp["name"], 
-                        "department": emp["department"], 
-                        "position": emp["position"],
-                        "ai_score": None,
-                        "analyzed_at": None,
-                        "goalAchievement": 0, 
-                        "projectSuccess": 0,
-                        "customerSatisfaction": 0, 
-                        "attendance": 0,
-                    }
-                employees_with_data.append(emp_data)
-        except Exception as e:
-            print(f"Error loading employees: {e}")
+        employees = Employee.objects.all().order_by('name')[:100]
+        
+        # 각 직원의 최신 AI 분석 결과 가져오기
+        for emp in employees:
+            latest_analysis = AIAnalysisResult.objects.filter(
+                employee=emp
+            ).order_by('-analyzed_at').first()
+            
+            employees_with_data.append({
+                "id": emp.id,
+                "name": emp.name,
+                "department": emp.department,
+                "position": emp.position,
+                "ai_score": latest_analysis.ai_score if latest_analysis else None,
+                "analyzed_at": latest_analysis.analyzed_at.strftime("%Y-%m-%d %H:%M") if latest_analysis else None
+            })
     
     context = {
+        "page_title": "AIRISS MSA 통합",
         "employees": json.dumps(employees_with_data, ensure_ascii=False),
         "msa_url": settings.AIRISS_SERVICE_URL,
-        "page_title": "AIRISS AI 직원 분석",
-        "message": message,
-    }
-    return render(request, "airiss/msa_integration_simple.html", context)
-
-def executive_dashboard(request):
-    """경영진 대시보드"""
-    # React 버전 사용 여부 확인
-    use_react = request.GET.get('react', 'true').lower() == 'true'
-    
-    total_employees = 0
-    dept_stats = []
-    
-    if Employee:
-        try:
-            total_employees = Employee.objects.filter(employment_status="재직").count()
-            dept_stats = Employee.objects.filter(employment_status="재직").values("department").annotate(count=Count("id"), avg_score=Avg("id")).order_by("-count")
-            dept_stats = list(dept_stats)
-        except Exception as e:
-            # 오류 발생 시 샘플 데이터
-            total_employees = 173
-            dept_stats = [
-                {"department": "개발팀", "count": 45, "avg_score": 85},
-                {"department": "영업팀", "count": 38, "avg_score": 82},
-                {"department": "인사팀", "count": 25, "avg_score": 88}
-            ]
-    else:
-        # Employee 모델이 없을 때 샘플 데이터
-        total_employees = 173
-        dept_stats = [
-            {"department": "개발팀", "count": 45, "avg_score": 85},
-            {"department": "영업팀", "count": 38, "avg_score": 82},
-            {"department": "인사팀", "count": 25, "avg_score": 88}
-        ]
-    
-    context = {
-        "page_title": "경영진 대시보드",
-        "total_employees": total_employees,
-        "dept_stats": json.dumps(dept_stats, ensure_ascii=False),  # React를 위해 JSON으로 변환
-        "ai_analysis_summary": {"high_performers": [], "risk_employees": [], "promotion_candidates": []},
-        "grade_distribution": json.dumps({"S": 15, "A": 50, "B": 100, "C": 30, "D": 10}),
-        "msa_url": settings.AIRISS_SERVICE_URL,
-        "last_updated": timezone.now()
+        "message": message
     }
     
-    # React 버전 사용 (원본 AIRISS UI 완전 통합)
-    # Railway에서 템플릿 찾기 문제로 인해 simple 버전 사용
-    return render(request, "airiss/executive_dashboard_simple.html", context)
+    return render(request, "airiss/msa_integration.html", context)
 
-def employee_analysis_all(request):
-    """전직원 분석"""
-    # React 버전 사용 여부
-    use_react = request.GET.get('react', 'true').lower() == 'true'
-    
-    employees_with_analysis = []
-    employees_page = None
-    departments = []
-    positions = []
-    
-    if Employee:
-        try:
-            employees_qs = Employee.objects.filter(employment_status="재직")
-            paginator = Paginator(employees_qs, 20)
-            employees_page = paginator.get_page(request.GET.get("page"))
-            
-            for emp in employees_page:
-                score = random.randint(60, 95)
-                employees_with_analysis.append({
-                    "employee": emp, "analysis": None, "ai_score": score,
-                    "ai_grade": "S" if score >= 90 else "A" if score >= 80 else "B" if score >= 70 else "C" if score >= 60 else "D"
-                })
-            
-            departments = list(Employee.objects.filter(employment_status="재직").values_list("department", flat=True).distinct())
-            positions = list(Employee.objects.filter(employment_status="재직").values_list("position", flat=True).distinct())
-        except Exception as e:
-            # 오류 발생 시 샘플 데이터
-            pass
-    
-    if not employees_with_analysis:
-        # 샘플 데이터
-        class MockEmployee:
-            def __init__(self, id, name, department, position, employee_number=None):
-                self.id = id
-                self.name = name
-                self.department = department
-                self.position = position
-                self.employee_number = employee_number or f"EMP{id:03d}"
-        
-        sample_employees = [
-            MockEmployee(1, "홍길동", "개발팀", "선임"),
-            MockEmployee(2, "김철수", "영업팀", "과장"),
-            MockEmployee(3, "이영희", "인사팀", "대리")
-        ]
-        
-        for emp in sample_employees:
-            score = random.randint(60, 95)
-            employees_with_analysis.append({
-                "employee": emp, "analysis": None, "ai_score": score,
-                "ai_grade": "S" if score >= 90 else "A" if score >= 80 else "B" if score >= 70 else "C" if score >= 60 else "D"
-            })
-        
-        departments = ["개발팀", "영업팀", "인사팀"]
-        positions = ["선임", "과장", "대리"]
-    
-    # React용 JSON 변환
-    employees_json = json.dumps([{
-        "employee": {
-            "id": item["employee"].id,
-            "name": item["employee"].name,
-            "department": item["employee"].department,
-            "position": item["employee"].position,
-            "employee_number": getattr(item["employee"], "employee_number", f"EMP{item['employee'].id:03d}")
-        },
-        "ai_score": item["ai_score"],
-        "ai_grade": item["ai_grade"],
-        "analysis": item["analysis"]
-    } for item in employees_with_analysis], ensure_ascii=False)
-    
-    context = {
-        "page_title": "전직원 분석", 
-        "employees": employees_with_analysis,
-        "employees_json": employees_json,  # React를 위한 JSON 데이터
-        "employees_page": employees_page,
-        "departments": json.dumps(departments, ensure_ascii=False) if use_react else departments,
-        "positions": json.dumps(positions, ensure_ascii=False) if use_react else positions,
-        "msa_url": settings.AIRISS_SERVICE_URL
-    }
-    
-    # React 버전 사용 (원본 AIRISS UI 완전 통합)
-    # Railway에서 템플릿 찾기 문제로 인해 simple 버전 사용
-    return render(request, "airiss/employee_analysis_all_simple.html", context)
-
-def employee_analysis_detail(request, employee_id):
-    """개인별 분석결과 상세 조회"""
-    employee = None
-    
-    if Employee:
-        try:
-            employee = get_object_or_404(Employee, id=employee_id)
-        except Exception as e:
-            # 오류 발생 시 샘플 데이터
-            class MockEmployee:
-                def __init__(self):
-                    self.id = employee_id
-                    self.name = "홍길동"
-                    self.department = "개발팀"
-                    self.position = "선임"
-                    self.employee_number = "EMP001"
-            employee = MockEmployee()
-    else:
-        # Employee 모델이 없을 때 샘플 데이터
-        class MockEmployee:
-            def __init__(self):
-                self.id = employee_id
-                self.name = "홍길동"
-                self.department = "개발팀"
-                self.position = "선임"
-                self.employee_number = "EMP001"
-        employee = MockEmployee()
-    
-    context = {
-        "page_title": f"{employee.name}님의 분석 결과" if employee else "직원 분석 결과",
-        "employee": employee,
-        "msa_url": settings.AIRISS_SERVICE_URL
-    }
-    return render(request, "airiss/employee_analysis_detail_simple.html", context)
-
-
-# 더미 뷰들 - base_modern.html의 URL 참조를 위해
 def dashboard(request):
     """AIRISS 대시보드"""
-    # 간단한 대시보드 정보
+    # 최근 분석 결과 가져오기
+    from .models import AIAnalysisResult
+    
+    recent_analyses = []
+    if AIAnalysisResult._meta.db_table in connection.introspection.table_names():
+        recent_analyses = AIAnalysisResult.objects.select_related('employee').order_by('-analyzed_at')[:10]
+    
+    # 부서별 통계
+    department_stats = {}
+    if recent_analyses:
+        for analysis in recent_analyses:
+            dept = analysis.employee.department
+            if dept not in department_stats:
+                department_stats[dept] = {
+                    'count': 0,
+                    'total_score': 0,
+                    'avg_score': 0
+                }
+            department_stats[dept]['count'] += 1
+            department_stats[dept]['total_score'] += analysis.ai_score
+            department_stats[dept]['avg_score'] = department_stats[dept]['total_score'] / department_stats[dept]['count']
+    
     context = {
         "page_title": "AIRISS 대시보드",
-        "total_employees": 0,
-        "total_analyses": 0,
-        "recent_insights": []
+        "recent_analyses": recent_analyses,
+        "department_stats": department_stats,
+        "total_analyses": len(recent_analyses),
+        "avg_score": sum(a.ai_score for a in recent_analyses) / len(recent_analyses) if recent_analyses else 0
     }
-    
-    if Employee:
-        try:
-            context["total_employees"] = Employee.objects.filter(employment_status="재직").count()
-        except:
-            pass
-    
-    # 간단한 HTML 응답 반환 (템플릿 문제 회피)
-    html = f"""
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>AIRISS 대시보드</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>
-            body {{ background-color: #f5f7fa; }}
-            .header {{ background: linear-gradient(135deg, #FF6B00 0%, #E55A00 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; }}
-            .feature-card {{ background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: all 0.3s ease; text-decoration: none; color: inherit; display: block; height: 100%; }}
-            .feature-card:hover {{ transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); text-decoration: none; color: inherit; }}
-        </style>
-    </head>
-    <body>
-        <div class="container mt-4">
-            <div class="header">
-                <h1>AIRISS - AI 기반 HR 지원 시스템</h1>
-                <p class="mb-0">OK금융그룹 e-HR System과 통합된 AI 직원 성과/역량 평가 시스템</p>
-            </div>
-            
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-3">
-                    <a href="/airiss/executive/" class="feature-card">
-                        <h3>📊 경영진 대시보드</h3>
-                        <p>전사 직원 현황 및 AI 분석 결과</p>
-                    </a>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <a href="/airiss/employee-analysis/all/" class="feature-card">
-                        <h3>👥 전직원 분석</h3>
-                        <p>모든 직원의 AI 성과 점수 조회</p>
-                    </a>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <a href="/airiss/msa-integration/" class="feature-card">
-                        <h3>🤖 AI 분석 실행</h3>
-                        <p>마이크로서비스 기반 AI 분석</p>
-                    </a>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <a href="/airiss/analysis-results/" class="feature-card">
-                        <h3>📈 분석 결과 조회</h3>
-                        <p>저장된 AI 분석 결과 확인</p>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="mt-5 text-center">
-                <a href="/" class="btn btn-outline-secondary">e-HR 메인으로</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    
-    from django.http import HttpResponse
-    return HttpResponse(html)
+    return render(request, "airiss/dashboard.html", context)
 
 def analytics(request):
-    """HR 분석 - 준비중"""
-    return render(request, "airiss/analytics.html", {"page_title": "HR 분석"})
+    """AIRISS 분석"""
+    context = {"page_title": "AIRISS 분석"}
+    return render(request, "airiss/analytics.html", context)
 
 def predictions(request):
-    """AI 예측 - 준비중"""
-    return render(request, "airiss/predictions.html", {"page_title": "AI 예측"})
+    """AIRISS 예측"""
+    context = {"page_title": "AIRISS 예측"}
+    return render(request, "airiss/predictions.html", context)
 
 def insights(request):
-    """인사이트 - 준비중"""
-    return render(request, "airiss/insights.html", {"page_title": "인사이트"})
+    """AIRISS 인사이트"""
+    context = {"page_title": "AIRISS 인사이트"}
+    return render(request, "airiss/insights.html", context)
 
 def chatbot(request):
-    """HR 챗봇 - 준비중"""
-    return render(request, "airiss/chatbot.html", {"page_title": "HR 챗봇"})
+    """AIRISS 챗봇"""
+    context = {"page_title": "AIRISS AI 챗봇"}
+    return render(request, "airiss/chatbot.html", context)
+
+def executive_dashboard(request):
+    """임원 대시보드 - 포트폴리오 전용"""
+    from .models import AIAnalysisResult
+    from django.db import connection
+    import json
+    
+    # 분석 결과가 있는지 확인
+    has_analysis = False
+    team_scores = []
+    
+    # DB 테이블 존재 여부 확인
+    table_exists = AIAnalysisResult._meta.db_table in connection.introspection.table_names()
+    
+    if table_exists:
+        # 팀별 평균 성과 점수 계산
+        from django.db.models import Avg
+        
+        if Employee:
+            dept_scores = AIAnalysisResult.objects.values('employee__department').annotate(
+                avg_score=Avg('ai_score')
+            ).order_by('-avg_score')[:5]
+            
+            team_scores = [
+                {
+                    'name': dept['employee__department'] or '미지정',
+                    'score': round(dept['avg_score'], 1) if dept['avg_score'] else 0
+                }
+                for dept in dept_scores
+            ]
+            has_analysis = len(team_scores) > 0
+    
+    # 더미 데이터 (분석 결과가 없을 경우)
+    if not has_analysis:
+        team_scores = [
+            {'name': '개발팀', 'score': 85.5},
+            {'name': '마케팅팀', 'score': 82.3},
+            {'name': '영업팀', 'score': 88.7},
+            {'name': '인사팀', 'score': 79.2},
+            {'name': '재무팀', 'score': 83.9}
+        ]
+    
+    context = {
+        'page_title': 'AIRISS 임원 대시보드',
+        'team_scores': json.dumps(team_scores, ensure_ascii=False),
+        'has_analysis': has_analysis,
+        'current_date': timezone.now().strftime('%Y년 %m월 %d일')
+    }
+    
+    return render(request, 'airiss/executive_dashboard_simple.html', context)
+
+def employee_analysis_all(request):
+    """전체 직원 분석 뷰"""
+    from .models import AIAnalysisResult
+    from django.db import connection
+    import json
+    
+    employees_data = []
+    
+    # DB 테이블 존재 여부 확인
+    table_exists = AIAnalysisResult._meta.db_table in connection.introspection.table_names()
+    
+    if table_exists and Employee:
+        # 실제 데이터 조회
+        analyses = AIAnalysisResult.objects.select_related('employee').order_by('-analyzed_at')[:50]
+        
+        for analysis in analyses:
+            employees_data.append({
+                'id': analysis.employee.id,
+                'name': analysis.employee.name,
+                'department': analysis.employee.department or '미지정',
+                'position': analysis.employee.position or '미지정',
+                'ai_score': round(analysis.ai_score, 1),
+                'confidence': round(analysis.confidence_score * 100, 1),
+                'analyzed_date': analysis.analyzed_at.strftime('%Y-%m-%d'),
+                'status': '분석완료'
+            })
+    
+    # 더미 데이터 (실제 데이터가 없을 경우)
+    if not employees_data:
+        dummy_names = ['김철수', '이영희', '박민수', '정수진', '최동욱', '강미영', '조현우', '임지혜', '윤성호', '한예진']
+        dummy_depts = ['개발팀', '마케팅팀', '영업팀', '인사팀', '재무팀']
+        dummy_positions = ['사원', '대리', '과장', '차장', '부장']
+        
+        for i in range(10):
+            employees_data.append({
+                'id': i + 1,
+                'name': dummy_names[i % len(dummy_names)],
+                'department': dummy_depts[i % len(dummy_depts)],
+                'position': dummy_positions[i % len(dummy_positions)],
+                'ai_score': round(random.uniform(65, 95), 1),
+                'confidence': round(random.uniform(70, 95), 1),
+                'analyzed_date': timezone.now().strftime('%Y-%m-%d'),
+                'status': '분석완료'
+            })
+    
+    context = {
+        'page_title': 'AIRISS 전체 직원 분석',
+        'employees': json.dumps(employees_data, ensure_ascii=False),
+        'total_count': len(employees_data)
+    }
+    
+    return render(request, 'airiss/employee_analysis_all_simple.html', context)
+
+def employee_analysis_detail(request, employee_id):
+    """개별 직원 상세 분석"""
+    from .models import AIAnalysisResult
+    from django.db import connection
+    import json
+    
+    # 더미 데이터 생성
+    employee_data = {
+        'id': employee_id,
+        'name': f'직원_{employee_id}',
+        'department': '개발팀',
+        'position': '과장',
+        'ai_score': round(random.uniform(70, 95), 1),
+        'confidence': round(random.uniform(75, 95), 1),
+        'strengths': ['문제해결능력', '팀워크', '의사소통'],
+        'weaknesses': ['시간관리', '문서작성'],
+        'recommendations': [
+            '프로젝트 관리 교육 추천',
+            '리더십 프로그램 참여 권장',
+            '기술 스킬 향상 과정 수강'
+        ]
+    }
+    
+    # 실제 데이터 조회 시도
+    table_exists = AIAnalysisResult._meta.db_table in connection.introspection.table_names()
+    
+    if table_exists and Employee:
+        try:
+            employee = Employee.objects.get(id=employee_id)
+            analysis = AIAnalysisResult.objects.filter(employee=employee).order_by('-analyzed_at').first()
+            
+            if analysis:
+                employee_data.update({
+                    'name': employee.name,
+                    'department': employee.department or '미지정',
+                    'position': employee.position or '미지정',
+                    'ai_score': round(analysis.ai_score, 1),
+                    'confidence': round(analysis.confidence_score * 100, 1)
+                })
+                
+                # result_data에서 추가 정보 추출
+                if analysis.result_data:
+                    employee_data['strengths'] = analysis.result_data.get('strengths', employee_data['strengths'])
+                    employee_data['weaknesses'] = analysis.result_data.get('weaknesses', employee_data['weaknesses'])
+        except:
+            pass  # 더미 데이터 사용
+    
+    context = {
+        'page_title': f'{employee_data["name"]} - 상세 분석',
+        'employee': json.dumps(employee_data, ensure_ascii=False)
+    }
+    
+    return render(request, 'airiss/employee_analysis_detail_simple.html', context)
 
 def airiss_v4_portal(request):
     """AIRISS v4 포털"""
@@ -472,32 +457,35 @@ def analysis_results(request):
     
     # 필터링
     department = request.GET.get('department')
-    analysis_type = request.GET.get('analysis_type')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
     
-    # 쿼리셋
-    results = AIAnalysisResult.objects.select_related('employee', 'analysis_type').order_by('-analyzed_at')
+    # 쿼리셋 생성
+    queryset = AIAnalysisResult.objects.select_related('employee', 'analysis_type').order_by('-analyzed_at')
     
+    # 필터 적용
     if department:
-        results = results.filter(employee__department=department)
-    if analysis_type:
-        results = results.filter(analysis_type__type_code=analysis_type)
+        queryset = queryset.filter(employee__department=department)
+    if date_from:
+        queryset = queryset.filter(analyzed_at__gte=date_from)
+    if date_to:
+        queryset = queryset.filter(analyzed_at__lte=date_to)
     
     # 페이지네이션
-    paginator = Paginator(results, 20)
+    paginator = Paginator(queryset, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # 부서 목록
-    departments = []
-    if Employee:
-        departments = Employee.objects.values_list('department', flat=True).distinct()
+    # 부서 목록 (필터용)
+    departments = Employee.objects.values_list('department', flat=True).distinct() if Employee else []
     
     context = {
-        "page_title": "AI 분석 결과 조회",
+        "page_title": "AI 분석 결과",
         "page_obj": page_obj,
         "departments": departments,
         "selected_department": department,
-        "selected_analysis_type": analysis_type,
+        "date_from": date_from,
+        "date_to": date_to,
     }
     
     return render(request, "airiss/analysis_results.html", context)

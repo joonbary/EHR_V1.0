@@ -15,6 +15,7 @@ urlpatterns = [
     
     # 파일 업로드
     path("file-upload/", views.file_upload, name="file_upload"),
+    path("api/upload-proxy/", views.airiss_upload_proxy, name="upload_proxy"),
     
     # 더미 URL들 - base_modern.html 호환성을 위해
     path("", views.dashboard, name="dashboard"),
