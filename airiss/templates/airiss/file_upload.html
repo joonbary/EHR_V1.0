@@ -5,7 +5,7 @@
 
 {% block extra_head %}
 <!-- AIRISS API Configuration -->
-<script src="{% static 'js/airiss_config.js' %}"></script>
+<script src="{% static 'js/airiss_config.js' %}?v=1.0.1"></script>
 {% endblock %}
 
 {% block extra_css %}
@@ -208,5 +208,5 @@ setInterval(checkServiceStatus, 30000);
 
 {% block extra_js %}
 <!-- AIRISS Upload Handler -->
-<script src="{% static 'js/airiss_upload.js' %}"></script>
+<script src="{% static 'js/airiss_upload.js' %}?v=1.0.1"></script>
 {% endblock %}
