@@ -150,6 +150,13 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- AIRISS Upload Configuration - Must load before iframe -->
+<script>
+    // Set global AIRISS service URL
+    window.AIRISS_SERVICE_URL = '{{ airiss_v4_url }}';
+</script>
+<script src="{% static 'js/airiss_upload_config.js' %}?v=1.0.0"></script>
+
 <script>
     let loadTimeout;
     
