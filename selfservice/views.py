@@ -114,7 +114,7 @@ class EvaluationHistoryView(DetailView):
     
     def get(self, request):
         # employee = get_object_or_404(Employee, user=request.user)  # Authentication removed
-    employee = Employee.objects.first()  # Fallback for testing
+        employee = Employee.objects.first()  # Fallback for testing
         
         # 최근 5년간 평가 데이터
         evaluations = ComprehensiveEvaluation.objects.filter(
@@ -279,7 +279,7 @@ class CompensationStatementView(DetailView):
     
     def get(self, request, year=None, month=None):
         # employee = get_object_or_404(Employee, user=request.user)  # Authentication removed
-    employee = Employee.objects.first()  # Fallback for testing
+        employee = Employee.objects.first()  # Fallback for testing
         # 연도/월 파라미터 처리
         if not year:
             year = datetime.now().year
