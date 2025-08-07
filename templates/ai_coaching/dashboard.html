@@ -400,6 +400,21 @@ document.addEventListener('DOMContentLoaded', function() {
     loadEmployees();
 });
 
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function loadEmployees() {
     // 직원 목록 로드 (향후 API 구현)
     const employeeSelect = document.getElementById('employeeSelect');
@@ -452,10 +467,11 @@ function submitStartSession() {
         focus_areas: []
     };
     
-    fetch('{% url "ai_coaching:start_session" %}', {
+    fetch('/ai-coaching/start/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify(sessionData)
     })
@@ -466,7 +482,7 @@ function submitStartSession() {
             modal.hide();
             
             // 세션 상세 페이지로 이동
-            window.location.href = `{% url 'ai_coaching:session_detail' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', data.session_id);
+            window.location.href = `/ai-coaching/session/${data.session_id}/`;
         } else {
             alert(data.message || '세션 시작 중 오류가 발생했습니다.');
         }
