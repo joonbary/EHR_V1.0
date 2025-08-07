@@ -252,8 +252,8 @@ def job_detail_api(request, job_role_id):
 def job_detail_api_by_id(request, job_id):
     """직무 상세 정보 API (UUID 버전) - 실제 데이터베이스 기반"""
     try:
-        # 실제 데이터베이스에서 JobRole 조회 (UUID 처리)
-        job_role = JobRole.objects.get(id=job_id)
+        # 실제 데이터베이스에서 JobRole 조회 (연관 데이터 포함)
+        job_role = JobRole.objects.select_related('job_type__category', 'profile').get(id=job_id)
         
         # 기본 직무 정보 구성
         job_data = {

@@ -49,20 +49,6 @@ function displayJobDetail(job) {
                         <span>${job.type || '-'}</span>
                     </div>
                 </div>
-                <div class="info-card">
-                    <i class="fas fa-chart-line"></i>
-                    <div>
-                        <label>직급</label>
-                        <span>${job.level || '-'}</span>
-                    </div>
-                </div>
-                <div class="info-card">
-                    <i class="fas fa-building"></i>
-                    <div>
-                        <label>소속</label>
-                        <span>${job.department || '-'}</span>
-                    </div>
-                </div>
             </div>
 
             ${profile && Object.keys(profile).length > 0 ? `
