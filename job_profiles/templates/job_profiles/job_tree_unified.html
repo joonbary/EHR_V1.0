@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'css/job_tree_unified.css' %}?v={% now 'U' %}">
+<link rel="stylesheet" href="{% static 'css/job_tree_unified.css' %}?v=20250107_fix">
 {% endblock %}
 
 {% block content %}
@@ -39,6 +39,19 @@
         </div>
     </div>
 
+    <!-- 뷰 모드 탭 -->
+    <div class="view-mode-tabs">
+        <button class="view-tab active" data-view="org">
+            <i class="fas fa-sitemap"></i> 조직도 보기
+        </button>
+        <button class="view-tab" data-view="grid">
+            <i class="fas fa-th"></i> 그리드 보기
+        </button>
+        <button class="view-tab" data-view="treemap">
+            <i class="fas fa-chart-treemap"></i> 트리맵 보기
+        </button>
+    </div>
+
     <!-- 필터 바 -->
     <div class="filter-bar">
         <div class="search-box">
@@ -52,7 +65,7 @@
         </div>
     </div>
 
-    <!-- 트리맵 메인 컨텐츠 -->
+    <!-- 메인 컨텐츠 -->
     <div class="tree-map-content">
         <!-- Non-PL 직군 -->
         <section class="job-group non-pl-group">
@@ -138,5 +151,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/job_tree_unified.js' %}?v={% now 'U' %}"></script>
+<script src="{% static 'js/job_tree_unified.js' %}?v=20250107_fix"></script>
 {% endblock %}
