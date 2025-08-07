@@ -58,8 +58,8 @@ class JobTreeMapView(TemplateView):
 def job_tree_map_data_api(request):
     """트리맵 데이터 API - 실제 데이터베이스 기반"""
     try:
-        # 실제 데이터베이스에서 데이터 가져오기
-        job_roles = JobRole.objects.select_related('job_type__category').prefetch_related('jobprofile_set').all()
+        # 실제 데이터베이스에서 데이터 가져오기 (OneToOneField이므로 profile 사용)
+        job_roles = JobRole.objects.select_related('job_type__category', 'profile').all()
         
         # 카테고리별 아이콘 매핑
         category_icons = {
@@ -81,8 +81,8 @@ def job_tree_map_data_api(request):
             category_name = job_role.job_type.category.name if job_role.job_type and job_role.job_type.category else 'Non-PL'
             job_type_name = job_role.job_type.name if job_role.job_type else '일반직무'
             
-            # JobProfile 존재 여부 확인
-            has_profile = job_role.jobprofile_set.exists()
+            # JobProfile 존재 여부 확인 (OneToOneField이므로 hasattr 사용)
+            has_profile = hasattr(job_role, 'profile') and job_role.profile is not None
             
             # 결과 데이터 구조 생성
             if category_name not in result_data:
@@ -261,26 +261,18 @@ def job_detail_api_by_id(request, job_id):
             'summary': f'{job_role.name}는 {job_role.job_type.name if job_role.job_type else "일반"} 영역에서 전문성을 발휘하는 중요한 직무입니다.',
         }
         
-        # JobProfile이 있는 경우 상세 정보 추가
-        try:
-            profile = JobProfile.objects.get(job_role=job_role)
+        # JobProfile이 있는 경우 상세 정보 추가 (OneToOneField 사용)
+        if hasattr(job_role, 'profile') and job_role.profile:
+            profile = job_role.profile
             job_data['profile'] = {
                 'role_responsibility': profile.role_responsibility,
-                'required_qualifications': profile.required_qualifications,
-                'preferred_qualifications': profile.preferred_qualifications,
+                'qualification': profile.qualification,  # 모델의 실제 필드명
                 'basic_skills': profile.basic_skills or [],
                 'applied_skills': profile.applied_skills or [],
-                'tools': profile.tools or [],
                 'growth_path': profile.growth_path,
-                'career_development': profile.career_development or {},
-                'related_certifications': profile.related_certifications or [],
-                'kpi_metrics': profile.kpi_metrics or [],
-                'key_stakeholders': profile.key_stakeholders or [],
-                'typical_projects': profile.typical_projects or [],
-                'work_environment': profile.work_environment,
-                'compensation_range': profile.compensation_range
+                'related_certifications': profile.related_certifications or []
             }
-        except JobProfile.DoesNotExist:
+        else:
             # 프로필이 없는 경우 직무별로 기본 템플릿 정보 제공
             job_type_name = job_role.job_type.name if job_role.job_type else '일반직무'
             
