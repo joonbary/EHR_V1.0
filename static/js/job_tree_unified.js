@@ -106,7 +106,7 @@ function initializeEventListeners() {
 // 트리 데이터 로드
 async function loadTreeData() {
     try {
-        const response = await fetch('/api/job-tree-data/');
+        const response = await fetch('/job-profiles/api/tree-map-data/');
         const result = await response.json();
         
         if (result.success) {
@@ -218,7 +218,7 @@ async function showJobDetail(jobId) {
     currentJobId = jobId;
     
     try {
-        const response = await fetch(`/api/job-detail/${jobId}/`);
+        const response = await fetch(`/job-profiles/api/job-detail/${jobId}/`);
         const result = await response.json();
         
         if (result.success) {
