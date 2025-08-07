@@ -285,87 +285,92 @@ def job_detail_api(request, job_role_id):
         }, status=400)
 
 def job_detail_api_by_id(request, job_id):
-    """직무 상세 정보 API (숫자 ID 버전) - 매우 풍부한 정보 버전"""
-    # 하드코딩된 상세 데이터로 응답
-    job_data = {
-        1: {
-            'name': 'IT기획담당',
-            'category': 'Non-PL',
-            'type': 'IT기획',
-            'level': 'L3-L5',
-            'department': 'IT전략부',
-            'description': 'IT 전략 수립 및 시스템 기획을 담당하는 핵심 직무입니다.',
-            'summary': '디지털 금융 혁신을 주도하는 IT 전략가로서, 비즈니스와 기술을 연결하는 핵심 역할을 수행합니다.',
-            'profile': {
-                'role_responsibility': '• IT 중장기 전략 수립 및 실행\n• 디지털 트랜스포메이션 추진\n• IT 프로젝트 기획 및 관리\n• 시스템 아키텍처 설계\n• IT 거버넌스 체계 구축\n• 비즈니스 요구사항 분석 및 IT 솔루션 제안\n• IT 투자 효율성 분석 및 예산 관리\n• 신기술 도입 검토 및 적용 방안 수립',
-                'required_qualifications': '• 정보시스템 기획 경력 5년 이상\n• IT 프로젝트 관리 경험\n• 비즈니스 프로세스 이해\n• 데이터 분석 역량\n• 컴퓨터공학, 정보시스템, 경영정보학 등 관련 학사 이상\n• 금융업 이해 및 금융 IT 시스템 경험',
-                'preferred_qualifications': '• PMP, PRINCE2 자격증 보유\n• 금융권 IT 기획 경험 우대\n• 애자일/스크럼 방법론 경험\n• 클라우드 아키텍처 이해\n• MBA 또는 관련 석사 학위\n• 글로벌 프로젝트 경험\n• 영어 커뮤니케이션 가능',
-                'basic_skills': ['IT 전략 수립', '프로젝트 관리', '비즈니스 분석', '시스템 아키텍처', '요구사항 분석', '프로세스 개선'],
-                'applied_skills': ['클라우드 컴퓨팅', '빅데이터', 'AI/ML', '블록체인', 'DevOps', 'MSA', 'API Management'],
-                'tools': ['JIRA', 'Confluence', 'MS Project', 'Visio', 'Enterprise Architect', 'Tableau', 'Power BI'],
-                'growth_path': '주니어 IT기획자 → IT기획 담당 → IT기획 팀장 → IT전략 부서장 → CTO/CIO',
-                'career_development': {
-                    'short_term': '프로젝트 관리 역량 강화, 업무 도메인 지식 습득',
-                    'mid_term': '리더십 개발, 전략적 사고 역량 강화, 신기술 트렌드 학습',
-                    'long_term': '경영진 역량 개발, 비즈니스 전략 수립 능력, 조직 관리 역량'
-                },
-                'related_certifications': ['PMP', 'PRINCE2', 'TOGAF', 'ITIL', 'CBAP', 'CSM'],
-                'kpi_metrics': [
-                    '프로젝트 성공률',
-                    'IT 투자 ROI',
-                    '시스템 가용성',
-                    '비즈니스 요구사항 충족도',
-                    '이해관계자 만족도'
-                ],
-                'key_stakeholders': ['경영진', 'IT 개발팀', '현업 부서', '외부 벤더', '규제 기관'],
-                'typical_projects': [
-                    '차세대 시스템 구축',
-                    '디지털 채널 혁신',
-                    '데이터 플랫폼 구축',
-                    'AI/ML 도입 프로젝트',
-                    '클라우드 전환 프로젝트'
-                ],
-                'work_environment': '• 하이브리드 근무 가능\n• 글로벌 협업 기회\n• 최신 기술 스택 활용\n• 지속적인 학습 지원',
-                'compensation_range': 'L3: 7,000-9,000만원 / L4: 9,000-12,000만원 / L5: 12,000-15,000만원'
-            }
-        },
-        2: {
-            'name': 'IT개발담당',
-            'category': 'Non-PL',
-            'type': 'IT개발',
-            'description': '금융 시스템 개발 및 구현을 담당하는 핵심 기술 직무입니다.',
-            'profile': {
-                'role_responsibility': '• 금융 시스템 설계 및 개발\n• API 개발 및 통합\n• 마이크로서비스 아키텍처 구현\n• 코드 리뷰 및 품질 관리\n• 기술 문서 작성',
-                'required_qualifications': '• 개발 경력 3년 이상\n• Java/Spring 또는 Python/Django 숙련\n• RDBMS 및 NoSQL 경험\n• RESTful API 개발 경험',
-                'preferred_qualifications': '• 금융권 시스템 개발 경험\n• 클라우드 네이티브 개발 경험\n• DevOps 도구 활용 능력\n• 오픈소스 기여 경험',
-                'basic_skills': ['Java', 'Spring Boot', 'Python', 'SQL', 'Git'],
-                'applied_skills': ['Kubernetes', 'Docker', 'Kafka', 'Redis', 'GraphQL'],
-                'growth_path': '주니어 개발자 → 개발 담당 → 시니어 개발자 → 테크 리드 → 개발팀장',
-                'related_certifications': ['정보처리기사', 'AWS Solutions Architect', 'CKA', 'Spring Professional']
-            }
-        },
-        3: {
-            'name': 'IT운영담당',
-            'category': 'Non-PL',
-            'type': 'IT운영',
-            'description': '시스템 운영 및 인프라 관리를 담당하는 안정성 중심 직무입니다.',
-            'profile': {
-                'role_responsibility': '• 시스템 모니터링 및 운영\n• 인프라 구축 및 관리\n• 장애 대응 및 복구\n• 백업 및 복구 체계 관리\n• 보안 정책 적용 및 관리',
-                'required_qualifications': '• 시스템 운영 경력 3년 이상\n• Linux/Unix 시스템 관리 경험\n• 네트워크 기초 지식\n• 클라우드 인프라 경험',
-                'preferred_qualifications': '• 대규모 시스템 운영 경험\n• 자동화 스크립트 작성 능력\n• 컨테이너 오케스트레이션 경험\n• ITSM 도구 활용 경험',
-                'basic_skills': ['Linux', 'Shell Script', 'Monitoring', 'Network', 'Security'],
-                'applied_skills': ['Kubernetes', 'Terraform', 'Ansible', 'Prometheus', 'ELK Stack'],
-                'growth_path': '주니어 엔지니어 → 시스템 엔지니어 → 시니어 엔지니어 → 인프라 아키텍트 → 인프라팀장',
-                'related_certifications': ['LPIC', 'RHCE', 'AWS SysOps', 'CKA', 'CCNA']
-            }
+    """직무 상세 정보 API (숫자 ID 버전) - 실제 데이터베이스 기반"""
+    try:
+        # 실제 데이터베이스에서 JobRole 조회
+        job_role = JobRole.objects.get(id=job_id)
+        
+        # 기본 직무 정보 구성
+        job_data = {
+            'id': job_role.id,
+            'name': job_role.name,
+            'category': job_role.job_type.category.name if job_role.job_type else 'Non-PL',
+            'type': job_role.job_type.name if job_role.job_type else '일반직무',
+            'description': job_role.description or f'{job_role.name} 직무를 담당하는 핵심 역할입니다.',
+            'summary': f'{job_role.name}는 {job_role.job_type.name if job_role.job_type else "일반"} 영역에서 전문성을 발휘하는 중요한 직무입니다.',
         }
-    }
+        
+        # JobProfile이 있는 경우 상세 정보 추가
+        try:
+            profile = JobProfile.objects.get(job_role=job_role)
+            job_data['profile'] = {
+                'role_responsibility': profile.role_responsibility,
+                'required_qualifications': profile.required_qualifications,
+                'preferred_qualifications': profile.preferred_qualifications,
+                'basic_skills': profile.basic_skills or [],
+                'applied_skills': profile.applied_skills or [],
+                'tools': profile.tools or [],
+                'growth_path': profile.growth_path,
+                'career_development': profile.career_development or {},
+                'related_certifications': profile.related_certifications or [],
+                'kpi_metrics': profile.kpi_metrics or [],
+                'key_stakeholders': profile.key_stakeholders or [],
+                'typical_projects': profile.typical_projects or [],
+                'work_environment': profile.work_environment,
+                'compensation_range': profile.compensation_range
+            }
+        except JobProfile.DoesNotExist:
+            # 프로필이 없는 경우 직무별로 기본 템플릿 정보 제공
+            job_type_name = job_role.job_type.name if job_role.job_type else '일반직무'
+            
+            # 직종별 기본 템플릿
+            templates = {
+                'IT기획': {
+                    'role_responsibility': f'• {job_role.name} 전략 수립 및 실행\n• 프로젝트 기획 및 관리\n• 시스템 분석 및 설계\n• 이해관계자 협업 및 소통',
+                    'required_qualifications': f'• {job_type_name} 관련 업무 경력 3년 이상\n• 프로젝트 관리 경험\n• 분석적 사고 능력\n• 커뮤니케이션 능력',
+                    'basic_skills': ['프로젝트 관리', '업무 분석', '문서 작성', '협업'],
+                    'applied_skills': ['디지털 도구 활용', '데이터 분석', '프로세스 개선'],
+                    'tools': ['MS Office', '프로젝트 관리 도구', '협업 플랫폼'],
+                    'growth_path': f'주니어 → {job_role.name} → 시니어 → 팀장 → 부서장',
+                    'work_environment': '• 사무실 근무\n• 팀 협업 중심\n• 지속적인 학습 기회',
+                },
+                'IT개발': {
+                    'role_responsibility': f'• {job_role.name} 시스템 개발 및 구현\n• 코드 작성 및 테스트\n• 기술 문서 작성\n• 시스템 유지보수',
+                    'required_qualifications': f'• 개발 경력 2년 이상\n• 프로그래밍 언어 숙련\n• 데이터베이스 기본 지식\n• 문제 해결 능력',
+                    'basic_skills': ['프로그래밍', 'DB 설계', '시스템 분석', '테스트'],
+                    'applied_skills': ['클라우드', 'API 개발', '프레임워크', '자동화'],
+                    'tools': ['개발 IDE', '버전관리', 'DB 관리도구', '테스트 도구'],
+                    'growth_path': f'주니어 개발자 → {job_role.name} → 시니어 개발자 → 테크 리드',
+                    'work_environment': '• 개발 환경\n• 코드 리뷰 문화\n• 신기술 학습 지원',
+                },
+                'IT운영': {
+                    'role_responsibility': f'• {job_role.name} 시스템 운영 및 모니터링\n• 인프라 관리\n• 장애 대응 및 복구\n• 운영 프로세스 개선',
+                    'required_qualifications': f'• 시스템 운영 경력 2년 이상\n• 인프라 기본 지식\n• 장애 대응 경험\n• 24시간 운영 가능',
+                    'basic_skills': ['시스템 운영', '모니터링', '장애 대응', '문서화'],
+                    'applied_skills': ['클라우드 인프라', '자동화', '보안', '성능 튜닝'],
+                    'tools': ['모니터링 도구', '운영 도구', '자동화 스크립트', 'ITSM'],
+                    'growth_path': f'주니어 엔지니어 → {job_role.name} → 시니어 엔지니어 → 아키텍트',
+                    'work_environment': '• 24/7 운영 체계\n• 신속한 장애 대응\n• 안정성 중심',
+                }
+            }
+            
+            # 기본 템플릿 적용
+            template = templates.get(job_type_name, templates.get('IT기획'))
+            job_data['profile'] = template
+            
+        return JsonResponse({
+            'success': True,
+            'job': job_data
+        })
+        
+    except JobRole.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': '해당 직무를 찾을 수 없습니다.'
+        }, status=404)
     
-    # 더 많은 직무 데이터 추가 가능
-    default_data = job_data.get(1)  # 기본값
-    selected_data = job_data.get(job_id, default_data)
-    
-    return JsonResponse({
-        'success': True,
-        'job': selected_data
-    })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

@@ -326,13 +326,24 @@ function closeModal() {
 // 전체화면 제어
 function toggleFullscreen() {
     if (!isFullscreen) {
-        closeModal();
+        // 모달에서 전체화면으로 전환
         const fullscreenDetail = document.getElementById('fullscreenDetail');
-        if (fullscreenDetail) {
+        const fullscreenTitle = document.getElementById('fullscreenTitle');
+        const fullscreenBody = document.getElementById('fullscreenBody');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (fullscreenDetail && fullscreenTitle && fullscreenBody && modalTitle && modalBody) {
+            // 콘텐츠 복사
+            fullscreenTitle.innerHTML = modalTitle.innerHTML;
+            fullscreenBody.innerHTML = modalBody.innerHTML;
+            
+            // 전체화면 표시
             fullscreenDetail.style.display = 'flex';
+            closeModal();
+            document.body.style.overflow = 'hidden';
+            isFullscreen = true;
         }
-        document.body.classList.add('fullscreen-open');
-        isFullscreen = true;
     } else {
         exitFullscreen();
     }
@@ -343,7 +354,7 @@ function exitFullscreen() {
     if (fullscreenDetail) {
         fullscreenDetail.style.display = 'none';
     }
-    document.body.classList.remove('fullscreen-open');
+    document.body.style.overflow = 'auto';
     isFullscreen = false;
 }
 
