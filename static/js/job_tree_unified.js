@@ -144,23 +144,31 @@ function renderGroup(groupData, groupType) {
     let html = '';
     
     for (const [categoryName, categoryData] of Object.entries(groupData)) {
+        // categoryData가 직접 jobs 객체인 경우와 icon/jobs 구조인 경우 모두 처리
+        const jobs = categoryData.jobs || categoryData;
+        const icon = categoryData.icon || '';
+        
+        // jobs가 배열인지 객체인지 확인
+        const jobCount = Array.isArray(jobs) ? 
+            jobs.length : 
+            Object.values(jobs).reduce((sum, jobList) => sum + (Array.isArray(jobList) ? jobList.length : 0), 0);
+        
         html += `
             <div class="category-section" data-category="${categoryName}">
                 <div class="category-header">
                     <div class="category-icon" style="background: ${getCategoryGradient(categoryName)}">
-                        <i class="fas ${getIcon(categoryData.icon)}"></i>
+                        <i class="fas ${getIcon(icon || categoryName)}"></i>
                     </div>
                     <div class="category-info">
                         <h3 class="category-title">${categoryName}</h3>
                         <span class="category-stats">
-                            ${Object.keys(categoryData.jobs).length}개 직종 · 
-                            ${countJobs(categoryData.jobs)}개 직무
+                            ${jobCount}개 직무
                         </span>
                     </div>
                 </div>
                 
                 <div class="job-types-container">
-                    ${renderJobTypes(categoryData.jobs, categoryName)}
+                    ${renderJobTypes(jobs, categoryName)}
                 </div>
             </div>
         `;
@@ -173,18 +181,34 @@ function renderGroup(groupData, groupType) {
 function renderJobTypes(jobTypes, categoryName) {
     let html = '';
     
-    for (const [jobTypeName, jobs] of Object.entries(jobTypes)) {
+    // jobTypes가 배열인 경우 직접 렌더링
+    if (Array.isArray(jobTypes)) {
         html += `
             <div class="job-type-section">
-                <h4 class="job-type-title" style="border-color: ${getCategoryColor(categoryName)}">
-                    ${jobTypeName}
-                    <span class="job-count">${jobs.length}</span>
-                </h4>
                 <div class="jobs-grid">
-                    ${jobs.map(job => renderJobCard(job, categoryName)).join('')}
+                    ${jobTypes.map(job => renderJobCard(job, categoryName)).join('')}
                 </div>
             </div>
         `;
+    } 
+    // jobTypes가 객체인 경우 기존 로직
+    else if (typeof jobTypes === 'object') {
+        for (const [jobTypeName, jobs] of Object.entries(jobTypes)) {
+            // jobs가 배열인지 확인
+            if (Array.isArray(jobs)) {
+                html += `
+                    <div class="job-type-section">
+                        <h4 class="job-type-title" style="border-color: ${getCategoryColor(categoryName)}">
+                            ${jobTypeName}
+                            <span class="job-count">${jobs.length}</span>
+                        </h4>
+                        <div class="jobs-grid">
+                            ${jobs.map(job => renderJobCard(job, categoryName)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
     }
     
     return html;
