@@ -285,22 +285,48 @@ def job_detail_api(request, job_role_id):
         }, status=400)
 
 def job_detail_api_by_id(request, job_id):
-    """직무 상세 정보 API (숫자 ID 버전) - 풍성한 정보 버전"""
+    """직무 상세 정보 API (숫자 ID 버전) - 매우 풍부한 정보 버전"""
     # 하드코딩된 상세 데이터로 응답
     job_data = {
         1: {
             'name': 'IT기획담당',
             'category': 'Non-PL',
             'type': 'IT기획',
+            'level': 'L3-L5',
+            'department': 'IT전략부',
             'description': 'IT 전략 수립 및 시스템 기획을 담당하는 핵심 직무입니다.',
+            'summary': '디지털 금융 혁신을 주도하는 IT 전략가로서, 비즈니스와 기술을 연결하는 핵심 역할을 수행합니다.',
             'profile': {
-                'role_responsibility': '• IT 중장기 전략 수립 및 실행\n• 디지털 트랜스포메이션 추진\n• IT 프로젝트 기획 및 관리\n• 시스템 아키텍처 설계\n• IT 거버넌스 체계 구축',
-                'required_qualifications': '• 정보시스템 기획 경력 5년 이상\n• IT 프로젝트 관리 경험\n• 비즈니스 프로세스 이해\n• 데이터 분석 역량',
-                'preferred_qualifications': '• PMP, PRINCE2 자격증 보유\n• 금융권 IT 기획 경험\n• 애자일/스크럼 방법론 경험\n• 클라우드 아키텍처 이해',
-                'basic_skills': ['IT 전략 수립', '프로젝트 관리', '비즈니스 분석', '시스템 아키텍처'],
-                'applied_skills': ['클라우드 컴퓨팅', '빅데이터', 'AI/ML', '블록체인'],
+                'role_responsibility': '• IT 중장기 전략 수립 및 실행\n• 디지털 트랜스포메이션 추진\n• IT 프로젝트 기획 및 관리\n• 시스템 아키텍처 설계\n• IT 거버넌스 체계 구축\n• 비즈니스 요구사항 분석 및 IT 솔루션 제안\n• IT 투자 효율성 분석 및 예산 관리\n• 신기술 도입 검토 및 적용 방안 수립',
+                'required_qualifications': '• 정보시스템 기획 경력 5년 이상\n• IT 프로젝트 관리 경험\n• 비즈니스 프로세스 이해\n• 데이터 분석 역량\n• 컴퓨터공학, 정보시스템, 경영정보학 등 관련 학사 이상\n• 금융업 이해 및 금융 IT 시스템 경험',
+                'preferred_qualifications': '• PMP, PRINCE2 자격증 보유\n• 금융권 IT 기획 경험 우대\n• 애자일/스크럼 방법론 경험\n• 클라우드 아키텍처 이해\n• MBA 또는 관련 석사 학위\n• 글로벌 프로젝트 경험\n• 영어 커뮤니케이션 가능',
+                'basic_skills': ['IT 전략 수립', '프로젝트 관리', '비즈니스 분석', '시스템 아키텍처', '요구사항 분석', '프로세스 개선'],
+                'applied_skills': ['클라우드 컴퓨팅', '빅데이터', 'AI/ML', '블록체인', 'DevOps', 'MSA', 'API Management'],
+                'tools': ['JIRA', 'Confluence', 'MS Project', 'Visio', 'Enterprise Architect', 'Tableau', 'Power BI'],
                 'growth_path': '주니어 IT기획자 → IT기획 담당 → IT기획 팀장 → IT전략 부서장 → CTO/CIO',
-                'related_certifications': ['PMP', 'PRINCE2', 'TOGAF', 'ITIL']
+                'career_development': {
+                    'short_term': '프로젝트 관리 역량 강화, 업무 도메인 지식 습득',
+                    'mid_term': '리더십 개발, 전략적 사고 역량 강화, 신기술 트렌드 학습',
+                    'long_term': '경영진 역량 개발, 비즈니스 전략 수립 능력, 조직 관리 역량'
+                },
+                'related_certifications': ['PMP', 'PRINCE2', 'TOGAF', 'ITIL', 'CBAP', 'CSM'],
+                'kpi_metrics': [
+                    '프로젝트 성공률',
+                    'IT 투자 ROI',
+                    '시스템 가용성',
+                    '비즈니스 요구사항 충족도',
+                    '이해관계자 만족도'
+                ],
+                'key_stakeholders': ['경영진', 'IT 개발팀', '현업 부서', '외부 벤더', '규제 기관'],
+                'typical_projects': [
+                    '차세대 시스템 구축',
+                    '디지털 채널 혁신',
+                    '데이터 플랫폼 구축',
+                    'AI/ML 도입 프로젝트',
+                    '클라우드 전환 프로젝트'
+                ],
+                'work_environment': '• 하이브리드 근무 가능\n• 글로벌 협업 기회\n• 최신 기술 스택 활용\n• 지속적인 학습 지원',
+                'compensation_range': 'L3: 7,000-9,000만원 / L4: 9,000-12,000만원 / L5: 12,000-15,000만원'
             }
         },
         2: {

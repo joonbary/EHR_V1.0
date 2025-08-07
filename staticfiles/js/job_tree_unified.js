@@ -292,7 +292,7 @@ async function showJobDetail(jobId) {
     }
 }
 
-// 직무 상세 정보 표시
+// 직무 상세 정보 표시 - 매우 풍부한 버전
 function displayJobDetail(job) {
     // job이 직접 전달된 경우
     const profile = job.profile || {};
@@ -301,8 +301,12 @@ function displayJobDetail(job) {
     const modalTitle = document.getElementById('modalTitle');
     const fullscreenTitle = document.getElementById('fullscreenTitle');
     
-    if (modalTitle) modalTitle.textContent = job.name;
-    if (fullscreenTitle) fullscreenTitle.textContent = job.name;
+    if (modalTitle) modalTitle.innerHTML = `
+        <span class="job-badge ${job.category === 'PL' ? 'pl' : 'non-pl'}">${job.category}</span>
+        ${job.name}
+        ${job.level ? `<span class="level-badge">${job.level}</span>` : ''}
+    `;
+    if (fullscreenTitle) fullscreenTitle.innerHTML = modalTitle.innerHTML;
     
     // 상세 내용 HTML 생성
     const detailHTML = `
