@@ -255,14 +255,21 @@ def job_detail_api_by_id(request, job_id):
         # 실제 데이터베이스에서 JobRole 조회 (연관 데이터 포함)
         job_role = JobRole.objects.select_related('job_type__category', 'profile').get(id=job_id)
         
-        # 기본 직무 정보 구성
+        # 기본 직무 정보 구성 (안전한 접근)
+        try:
+            category_name = job_role.job_type.category.name if job_role.job_type and job_role.job_type.category else 'Non-PL'
+            type_name = job_role.job_type.name if job_role.job_type else '일반직무'
+        except AttributeError:
+            category_name = 'Non-PL'
+            type_name = '일반직무'
+            
         job_data = {
-            'id': job_role.id,
+            'id': str(job_role.id),
             'name': job_role.name,
-            'category': job_role.job_type.category.name if job_role.job_type else 'Non-PL',
-            'type': job_role.job_type.name if job_role.job_type else '일반직무',
+            'category': category_name,
+            'type': type_name,
             'description': job_role.description or f'{job_role.name} 직무를 담당하는 핵심 역할입니다.',
-            'summary': f'{job_role.name}는 {job_role.job_type.name if job_role.job_type else "일반"} 영역에서 전문성을 발휘하는 중요한 직무입니다.',
+            'summary': f'{job_role.name}는 {type_name} 영역에서 전문성을 발휘하는 중요한 직무입니다.',
         }
         
         # JobProfile이 있는 경우 상세 정보 추가 (OneToOneField 사용)
