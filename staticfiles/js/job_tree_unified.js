@@ -81,19 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 이벤트 리스너 초기화
 function initializeEventListeners() {
-    // 뷰 모드 탭
-    document.querySelectorAll('.view-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            // 모든 탭에서 active 클래스 제거
-            document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-            // 현재 탭에 active 클래스 추가
-            this.classList.add('active');
-            
-            // 뷰 모드에 따라 처리
-            const viewMode = this.dataset.view;
-            handleViewChange(viewMode);
-        });
-    });
+    // 뷰 모드 탭 삭제됨 - 조직도 보기만 사용
     
     // 검색 기능
     const searchInput = document.getElementById('jobSearch');
@@ -123,18 +111,7 @@ function initializeEventListeners() {
     });
 }
 
-// 뷰 모드 변경 처리
-function handleViewChange(viewMode) {
-    console.log('View mode changed to:', viewMode);
-    
-    if (viewMode === 'org') {
-        renderTreeMap(jobData);
-    } else if (viewMode === 'grid') {
-        renderGridView(jobData);
-    } else if (viewMode === 'treemap') {
-        renderTreemapView(jobData);
-    }
-}
+// 뷰 모드 변경 처리 - 삭제됨 (조직도 보기만 사용)
 
 // 트리 데이터 로드
 async function loadTreeData() {
@@ -168,124 +145,9 @@ function renderTreeMap(data) {
     animateCards();
 }
 
-// 그리드 뷰 렌더링
-function renderGridView(data) {
-    // 모든 직무를 그리드로 표시
-    let allJobs = [];
-    
-    // Non-PL 직무 수집
-    if (data['Non-PL']) {
-        for (const [categoryName, categoryData] of Object.entries(data['Non-PL'])) {
-            const jobs = categoryData.jobs || categoryData;
-            if (Array.isArray(jobs)) {
-                jobs.forEach(job => {
-                    allJobs.push({...job, category: categoryName, group: 'Non-PL'});
-                });
-            } else if (typeof jobs === 'object') {
-                for (const [jobTypeName, jobList] of Object.entries(jobs)) {
-                    if (Array.isArray(jobList)) {
-                        jobList.forEach(job => {
-                            allJobs.push({...job, category: categoryName, type: jobTypeName, group: 'Non-PL'});
-                        });
-                    }
-                }
-            }
-        }
-    }
-    
-    // PL 직무 수집
-    if (data['PL']) {
-        for (const [categoryName, categoryData] of Object.entries(data['PL'])) {
-            const jobs = categoryData.jobs || categoryData;
-            if (Array.isArray(jobs)) {
-                jobs.forEach(job => {
-                    allJobs.push({...job, category: categoryName, group: 'PL'});
-                });
-            }
-        }
-    }
-    
-    // 그리드 HTML 생성
-    const gridHTML = `
-        <div class="grid-view-container">
-            <div class="grid-view-header">
-                <h3>전체 직무 목록 (${allJobs.length}개)</h3>
-            </div>
-            <div class="jobs-grid large-grid">
-                ${allJobs.map(job => renderJobCard(job, job.category)).join('')}
-            </div>
-        </div>
-    `;
-    
-    // Non-PL과 PL 영역 모두에 표시
-    const nonPlContent = document.getElementById('non-pl-content');
-    const plContent = document.getElementById('pl-content');
-    nonPlContent.innerHTML = gridHTML;
-    plContent.innerHTML = '';
-    
-    animateCards();
-}
+// 그리드 뷰 렌더링 - 삭제됨
 
-// 트리맵 뷰 렌더링
-function renderTreemapView(data) {
-    let treemapData = [];
-    
-    // 데이터를 트리맵 형식으로 변환
-    if (data['Non-PL']) {
-        for (const [categoryName, categoryData] of Object.entries(data['Non-PL'])) {
-            const jobs = categoryData.jobs || categoryData;
-            const jobCount = countJobs(jobs);
-            treemapData.push({
-                name: categoryName,
-                value: jobCount,
-                group: 'Non-PL',
-                color: getCategoryColor(categoryName)
-            });
-        }
-    }
-    
-    if (data['PL']) {
-        for (const [categoryName, categoryData] of Object.entries(data['PL'])) {
-            const jobs = categoryData.jobs || categoryData;
-            const jobCount = countJobs(jobs);
-            treemapData.push({
-                name: categoryName,
-                value: jobCount,
-                group: 'PL',
-                color: getCategoryColor(categoryName)
-            });
-        }
-    }
-    
-    // 트리맵 HTML 생성
-    const treemapHTML = `
-        <div class="treemap-container">
-            <div class="treemap-grid">
-                ${treemapData.map(item => {
-                    const size = Math.max(150, item.value * 30);
-                    return `
-                        <div class="treemap-item" 
-                             style="width: ${size}px; height: ${size}px; background: ${item.color};">
-                            <div class="treemap-content">
-                                <h4>${item.name}</h4>
-                                <span class="treemap-value">${item.value}개 직무</span>
-                                <span class="treemap-group">${item.group}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        </div>
-    `;
-    
-    // 표시
-    const nonPlContent = document.getElementById('non-pl-content');
-    const plContent = document.getElementById('pl-content');
-    nonPlContent.innerHTML = treemapHTML;
-    plContent.innerHTML = '';
-    
-    animateCards();
-}
+// 트리맵 뷰 렌더링 - 삭제됨
 
 // 그룹 렌더링
 function renderGroup(groupData, groupType) {

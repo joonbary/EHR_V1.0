@@ -285,79 +285,61 @@ def job_detail_api(request, job_role_id):
         }, status=400)
 
 def job_detail_api_by_id(request, job_id):
-    """직무 상세 정보 API (숫자 ID 버전)"""
-    # 하드코딩된 데이터로 응답 (실제 ID는 사용하지 않음)
+    """직무 상세 정보 API (숫자 ID 버전) - 풍성한 정보 버전"""
+    # 하드코딩된 상세 데이터로 응답
     job_data = {
-        'IT기획': {
-            'description': 'IT 전략 수립 및 기획 업무',
-            'requirements': '정보시스템 기획, 프로젝트 관리 경험',
-            'skills': 'IT 전략, 프로젝트 관리, 비즈니스 분석',
-            'profile_status': '작성완료'
+        1: {
+            'name': 'IT기획담당',
+            'category': 'Non-PL',
+            'type': 'IT기획',
+            'description': 'IT 전략 수립 및 시스템 기획을 담당하는 핵심 직무입니다.',
+            'profile': {
+                'role_responsibility': '• IT 중장기 전략 수립 및 실행\n• 디지털 트랜스포메이션 추진\n• IT 프로젝트 기획 및 관리\n• 시스템 아키텍처 설계\n• IT 거버넌스 체계 구축',
+                'required_qualifications': '• 정보시스템 기획 경력 5년 이상\n• IT 프로젝트 관리 경험\n• 비즈니스 프로세스 이해\n• 데이터 분석 역량',
+                'preferred_qualifications': '• PMP, PRINCE2 자격증 보유\n• 금융권 IT 기획 경험\n• 애자일/스크럼 방법론 경험\n• 클라우드 아키텍처 이해',
+                'basic_skills': ['IT 전략 수립', '프로젝트 관리', '비즈니스 분석', '시스템 아키텍처'],
+                'applied_skills': ['클라우드 컴퓨팅', '빅데이터', 'AI/ML', '블록체인'],
+                'growth_path': '주니어 IT기획자 → IT기획 담당 → IT기획 팀장 → IT전략 부서장 → CTO/CIO',
+                'related_certifications': ['PMP', 'PRINCE2', 'TOGAF', 'ITIL']
+            }
         },
-        'IT개발': {
-            'description': '시스템 개발 및 구현 업무',
-            'requirements': '프로그래밍 언어, 개발 프레임워크 경험',
-            'skills': 'Java, Python, Spring, Django',
-            'profile_status': '작성완료'
+        2: {
+            'name': 'IT개발담당',
+            'category': 'Non-PL',
+            'type': 'IT개발',
+            'description': '금융 시스템 개발 및 구현을 담당하는 핵심 기술 직무입니다.',
+            'profile': {
+                'role_responsibility': '• 금융 시스템 설계 및 개발\n• API 개발 및 통합\n• 마이크로서비스 아키텍처 구현\n• 코드 리뷰 및 품질 관리\n• 기술 문서 작성',
+                'required_qualifications': '• 개발 경력 3년 이상\n• Java/Spring 또는 Python/Django 숙련\n• RDBMS 및 NoSQL 경험\n• RESTful API 개발 경험',
+                'preferred_qualifications': '• 금융권 시스템 개발 경험\n• 클라우드 네이티브 개발 경험\n• DevOps 도구 활용 능력\n• 오픈소스 기여 경험',
+                'basic_skills': ['Java', 'Spring Boot', 'Python', 'SQL', 'Git'],
+                'applied_skills': ['Kubernetes', 'Docker', 'Kafka', 'Redis', 'GraphQL'],
+                'growth_path': '주니어 개발자 → 개발 담당 → 시니어 개발자 → 테크 리드 → 개발팀장',
+                'related_certifications': ['정보처리기사', 'AWS Solutions Architect', 'CKA', 'Spring Professional']
+            }
         },
-        'IT운영': {
-            'description': '시스템 운영 및 유지보수 업무',
-            'requirements': '시스템 운영, 인프라 관리 경험',
-            'skills': 'Linux, AWS, Docker, Kubernetes',
-            'profile_status': '작성완료'
-        },
-        '경영관리': {
-            'description': '경영 전략 및 관리 업무',
-            'requirements': '경영학, 재무, 회계 관련 지식',
-            'skills': '전략기획, 재무분석, 경영관리',
-            'profile_status': '작성완료'
-        },
-        '투자금융': {
-            'description': '투자 분석 및 금융 상품 개발',
-            'requirements': '금융, 투자 관련 전문 지식',
-            'skills': '재무분석, 리스크 관리, 금융상품',
-            'profile_status': '작성완료'
-        },
-        '기업금융': {
-            'description': '기업 대출 및 금융 서비스',
-            'requirements': '기업금융, 신용분석 경험',
-            'skills': '신용평가, 기업분석, 대출심사',
-            'profile_status': '작성완료'
-        },
-        '기업영업': {
-            'description': '기업 고객 영업 및 관리',
-            'requirements': 'B2B 영업, 고객관리 경험',
-            'skills': '영업전략, 고객관리, 협상',
-            'profile_status': '작성완료'
-        },
-        '리테일금융': {
-            'description': '개인 금융 상품 및 서비스',
-            'requirements': '리테일 금융, 고객 서비스 경험',
-            'skills': '금융상품, 고객상담, 마케팅',
-            'profile_status': '작성완료'
-        },
-        '고객지원': {
-            'description': '고객 서비스 및 지원 업무',
-            'requirements': '고객 서비스, 커뮤니케이션 스킬',
-            'skills': '고객상담, 문제해결, 서비스 마인드',
-            'profile_status': '작성완료'
+        3: {
+            'name': 'IT운영담당',
+            'category': 'Non-PL',
+            'type': 'IT운영',
+            'description': '시스템 운영 및 인프라 관리를 담당하는 안정성 중심 직무입니다.',
+            'profile': {
+                'role_responsibility': '• 시스템 모니터링 및 운영\n• 인프라 구축 및 관리\n• 장애 대응 및 복구\n• 백업 및 복구 체계 관리\n• 보안 정책 적용 및 관리',
+                'required_qualifications': '• 시스템 운영 경력 3년 이상\n• Linux/Unix 시스템 관리 경험\n• 네트워크 기초 지식\n• 클라우드 인프라 경험',
+                'preferred_qualifications': '• 대규모 시스템 운영 경험\n• 자동화 스크립트 작성 능력\n• 컨테이너 오케스트레이션 경험\n• ITSM 도구 활용 경험',
+                'basic_skills': ['Linux', 'Shell Script', 'Monitoring', 'Network', 'Security'],
+                'applied_skills': ['Kubernetes', 'Terraform', 'Ansible', 'Prometheus', 'ELK Stack'],
+                'growth_path': '주니어 엔지니어 → 시스템 엔지니어 → 시니어 엔지니어 → 인프라 아키텍트 → 인프라팀장',
+                'related_certifications': ['LPIC', 'RHCE', 'AWS SysOps', 'CKA', 'CCNA']
+            }
         }
     }
     
-    # 기본 직무 정보 반환
-    default_job = list(job_data.keys())[min(job_id - 1, len(job_data) - 1)] if job_id > 0 else 'IT기획'
-    job_info = job_data.get(default_job, job_data['IT기획'])
+    # 더 많은 직무 데이터 추가 가능
+    default_data = job_data.get(1)  # 기본값
+    selected_data = job_data.get(job_id, default_data)
     
     return JsonResponse({
         'success': True,
-        'job': {
-            'id': job_id,
-            'name': default_job,
-            'category': 'Non-PL' if default_job != '고객지원' else 'PL',
-            'type': default_job,
-            'description': job_info['description'],
-            'requirements': job_info['requirements'],
-            'skills': job_info['skills'],
-            'profile_status': job_info['profile_status']
-        }
+        'job': selected_data
     })
