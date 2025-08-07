@@ -142,9 +142,16 @@ def department_create(request):
 
 def position_list(request):
     """직위 목록"""
-    positions = Position.objects.filter(is_active=True).annotate(
-        employee_count=Count('employee', filter=Q(employee__employment_status='재직'))
-    ).order_by('rank')
+    # Position 모델과 Employee 모델이 직접 연결되지 않았으므로
+    # 각 직위별 직원 수를 별도로 계산
+    positions = Position.objects.filter(is_active=True).order_by('rank')
+    
+    # 각 직위별 직원 수 계산
+    for position in positions:
+        position.employee_count = Employee.objects.filter(
+            new_position=position.name,
+            employment_status='재직'
+        ).count()
     
     context = {
         'positions': positions,
