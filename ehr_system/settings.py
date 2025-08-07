@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "corsheaders",  # CORS support for AIRISS
     "rest_framework",
     "django_filters",
+    "channels",  # WebSocket support
     "employees",
     "django.contrib.humanize",
     "evaluations",
@@ -80,6 +81,12 @@ INSTALLED_APPS = [
     "access_control",
     "permissions",
     "dashboard",
+    # AI 앱 추가
+    "ai_insights",
+    "ai_predictions",
+    "ai_recruitment",
+    "ai_team_builder",
+    "ai_coaching",
 ]
 
 MIDDLEWARE = [
@@ -240,6 +247,28 @@ LOGGING = {
 
 # 로그인 URL 설정 - 제거됨
 # LOGIN_URL = '/login/'
+
+# Celery Configuration
+CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul'
+
+# Channels Configuration
+ASGI_APPLICATION = 'ehr_system.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(os.getenv('REDIS_HOST', '127.0.0.1'), int(os.getenv('REDIS_PORT', 6379)))],
+        },
+    },
+}
+
+# AI API Keys
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
 # LOGIN_REDIRECT_URL = '/'
 # LOGOUT_REDIRECT_URL = '/'
 

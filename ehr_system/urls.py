@@ -43,6 +43,9 @@ urlpatterns = [
     # AIRISS (AI 기반 HR 지원)
     path('airiss/', include('airiss.urls')),
     
+    # AI 인사이트 대시보드
+    path('ai-insights/', include('ai_insights.urls')),
+    
     # 조직관리
     path('organization/', include('organization.urls')),
     
