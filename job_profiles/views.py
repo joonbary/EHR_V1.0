@@ -206,42 +206,54 @@ def job_profile_edit_view(request, job_role_id):
 def job_detail_api(request, job_role_id):
     """직무 상세 정보 API (새로운 UI용)"""
     try:
-            
         job_role = get_object_or_404(JobRole, id=job_role_id)
+        
+        # 카테고리와 타입 정보 가져오기
+        category_name = 'Non-PL'
+        type_name = '일반직무'
+        
+        if job_role.job_type:
+            type_name = job_role.job_type.name
+            if job_role.job_type.category:
+                category_name = job_role.job_type.category.name
+        
+        # 기본 직무 정보
+        job_data = {
+            'id': str(job_role.id),
+            'name': job_role.name,
+            'category': category_name,
+            'type': type_name,
+            'description': job_role.description or f'{job_role.name} 직무를 담당하는 핵심 역할입니다.',
+            'summary': f'{job_role.name}는 {type_name} 영역에서 전문성을 발휘하는 중요한 직무입니다.'
+        }
         
         # JobProfile 정보 가져오기
         try:
             profile = JobProfile.objects.get(job_role=job_role)
-            profile_data = {
+            job_data['profile'] = {
                 'role_responsibility': profile.role_responsibility,
-                'qualification': profile.qualification,
-                'basic_skills': profile.basic_skills,
-                'applied_skills': profile.applied_skills,
-                'related_certifications': profile.related_certifications,
+                'required_qualifications': profile.qualification,  # frontend expects 'required_qualifications'
+                'preferred_qualifications': '',  # 추가 가능
+                'basic_skills': profile.basic_skills or [],
+                'applied_skills': profile.applied_skills or [],
+                'tools': [],  # 추가 가능
                 'growth_path': profile.growth_path,
+                'career_development': {},  # 추가 가능
+                'related_certifications': profile.related_certifications or [],
+                'kpi_metrics': [],  # 추가 가능
+                'key_stakeholders': [],  # 추가 가능
+                'typical_projects': [],  # 추가 가능
+                'work_environment': '',  # 추가 가능
+                'compensation_range': ''  # 추가 가능
             }
         except JobProfile.DoesNotExist:
-            profile_data = None
+            job_data['profile'] = None
         
-        # 응답 데이터 구성
-        data = {
+        # 프론트엔드가 기대하는 형식으로 응답
+        return JsonResponse({
             'success': True,
-            'job_role': {
-                'id': str(job_role.id),
-                'name': job_role.name,
-                'code': job_role.code,
-                'description': job_role.description,
-                'job_type': {
-                    'name': job_role.job_type.name if job_role.job_type else None,
-                    'category': {
-                        'name': job_role.job_type.category.name if job_role.job_type and job_role.job_type.category else None
-                    }
-                } if job_role.job_type else None
-            },
-            'profile': profile_data
-        }
-        
-        return JsonResponse(data)
+            'job': job_data
+        })
         
     except Exception as e:
         return JsonResponse({
