@@ -3,6 +3,76 @@ let currentJobId = null;
 let jobData = {};
 let isFullscreen = false;
 
+// 헬퍼 함수들
+function getIcon(iconName) {
+    if (iconName && iconName.startsWith('fa-')) {
+        return iconName;
+    }
+    const iconMap = {
+        'IT기획': 'fa-laptop-code',
+        'IT개발': 'fa-code',
+        'IT운영': 'fa-server',
+        '경영관리': 'fa-briefcase',
+        '투자금융': 'fa-chart-line',
+        '기업금융': 'fa-building',
+        '기업영업': 'fa-handshake',
+        '리테일금융': 'fa-coins',
+        '고객지원': 'fa-headset'
+    };
+    return iconMap[iconName] || 'fa-folder';
+}
+
+function getCategoryGradient(categoryName) {
+    const gradients = {
+        'IT기획': 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+        'IT개발': 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)',
+        'IT운영': 'linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%)',
+        '경영관리': 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
+        '투자금융': 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)',
+        '기업금융': 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)',
+        '기업영업': 'linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%)',
+        '리테일금융': 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+        '고객지원': 'linear-gradient(135deg, #22d3ee 0%, #67e8f9 100%)'
+    };
+    return gradients[categoryName] || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+}
+
+function getCategoryColor(categoryName) {
+    const colors = {
+        'IT기획': '#6366f1',
+        'IT개발': '#8b5cf6',
+        'IT운영': '#a78bfa',
+        '경영관리': '#3b82f6',
+        '투자금융': '#0ea5e9',
+        '기업금융': '#06b6d4',
+        '기업영업': '#14b8a6',
+        '리테일금융': '#10b981',
+        '고객지원': '#22d3ee'
+    };
+    return colors[categoryName] || '#6366f1';
+}
+
+function countJobs(jobs) {
+    if (Array.isArray(jobs)) {
+        return jobs.length;
+    } else if (typeof jobs === 'object') {
+        return Object.values(jobs).reduce((sum, jobList) => {
+            return sum + (Array.isArray(jobList) ? jobList.length : 0);
+        }, 0);
+    }
+    return 0;
+}
+
+function animateCards() {
+    const cards = document.querySelectorAll('.job-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 30);
+    });
+}
+
 // 페이지 로드시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     loadTreeData();
