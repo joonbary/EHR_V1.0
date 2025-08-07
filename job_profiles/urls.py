@@ -43,6 +43,8 @@ urlpatterns = [
     path('api/tree-map-data/', views.job_tree_map_data_api, name='tree_map_data'),
     path('api/job-detail-modal/<uuid:job_role_id>/', views.job_detail_modal_api, name='job_detail_modal'),
     path('api/job-detail/<uuid:job_role_id>/', views.job_detail_api, name='job_detail_api'),
+    # 숫자 ID 지원 (하위 호환성)
+    path('api/job-detail/<int:job_id>/', views.job_detail_api_by_id, name='job_detail_api_by_id'),
     
     # 편집
     path('edit/<uuid:job_role_id>/', views.job_profile_edit_view, name='edit'),

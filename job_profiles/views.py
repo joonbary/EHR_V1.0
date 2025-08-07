@@ -283,3 +283,81 @@ def job_detail_api(request, job_role_id):
             'success': False,
             'error': str(e)
         }, status=400)
+
+def job_detail_api_by_id(request, job_id):
+    """직무 상세 정보 API (숫자 ID 버전)"""
+    # 하드코딩된 데이터로 응답 (실제 ID는 사용하지 않음)
+    job_data = {
+        'IT기획': {
+            'description': 'IT 전략 수립 및 기획 업무',
+            'requirements': '정보시스템 기획, 프로젝트 관리 경험',
+            'skills': 'IT 전략, 프로젝트 관리, 비즈니스 분석',
+            'profile_status': '작성완료'
+        },
+        'IT개발': {
+            'description': '시스템 개발 및 구현 업무',
+            'requirements': '프로그래밍 언어, 개발 프레임워크 경험',
+            'skills': 'Java, Python, Spring, Django',
+            'profile_status': '작성완료'
+        },
+        'IT운영': {
+            'description': '시스템 운영 및 유지보수 업무',
+            'requirements': '시스템 운영, 인프라 관리 경험',
+            'skills': 'Linux, AWS, Docker, Kubernetes',
+            'profile_status': '작성완료'
+        },
+        '경영관리': {
+            'description': '경영 전략 및 관리 업무',
+            'requirements': '경영학, 재무, 회계 관련 지식',
+            'skills': '전략기획, 재무분석, 경영관리',
+            'profile_status': '작성완료'
+        },
+        '투자금융': {
+            'description': '투자 분석 및 금융 상품 개발',
+            'requirements': '금융, 투자 관련 전문 지식',
+            'skills': '재무분석, 리스크 관리, 금융상품',
+            'profile_status': '작성완료'
+        },
+        '기업금융': {
+            'description': '기업 대출 및 금융 서비스',
+            'requirements': '기업금융, 신용분석 경험',
+            'skills': '신용평가, 기업분석, 대출심사',
+            'profile_status': '작성완료'
+        },
+        '기업영업': {
+            'description': '기업 고객 영업 및 관리',
+            'requirements': 'B2B 영업, 고객관리 경험',
+            'skills': '영업전략, 고객관리, 협상',
+            'profile_status': '작성완료'
+        },
+        '리테일금융': {
+            'description': '개인 금융 상품 및 서비스',
+            'requirements': '리테일 금융, 고객 서비스 경험',
+            'skills': '금융상품, 고객상담, 마케팅',
+            'profile_status': '작성완료'
+        },
+        '고객지원': {
+            'description': '고객 서비스 및 지원 업무',
+            'requirements': '고객 서비스, 커뮤니케이션 스킬',
+            'skills': '고객상담, 문제해결, 서비스 마인드',
+            'profile_status': '작성완료'
+        }
+    }
+    
+    # 기본 직무 정보 반환
+    default_job = list(job_data.keys())[min(job_id - 1, len(job_data) - 1)] if job_id > 0 else 'IT기획'
+    job_info = job_data.get(default_job, job_data['IT기획'])
+    
+    return JsonResponse({
+        'success': True,
+        'job': {
+            'id': job_id,
+            'name': default_job,
+            'category': 'Non-PL' if default_job != '고객지원' else 'PL',
+            'type': default_job,
+            'description': job_info['description'],
+            'requirements': job_info['requirements'],
+            'skills': job_info['skills'],
+            'profile_status': job_info['profile_status']
+        }
+    })

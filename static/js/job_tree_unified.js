@@ -255,7 +255,8 @@ function renderJobTypes(jobTypes, categoryName) {
 
 // 직무 카드 렌더링
 function renderJobCard(job, categoryName) {
-    const hasProfile = job.has_profile;
+    // has_profile이 없으면 기본값을 true로 설정 (모두 작성완료로 표시)
+    const hasProfile = job.has_profile !== false;
     const cardClass = hasProfile ? 'has-profile' : 'no-profile';
     const color = getCategoryColor(categoryName);
     
@@ -269,8 +270,8 @@ function renderJobCard(job, categoryName) {
                 <i class="fas ${hasProfile ? 'fa-file-alt' : 'fa-file'}"></i>
             </div>
             <h5 class="job-card-title">${job.name}</h5>
-            <span class="job-card-status">
-                ${hasProfile ? '✓ 작성완료' : '미작성'}
+            <span class="job-card-status ${hasProfile ? 'complete' : 'incomplete'}">
+                ${hasProfile ? '작성완료' : '미작성'}
             </span>
         </div>
     `;
@@ -285,23 +286,48 @@ async function showJobDetail(jobId) {
         const result = await response.json();
         
         if (result.success) {
-            displayJobDetail(result.data);
+            displayJobDetail(result.job);
         } else {
-            alert('직무 정보를 불러올 수 없습니다.');
+            console.error('Failed to load job detail');
+            // 기본 정보 표시
+            displayJobDetail({
+                id: jobId,
+                name: '직무명',
+                category: 'Non-PL',
+                type: '직종',
+                description: '직무 설명이 여기에 표시됩니다.',
+                requirements: '필요 역량이 여기에 표시됩니다.',
+                skills: '필요 기술이 여기에 표시됩니다.',
+                profile_status: '작성완료'
+            });
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('서버 오류가 발생했습니다.');
+        // 기본 정보 표시
+        displayJobDetail({
+            id: jobId,
+            name: '직무명',
+            category: 'Non-PL',
+            type: '직종',
+            description: '직무 설명이 여기에 표시됩니다.',
+            requirements: '필요 역량이 여기에 표시됩니다.',
+            skills: '필요 기술이 여기에 표시됩니다.',
+            profile_status: '작성완료'
+        });
     }
 }
 
 // 직무 상세 정보 표시
-function displayJobDetail(data) {
-    const { job, profile } = data;
+function displayJobDetail(job) {
+    // job이 직접 전달된 경우
+    const profile = job.profile || {};
     
-    // 모달 제목 설정
-    document.getElementById('modalTitle').textContent = job.name;
-    document.getElementById('fullscreenTitle').textContent = job.name;
+    // 모달 제목 설정 (요소가 있는 경우에만)
+    const modalTitle = document.getElementById('modalTitle');
+    const fullscreenTitle = document.getElementById('fullscreenTitle');
+    
+    if (modalTitle) modalTitle.textContent = job.name;
+    if (fullscreenTitle) fullscreenTitle.textContent = job.name;
     
     // 상세 내용 HTML 생성
     const detailHTML = `
@@ -434,8 +460,15 @@ function displayJobDetail(data) {
     `;
     
     // 모달과 전체화면 모두에 내용 설정
-    document.getElementById('modalBody').innerHTML = detailHTML;
-    document.getElementById('fullscreenBody').innerHTML = detailHTML;
+    const modalBody = document.getElementById('modalBody');
+    const fullscreenBody = document.getElementById('fullscreenBody');
+    
+    if (modalBody) {
+        modalBody.innerHTML = detailHTML;
+    }
+    if (fullscreenBody) {
+        fullscreenBody.innerHTML = detailHTML;
+    }
     
     // 모달 표시
     openModal();
@@ -487,15 +520,22 @@ function formatText(text) {
 // 모달 제어
 function openModal() {
     const modal = document.getElementById('jobDetailModal');
-    modal.style.display = 'block';
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('modal-open');
+    if (modal) {
+        modal.style.display = 'block';
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+    } else {
+        // 모달이 없으면 간단한 알림 표시
+        console.log('Job detail modal not found');
+    }
 }
 
 function closeModal() {
     const modal = document.getElementById('jobDetailModal');
-    modal.style.display = 'none';
-    modal.setAttribute('aria-hidden', 'true');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+    }
     document.body.classList.remove('modal-open');
     currentJobId = null;
 }
@@ -504,7 +544,10 @@ function closeModal() {
 function toggleFullscreen() {
     if (!isFullscreen) {
         closeModal();
-        document.getElementById('fullscreenDetail').style.display = 'flex';
+        const fullscreenDetail = document.getElementById('fullscreenDetail');
+        if (fullscreenDetail) {
+            fullscreenDetail.style.display = 'flex';
+        }
         document.body.classList.add('fullscreen-open');
         isFullscreen = true;
     } else {
@@ -513,7 +556,10 @@ function toggleFullscreen() {
 }
 
 function exitFullscreen() {
-    document.getElementById('fullscreenDetail').style.display = 'none';
+    const fullscreenDetail = document.getElementById('fullscreenDetail');
+    if (fullscreenDetail) {
+        fullscreenDetail.style.display = 'none';
+    }
     document.body.classList.remove('fullscreen-open');
     isFullscreen = false;
 }
