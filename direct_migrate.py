@@ -87,7 +87,7 @@ for i in range(0, len(df), batch_size):
             user = User.objects.create_user(
                 username=emp_id.lower(),
                 email=email,
-                password='okfg2024!',
+                password=os.getenv('DEFAULT_USER_PASSWORD', 'changeme123!'),
                 first_name=first,
                 last_name=last
             )

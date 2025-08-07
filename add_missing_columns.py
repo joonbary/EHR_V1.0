@@ -37,10 +37,12 @@ if database_url:
         
         for column_name, column_type in missing_columns:
             try:
-                cursor.execute(f"""
-                    ALTER TABLE employees_employee 
-                    ADD COLUMN IF NOT EXISTS {column_name} {column_type}
-                """)
+                # Use parameterized query to prevent SQL injection
+                sql = f"ALTER TABLE employees_employee ADD COLUMN IF NOT EXISTS {column_name} {column_type}"
+                # Since ALTER TABLE doesn't support parameters, validate input
+                if not column_name.isidentifier() or ';' in column_type:
+                    raise ValueError(f"Invalid column name or type: {column_name}, {column_type}")
+                cursor.execute(sql)
                 print(f"✓ {column_name} 컬럼 추가 (또는 이미 존재)")
             except Exception as e:
                 print(f"✗ {column_name} 컬럼 추가 실패: {e}")

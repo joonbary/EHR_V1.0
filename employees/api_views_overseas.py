@@ -33,7 +33,7 @@ except ImportError as e:
         raise e
 
 
-@csrf_exempt
+# @csrf_exempt  # CSRF protection should not be disabled
 def upload_overseas_file(request):
     """해외 인력현황 파일 업로드"""
     if request.method != 'POST':
@@ -45,8 +45,25 @@ def upload_overseas_file(request):
         
         file = request.FILES['file']
         
+        # File validation
+        ALLOWED_EXTENSIONS = ['.xlsx', '.xls', '.csv']
+        MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+        
+        # Check file extension
+        file_ext = os.path.splitext(file.name)[1].lower()
+        if file_ext not in ALLOWED_EXTENSIONS:
+            return JsonResponse({'error': f'허용되지 않은 파일 형식입니다. {ALLOWED_EXTENSIONS} 형식만 가능합니다.'}, status=400)
+        
+        # Check file size
+        if file.size > MAX_FILE_SIZE:
+            return JsonResponse({'error': '파일 크기가 10MB를 초과합니다.'}, status=400)
+        
+        # Sanitize filename
+        import re
+        safe_filename = re.sub(r'[^\w\s.-]', '', file.name)
+        
         # 파일 저장
-        file_name = f"overseas/{uuid.uuid4()}_{file.name}"
+        file_name = f"overseas/{uuid.uuid4()}_{safe_filename}"
         file_path = default_storage.save(file_name, file)
         full_path = default_storage.path(file_path)
         
