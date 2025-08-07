@@ -74,7 +74,11 @@ def job_tree_map_data_api(request):
             '고객지원': 'fa-headset'
         }
         
-        result_data = {}
+        # JavaScript가 기대하는 'Non-PL'과 'PL' 구조로 그룹화
+        result_data = {
+            'Non-PL': {},
+            'PL': {}
+        }
         
         for job_role in job_roles:
             # 카테고리와 직종 정보 가져오기
@@ -84,18 +88,18 @@ def job_tree_map_data_api(request):
             # JobProfile 존재 여부 확인 (OneToOneField이므로 hasattr 사용)
             has_profile = hasattr(job_role, 'profile') and job_role.profile is not None
             
-            # 결과 데이터 구조 생성
-            if category_name not in result_data:
-                result_data[category_name] = {}
+            # PL과 Non-PL로 그룹화 ('PL' 카테고리는 PL 그룹, 나머지는 Non-PL 그룹)
+            group_key = 'PL' if category_name == 'PL' else 'Non-PL'
             
-            if job_type_name not in result_data[category_name]:
-                result_data[category_name][job_type_name] = {
+            # 결과 데이터 구조 생성
+            if job_type_name not in result_data[group_key]:
+                result_data[group_key][job_type_name] = {
                     'icon': category_icons.get(job_type_name, 'fa-folder'),
                     'jobs': []
                 }
             
             # 직무 정보 추가 (UUID를 문자열로 변환)
-            result_data[category_name][job_type_name]['jobs'].append({
+            result_data[group_key][job_type_name]['jobs'].append({
                 'id': str(job_role.id),  # UUID를 문자열로 변환
                 'name': job_role.name,
                 'has_profile': has_profile
