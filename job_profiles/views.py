@@ -56,103 +56,64 @@ class JobTreeMapView(TemplateView):
 
 
 def job_tree_map_data_api(request):
-    """트리맵 데이터 API - 직무 체계도용 (개선된 버전)"""
-    
-    # 정확한 직무 구조 (하드코딩)
-    result_data = {
-        'Non-PL': {
-            'IT기획': {
-                'icon': 'fa-laptop-code',
-                'jobs': [
-                    {'id': '1', 'name': '시스템기획', 'has_profile': True}
-                ]
-            },
-            'IT개발': {
-                'icon': 'fa-code', 
-                'jobs': [
-                    {'id': '2', 'name': '시스템개발', 'has_profile': True}
-                ]
-            },
-            'IT운영': {
-                'icon': 'fa-server',
-                'jobs': [
-                    {'id': '3', 'name': '시스템관리', 'has_profile': True},
-                    {'id': '4', 'name': '서비스운영', 'has_profile': True}
-                ]
-            },
-            '경영관리': {
-                'icon': 'fa-briefcase',
-                'jobs': [
-                    {'id': '5', 'name': '감사', 'has_profile': True},
-                    {'id': '6', 'name': 'HRM', 'has_profile': True},
-                    {'id': '7', 'name': 'HRD', 'has_profile': True},
-                    {'id': '8', 'name': '경영지원', 'has_profile': True},
-                    {'id': '9', 'name': '비서', 'has_profile': True},
-                    {'id': '10', 'name': 'PR', 'has_profile': True},
-                    {'id': '11', 'name': '경영기획', 'has_profile': True},
-                    {'id': '12', 'name': '디자인', 'has_profile': True},
-                    {'id': '13', 'name': '리스크관리', 'has_profile': True},
-                    {'id': '14', 'name': '마케팅', 'has_profile': True},
-                    {'id': '15', 'name': '스포츠사무관리', 'has_profile': True},
-                    {'id': '16', 'name': '자금', 'has_profile': True},
-                    {'id': '17', 'name': '재무회계', 'has_profile': True},
-                    {'id': '18', 'name': '정보보안', 'has_profile': True},
-                    {'id': '19', 'name': '준법지원', 'has_profile': True},
-                    {'id': '20', 'name': '총무', 'has_profile': True}
-                ]
-            },
-            '투자금융': {
-                'icon': 'fa-chart-line',
-                'jobs': [
-                    {'id': '21', 'name': 'IB금융', 'has_profile': True}
-                ]
-            },
-            '기업금융': {
-                'icon': 'fa-building',
-                'jobs': [
-                    {'id': '22', 'name': '기업영업기획', 'has_profile': True},
-                    {'id': '23', 'name': '기업여신심사', 'has_profile': True},
-                    {'id': '24', 'name': '기업여신관리', 'has_profile': True}
-                ]
-            },
-            '기업영업': {
-                'icon': 'fa-handshake',
-                'jobs': [
-                    {'id': '25', 'name': '여신영업', 'has_profile': True}
-                ]
-            },
-            '리테일금융': {
-                'icon': 'fa-coins',
-                'jobs': [
-                    {'id': '26', 'name': '데이터/통계', 'has_profile': True},
-                    {'id': '27', 'name': '플랫폼/핀테크', 'has_profile': True},
-                    {'id': '28', 'name': 'NPL영업기획', 'has_profile': True},
-                    {'id': '29', 'name': '리테일심사기획', 'has_profile': True},
-                    {'id': '30', 'name': 'PL기획', 'has_profile': True},
-                    {'id': '31', 'name': '모기지기획', 'has_profile': True},
-                    {'id': '32', 'name': '수신기획', 'has_profile': True},
-                    {'id': '33', 'name': '수신영업', 'has_profile': True}
-                ]
-            }
-        },
-        'PL': {
-            '고객지원': {
-                'icon': 'fa-headset',
-                'jobs': [
-                    {'id': '34', 'name': '여신고객지원', 'has_profile': True},
-                    {'id': '35', 'name': '사무지원', 'has_profile': True},
-                    {'id': '36', 'name': '수신고객지원', 'has_profile': True},
-                    {'id': '37', 'name': '채권관리지원', 'has_profile': True}
-                ]
-            }
+    """트리맵 데이터 API - 실제 데이터베이스 기반"""
+    try:
+        # 실제 데이터베이스에서 데이터 가져오기
+        job_roles = JobRole.objects.select_related('job_type__category').prefetch_related('jobprofile_set').all()
+        
+        # 카테고리별 아이콘 매핑
+        category_icons = {
+            'IT기획': 'fa-laptop-code',
+            'IT개발': 'fa-code',
+            'IT운영': 'fa-server',
+            '경영관리': 'fa-briefcase',
+            '투자금융': 'fa-chart-line',
+            '기업금융': 'fa-building',
+            '기업영업': 'fa-handshake',
+            '리테일금융': 'fa-coins',
+            '고객지원': 'fa-headset'
         }
-    }
-    
-    # success 필드와 함께 반환
-    return JsonResponse({
-        'success': True,
-        'data': result_data
-    })
+        
+        result_data = {}
+        
+        for job_role in job_roles:
+            # 카테고리와 직종 정보 가져오기
+            category_name = job_role.job_type.category.name if job_role.job_type and job_role.job_type.category else 'Non-PL'
+            job_type_name = job_role.job_type.name if job_role.job_type else '일반직무'
+            
+            # JobProfile 존재 여부 확인
+            has_profile = job_role.jobprofile_set.exists()
+            
+            # 결과 데이터 구조 생성
+            if category_name not in result_data:
+                result_data[category_name] = {}
+            
+            if job_type_name not in result_data[category_name]:
+                result_data[category_name][job_type_name] = {
+                    'icon': category_icons.get(job_type_name, 'fa-folder'),
+                    'jobs': []
+                }
+            
+            # 직무 정보 추가 (UUID를 문자열로 변환)
+            result_data[category_name][job_type_name]['jobs'].append({
+                'id': str(job_role.id),  # UUID를 문자열로 변환
+                'name': job_role.name,
+                'has_profile': has_profile
+            })
+        
+        # success 필드와 함께 반환
+        return JsonResponse({
+            'success': True,
+            'data': result_data
+        })
+        
+    except Exception as e:
+        # 에러 발생시 기본 응답
+        return JsonResponse({
+            'success': False,
+            'error': f'데이터 로드 실패: {str(e)}',
+            'data': {}
+        })
 
 
 def job_detail_modal_api(request, job_role_id):
@@ -285,9 +246,9 @@ def job_detail_api(request, job_role_id):
         }, status=400)
 
 def job_detail_api_by_id(request, job_id):
-    """직무 상세 정보 API (숫자 ID 버전) - 실제 데이터베이스 기반"""
+    """직무 상세 정보 API (UUID 버전) - 실제 데이터베이스 기반"""
     try:
-        # 실제 데이터베이스에서 JobRole 조회
+        # 실제 데이터베이스에서 JobRole 조회 (UUID 처리)
         job_role = JobRole.objects.get(id=job_id)
         
         # 기본 직무 정보 구성
