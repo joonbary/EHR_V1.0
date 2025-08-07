@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI 실시간 코칭 어시스턴트{% endblock %}
+
+{% block extra_css %}
+<style>
+    .coaching-dashboard {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .stats-label {
+        color: #666;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .coaching-session-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #17a2b8;
+        transition: all 0.3s ease;
+    }
+    
+    .coaching-session-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .session-type-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .session-performance { background-color: #e7f3ff; color: #004085; }
+    .session-leadership { background-color: #fff3cd; color: #856404; }
+    .session-skill { background-color: #d4edda; color: #155724; }
+    .session-career { background-color: #f8d7da; color: #721c24; }
+    
+    .goal-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 3px solid #28a745;
+    }
+    
+    .priority-high { border-left-color: #dc3545; }
+    .priority-medium { border-left-color: #ffc107; }
+    .priority-low { border-left-color: #28a745; }
+    
+    .action-buttons {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .btn-start-coaching {
+        background: linear-gradient(45deg, #17a2b8, #138496);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        margin: 0 10px;
+    }
+    
+    .btn-start-coaching:hover {
+        background: linear-gradient(45deg, #138496, #117a8b);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(23,162,184,0.3);
+    }
+    
+    .coach-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #17a2b8, #138496);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .template-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid #dee2e6;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .template-card:hover {
+        border-color: #17a2b8;
+        box-shadow: 0 2px 8px rgba(23,162,184,0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="coaching-dashboard">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="h2 mb-0">
+                    <i class="fas fa-robot text-info me-2"></i>
+                    AI 실시간 코칭 어시스턴트
+                </h1>
+                <p class="text-muted mt-2">개인 맞춤형 AI 코칭으로 직원 성장을 지원합니다</p>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-number text-primary">{{ stats.total_sessions|default:0 }}</div>
+                    <div class="stats-label">총 세션 수</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-number text-success">{{ stats.active_sessions|default:0 }}</div>
+                    <div class="stats-label">활성 세션</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-number text-info">{{ stats.completion_rate|floatformat:1 }}%</div>
+                    <div class="stats-label">완료율</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-number text-warning">{{ stats.avg_satisfaction|floatformat:1 }}</div>
+                    <div class="stats-label">평균 만족도</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- AI Coach Section -->
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="text-center">
+                        <div class="coach-avatar mx-auto">AI</div>
+                        <h4>AI 코치와 대화하기</h4>
+                        <p class="text-muted">개인 맞춤형 코칭을 시작하세요</p>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-start-coaching" onclick="startNewSession()">
+                                <i class="fas fa-play me-2"></i>새 코칭 시작
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coaching Templates -->
+                <div class="stats-card">
+                    <h5>
+                        <i class="fas fa-clipboard-list text-info me-2"></i>
+                        코칭 템플릿
+                    </h5>
+                    <div class="mt-3">
+                        {% for template in templates %}
+                        <div class="template-card" onclick="startSessionWithTemplate('{{ template.id }}')">
+                            <h6 class="mb-1">{{ template.name }}</h6>
+                            <small class="text-muted">{{ template.description|truncatewords:10 }}</small>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span class="badge bg-light text-dark">{{ template.get_category_display }}</span>
+                                <small class="text-muted">{{ template.usage_count }}회 사용</small>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center py-3">사용 가능한 템플릿이 없습니다.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Sessions -->
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h5>
+                        <i class="fas fa-clock text-success me-2"></i>
+                        활성 세션
+                    </h5>
+                    <div class="mt-3">
+                        {% for session in active_sessions %}
+                        <div class="coaching-session-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ session.employee.name }}</h6>
+                                    <p class="mb-2 text-muted">{{ session.title }}</p>
+                                    <span class="session-type-badge session-{{ session.session_type|lower }}">
+                                        {{ session.get_session_type_display }}
+                                    </span>
+                                </div>
+                                <small class="text-muted">{{ session.scheduled_at|date:"m.d H:i" }}</small>
+                            </div>
+                            <div class="mt-3">
+                                <a href="{% url 'ai_coaching:session_detail' session.session_id %}" 
+                                   class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-eye me-1"></i>참여하기
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center py-4">진행 중인 세션이 없습니다.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Sessions & Goals -->
+            <div class="col-md-4">
+                <!-- Recent Completed Sessions -->
+                <div class="stats-card">
+                    <h5>
+                        <i class="fas fa-history text-primary me-2"></i>
+                        최근 완료된 세션
+                    </h5>
+                    <div class="mt-3">
+                        {% for session in recent_sessions %}
+                        <div class="coaching-session-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ session.employee.name }}</h6>
+                                    <p class="mb-2 text-muted">{{ session.title }}</p>
+                                    <div class="d-flex align-items-center">
+                                        <span class="session-type-badge session-{{ session.session_type|lower }}">
+                                            {{ session.get_session_type_display }}
+                                        </span>
+                                        {% if session.satisfaction_score > 0 %}
+                                        <small class="ms-2 text-warning">
+                                            <i class="fas fa-star"></i> {{ session.satisfaction_score|floatformat:1 }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ session.ended_at|date:"m.d H:i" }}</small>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center py-4">최근 완료된 세션이 없습니다.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Coaching Goals -->
+                <div class="stats-card">
+                    <h5>
+                        <i class="fas fa-bullseye text-warning me-2"></i>
+                        진행 중인 목표
+                    </h5>
+                    <div class="mt-3">
+                        {% for goal in coaching_goals %}
+                        <div class="goal-card priority-{{ goal.priority|lower }}">
+                            <h6 class="mb-1">{{ goal.title }}</h6>
+                            <p class="mb-2 text-muted small">{{ goal.description|truncatewords:15 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-dark">{{ goal.session.employee.name }}</span>
+                                {% if goal.target_date %}
+                                <small class="text-muted">{{ goal.target_date|date:"m.d" }}까지</small>
+                                {% endif %}
+                            </div>
+                            {% if goal.progress_percentage > 0 %}
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar" style="width: {{ goal.progress_percentage }}%"></div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center py-4">진행 중인 목표가 없습니다.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tools text-info me-2"></i>
+                            빠른 작업
+                        </h5>
+                        <div>
+                            <a href="{% url 'ai_coaching:session_history' %}" class="btn btn-outline-primary btn-sm me-2">
+                                <i class="fas fa-history me-1"></i>세션 기록
+                            </a>
+                            <a href="{% url 'ai_coaching:goals_list' %}" class="btn btn-outline-success btn-sm me-2">
+                                <i class="fas fa-bullseye me-1"></i>목표 관리
+                            </a>
+                            <button class="btn btn-outline-info btn-sm" onclick="openEmployeeSelector()">
+                                <i class="fas fa-user-plus me-1"></i>직원 코칭 시작
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Start Session Modal -->
+<div class="modal fade" id="startSessionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">새 코칭 세션 시작</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="startSessionForm">
+                    <div class="mb-3">
+                        <label class="form-label">직원 선택</label>
+                        <select class="form-select" id="employeeSelect" required>
+                            <option value="">직원을 선택하세요</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">코칭 유형</label>
+                        <select class="form-select" id="sessionTypeSelect" required>
+                            <option value="PERFORMANCE">성과 코칭</option>
+                            <option value="LEADERSHIP">리더십 코칭</option>
+                            <option value="SKILL_DEVELOPMENT">역량 개발</option>
+                            <option value="CAREER_PATH">커리어 패스</option>
+                            <option value="COMMUNICATION">소통 개선</option>
+                            <option value="GOAL_SETTING">목표 설정</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">세션 제목</label>
+                        <input type="text" class="form-control" id="sessionTitle" placeholder="코칭 세션 제목을 입력하세요">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">코칭 목표 (선택사항)</label>
+                        <textarea class="form-control" id="coachingObjectives" rows="3" 
+                                placeholder="이번 코칭에서 달성하고자 하는 목표를 입력하세요"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="submitStartSession()">세션 시작</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadEmployees();
+});
+
+function loadEmployees() {
+    // 직원 목록 로드 (향후 API 구현)
+    const employeeSelect = document.getElementById('employeeSelect');
+    
+    // 더미 데이터 - 실제로는 API에서 로드
+    const employees = [
+        {id: 1, name: '김철수', department: '개발팀'},
+        {id: 2, name: '이영희', department: '마케팅팀'},
+        {id: 3, name: '박민수', department: '영업팀'}
+    ];
+    
+    employees.forEach(emp => {
+        const option = document.createElement('option');
+        option.value = emp.id;
+        option.textContent = `${emp.name} (${emp.department})`;
+        employeeSelect.appendChild(option);
+    });
+}
+
+function startNewSession() {
+    const modal = new bootstrap.Modal(document.getElementById('startSessionModal'));
+    modal.show();
+}
+
+function startSessionWithTemplate(templateId) {
+    console.log('템플릿으로 세션 시작:', templateId);
+    startNewSession();
+}
+
+function openEmployeeSelector() {
+    startNewSession();
+}
+
+function submitStartSession() {
+    const employeeId = document.getElementById('employeeSelect').value;
+    const sessionType = document.getElementById('sessionTypeSelect').value;
+    const title = document.getElementById('sessionTitle').value || 'AI 코칭 세션';
+    const objectives = document.getElementById('coachingObjectives').value;
+    
+    if (!employeeId || !sessionType) {
+        alert('직원과 코칭 유형을 선택해주세요.');
+        return;
+    }
+    
+    const sessionData = {
+        employee_id: employeeId,
+        session_type: sessionType,
+        title: title,
+        objectives: objectives.split('\n').filter(obj => obj.trim()),
+        focus_areas: []
+    };
+    
+    fetch('{% url "ai_coaching:start_session" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sessionData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('startSessionModal'));
+            modal.hide();
+            
+            // 세션 상세 페이지로 이동
+            window.location.href = `{% url 'ai_coaching:session_detail' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', data.session_id);
+        } else {
+            alert(data.message || '세션 시작 중 오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('세션 시작 중 오류가 발생했습니다.');
+    });
+}
+
+// 실시간 업데이트 (향후 WebSocket 구현)
+function refreshDashboard() {
+    location.reload();
+}
+
+// 5분마다 대시보드 새로고침
+setInterval(refreshDashboard, 300000);
+</script>
+{% endblock %}

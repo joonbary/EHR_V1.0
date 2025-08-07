@@ -86,7 +86,7 @@ INSTALLED_APPS = [
     "ai_predictions",
     "ai_interviewer",
     "ai_recruitment",
-    "ai_team_builder",
+    "ai_team_optimizer",
     "ai_coaching",
 ]
 

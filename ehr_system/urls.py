@@ -52,6 +52,12 @@ urlpatterns = [
     # AI 면접관
     path('ai-interviewer/', include('ai_interviewer.urls')),
     
+    # AI 팀 조합 최적화
+    path('ai-team-optimizer/', include('ai_team_optimizer.urls')),
+    
+    # AI 실시간 코칭 어시스턴트
+    path('ai-coaching/', include('ai_coaching.urls')),
+    
     # 조직관리
     path('organization/', include('organization.urls')),
     
