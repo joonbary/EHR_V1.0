@@ -81,8 +81,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 이벤트 리스너 초기화
 function initializeEventListeners() {
+    // 뷰 모드 탭
+    document.querySelectorAll('.view-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 모든 탭에서 active 클래스 제거
+            document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+            // 현재 탭에 active 클래스 추가
+            this.classList.add('active');
+            
+            // 뷰 모드에 따라 처리
+            const viewMode = this.dataset.view;
+            handleViewChange(viewMode);
+        });
+    });
+    
     // 검색 기능
-    document.getElementById('jobSearch').addEventListener('input', handleSearch);
+    const searchInput = document.getElementById('jobSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
     
     // 필터 칩
     document.querySelectorAll('.filter-chips .chip').forEach(chip => {
@@ -90,9 +107,12 @@ function initializeEventListeners() {
     });
     
     // 모달 외부 클릭시 닫기
-    document.getElementById('jobDetailModal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
-    });
+    const modal = document.getElementById('jobDetailModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    }
     
     // ESC 키로 모달/전체화면 닫기
     document.addEventListener('keydown', function(e) {
@@ -101,6 +121,25 @@ function initializeEventListeners() {
             else closeModal();
         }
     });
+}
+
+// 뷰 모드 변경 처리
+function handleViewChange(viewMode) {
+    console.log('View mode changed to:', viewMode);
+    
+    // 현재는 조직도 보기만 구현
+    // 추후 그리드 보기와 트리맵 보기 구현 예정
+    if (viewMode === 'org') {
+        renderTreeMap(jobData);
+    } else if (viewMode === 'grid') {
+        // 그리드 뷰 렌더링 (추후 구현)
+        console.log('Grid view - to be implemented');
+        renderTreeMap(jobData); // 임시로 조직도 보기 사용
+    } else if (viewMode === 'treemap') {
+        // 트리맵 뷰 렌더링 (추후 구현)
+        console.log('Treemap view - to be implemented');
+        renderTreeMap(jobData); // 임시로 조직도 보기 사용
+    }
 }
 
 // 트리 데이터 로드
