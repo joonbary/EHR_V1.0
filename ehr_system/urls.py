@@ -46,6 +46,9 @@ urlpatterns = [
     # AI 인사이트 대시보드
     path('ai-insights/', include('ai_insights.urls')),
     
+    # AI 이직 위험도 분석
+    path('ai-predictions/', include('ai_predictions.urls')),
+    
     # 조직관리
     path('organization/', include('organization.urls')),
     
