@@ -2,12 +2,20 @@
 
 /* 변수 정의 */
 :root {
-    /* 브랜드 컬러 */
-    --color-it: #3B82F6;
-    --color-management: #8B5CF6;
-    --color-finance: #10B981;
-    --color-sales: #F59E0B;
-    --color-service: #EF4444;
+    /* 직군 컬러 */
+    --color-non-pl: #4f46e5;
+    --color-pl: #0891b2;
+    
+    /* 직종별 컬러 (일관성 있는 프로페셔널 톤) */
+    --color-it-planning: #6366f1;
+    --color-it-dev: #8b5cf6;
+    --color-it-ops: #a78bfa;
+    --color-management: #3b82f6;
+    --color-investment: #0ea5e9;
+    --color-corporate: #06b6d4;
+    --color-corporate-sales: #14b8a6;
+    --color-retail: #10b981;
+    --color-customer: #22d3ee;
     
     /* 중립 컬러 */
     --neutral-50: #f8fafc;
@@ -21,12 +29,16 @@
     --neutral-800: #1f2937;
     --neutral-900: #111827;
     
-    /* 그라디언트 */
-    --gradient-it: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-    --gradient-management: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
-    --gradient-finance: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-    --gradient-sales: linear-gradient(135deg, #F59E0B 0%, #FCD34D 100%);
-    --gradient-service: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+    /* 직종별 그라디언트 (차분한 톤) */
+    --gradient-it-planning: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+    --gradient-it-dev: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    --gradient-it-ops: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
+    --gradient-management: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    --gradient-investment: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+    --gradient-corporate: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+    --gradient-corporate-sales: linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%);
+    --gradient-retail: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    --gradient-customer: linear-gradient(135deg, #22d3ee 0%, #67e8f9 100%);
     
     /* 타이포그래피 */
     --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -245,19 +257,22 @@ body {
 }
 
 .group-badge {
-    padding: var(--spacing-xs) var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius-md);
     font-size: var(--font-size-sm);
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-block;
 }
 
 .group-badge.non-pl {
-    background: var(--gradient-it);
+    background: linear-gradient(135deg, var(--color-non-pl), #7c3aed);
     color: white;
 }
 
 .group-badge.pl {
-    background: var(--gradient-service);
+    background: linear-gradient(135deg, var(--color-pl), #06b6d4);
     color: white;
 }
 
