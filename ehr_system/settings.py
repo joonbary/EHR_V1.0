@@ -89,7 +89,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # CORS middleware for AIRISS
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # "django.contrib.auth.middleware.AuthenticationMiddleware",  # 인증 제거
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -238,10 +238,10 @@ LOGGING = {
 }
 
 
-# 로그인 URL 설정
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+# 로그인 URL 설정 - 제거됨
+# LOGIN_URL = '/login/'
+# LOGIN_REDIRECT_URL = '/'
+# LOGOUT_REDIRECT_URL = '/'
 
 # Django REST Framework 설정
 REST_FRAMEWORK = {

@@ -1,5 +1,4 @@
 from django.views.generic import ListView, View
-from django.contrib.auth.mixins import LoginRequiredMixin
 from permissions.mixins import HRPermissionMixin
 from employees.models import Employee
 from evaluations.models import ComprehensiveEvaluation
@@ -12,7 +11,7 @@ from utils.file_manager import FileManager, ExcelFileHandler
 import os
 from django.conf import settings
 
-class ReportDashboardView(HRPermissionMixin, ListView):
+class ReportDashboardView(ListView):
     """리포트 대시보드"""
     model = ReportTemplate
     template_name = 'reports/dashboard.html'
@@ -21,11 +20,11 @@ class ReportDashboardView(HRPermissionMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['recent_reports'] = ReportGeneration.objects.select_related(
-            'template', 'generated_by'
-        ).order_by('-generated_at')[:10]
+            'template'
+        ).order_by('-generated_at')[:10]  # removed 'generated_by'
         return context
 
-class EmployeeListReportView(HRPermissionMixin, View):
+class EmployeeListReportView(View):
     """직원 명부 리포트"""
     
     def get(self, request):
@@ -77,7 +76,7 @@ class EmployeeListReportView(HRPermissionMixin, View):
         # 리포트 생성 이력 저장
         ReportGeneration.objects.create(
             template_id=1,  # 직원 명부 템플릿
-            generated_by=request.user,
+            generated_by=None,  # Authentication removed
             parameters_used={'department': department, 'position': position},
             record_count=employees.count(),
             file_format='excel'
@@ -97,7 +96,7 @@ class EmployeeListReportView(HRPermissionMixin, View):
         
         return response
 
-class EvaluationSummaryReportView(HRPermissionMixin, View):
+class EvaluationSummaryReportView(View):
     """평가 결과 요약 리포트"""
     
     def get(self, request):
@@ -176,7 +175,7 @@ class EvaluationSummaryReportView(HRPermissionMixin, View):
         }
         return pi_rates.get(level, {}).get(grade, 0)
 
-class CompensationAnalysisReportView(HRPermissionMixin, View):
+class CompensationAnalysisReportView(View):
     """보상 분석 리포트"""
     
     def get(self, request):
@@ -243,7 +242,7 @@ class CompensationAnalysisReportView(HRPermissionMixin, View):
             
         return generator.save_to_response(f"보상분석_{datetime.now().strftime('%Y%m%d')}.xlsx")
 
-class PromotionCandidatesReportView(HRPermissionMixin, View):
+class PromotionCandidatesReportView(View):
     """승진 대상자 리포트"""
     
     def get(self, request):
@@ -281,7 +280,7 @@ class PromotionCandidatesReportView(HRPermissionMixin, View):
             
         return generator.save_to_response(f"승진대상자_{datetime.now().strftime('%Y%m%d')}.xlsx")
 
-class DepartmentStatisticsReportView(HRPermissionMixin, View):
+class DepartmentStatisticsReportView(View):
     """부서별 통계 리포트"""
     
     def get(self, request):

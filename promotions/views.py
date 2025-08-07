@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
@@ -14,7 +13,6 @@ from .models import (
 )
 
 
-@login_required
 def promotion_dashboard(request):
     """승진 심사 대시보드"""
     # 승진 대상자 자동 추출
@@ -75,7 +73,6 @@ def promotion_dashboard(request):
     return render(request, 'promotions/dashboard.html', context)
 
 
-@login_required
 def promotion_request_list(request):
     """승진 요청 목록"""
     requests = PromotionRequest.objects.all().order_by('-created_at')
@@ -110,7 +107,6 @@ def promotion_request_list(request):
     return render(request, 'promotions/request_list.html', context)
 
 
-@login_required
 def promotion_request_detail(request, request_id):
     """승진 요청 상세"""
     promotion_request = get_object_or_404(PromotionRequest, id=request_id)
@@ -122,7 +118,7 @@ def promotion_request_detail(request, request_id):
             promotion_request.status = 'APPROVED'
             promotion_request.final_decision = 'APPROVED'
             promotion_request.final_decision_date = date.today()
-            promotion_request.final_decision_by = request.user.employee if hasattr(request.user, 'employee') else None
+            promotion_request.final_decision_by = None  # Authentication removed
             promotion_request.save()
             messages.success(request, '승진 요청이 승인되었습니다.')
             
@@ -130,13 +126,13 @@ def promotion_request_detail(request, request_id):
             promotion_request.status = 'REJECTED'
             promotion_request.final_decision = 'REJECTED'
             promotion_request.final_decision_date = date.today()
-            promotion_request.final_decision_by = request.user.employee if hasattr(request.user, 'employee') else None
+            promotion_request.final_decision_by = None  # Authentication removed
             promotion_request.save()
             messages.success(request, '승진 요청이 반려되었습니다.')
             
         elif action == 'department_recommend':
             promotion_request.department_recommendation = True
-            promotion_request.department_recommender = request.user.employee if hasattr(request.user, 'employee') else None
+            promotion_request.department_recommender = None  # Authentication removed
             promotion_request.department_recommendation_date = date.today()
             promotion_request.department_comments = request.POST.get('comments', '')
             promotion_request.save()
@@ -158,7 +154,6 @@ def promotion_request_detail(request, request_id):
     return render(request, 'promotions/request_detail.html', context)
 
 
-@login_required
 def create_promotion_request(request, employee_id):
     """승진 요청 생성"""
     employee = get_object_or_404(Employee, id=employee_id)
@@ -208,7 +203,6 @@ def create_promotion_request(request, employee_id):
     return render(request, 'promotions/create_request.html', context)
 
 
-@login_required
 def job_transfer_list(request):
     """인사이동 목록"""
     transfers = JobTransfer.objects.all().order_by('-effective_date')
@@ -245,7 +239,6 @@ def job_transfer_list(request):
     return render(request, 'promotions/transfer_list.html', context)
 
 
-@login_required
 def create_job_transfer(request):
     """인사이동 생성"""
     if request.method == 'POST':
@@ -282,7 +275,6 @@ def create_job_transfer(request):
     return render(request, 'promotions/create_transfer.html', context)
 
 
-@login_required
 def organization_chart(request):
     """조직도"""
     departments = OrganizationChart.objects.filter(is_active=True).order_by('display_order')
@@ -308,7 +300,6 @@ def organization_chart(request):
     return render(request, 'promotions/organization_chart.html', context)
 
 
-@login_required
 def promotion_analytics(request):
     """승진 분석"""
     # 승진 통계

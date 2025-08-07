@@ -181,23 +181,22 @@
             </nav>
             
             <!-- User Profile -->
-            {% if user.is_authenticated %}
+            <!-- User Profile - 인증 제거 -->
             <div class="p-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-primary to-primary-hover rounded-full flex items-center justify-center text-white font-semibold">
-                        {{ user.get_full_name|default:user.username|slice:":2"|upper }}
+                        OK
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {{ user.get_full_name|default:user.username }}
+                            OK금융그룹
                         </p>
                         <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {{ user.groups.first.name|default:"사용자" }}
+                            게스트 사용자
                         </p>
                     </div>
                 </div>
             </div>
-            {% endif %}
         </aside>
         
         <!-- Main Content -->
@@ -242,7 +241,7 @@
                                         <i data-lucide="user" class="w-4 h-4 text-white"></i>
                                     </div>
                                     <span class="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        {{ user.get_full_name|default:user.username }}
+                                        OK금융그룹
                                     </span>
                                     <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
                                 </button>
@@ -256,9 +255,7 @@
                                         설정
                                     </a>
                                     <hr class="my-1 border-gray-200 dark:border-gray-700">
-                                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        로그아웃
-                                    </a>
+                                    <!-- 로그아웃 제거 -->
                                 </div>
                             </div>
                         </div>

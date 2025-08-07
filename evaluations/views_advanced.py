@@ -3,7 +3,6 @@
 시퀀셜싱킹 MCP를 활용한 복잡한 평가 프로세스 처리
 """
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.generic import View, TemplateView
 from django.http import JsonResponse
 from django.contrib import messages
@@ -22,7 +21,6 @@ from utils.evaluation_processor import (
 class ProcessEvaluationView(View):
     """평가 처리 뷰 - 상대평가 및 Calibration 준비"""
     
-    @user_passes_test(lambda u: u.is_staff)
     def post(self, request, period_id):
         """평가 기간에 대한 종합 평가 처리"""
         try:
@@ -60,7 +58,6 @@ class CalibrationDashboardView(TemplateView):
     """Calibration 대시보드"""
     template_name = 'evaluations/calibration_dashboard.html'
     
-    @user_passes_test(lambda u: u.is_staff)
     def get(self, request, period_id):
         period = get_object_or_404(EvaluationPeriod, id=period_id)
         
@@ -87,7 +84,6 @@ class CalibrationSessionView(View):
     def __init__(self):
         self.session = None
     
-    @user_passes_test(lambda u: u.is_staff)
     def post(self, request, period_id):
         """Calibration 세션 시작"""
         participants = request.POST.getlist('participants')
@@ -111,7 +107,6 @@ class CalibrationSessionView(View):
             }
         })
     
-    @user_passes_test(lambda u: u.is_staff)
     def put(self, request, period_id):
         """개별 케이스 결정"""
         data = json.loads(request.body)
@@ -133,7 +128,6 @@ class CalibrationSessionView(View):
             'decision': result
         })
     
-    @user_passes_test(lambda u: u.is_staff)
     def delete(self, request, period_id):
         """세션 종료"""
         if not self.session:
@@ -161,7 +155,6 @@ class CalibrationSessionView(View):
 class PerformanceTrendView(View):
     """성과 트렌드 분석 뷰"""
     
-    @login_required
     def get(self, request, employee_id=None):
         """개인 또는 부서 성과 트렌드 조회"""
         analyzer = PerformanceTrendAnalyzer()
@@ -170,9 +163,7 @@ class PerformanceTrendView(View):
         if employee_id:
             employee = get_object_or_404(Employee, id=employee_id)
             
-            # 권한 체크 (본인 또는 관리자)
-            if not (request.user == employee.user or request.user.is_staff):
-                return JsonResponse({'error': '권한이 없습니다.'}, status=403)
+            # 권한 체크 제거 (Authentication removed)
             
             trend_data = analyzer.analyze_individual_trend(employee_id)
             
@@ -187,8 +178,8 @@ class PerformanceTrendView(View):
                 'trend': trend_data
             })
         
-        # 부서 트렌드 (관리자만)
-        elif request.user.is_staff:
+        # 부서 트렌드 (Authentication removed)
+        else:
             department = request.GET.get('department')
             period_id = request.GET.get('period_id')
             
@@ -209,7 +200,6 @@ class EvaluationInsightsView(TemplateView):
     """평가 인사이트 대시보드"""
     template_name = 'evaluations/insights_dashboard.html'
     
-    @user_passes_test(lambda u: u.is_staff)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
@@ -253,7 +243,6 @@ class EvaluationInsightsView(TemplateView):
         return context
 
 
-@login_required
 def evaluation_analytics_api(request):
     """평가 분석 API 엔드포인트"""
     action = request.GET.get('action')

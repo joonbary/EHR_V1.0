@@ -1,13 +1,11 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 
-@login_required
 def debug_navigation(request):
     """네비게이션 디버그 뷰"""
     context = {
-        'user': request.user,
-        'has_employee': hasattr(request.user, 'employee'),
-        'employee': getattr(request.user, 'employee', None),
+        'user': None,  # Authentication removed
+        'has_employee': False,  # Authentication removed
+        'employee': None,  # Authentication removed
         'path': request.path,
         'method': request.method,
     }

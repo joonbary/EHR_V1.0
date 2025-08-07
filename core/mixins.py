@@ -1,7 +1,7 @@
 """
 공통 믹스인 클래스
 """
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import QuerySet
 from typing import Dict, Any
@@ -10,12 +10,11 @@ from .exceptions import EmployeeNotFoundError, AuthorizationError
 from .responses import ResponseFormatter
 
 
-class EmployeeRequiredMixin(LoginRequiredMixin):
+class EmployeeRequiredMixin:
     """직원 정보가 필요한 뷰 믹스인"""
     
     def dispatch(self, request, *args, **kwargs):
-        if not hasattr(request.user, 'employee'):
-            raise EmployeeNotFoundError()
+        # Authentication removed - skip employee check
         return super().dispatch(request, *args, **kwargs)
 
 

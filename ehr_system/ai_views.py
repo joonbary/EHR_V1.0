@@ -2,14 +2,12 @@
 AI 기능 뷰 함수들
 """
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import random
 
 
-@login_required
 def ehr_chatbot(request):
     """AI HR 챗봇 인터페이스"""
     # 초기 환영 메시지
@@ -40,7 +38,6 @@ def ehr_chatbot(request):
 
 
 @csrf_exempt
-@login_required
 def chat_api(request):
     """챗봇 API 엔드포인트"""
     if request.method == 'POST':

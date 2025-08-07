@@ -2,7 +2,6 @@
 백그라운드 작업 관리 뷰
 """
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.views.generic import View, TemplateView
 from django.utils import timezone
@@ -15,7 +14,6 @@ class TaskDashboardView(TemplateView):
     """작업 대시보드"""
     template_name = 'tasks/dashboard.html'
     
-    @user_passes_test(lambda u: u.is_staff)
     def get(self, request):
         # 활성 작업
         active_tasks = [task.to_dict() for task in task_manager.active_tasks.values()]
@@ -51,7 +49,6 @@ class TaskDashboardView(TemplateView):
 class SubmitTaskView(View):
     """작업 제출"""
     
-    @user_passes_test(lambda u: u.is_staff)
     def post(self, request):
         try:
             data = json.loads(request.body)
@@ -87,7 +84,6 @@ class SubmitTaskView(View):
 class TaskStatusView(View):
     """작업 상태 조회"""
     
-    @login_required
     def get(self, request, task_id):
         task_status = task_manager.get_task_status(task_id)
         
@@ -106,7 +102,6 @@ class TaskStatusView(View):
 class BatchTasksView(View):
     """배치 작업 실행"""
     
-    @user_passes_test(lambda u: u.is_staff)
     def post(self, request):
         """특정 배치 작업 실행"""
         batch_type = request.POST.get('batch_type')
@@ -174,8 +169,6 @@ class BatchTasksView(View):
             }, status=400)
 
 
-@login_required
-@user_passes_test(lambda u: u.is_staff)
 def task_statistics_api(request):
     """작업 통계 API"""
     # 작업 유형별 통계

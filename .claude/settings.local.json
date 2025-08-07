@@ -41,7 +41,8 @@
       "Bash(else echo \"No .env file found\")",
       "Bash(fi)",
       "WebFetch(domain:ehrv10-production.up.railway.app)",
-      "Bash(railway logs:*)"
+      "Bash(railway logs:*)",
+      "Bash(del \"C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\templates\\login.html\")"
     ],
     "deny": []
   }

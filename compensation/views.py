@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Avg, Count, Sum, Q
-from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 import json
 
@@ -24,7 +23,6 @@ except ImportError:
     ComprehensiveEvaluation = None
 
 
-@login_required
 def compensation_dashboard(request):
     """보상 분석 대시보드"""
     

@@ -1,5 +1,4 @@
 from django.shortcuts import render, get_object_or_404, redirect
-# from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Q, Avg
 from django.utils import timezone
@@ -15,7 +14,6 @@ from .forms import (
 )
 
 
-# # @login_required
 def recruitment_dashboard(request):
     """채용 대시보드"""
     # 채용공고 통계
@@ -68,7 +66,6 @@ def recruitment_dashboard(request):
     return render(request, 'recruitment/dashboard.html', context)
 
 
-# @login_required
 def job_posting_list(request):
     """채용공고 목록"""
     postings = JobPosting.objects.annotate(
@@ -91,7 +88,6 @@ def job_posting_list(request):
     return render(request, 'recruitment/job_posting_list.html', context)
 
 
-# @login_required
 def job_posting_detail(request, pk):
     """채용공고 상세"""
     posting = get_object_or_404(
@@ -126,7 +122,6 @@ def job_posting_detail(request, pk):
     return render(request, 'recruitment/job_posting_detail.html', context)
 
 
-# @login_required
 def job_posting_create(request):
     """채용공고 생성"""
     if request.method == 'POST':
@@ -146,7 +141,6 @@ def job_posting_create(request):
     })
 
 
-# @login_required
 def job_posting_update(request, pk):
     """채용공고 수정"""
     posting = get_object_or_404(JobPosting, pk=pk)
@@ -167,7 +161,6 @@ def job_posting_update(request, pk):
     })
 
 
-# @login_required
 def application_list(request):
     """지원서 목록"""
     applications = Application.objects.select_related(
@@ -196,7 +189,6 @@ def application_list(request):
     return render(request, 'recruitment/application_list.html', context)
 
 
-# @login_required
 def application_detail(request, pk):
     """지원서 상세"""
     application = get_object_or_404(
@@ -225,7 +217,6 @@ def application_detail(request, pk):
     return render(request, 'recruitment/application_detail.html', context)
 
 
-# @login_required
 def application_evaluate(request, pk):
     """지원서 평가"""
     application = get_object_or_404(Application, pk=pk)
@@ -259,7 +250,6 @@ def application_evaluate(request, pk):
     })
 
 
-# @login_required
 def interview_schedule_create(request, application_id):
     """면접 일정 생성"""
     application = get_object_or_404(Application, pk=application_id)
@@ -298,7 +288,6 @@ def interview_schedule_create(request, application_id):
     })
 
 
-# @login_required
 def interview_schedule_update(request, pk):
     """면접 일정 수정"""
     interview = get_object_or_404(InterviewSchedule, pk=pk)
@@ -320,7 +309,6 @@ def interview_schedule_update(request, pk):
     })
 
 
-# @login_required
 def interview_evaluate(request, pk):
     """면접 평가"""
     interview = get_object_or_404(InterviewSchedule, pk=pk)
@@ -345,7 +333,7 @@ def interview_evaluate(request, pk):
                 stage=application.current_stage,
                 status='interviewed',
                 notes=f'{interview.get_interview_type_display()} 완료',
-                changed_by=request.user
+                changed_by=None  # Authentication removed
             )
         
         messages.success(request, '면접 평가가 저장되었습니다.')
@@ -356,7 +344,6 @@ def interview_evaluate(request, pk):
     })
 
 
-# @login_required
 def applicant_create(request):
     """지원자 등록"""
     if request.method == 'POST':
@@ -383,7 +370,6 @@ def applicant_create(request):
     })
 
 
-# @login_required
 def applicant_detail(request, pk):
     """지원자 상세"""
     applicant = get_object_or_404(Applicant, pk=pk)
@@ -399,7 +385,6 @@ def applicant_detail(request, pk):
     return render(request, 'recruitment/applicant_detail.html', context)
 
 
-# @login_required
 def application_create(request):
     """지원서 생성"""
     applicant_id = request.GET.get('applicant')
@@ -431,7 +416,7 @@ def application_create(request):
                 stage=application.current_stage,
                 status='submitted',
                 notes='지원서 접수',
-                changed_by=request.user
+                changed_by=None  # Authentication removed
             )
             
             messages.success(request, '지원서가 접수되었습니다.')

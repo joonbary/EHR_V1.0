@@ -2,7 +2,6 @@
 대시보드 뷰 함수들
 """
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
@@ -15,7 +14,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@login_required
 @cache_page(60 * 5)  # 5분 캐시
 def leader_kpi_dashboard(request):
     """경영진 KPI 대시보드"""
@@ -91,7 +89,6 @@ def leader_kpi_dashboard(request):
     return render(request, 'dashboards/leader_kpi.html', context)
 
 
-@login_required
 def workforce_comp_dashboard(request):
     """인력/보상 통합 대시보드"""
     # 인력 통계
@@ -119,7 +116,6 @@ def workforce_comp_dashboard(request):
     return render(request, 'dashboards/workforce_comp.html', context)
 
 
-@login_required
 def skillmap_dashboard(request):
     """스킬맵 대시보드"""
     # 기본 필터 옵션
@@ -140,7 +136,6 @@ def skillmap_dashboard(request):
 
 
 # API 엔드포인트
-@login_required
 def export_dashboard(request):
     """대시보드 데이터 내보내기"""
     export_type = request.GET.get('type', 'pdf')
@@ -152,7 +147,6 @@ def export_dashboard(request):
     })
 
 
-@login_required
 def workforce_comp_api(request):
     """인력/보상 대시보드 API - 개선된 데이터 바인딩"""
     try:

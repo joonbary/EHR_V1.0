@@ -1,10 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 from django.views.generic import DetailView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+# from django.contrib.auth.mixins import LoginRequiredMixin  # Removed
 from django.db.models import Avg, Count, Q, Sum
 import json
 from employees.models import Employee
@@ -23,16 +22,16 @@ from .forms import ProfileUpdateForm, CustomPasswordChangeForm
 import os
 from utils.file_manager import FileManager
 
-@login_required
 def my_dashboard(request):
     """직원 개인 대시보드"""
-    employee = get_object_or_404(Employee, user=request.user)
+    # employee = get_object_or_404(Employee, user=request.user)  # Authentication removed
+    employee = Employee.objects.first()  # Fallback for testing
     # 내 정보, 평가, 보상, 승진 이력 등 요약
     return render(request, 'selfservice/dashboard.html', {
         'employee': employee,
     })
 
-class ProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class ProfileUpdateView(SuccessMessageMixin, UpdateView):
     """프로필 수정"""
     model = Employee
     form_class = ProfileUpdateForm
@@ -41,7 +40,8 @@ class ProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_url = reverse_lazy('selfservice:dashboard')
     
     def get_object(self):
-        return self.request.user.employee
+        # return self.request.user.employee  # Authentication removed
+        return Employee.objects.first()  # Fallback for testing
     
     def form_valid(self, form):
         # 프로필 이미지 처리
@@ -73,7 +73,7 @@ class ProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         """프로필 변경 이력 기록 (간단한 버전)"""
         print(f"프로필 변경: {changed_fields} - {timezone.now()}")
 
-class CustomPasswordChangeView(LoginRequiredMixin, SuccessMessageMixin, PasswordChangeView):
+class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
     """비밀번호 변경"""
     form_class = CustomPasswordChangeForm
     template_name = 'selfservice/password_change.html'
@@ -98,24 +98,23 @@ class CustomPasswordChangeView(LoginRequiredMixin, SuccessMessageMixin, Password
             ip = self.request.META.get('REMOTE_ADDR')
         return ip
 
-@login_required
 def profile_update(request):
     """프로필 수정 (기존 함수형 뷰 - 호환성 유지)"""
     view = ProfileUpdateView()
     return view.get(request)
 
-@login_required
 def password_change(request):
     """비밀번호 변경 (기존 함수형 뷰 - 호환성 유지)"""
     view = CustomPasswordChangeView()
     return view.get(request)
 
-class EvaluationHistoryView(LoginRequiredMixin, DetailView):
+class EvaluationHistoryView(DetailView):
     """평가 이력 상세 조회"""
     template_name = 'selfservice/evaluation_history.html'
     
     def get(self, request):
-        employee = get_object_or_404(Employee, user=request.user)
+        # employee = get_object_or_404(Employee, user=request.user)  # Authentication removed
+    employee = Employee.objects.first()  # Fallback for testing
         
         # 최근 5년간 평가 데이터
         evaluations = ComprehensiveEvaluation.objects.filter(
@@ -269,18 +268,18 @@ class EvaluationHistoryView(LoginRequiredMixin, DetailView):
             'consistency': consistency
         }
 
-@login_required
 def evaluation_history(request):
     """평가 이력 조회 (기존 함수형 뷰 - 호환성 유지)"""
     view = EvaluationHistoryView()
     return view.get(request)
 
-class CompensationStatementView(LoginRequiredMixin, DetailView):
+class CompensationStatementView(DetailView):
     """보상 명세서 조회"""
     template_name = 'selfservice/compensation_statement.html'
     
     def get(self, request, year=None, month=None):
-        employee = get_object_or_404(Employee, user=request.user)
+        # employee = get_object_or_404(Employee, user=request.user)  # Authentication removed
+    employee = Employee.objects.first()  # Fallback for testing
         # 연도/월 파라미터 처리
         if not year:
             year = datetime.now().year
@@ -402,15 +401,14 @@ class CompensationStatementView(LoginRequiredMixin, DetailView):
             'avg_salary': avg_salary,
         }
 
-@login_required
 def compensation_statement(request, year=None, month=None):
     view = CompensationStatementView()
     return view.get(request, year, month)
 
-@login_required
 def career_path(request):
     """경력 개발/승진 경로"""
-    employee = get_object_or_404(Employee, user=request.user)
+    # employee = get_object_or_404(Employee, user=request.user)  # Authentication removed
+    employee = Employee.objects.first()  # Fallback for testing
     promotion_history = PromotionRequest.objects.filter(employee=employee, status='APPROVED').order_by('-final_decision_date')
     return render(request, 'selfservice/career_path.html', {
         'employee': employee,
