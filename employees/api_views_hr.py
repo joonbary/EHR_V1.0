@@ -7,14 +7,12 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.core.files.storage import default_storage
 from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from datetime import datetime, timedelta
+from utils.file_upload import FileUploadHandler, create_standard_response
 import json
 import os
-import uuid
-import asyncio
 import logging
 
 logger = logging.getLogger(__name__)
@@ -31,56 +29,73 @@ except ImportError as e:
 def upload_hr_file(request):
     """HR 파일 업로드 및 자동 분류 처리"""
     if request.method != 'POST':
-        return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+        return create_standard_response(
+            success=False,
+            error='Only POST method allowed',
+            status_code=405
+        )
     
     try:
         logger.info(f"Upload request received: {request.method}")
         logger.info(f"Files in request: {list(request.FILES.keys())}")
-        logger.info(f"Request headers: {dict(request.headers)}")
         
         if 'file' not in request.FILES:
-            return JsonResponse({'error': '파일이 없습니다.'}, status=400)
+            return create_standard_response(
+                success=False,
+                error='파일이 없습니다.',
+                status_code=400
+            )
         
         file = request.FILES['file']
         
-        # 파일 저장
-        file_name = f"hr_uploads/{uuid.uuid4()}_{file.name}"
-        file_path = default_storage.save(file_name, file)
-        full_path = default_storage.path(file_path)
+        # FileUploadHandler를 사용한 파일 업로드
+        upload_handler = FileUploadHandler(file_type='excel')
+        success, upload_result = upload_handler.validate_and_save(
+            file=file,
+            upload_path='hr_uploads',
+            record_type='HR_DATA',
+            user=request.user if request.user.is_authenticated else None
+        )
+        
+        if not success:
+            return create_standard_response(
+                success=False,
+                error=upload_result.get('error'),
+                status_code=400
+            )
         
         # 파서 초기화 및 파일 타입 식별
         parser = HRExcelAutoParser()
-        file_type = parser.identify_file_type(full_path)
+        file_type = parser.identify_file_type(upload_result['full_path'])
         
-        # 파일 업로드 기록 생성
-        upload_record = HRFileUpload.objects.create(
-            file_name=file.name,
-            file_type=file_type,
-            report_date=timezone.now().date(),
-            uploaded_by=request.user if request.user.is_authenticated else None,
-            processed_status='processing'
+        # 업로드 기록 업데이트
+        if upload_result.get('upload_record'):
+            upload_result['upload_record'].file_type = file_type
+            upload_result['upload_record'].save()
+        
+        # 동기 방식으로 처리
+        process_hr_file_sync(
+            upload_result['full_path'], 
+            file_type, 
+            upload_result.get('upload_record')
         )
         
-        # 비동기 처리를 위한 백그라운드 작업 시작
-        task_id = str(upload_record.id)
-        
-        # 동기 방식으로 처리 (간단한 구현)
-        process_hr_file_sync(full_path, file_type, upload_record)
-        
-        return JsonResponse({
-            'task_id': task_id,
-            'file_type': file_type,
-            'message': f'{file_type} 파일로 식별되어 처리 중입니다.'
-        })
+        return create_standard_response(
+            success=True,
+            message=f'{file_type} 파일로 식별되어 처리되었습니다.',
+            data={
+                'task_id': str(upload_result['upload_record'].id) if upload_result.get('upload_record') else None,
+                'file_type': file_type
+            }
+        )
         
     except Exception as e:
         logger.error(f"파일 업로드 오류: {e}", exc_info=True)
-        import traceback
-        return JsonResponse({
-            'error': str(e),
-            'type': type(e).__name__,
-            'traceback': traceback.format_exc()
-        }, status=500)
+        return create_standard_response(
+            success=False,
+            error=str(e),
+            status_code=500
+        )
 
 
 def process_hr_file_sync(file_path, file_type, upload_record):

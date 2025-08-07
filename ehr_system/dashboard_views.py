@@ -7,7 +7,13 @@ from django.views.decorators.cache import cache_page
 from django.utils import timezone
 from employees.models import Employee
 from compensation.models import EmployeeCompensation
-from django.db.models import Count, Avg, Sum, Max, Min
+from utils.dashboard_utils import (
+    DashboardAggregator, 
+    ChartDataFormatter,
+    format_currency,
+    format_percentage
+)
+from utils.file_upload import create_standard_response
 import json
 import logging
 
@@ -17,68 +23,61 @@ logger = logging.getLogger(__name__)
 @cache_page(60 * 5)  # 5분 캐시
 def leader_kpi_dashboard(request):
     """경영진 KPI 대시보드"""
-    # KPI 데이터 수집
-    total_employees = Employee.objects.count()
-    avg_salary = EmployeeCompensation.objects.aggregate(
-        avg=Avg('total_compensation')
-    )['avg'] or 0
+    # DashboardAggregator 사용
+    aggregator = DashboardAggregator()
+    formatter = ChartDataFormatter()
     
-    # 부서별 인원 통계
-    dept_stats = Employee.objects.values('department').annotate(
-        count=Count('id')
-    ).order_by('-count')
+    # 직원 통계
+    employee_stats = aggregator.get_employee_statistics(Employee.objects.all())
     
-    # KPI 목록
+    # 보상 통계
+    comp_stats = aggregator.get_compensation_statistics(EmployeeCompensation.objects.all())
+    
+    # 부서별 요약
+    dept_summary = aggregator.get_department_summary(Employee.objects.all())
+    
+    # KPI 카드 생성
     kpis = [
-        {
-            'title': '총 직원수',
-            'value': f'{total_employees:,}',
-            'icon': 'fas fa-users',
-            'trend_direction': 'up',
-            'trend_value': 5.2,
-            'period': '전월 대비'
-        },
-        {
-            'title': '평균 급여',
-            'value': f'₩{int(avg_salary):,}',
-            'icon': 'fas fa-won-sign',
-            'trend_direction': 'up',
-            'trend_value': 3.1,
-            'period': '전년 대비'
-        },
-        {
-            'title': '부서 수',
-            'value': dept_stats.count(),
-            'icon': 'fas fa-building',
-            'trend_direction': 'up',
-            'trend_value': 0,
-            'period': '변동 없음'
-        },
-        {
-            'title': '평균 근속연수',
-            'value': '5.2년',
-            'icon': 'fas fa-calendar-alt',
-            'trend_direction': 'up',
-            'trend_value': 2.5,
-            'period': '전년 대비'
-        }
+        aggregator.format_kpi_card(
+            title='총 직원수',
+            value=f"{employee_stats['total_employees']:,}",
+            icon='fas fa-users',
+            trend_direction='up',
+            trend_value=5.2,
+            period='전월 대비'
+        ),
+        aggregator.format_kpi_card(
+            title='평균 급여',
+            value=format_currency(comp_stats['avg_salary']),
+            icon='fas fa-won-sign',
+            trend_direction='up',
+            trend_value=3.1,
+            period='전년 대비'
+        ),
+        aggregator.format_kpi_card(
+            title='부서 수',
+            value=len(dept_summary),
+            icon='fas fa-building',
+            trend_direction='stable',
+            trend_value=0,
+            period='변동 없음'
+        ),
+        aggregator.format_kpi_card(
+            title='평균 근속연수',
+            value='5.2년',
+            icon='fas fa-calendar-alt',
+            trend_direction='up',
+            trend_value=2.5,
+            period='전년 대비'
+        )
     ]
     
-    # 차트 데이터
-    chart_data = {
-        'labels': [dept['department'] for dept in dept_stats[:5]],
-        'datasets': [{
-            'label': '부서별 인원',
-            'data': [dept['count'] for dept in dept_stats[:5]],
-            'backgroundColor': [
-                'rgba(54, 162, 235, 0.5)',
-                'rgba(255, 99, 132, 0.5)',
-                'rgba(255, 206, 86, 0.5)',
-                'rgba(75, 192, 192, 0.5)',
-                'rgba(153, 102, 255, 0.5)'
-            ]
-        }]
-    }
+    # 차트 데이터 포맷팅
+    chart_data = formatter.format_bar_chart(
+        labels=[dept['department_name'] for dept in dept_summary[:5]],
+        data=[dept['employee_count'] for dept in dept_summary[:5]],
+        label='부서별 인원'
+    )
     
     context = {
         'title': '경영진 KPI 대시보드',
@@ -150,68 +149,57 @@ def export_dashboard(request):
 def workforce_comp_api(request):
     """인력/보상 대시보드 API - 개선된 데이터 바인딩"""
     try:
-        # 인력 통계
-        total_employees = Employee.objects.count()
-        active_employees = Employee.objects.filter(employment_status='재직').count()
+        # DashboardAggregator 사용
+        aggregator = DashboardAggregator()
         
-        # 부서별 분포
-        dept_data = Employee.objects.values('department').annotate(
-            employee_count=Count('id'),
-            avg_salary=Avg('compensations__total_compensation')
-        ).order_by('-employee_count')
-        
-        # 부서 데이터 변환 (snake_case → camelCase)
-        departments = []
-        for dept in dept_data:
-            departments.append({
-                'departmentName': dept.get('department') or 'Unknown',
-                'employeeCount': dept.get('employee_count', 0),
-                'avgSalary': float(dept.get('avg_salary') or 0)
-            })
+        # 직원 통계
+        employee_stats = aggregator.get_employee_statistics(Employee.objects.all())
         
         # 보상 통계
-        compensation_stats = EmployeeCompensation.objects.aggregate(
-            total=Sum('total_compensation'),
-            average=Avg('total_compensation'),
-            max_comp=Max('total_compensation'),
-            min_comp=Min('total_compensation')
-        )
+        comp_stats = aggregator.get_compensation_statistics(EmployeeCompensation.objects.all())
         
-        # 월별 신규 입사자
-        current_month = timezone.now().replace(day=1)
-        new_hires = Employee.objects.filter(
-            hire_date__gte=current_month
-        ).count()
+        # 부서별 요약 (camelCase 변환)
+        dept_summary = aggregator.get_department_summary(Employee.objects.all())
+        departments = []
+        for dept in dept_summary:
+            departments.append({
+                'departmentName': dept['department_name'],
+                'employeeCount': dept['employee_count'],
+                'avgSalary': dept.get('avg_salary', 0)
+            })
         
         # 응답 데이터 구조화
         response_data = {
             'success': True,
             'data': {
                 'workforce': {
-                    'totalEmployees': total_employees,
-                    'activeEmployees': active_employees,
-                    'newHiresMonth': new_hires,
-                    'terminationsMonth': 0,  # 실제 데이터로 대체 필요
+                    'totalEmployees': employee_stats['total_employees'],
+                    'activeEmployees': employee_stats['active_employees'],
+                    'newHiresMonth': employee_stats['new_hires_month'],
+                    'terminationsMonth': employee_stats['resignations_month'],
                 },
                 'compensation': {
-                    'totalPayroll': float(compensation_stats.get('total') or 0),
-                    'avgSalary': float(compensation_stats.get('average') or 0),
-                    'maxSalary': float(compensation_stats.get('max_comp') or 0),
-                    'minSalary': float(compensation_stats.get('min_comp') or 0),
+                    'totalPayroll': comp_stats['total_payroll'],
+                    'avgSalary': comp_stats['avg_salary'],
+                    'maxSalary': comp_stats['max_salary'],
+                    'minSalary': comp_stats['min_salary'],
                 },
                 'departments': departments
             },
             'timestamp': timezone.now().isoformat()
         }
         
-        return JsonResponse(response_data)
+        return create_standard_response(
+            success=True,
+            data=response_data['data']
+        )
         
     except Exception as e:
         logger.error(f"Error in workforce_comp_api: {str(e)}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e),
-            'data': {
+        return create_standard_response(
+            success=False,
+            error=str(e),
+            data={
                 'workforce': {
                     'totalEmployees': 0,
                     'activeEmployees': 0,
@@ -225,5 +213,6 @@ def workforce_comp_api(request):
                     'minSalary': 0,
                 },
                 'departments': []
-            }
-        }, status=500)
+            },
+            status_code=500
+        )

@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.db.models import Count, Prefetch
+from .utils import JobProfileService
 import json
 
 # Conditional import to prevent import errors
@@ -208,58 +209,21 @@ def job_detail_api(request, job_role_id):
     try:
         job_role = get_object_or_404(JobRole, id=job_role_id)
         
-        # 카테고리와 타입 정보 가져오기
-        category_name = 'Non-PL'
-        type_name = '일반직무'
-        
-        if job_role.job_type:
-            type_name = job_role.job_type.name
-            if job_role.job_type.category:
-                category_name = job_role.job_type.category.name
-        
-        # 기본 직무 정보
-        job_data = {
-            'id': str(job_role.id),
-            'name': job_role.name,
-            'category': category_name,
-            'type': type_name,
-            'description': job_role.description or f'{job_role.name} 직무를 담당하는 핵심 역할입니다.',
-            'summary': f'{job_role.name}는 {type_name} 영역에서 전문성을 발휘하는 중요한 직무입니다.'
-        }
-        
-        # JobProfile 정보 가져오기
-        try:
-            profile = JobProfile.objects.get(job_role=job_role)
-            job_data['profile'] = {
-                'role_responsibility': profile.role_responsibility,
-                'required_qualifications': profile.qualification,  # frontend expects 'required_qualifications'
-                'preferred_qualifications': '',  # 추가 가능
-                'basic_skills': profile.basic_skills or [],
-                'applied_skills': profile.applied_skills or [],
-                'tools': [],  # 추가 가능
-                'growth_path': profile.growth_path,
-                'career_development': {},  # 추가 가능
-                'related_certifications': profile.related_certifications or [],
-                'kpi_metrics': [],  # 추가 가능
-                'key_stakeholders': [],  # 추가 가능
-                'typical_projects': [],  # 추가 가능
-                'work_environment': '',  # 추가 가능
-                'compensation_range': ''  # 추가 가능
-            }
-        except JobProfile.DoesNotExist:
-            job_data['profile'] = None
+        # JobProfileService 사용
+        job_data = JobProfileService.get_job_role_data(job_role, include_profile=True)
         
         # 프론트엔드가 기대하는 형식으로 응답
-        return JsonResponse({
-            'success': True,
-            'job': job_data
-        })
+        return JobProfileService.create_api_response(
+            success=True,
+            data={'job': job_data}
+        )
         
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=400)
+        return JobProfileService.create_api_response(
+            success=False,
+            error=str(e),
+            status=400
+        )
 
 def job_detail_api_by_id(request, job_id):
     """직무 상세 정보 API (UUID 버전) - 실제 데이터베이스 기반"""

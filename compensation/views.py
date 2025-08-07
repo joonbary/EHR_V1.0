@@ -84,56 +84,50 @@ def compensation_dashboard(request):
                 'avg_compensation': float(grade_compensation)
             })
         
-        # 직종별 평균 보상
-        job_stats = []
-        job_types = employees.values_list('job_type', flat=True).distinct()
+        # 직종별 평균 보상 - N+1 쿼리 문제 해결 (단일 쿼리로 처리)
+        job_stats = compensations.values('employee__job_type').annotate(
+            avg_compensation=Avg('total_compensation')
+        ).exclude(employee__job_type__isnull=True).values(
+            'employee__job_type', 'avg_compensation'
+        ).order_by('-avg_compensation')
         
-        for job_type in job_types:
-            if job_type:
-                job_compensation = compensations.filter(
-                    employee__job_type=job_type
-                ).aggregate(
-                    avg_compensation=Avg('total_compensation')
-                )['avg_compensation'] or 0
-                
-                job_stats.append({
-                    'job_type': job_type,
-                    'avg_compensation': float(job_compensation)
-                })
+        job_stats = [
+            {
+                'job_type': stat['employee__job_type'],
+                'avg_compensation': float(stat['avg_compensation'] or 0)
+            }
+            for stat in job_stats
+        ]
         
-        # 부서별 평균 보상
-        department_stats = []
-        departments = employees.values_list('department', flat=True).distinct()
+        # 부서별 평균 보상 - N+1 쿼리 문제 해결 (단일 쿼리로 처리)
+        department_stats = compensations.values('employee__department').annotate(
+            avg_compensation=Avg('total_compensation')
+        ).exclude(employee__department__isnull=True).values(
+            'employee__department', 'avg_compensation'
+        ).order_by('-avg_compensation')
         
-        for dept in departments:
-            if dept:
-                dept_compensation = compensations.filter(
-                    employee__department=dept
-                ).aggregate(
-                    avg_compensation=Avg('total_compensation')
-                )['avg_compensation'] or 0
-                
-                department_stats.append({
-                    'department': dept,
-                    'avg_compensation': float(dept_compensation)
-                })
+        department_stats = [
+            {
+                'department': stat['employee__department'],
+                'avg_compensation': float(stat['avg_compensation'] or 0)
+            }
+            for stat in department_stats
+        ]
         
-        # 직급별 보상 분포
-        position_stats = []
-        positions = employees.values_list('position', flat=True).distinct()
+        # 직급별 보상 분포 - N+1 쿼리 문제 해결 (단일 쿼리로 처리)
+        position_stats = compensations.values('employee__position').annotate(
+            avg_compensation=Avg('total_compensation')
+        ).exclude(employee__position__isnull=True).values(
+            'employee__position', 'avg_compensation'
+        ).order_by('-avg_compensation')
         
-        for pos in positions:
-            if pos:
-                pos_compensation = compensations.filter(
-                    employee__position=pos
-                ).aggregate(
-                    avg_compensation=Avg('total_compensation')
-                )['avg_compensation'] or 0
-                
-                position_stats.append({
-                    'position': pos,
-                    'avg_compensation': float(pos_compensation)
-                })
+        position_stats = [
+            {
+                'position': stat['employee__position'],
+                'avg_compensation': float(stat['avg_compensation'] or 0)
+            }
+            for stat in position_stats
+        ]
         
         # 인사이트 데이터
         top_compensation_employee = employees.filter(

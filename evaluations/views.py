@@ -26,22 +26,33 @@ def contribution_list(request):
         messages.warning(request, "활성화된 평가 기간이 없습니다.")
         return redirect('evaluations:dashboard')
     
-    # 평가 대상 직원들
-    employees = Employee.objects.filter(employment_status='재직').order_by('department', 'name')
+    # 평가 대상 직원들 - N+1 쿼리 문제 해결
+    from django.db.models import Prefetch, Count, Q
+    
+    employees = Employee.objects.filter(
+        employment_status='재직'
+    ).select_related(
+        'user', 'manager', 'job_role'
+    ).prefetch_related(
+        Prefetch(
+            'contribution_evaluations',
+            queryset=ContributionEvaluation.objects.filter(evaluation_period=active_period),
+            to_attr='period_contributions'
+        ),
+        Prefetch(
+            'tasks',
+            queryset=Task.objects.filter(evaluation_period=active_period),
+            to_attr='period_tasks'
+        )
+    ).order_by('department', 'name')
     
     employee_data = []
     for employee in employees:
-        # 기여도 평가 상태 확인
-        contribution_eval = ContributionEvaluation.objects.filter(
-            employee=employee,
-            evaluation_period=active_period
-        ).first()
+        # 기여도 평가 상태 확인 (prefetched data 사용)
+        contribution_eval = employee.period_contributions[0] if employee.period_contributions else None
         
-        # Task 개수 및 완료율
-        tasks = Task.objects.filter(
-            employee=employee,
-            evaluation_period=active_period
-        )
+        # Task 개수 및 완료율 (prefetched data 사용)
+        tasks = employee.period_tasks
         
         total_tasks = tasks.count()
         completed_tasks = tasks.filter(status='COMPLETED').count()

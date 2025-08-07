@@ -27,7 +27,18 @@ class EmployeeListView(ListView):
     paginate_by = 20
     
     def get_queryset(self):
-        queryset = Employee.objects.all()
+        # Optimize query with select_related and prefetch_related to avoid N+1 problem
+        queryset = Employee.objects.select_related(
+            'user',
+            'manager',
+            'job_role',
+            'job_role__job_type',
+            'job_role__job_type__category'
+        ).prefetch_related(
+            'subordinates',
+            'certifications',
+            'trainings'
+        )
         
         # 검색어 가져오기
         search_query = self.request.GET.get('q', '')
