@@ -30,18 +30,32 @@ class CoachingDashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         
         try:
-            # 기본 통계
+            # 기본 통계 - 안전한 초기화
             context.update({
                 'stats': self._get_coaching_stats(),
                 'active_sessions': self._get_active_sessions(),
                 'recent_sessions': self._get_recent_sessions(),
                 'coaching_goals': self._get_coaching_goals(),
-                'templates': CoachingTemplate.objects.filter(is_active=True)[:5]
+                'templates': self._get_templates()
             })
             
         except Exception as e:
             logger.error(f"코칭 대시보드 데이터 로드 오류: {e}")
-            context['error'] = str(e)
+            # 안전한 기본값 설정
+            context.update({
+                'stats': {
+                    'total_sessions': 0,
+                    'active_sessions': 0,
+                    'completed_sessions': 0,
+                    'completion_rate': 0,
+                    'avg_satisfaction': 0
+                },
+                'active_sessions': [],
+                'recent_sessions': [],
+                'coaching_goals': [],
+                'templates': []
+            })
+            context['error'] = '데이터베이스 초기화가 필요합니다.'
         
         return context
     
@@ -93,6 +107,14 @@ class CoachingDashboardView(TemplateView):
             ).select_related('session', 'session__employee').order_by('target_date')[:10]
         except Exception as e:
             logger.error(f"코칭 목표 조회 오류: {e}")
+            return []
+    
+    def _get_templates(self):
+        """코칭 템플릿 조회"""
+        try:
+            return CoachingTemplate.objects.filter(is_active=True)[:5]
+        except Exception as e:
+            logger.error(f"코칭 템플릿 조회 오류: {e}")
             return []
 
 
@@ -486,7 +508,7 @@ class GoalsListView(TemplateView):
                 'status_filter': status_filter,
                 'employee_filter': employee_filter,
                 'status_choices': CoachingGoal.STATUS_CHOICES,
-                'employees': Employee.objects.filter(status='ACTIVE')[:50]
+                'employees': Employee.objects.all()[:50]
             })
             
         except Exception as e:
@@ -530,7 +552,7 @@ class SessionHistoryView(TemplateView):
                 'employee_filter': employee_filter,
                 'session_type_filter': session_type_filter,
                 'status_filter': status_filter,
-                'employees': Employee.objects.filter(status='ACTIVE')[:50],
+                'employees': Employee.objects.all()[:50],
                 'session_types': CoachingSession.SESSION_TYPE_CHOICES,
                 'status_choices': CoachingSession.STATUS_CHOICES
             })
