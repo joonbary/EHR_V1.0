@@ -49,6 +49,9 @@ urlpatterns = [
     # AI 이직 위험도 분석
     path('ai-predictions/', include('ai_predictions.urls')),
     
+    # AI 면접관
+    path('ai-interviewer/', include('ai_interviewer.urls')),
+    
     # 조직관리
     path('organization/', include('organization.urls')),
     

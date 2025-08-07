@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIRISS AI 면접관 대시보드</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: transform 0.2s;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .sessions-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .active-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .completion-card {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        .status-scheduled { background-color: #ffc107; color: #000; }
+        .status-in-progress { background-color: #28a745; color: #fff; }
+        .status-completed { background-color: #007bff; color: #fff; }
+        .status-paused { background-color: #6c757d; color: #fff; }
+        .status-cancelled { background-color: #dc3545; color: #fff; }
+        .airiss-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .session-type-badge {
+            font-size: 0.8em;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Header -->
+    <div class="airiss-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="h2 mb-1">AI 면접관 대시보드</h1>
+                    <p class="mb-0">실시간 AI 기반 채용 면접 시스템</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <div class="me-3">
+                            <small class="d-block">마지막 업데이트</small>
+                            <small class="d-block">{{ dashboard_updated|date:"H:i" }}</small>
+                        </div>
+                        <button class="btn btn-light" onclick="refreshDashboard()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>새로고침
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 오류 메시지 -->
+        {% if error_message %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ error_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <!-- 통계 카드 -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card dashboard-card stats-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-clipboard-data fs-1 mb-2"></i>
+                        <h3>{{ stats.total_sessions }}</h3>
+                        <p class="mb-0">총 면접 세션</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card dashboard-card sessions-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-check-circle fs-1 mb-2"></i>
+                        <h3>{{ stats.completed_sessions }}</h3>
+                        <p class="mb-0">완료된 면접</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card dashboard-card active-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-play-circle fs-1 mb-2"></i>
+                        <h3>{{ stats.in_progress_sessions }}</h3>
+                        <p class="mb-0">진행 중</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card dashboard-card completion-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-trophy fs-1 mb-2"></i>
+                        <h3>{{ stats.completion_rate|floatformat:1 }}%</h3>
+                        <p class="mb-0">완료율</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 진행 중인 면접 -->
+            <div class="col-lg-8">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-person-video2 me-2"></i>진행 중인 면접</h5>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="createNewSession()">
+                                <i class="bi bi-plus me-1"></i>새 면접 생성
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="generateTemplates()">
+                                <i class="bi bi-template me-1"></i>템플릿 생성
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if active_sessions %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>후보자</th>
+                                            <th>채용공고</th>
+                                            <th>유형</th>
+                                            <th>진행률</th>
+                                            <th>소요시간</th>
+                                            <th>액션</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for session in active_sessions %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ session.candidate_name }}</strong>
+                                                <br><small class="text-muted">{{ session.candidate_email }}</small>
+                                            </td>
+                                            <td>{{ session.job_profile.title|default:"미지정" }}</td>
+                                            <td>
+                                                <span class="badge session-type-badge bg-info">
+                                                    {{ session.get_session_type_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">{{ session.get_completion_rate|floatformat:0 }}%</span>
+                                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                                        <div class="progress-bar" 
+                                                             style="width: {{ session.get_completion_rate }}%"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ session.get_duration_minutes }}분</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-outline-primary" 
+                                                            onclick="viewLiveInterview('{{ session.session_id }}')">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning" 
+                                                            onclick="pauseInterview('{{ session.session_id }}')">
+                                                        <i class="bi bi-pause"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-person-video2 fs-1 text-muted"></i>
+                                <h5 class="mt-3 text-muted">진행 중인 면접이 없습니다</h5>
+                                <p class="text-muted">새로운 면접을 시작해보세요.</p>
+                                <button class="btn btn-primary" onclick="createNewSession()">
+                                    <i class="bi bi-plus me-1"></i>새 면접 생성
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 최근 면접 세션 -->
+                <div class="card dashboard-card mt-4">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>최근 면접 세션</h5>
+                        <a href="{% url 'ai_interviewer:session_list' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-list me-1"></i>전체 보기
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_sessions %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>후보자</th>
+                                            <th>채용공고</th>
+                                            <th>상태</th>
+                                            <th>점수</th>
+                                            <th>일시</th>
+                                            <th>액션</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for session in recent_sessions %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ session.candidate_name }}</strong>
+                                                {% if session.test_employee %}
+                                                <br><small class="text-muted">(테스트: {{ session.test_employee.name }})</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ session.job_profile.title|default:"미지정" }}</td>
+                                            <td>
+                                                <span class="badge status-{{ session.status|lower }}">
+                                                    {{ session.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if session.overall_score > 0 %}
+                                                    {{ session.overall_score|floatformat:1 }}/10
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ session.created_at|date:"m/d H:i" }}</td>
+                                            <td>
+                                                <a href="{% url 'ai_interviewer:session_detail' session.session_id %}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted text-center">최근 면접 기록이 없습니다.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 사이드바 -->
+            <div class="col-lg-4">
+                <!-- 빠른 액션 -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>빠른 액션</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="createNewSession()">
+                                <i class="bi bi-plus me-2"></i>새 면접 생성
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="viewAllSessions()">
+                                <i class="bi bi-list me-2"></i>모든 세션 보기
+                            </button>
+                            <button class="btn btn-outline-success" onclick="viewTemplates()">
+                                <i class="bi bi-template me-2"></i>템플릿 관리
+                            </button>
+                            <button class="btn btn-outline-info" onclick="viewStatistics()">
+                                <i class="bi bi-graph-up me-2"></i>통계 보기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 활용 가능한 채용공고 -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h6 class="mb-0"><i class="bi bi-briefcase me-2"></i>활용 가능한 채용공고</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if job_profiles %}
+                            {% for job in job_profiles %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>{{ job.title }}</strong>
+                                    <br><small class="text-muted">{{ job.department }}</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="createSessionForJob({{ job.id }}, '{{ job.title }}')">
+                                    <i class="bi bi-play"></i>
+                                </button>
+                            </div>
+                            {% if not forloop.last %}<hr>{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">활성 채용공고가 없습니다.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 면접 템플릿 -->
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white border-0">
+                        <h6 class="mb-0"><i class="bi bi-template me-2"></i>면접 템플릿</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if templates %}
+                            {% for template in templates %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>{{ template.name }}</strong>
+                                    <br><small class="text-muted">{{ template.get_category_display }} | {{ template.usage_count }}회 사용</small>
+                                </div>
+                                <span class="badge bg-secondary">{{ template.question_count }}문</span>
+                            </div>
+                            {% if not forloop.last %}<hr>{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">사용 가능한 템플릿이 없습니다.</p>
+                            <button class="btn btn-sm btn-outline-success" onclick="generateTemplates()">
+                                <i class="bi bi-plus me-1"></i>기본 템플릿 생성
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 새 면접 생성 모달 -->
+    <div class="modal fade" id="createSessionModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">새 면접 세션 생성</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createSessionForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">채용공고 *</label>
+                                    <select class="form-select" id="jobProfileSelect" required>
+                                        <option value="">선택하세요</option>
+                                        {% for job in job_profiles %}
+                                        <option value="{{ job.id }}">{{ job.title }} ({{ job.department }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">면접 제목</label>
+                                    <input type="text" class="form-control" id="sessionTitle" placeholder="자동 생성됩니다">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">응답자 이름 *</label>
+                                    <input type="text" class="form-control" id="candidateName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">이메일 *</label>
+                                    <input type="email" class="form-control" id="candidateEmail" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">면접 유형</label>
+                                    <select class="form-select" id="sessionType">
+                                        <option value="BEHAVIORAL">인성면접</option>
+                                        <option value="TECHNICAL">기술면접</option>
+                                        <option value="SITUATIONAL">상황면접</option>
+                                        <option value="FINAL">최종면접</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">난이도</label>
+                                    <select class="form-select" id="difficultyLevel">
+                                        <option value="BEGINNER">초급</option>
+                                        <option value="INTERMEDIATE" selected>중급</option>
+                                        <option value="ADVANCED">고급</option>
+                                        <option value="EXPERT">전문가</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">예상 소요시간 (분)</label>
+                                    <input type="number" class="form-control" id="expectedDuration" value="30" min="10" max="120">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">최대 질문 수</label>
+                                    <input type="number" class="form-control" id="maxQuestions" value="10" min="5" max="20">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCreateSession()">생성</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function refreshDashboard() {
+            window.location.reload();
+        }
+
+        function createNewSession() {
+            const modal = new bootstrap.Modal(document.getElementById('createSessionModal'));
+            modal.show();
+        }
+
+        function createSessionForJob(jobId, jobTitle) {
+            const modal = new bootstrap.Modal(document.getElementById('createSessionModal'));
+            document.getElementById('jobProfileSelect').value = jobId;
+            document.getElementById('sessionTitle').value = jobTitle + ' 면접';
+            modal.show();
+        }
+
+        function submitCreateSession() {
+            const form = document.getElementById('createSessionForm');
+            const formData = new FormData(form);
+            
+            const data = {
+                job_profile_id: document.getElementById('jobProfileSelect').value,
+                candidate_name: document.getElementById('candidateName').value,
+                candidate_email: document.getElementById('candidateEmail').value,
+                title: document.getElementById('sessionTitle').value,
+                session_type: document.getElementById('sessionType').value,
+                difficulty_level: document.getElementById('difficultyLevel').value,
+                expected_duration: parseInt(document.getElementById('expectedDuration').value),
+                max_questions: parseInt(document.getElementById('maxQuestions').value)
+            };
+
+            // 필수 필드 검증
+            if (!data.job_profile_id || !data.candidate_name || !data.candidate_email) {
+                alert('필수 필드를 모두 입력해주세요.');
+                return;
+            }
+
+            fetch('/ai-interviewer/api/create-session/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('createSessionModal')).hide();
+                    showNotification('면접 세션이 생성되었습니다!', 'success');
+                    setTimeout(() => {
+                        window.location.href = result.live_interview_url;
+                    }, 1000);
+                } else {
+                    showNotification('오류: ' + result.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('네트워크 오류가 발생했습니다.', 'error');
+            });
+        }
+
+        function viewLiveInterview(sessionId) {
+            window.open(`/ai-interviewer/live/${sessionId}/`, '_blank');
+        }
+
+        function pauseInterview(sessionId) {
+            if (!confirm('면접을 일시정지하시겠습니까?')) return;
+            
+            fetch(`/ai-interviewer/api/pause/${sessionId}/`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showNotification('면접이 일시정지되었습니다.', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showNotification('오류: ' + result.error, 'error');
+                }
+            });
+        }
+
+        function generateTemplates() {
+            fetch('/ai-interviewer/api/generate-templates/', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showNotification('오류: ' + result.error, 'error');
+                }
+            });
+        }
+
+        function viewAllSessions() {
+            window.location.href = '{% url "ai_interviewer:session_list" %}';
+        }
+
+        function viewTemplates() {
+            window.location.href = '{% url "ai_interviewer:template_list" %}';
+        }
+
+        function viewStatistics() {
+            fetch('/ai-interviewer/api/statistics/')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(`통계 정보:\n총 세션: ${result.statistics.total_sessions}\n완료 세션: ${result.statistics.completed_sessions}\n평균 점수: ${result.statistics.average_score.toFixed(1)}`);
+                    }
+                });
+        }
+
+        function showNotification(message, type = 'info') {
+            const alertClass = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-danger' : 'alert-info';
+            const toast = document.createElement('div');
+            toast.className = `alert ${alertClass} alert-dismissible position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
+        }
+
+        // 자동 새로고침 (5분마다)
+        setInterval(() => {
+            if ({{ active_sessions|length }} > 0) {
+                window.location.reload();
+            }
+        }, 300000);
+    </script>
+</body>
+</html>

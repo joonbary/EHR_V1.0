@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     # AI 앱 추가
     "ai_insights",
     "ai_predictions",
+    "ai_interviewer",
     "ai_recruitment",
     "ai_team_builder",
     "ai_coaching",
