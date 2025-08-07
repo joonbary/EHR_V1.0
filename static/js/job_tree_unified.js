@@ -127,18 +127,12 @@ function initializeEventListeners() {
 function handleViewChange(viewMode) {
     console.log('View mode changed to:', viewMode);
     
-    // 현재는 조직도 보기만 구현
-    // 추후 그리드 보기와 트리맵 보기 구현 예정
     if (viewMode === 'org') {
         renderTreeMap(jobData);
     } else if (viewMode === 'grid') {
-        // 그리드 뷰 렌더링 (추후 구현)
-        console.log('Grid view - to be implemented');
-        renderTreeMap(jobData); // 임시로 조직도 보기 사용
+        renderGridView(jobData);
     } else if (viewMode === 'treemap') {
-        // 트리맵 뷰 렌더링 (추후 구현)
-        console.log('Treemap view - to be implemented');
-        renderTreeMap(jobData); // 임시로 조직도 보기 사용
+        renderTreemapView(jobData);
     }
 }
 
@@ -160,7 +154,7 @@ async function loadTreeData() {
     }
 }
 
-// 트리맵 렌더링
+// 트리맵 렌더링 (조직도 뷰)
 function renderTreeMap(data) {
     // Non-PL 렌더링
     const nonPlContent = document.getElementById('non-pl-content');
@@ -171,6 +165,125 @@ function renderTreeMap(data) {
     plContent.innerHTML = renderGroup(data['PL'], 'PL');
     
     // 애니메이션 적용
+    animateCards();
+}
+
+// 그리드 뷰 렌더링
+function renderGridView(data) {
+    // 모든 직무를 그리드로 표시
+    let allJobs = [];
+    
+    // Non-PL 직무 수집
+    if (data['Non-PL']) {
+        for (const [categoryName, categoryData] of Object.entries(data['Non-PL'])) {
+            const jobs = categoryData.jobs || categoryData;
+            if (Array.isArray(jobs)) {
+                jobs.forEach(job => {
+                    allJobs.push({...job, category: categoryName, group: 'Non-PL'});
+                });
+            } else if (typeof jobs === 'object') {
+                for (const [jobTypeName, jobList] of Object.entries(jobs)) {
+                    if (Array.isArray(jobList)) {
+                        jobList.forEach(job => {
+                            allJobs.push({...job, category: categoryName, type: jobTypeName, group: 'Non-PL'});
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    // PL 직무 수집
+    if (data['PL']) {
+        for (const [categoryName, categoryData] of Object.entries(data['PL'])) {
+            const jobs = categoryData.jobs || categoryData;
+            if (Array.isArray(jobs)) {
+                jobs.forEach(job => {
+                    allJobs.push({...job, category: categoryName, group: 'PL'});
+                });
+            }
+        }
+    }
+    
+    // 그리드 HTML 생성
+    const gridHTML = `
+        <div class="grid-view-container">
+            <div class="grid-view-header">
+                <h3>전체 직무 목록 (${allJobs.length}개)</h3>
+            </div>
+            <div class="jobs-grid large-grid">
+                ${allJobs.map(job => renderJobCard(job, job.category)).join('')}
+            </div>
+        </div>
+    `;
+    
+    // Non-PL과 PL 영역 모두에 표시
+    const nonPlContent = document.getElementById('non-pl-content');
+    const plContent = document.getElementById('pl-content');
+    nonPlContent.innerHTML = gridHTML;
+    plContent.innerHTML = '';
+    
+    animateCards();
+}
+
+// 트리맵 뷰 렌더링
+function renderTreemapView(data) {
+    let treemapData = [];
+    
+    // 데이터를 트리맵 형식으로 변환
+    if (data['Non-PL']) {
+        for (const [categoryName, categoryData] of Object.entries(data['Non-PL'])) {
+            const jobs = categoryData.jobs || categoryData;
+            const jobCount = countJobs(jobs);
+            treemapData.push({
+                name: categoryName,
+                value: jobCount,
+                group: 'Non-PL',
+                color: getCategoryColor(categoryName)
+            });
+        }
+    }
+    
+    if (data['PL']) {
+        for (const [categoryName, categoryData] of Object.entries(data['PL'])) {
+            const jobs = categoryData.jobs || categoryData;
+            const jobCount = countJobs(jobs);
+            treemapData.push({
+                name: categoryName,
+                value: jobCount,
+                group: 'PL',
+                color: getCategoryColor(categoryName)
+            });
+        }
+    }
+    
+    // 트리맵 HTML 생성
+    const treemapHTML = `
+        <div class="treemap-container">
+            <div class="treemap-grid">
+                ${treemapData.map(item => {
+                    const size = Math.max(150, item.value * 30);
+                    return `
+                        <div class="treemap-item" 
+                             style="width: ${size}px; height: ${size}px; background: ${item.color};">
+                            <div class="treemap-content">
+                                <h4>${item.name}</h4>
+                                <span class="treemap-value">${item.value}개 직무</span>
+                                <span class="treemap-group">${item.group}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+    
+    // 표시
+    const nonPlContent = document.getElementById('non-pl-content');
+    const plContent = document.getElementById('pl-content');
+    nonPlContent.innerHTML = treemapHTML;
+    plContent.innerHTML = '';
+    
     animateCards();
 }
 
@@ -391,7 +504,7 @@ function displayJobDetail(job) {
                         <div class="skill-group">
                             <h4>기본 역량</h4>
                             <div class="skill-tags">
-                                ${profile.basic_skills.map(skill => 
+                                ${(profile.basic_skills || []).map(skill => 
                                     `<span class="skill-tag basic">${skill}</span>`
                                 ).join('')}
                             </div>
@@ -399,7 +512,7 @@ function displayJobDetail(job) {
                         <div class="skill-group">
                             <h4>우대 역량</h4>
                             <div class="skill-tags">
-                                ${profile.applied_skills.map(skill => 
+                                ${(profile.applied_skills || []).map(skill => 
                                     `<span class="skill-tag preferred">${skill}</span>`
                                 ).join('')}
                             </div>
@@ -424,7 +537,7 @@ function displayJobDetail(job) {
                         <i class="fas fa-certificate"></i> 관련 자격증
                     </h3>
                     <div class="skill-tags">
-                        ${profile.related_certifications.map(cert => 
+                        ${(profile.related_certifications || []).map(cert => 
                             `<span class="skill-tag cert">${cert}</span>`
                         ).join('')}
                     </div>
@@ -440,13 +553,13 @@ function displayJobDetail(job) {
                 </div>
             `}
             
-            ${data.related_jobs && data.related_jobs.length > 0 ? `
+            ${job.related_jobs && job.related_jobs.length > 0 ? `
                 <section class="detail-section">
                     <h3 class="section-title">
                         <i class="fas fa-link"></i> 관련 직무
                     </h3>
                     <div class="related-jobs">
-                        ${data.related_jobs.map(related => `
+                        ${(job.related_jobs || []).map(related => `
                             <button class="related-job-chip ${related.has_profile ? 'has-profile' : ''}"
                                     onclick="showJobDetail('${related.id}')">
                                 ${related.name}
