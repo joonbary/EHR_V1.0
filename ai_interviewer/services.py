@@ -1,10 +1,20 @@
 """
 AI Interviewer Services - AI 채용 면접관 서비스
 """
-import openai
-import anthropic
 import json
 import logging
+
+# OpenAI import 처리
+try:
+    import openai
+except ImportError:
+    openai = None
+    
+# Anthropic import 처리
+try:
+    import anthropic
+except ImportError:
+    anthropic = None
 import re
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
@@ -37,12 +47,21 @@ class AIInterviewer:
         """AI 클라이언트 초기화"""
         try:
             # OpenAI API 우선 사용
-            if hasattr(settings, 'OPENAI_API_KEY') and settings.OPENAI_API_KEY:
+            if openai and hasattr(settings, 'OPENAI_API_KEY') and settings.OPENAI_API_KEY:
                 openai.api_key = settings.OPENAI_API_KEY
                 return 'openai'
             # Anthropic Claude 사용
-            elif hasattr(settings, 'ANTHROPIC_API_KEY') and settings.ANTHROPIC_API_KEY:
-                return anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+            elif anthropic and hasattr(settings, 'ANTHROPIC_API_KEY') and settings.ANTHROPIC_API_KEY:
+                try:
+                    # 새 버전 시도
+                    return anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+                except (TypeError, AttributeError):
+                    # 구버전 Anthropic 라이브러리 처리
+                    try:
+                        return anthropic.Client(settings.ANTHROPIC_API_KEY)
+                    except:
+                        logger.warning("Anthropic client initialization failed")
+                        return None
             else:
                 logger.warning("AI API 키가 설정되지 않았습니다. 시뮬레이션 모드로 동작합니다.")
                 return None

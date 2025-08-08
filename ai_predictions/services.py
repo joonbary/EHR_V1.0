@@ -29,9 +29,24 @@ except ImportError:
 
 try:
     import anthropic
-    anthropic_client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY) if hasattr(settings, 'ANTHROPIC_API_KEY') else None
+    # 안전한 Anthropic 클라이언트 초기화
+    if hasattr(settings, 'ANTHROPIC_API_KEY'):
+        try:
+            anthropic_client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        except TypeError:
+            # 구버전 Anthropic 라이브러리 처리
+            try:
+                anthropic_client = anthropic.Client(settings.ANTHROPIC_API_KEY)
+            except:
+                logger.warning("Anthropic client initialization failed")
+                anthropic_client = None
+    else:
+        anthropic_client = None
 except ImportError:
     logger.warning("Anthropic package not installed")
+    anthropic_client = None
+except Exception as e:
+    logger.warning(f"Anthropic initialization error: {e}")
     anthropic_client = None
 
 
