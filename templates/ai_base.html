@@ -80,7 +80,11 @@
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* Remove the old CSS rule since we're using Tailwind classes */
+        @media (min-width: 1024px) {
+            #main-content {
+                margin-left: 18rem; /* Default margin when sidebar is visible */
+            }
+        }
         
         .sidebar-hover-zone {
             position: fixed;
@@ -409,7 +413,7 @@
         </aside>
         
         <!-- Main Content -->
-        <main id="main-content" class="flex-1 lg:ml-72 transition-all duration-300">
+        <main id="main-content" class="flex-1 transition-all duration-300">
             <div class="pt-20">
                 {% block content %}{% endblock %}
             </div>
@@ -444,8 +448,10 @@
         // Function to hide sidebar
         function hideSidebar() {
             sidebar.classList.add('sidebar-hidden');
-            mainContent.classList.remove('lg:ml-72');
-            mainContent.classList.add('lg:ml-0');
+            // Use inline style for desktop, remove margin
+            if (window.innerWidth >= 1024) {
+                mainContent.style.marginLeft = '0';
+            }
             sidebarToggleSwitch.classList.add('hidden-mode');
             sidebarToggleSwitch.querySelector('span').textContent = '';
             sidebarHidden = true;
@@ -455,8 +461,10 @@
         // Function to show sidebar
         function showSidebar() {
             sidebar.classList.remove('sidebar-hidden');
-            mainContent.classList.remove('lg:ml-0');
-            mainContent.classList.add('lg:ml-72');
+            // Use inline style for desktop, add margin
+            if (window.innerWidth >= 1024) {
+                mainContent.style.marginLeft = '18rem'; // 72 * 0.25rem = 18rem
+            }
             sidebarToggleSwitch.classList.remove('hidden-mode');
             sidebarToggleSwitch.querySelector('span').textContent = '사이드바';
             sidebarHidden = false;
@@ -538,6 +546,19 @@
                 sidebar.classList.add('-translate-x-full');
                 mobileMenuOverlay.classList.add('opacity-0', 'pointer-events-none');
                 mobileMenuOverlay.classList.remove('opacity-100');
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                if (!sidebarHidden) {
+                    mainContent.style.marginLeft = '18rem';
+                } else {
+                    mainContent.style.marginLeft = '0';
+                }
+            } else {
+                mainContent.style.marginLeft = '0';
             }
         });
     </script>
