@@ -61,8 +61,28 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     
+    <!-- Bootstrap CSS (for AI dashboards compatibility) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Custom Styles -->
     <style>
+        /* Bootstrap and Tailwind compatibility fixes */
+        .container-fluid {
+            max-width: 100% !important;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        /* Reset Bootstrap button styles for Tailwind buttons */
+        button.btn-primary:not(.bootstrap-btn) {
+            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%) !important;
+            border: none !important;
+        }
+        
+        /* Ensure proper spacing for AI dashboards */
+        .stats-card, .chart-container, .session-card, .project-card, .action-card {
+            margin-bottom: 1rem;
+        }
         /* Sidebar Auto-Hide Styles */
         #sidebar {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -801,6 +821,9 @@
             });
         });
     </script>
+    
+    <!-- Bootstrap JS Bundle (for AI dashboards) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     {% block extra_js %}{% endblock %}
 </body>
