@@ -386,32 +386,52 @@
                                 <span class="font-medium">채용관리</span>
                             </a>
                             
-                            <!-- 7. AIRISS -->
+                            <!-- 7. AI Quick Win -->
                             <div class="menu-item">
-                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-pink-500/50 {% if 'airiss' in request.resolver_match.url_name or 'ai_' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-pink-50 dark:hover:bg-pink-900/20{% endif %}" aria-label="AIRISS" onclick="toggleSubmenu('airiss-submenu')">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-cyan-500/50 {% if 'ai_' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-cyan-50 dark:hover:bg-cyan-900/20{% endif %}" aria-label="AI Quick Win" onclick="toggleSubmenu('ai-quickwin-submenu')">
                                     <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 {% if 'airiss' in request.resolver_match.url_name or 'ai_' in request.resolver_match.url_name %}bg-white/20{% else %}bg-pink-100 group-hover:bg-pink-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
-                                            <i data-lucide="brain" class="w-5 h-5 {% if 'airiss' in request.resolver_match.url_name or 'ai_' in request.resolver_match.url_name %}text-white{% else %}text-pink-600{% endif %}"></i>
+                                        <div class="w-10 h-10 {% if 'ai_' in request.resolver_match.url_name %}bg-white/20{% else %}bg-gradient-to-br from-cyan-400 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-600{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                                        </div>
+                                        <span class="font-medium">AI Quick Win</span>
+                                    </div>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'ai_' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                </button>
+                                <div id="ai-quickwin-submenu" class="submenu {% if 'ai_' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'ai_insights:executive_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                        <i data-lucide="target" class="inline w-4 h-4 mr-2"></i>AI 인사이트 대시보드
+                                    </a>
+                                    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                        <i data-lucide="trending-up" class="inline w-4 h-4 mr-2"></i>이직 위험도 예측
+                                    </a>
+                                    <a href="{% url 'ai_interviewer:interview_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                        <i data-lucide="mic" class="inline w-4 h-4 mr-2"></i>AI 채용 면접관
+                                    </a>
+                                    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                        <i data-lucide="users" class="inline w-4 h-4 mr-2"></i>팀 조합 최적화
+                                    </a>
+                                    <a href="{% url 'ai_coaching:dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                        <i data-lucide="message-circle" class="inline w-4 h-4 mr-2"></i>실시간 코칭 어시스턴트
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- 8. AIRISS -->
+                            <div class="menu-item">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-pink-500/50 {% if 'airiss' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-pink-50 dark:hover:bg-pink-900/20{% endif %}" aria-label="AIRISS" onclick="toggleSubmenu('airiss-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 {% if 'airiss' in request.resolver_match.url_name %}bg-white/20{% else %}bg-pink-100 group-hover:bg-pink-200{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                            <i data-lucide="brain" class="w-5 h-5 {% if 'airiss' in request.resolver_match.url_name %}text-white{% else %}text-pink-600{% endif %}"></i>
                                         </div>
                                         <span class="font-medium">AIRISS</span>
                                     </div>
-                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'airiss' in request.resolver_match.url_name or 'ai_' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'airiss' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
                                 </button>
-                                <div id="airiss-submenu" class="submenu {% if 'airiss' in request.resolver_match.url_name or 'ai_' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                <div id="airiss-submenu" class="submenu {% if 'airiss' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
                                     <a href="{% url 'airiss:executive_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg font-semibold">경영진 대시보드 📊</a>
                                     <a href="{% url 'airiss:employee_analysis_all' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg font-semibold">전직원 분석 👥</a>
                                     <a href="{% url 'airiss:msa_integration' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg font-semibold">AI 직원 분석 🤖</a>
                                     <hr class="my-2 border-gray-200 dark:border-gray-700">
-                                    <!-- AIRISS AI Quick Win 6대 기능 -->
-                                    <span class="block px-4 py-1 text-xs font-bold text-gray-500 uppercase">AI Quick Win</span>
-                                    <a href="{% url 'ai_insights:executive_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">🎯 AI 인사이트 대시보드</a>
-                                    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">📊 이직 위험도 예측</a>
-                                    <a href="{% url 'ai_interviewer:interview_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">🎤 AI 채용 면접관</a>
-                                    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">👥 팀 조합 최적화</a>
-                                    <a href="{% url 'ai_coaching:dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">💬 실시간 코칭 어시스턴트</a>
-                                    <hr class="my-2 border-gray-200 dark:border-gray-700">
-                                    <!-- 기존 AIRISS 메뉴 -->
-                                    <span class="block px-4 py-1 text-xs font-bold text-gray-500 uppercase">기본 기능</span>
                                     <a href="{% url 'airiss:dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">AIRISS 대시보드</a>
                                     <a href="{% url 'airiss:analytics' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">HR 분석</a>
                                     <a href="{% url 'airiss:predictions' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">AI 예측</a>
