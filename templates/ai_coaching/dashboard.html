@@ -171,6 +171,53 @@
     .section-title i {
         color: #FF6B00;
     }
+    
+    /* Tab Navigation Styles */
+    .nav-tabs {
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        border: none;
+        border-radius: 8px 8px 0 0;
+        padding: 12px 20px;
+        font-weight: 500;
+        background: transparent;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        color: #FF6B00;
+        background: rgba(255, 107, 0, 0.05);
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #FF6B00;
+        background: white;
+        border: 2px solid #e9ecef;
+        border-bottom: 2px solid white;
+        margin-bottom: -2px;
+    }
+    
+    .nav-tabs .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    }
+    
+    .nav-tabs .nav-link i {
+        vertical-align: middle;
+    }
+    
+    .tab-content {
+        padding-top: 20px;
+    }
 </style>
 {% endblock %}
 
@@ -249,145 +296,256 @@
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="row">
-            <!-- AI Coach Section -->
-            <div class="col-md-4">
-                <div class="session-card">
-                    <div class="text-center">
-                        <div class="coach-avatar">AI</div>
-                        <h4 class="mb-3">AI 코치와 대화하기</h4>
-                        <p class="text-muted mb-4">개인 맞춤형 코칭을 시작하세요</p>
-                        
-                        <button class="btn btn-start-coaching w-100" onclick="startNewSession()">
-                            <i data-lucide="play" class="me-2"></i>새 코칭 시작
-                        </button>
-                    </div>
-                </div>
+        <!-- Tab Navigation -->
+        <div class="mb-4">
+            <ul class="nav nav-tabs" id="coachingTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
+                        <i data-lucide="home" class="me-2" style="width: 16px; height: 16px;"></i>
+                        대시보드
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions" type="button" role="tab" aria-controls="sessions" aria-selected="false">
+                        <i data-lucide="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>
+                        코칭 세션
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="goals-tab" data-bs-toggle="tab" data-bs-target="#goals" type="button" role="tab" aria-controls="goals" aria-selected="false">
+                        <i data-lucide="target" class="me-2" style="width: 16px; height: 16px;"></i>
+                        목표 관리
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="templates-tab" data-bs-toggle="tab" data-bs-target="#templates" type="button" role="tab" aria-controls="templates" aria-selected="false">
+                        <i data-lucide="clipboard-list" class="me-2" style="width: 16px; height: 16px;"></i>
+                        템플릿
+                    </button>
+                </li>
+            </ul>
+        </div>
 
-                <!-- Coaching Templates -->
-                <div class="session-card">
-                    <h5 class="section-title">
-                        <i data-lucide="clipboard-list"></i>
-                        코칭 템플릿
-                    </h5>
-                    
-                    {% for template in templates %}
-                    <div class="template-card" onclick="startSessionWithTemplate('{{ template.id }}')">
-                        <h6 class="mb-1">{{ template.name }}</h6>
-                        <small class="text-muted">{{ template.description|truncatewords:10 }}</small>
-                        <div class="d-flex justify-content-between mt-2">
-                            <span class="badge bg-light text-dark">{{ template.get_category_display }}</span>
-                            <small class="text-muted">{{ template.usage_count }}회 사용</small>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p class="text-muted text-center py-3">사용 가능한 템플릿이 없습니다.</p>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Active Sessions -->
-            <div class="col-md-4">
-                <div class="session-card">
-                    <h5 class="section-title">
-                        <i data-lucide="clock"></i>
-                        활성 세션
-                    </h5>
-                    
-                    {% for session in active_sessions %}
-                    <div class="coaching-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">{{ session.employee.name }}</h6>
-                                <p class="mb-2 text-muted small">{{ session.title }}</p>
-                                <span class="session-type-badge session-{{ session.session_type|lower }}">
-                                    {{ session.get_session_type_display }}
-                                </span>
+        <!-- Tab Content -->
+        <div class="tab-content" id="coachingTabContent">
+            <!-- Overview Tab -->
+            <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                <div class="row">
+                    <!-- AI Coach Section -->
+                    <div class="col-md-4">
+                        <div class="session-card">
+                            <div class="text-center">
+                                <div class="coach-avatar">AI</div>
+                                <h4 class="mb-3">AI 코치와 대화하기</h4>
+                                <p class="text-muted mb-4">개인 맞춤형 코칭을 시작하세요</p>
+                                
+                                <button class="btn btn-start-coaching w-100" onclick="startNewSession()">
+                                    <i data-lucide="play" class="me-2"></i>새 코칭 시작
+                                </button>
                             </div>
-                            <small class="text-muted">{{ session.scheduled_at|date:"m.d H:i" }}</small>
                         </div>
-                        <div class="mt-3">
-                            <a href="{% url 'ai_coaching:session_detail' session.session_id %}" 
-                               class="btn btn-sm btn-outline-info w-100">
-                                <i data-lucide="eye" class="me-1"></i>참여하기
-                            </a>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-center text-muted py-5">
-                        <i data-lucide="message-square-off" style="width: 48px; height: 48px;" class="mb-3"></i>
-                        <p>진행 중인 세션이 없습니다.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
 
-            <!-- Recent Sessions & Goals -->
-            <div class="col-md-4">
-                <!-- Recent Completed Sessions -->
-                <div class="session-card">
-                    <h5 class="section-title">
-                        <i data-lucide="history"></i>
-                        최근 완료된 세션
-                    </h5>
-                    
-                    {% for session in recent_sessions %}
-                    <div class="coaching-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">{{ session.employee.name }}</h6>
-                                <p class="mb-2 text-muted small">{{ session.title }}</p>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="session-type-badge session-{{ session.session_type|lower }}">
-                                        {{ session.get_session_type_display }}
-                                    </span>
-                                    {% if session.satisfaction_score > 0 %}
-                                    <small class="text-warning">
-                                        <i data-lucide="star" style="width: 14px; height: 14px;"></i>
-                                        {{ session.satisfaction_score|floatformat:1 }}
-                                    </small>
-                                    {% endif %}
+                        <!-- Coaching Templates -->
+                        <div class="session-card">
+                            <h5 class="section-title">
+                                <i data-lucide="clipboard-list"></i>
+                                코칭 템플릿
+                            </h5>
+                            
+                            {% for template in templates %}
+                            <div class="template-card" onclick="startSessionWithTemplate('{{ template.id }}')">
+                                <h6 class="mb-1">{{ template.name }}</h6>
+                                <small class="text-muted">{{ template.description|truncatewords:10 }}</small>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <span class="badge bg-light text-dark">{{ template.get_category_display }}</span>
+                                    <small class="text-muted">{{ template.usage_count }}회 사용</small>
                                 </div>
                             </div>
-                            <small class="text-muted">{{ session.ended_at|date:"m.d" }}</small>
+                            {% empty %}
+                            <p class="text-muted text-center py-3">사용 가능한 템플릿이 없습니다.</p>
+                            {% endfor %}
                         </div>
                     </div>
-                    {% empty %}
-                    <div class="text-center text-muted py-4">
-                        <p>최근 완료된 세션이 없습니다.</p>
-                    </div>
-                    {% endfor %}
-                </div>
 
-                <!-- Coaching Goals -->
-                <div class="session-card">
-                    <h5 class="section-title">
-                        <i data-lucide="target"></i>
-                        진행 중인 목표
-                    </h5>
-                    
-                    {% for goal in coaching_goals %}
-                    <div class="goal-card priority-{{ goal.priority|lower }}">
-                        <h6 class="mb-1">{{ goal.title }}</h6>
-                        <p class="mb-2 text-muted small">{{ goal.description|truncatewords:15 }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-light text-dark">{{ goal.session.employee.name }}</span>
-                            {% if goal.target_date %}
-                            <small class="text-muted">{{ goal.target_date|date:"m.d" }}까지</small>
-                            {% endif %}
+                    <!-- Active Sessions -->
+                    <div class="col-md-4">
+                        <div class="session-card">
+                            <h5 class="section-title">
+                                <i data-lucide="clock"></i>
+                                활성 세션
+                            </h5>
+                            
+                            {% for session in active_sessions %}
+                            <div class="coaching-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ session.employee.name }}</h6>
+                                        <p class="mb-2 text-muted small">{{ session.title }}</p>
+                                        <span class="session-type-badge session-{{ session.session_type|lower }}">
+                                            {{ session.get_session_type_display }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ session.scheduled_at|date:"m.d H:i" }}</small>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="{% url 'ai_coaching:session_detail' session.session_id %}" 
+                                       class="btn btn-sm btn-outline-info w-100">
+                                        <i data-lucide="eye" class="me-1"></i>참여하기
+                                    </a>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="text-center text-muted py-5">
+                                <i data-lucide="message-square-off" style="width: 48px; height: 48px;" class="mb-3"></i>
+                                <p>진행 중인 세션이 없습니다.</p>
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% if goal.progress_percentage > 0 %}
-                        <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar bg-success" style="width: {{ goal.progress_percentage }}%"></div>
+                    </div>
+
+                    <!-- Recent Sessions & Goals -->
+                    <div class="col-md-4">
+                        <!-- Recent Completed Sessions -->
+                        <div class="session-card">
+                            <h5 class="section-title">
+                                <i data-lucide="history"></i>
+                                최근 완료된 세션
+                            </h5>
+                            
+                            {% for session in recent_sessions %}
+                            <div class="coaching-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ session.employee.name }}</h6>
+                                        <p class="mb-2 text-muted small">{{ session.title }}</p>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="session-type-badge session-{{ session.session_type|lower }}">
+                                                {{ session.get_session_type_display }}
+                                            </span>
+                                            {% if session.satisfaction_score > 0 %}
+                                            <small class="text-warning">
+                                                <i data-lucide="star" style="width: 14px; height: 14px;"></i>
+                                                {{ session.satisfaction_score|floatformat:1 }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">{{ session.ended_at|date:"m.d" }}</small>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="text-center text-muted py-4">
+                                <p>최근 완료된 세션이 없습니다.</p>
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endif %}
+
+                        <!-- Coaching Goals -->
+                        <div class="session-card">
+                            <h5 class="section-title">
+                                <i data-lucide="target"></i>
+                                진행 중인 목표
+                            </h5>
+                            
+                            {% for goal in coaching_goals %}
+                            <div class="goal-card priority-{{ goal.priority|lower }}">
+                                <h6 class="mb-1">{{ goal.title }}</h6>
+                                <p class="mb-2 text-muted small">{{ goal.description|truncatewords:15 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-light text-dark">{{ goal.session.employee.name }}</span>
+                                    {% if goal.target_date %}
+                                    <small class="text-muted">{{ goal.target_date|date:"m.d" }}까지</small>
+                                    {% endif %}
+                                </div>
+                                {% if goal.progress_percentage > 0 %}
+                                <div class="progress mt-2" style="height: 4px;">
+                                    <div class="progress-bar bg-success" style="width: {{ goal.progress_percentage }}%"></div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% empty %}
+                            <div class="text-center text-muted py-4">
+                                <p>진행 중인 목표가 없습니다.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                    {% empty %}
-                    <div class="text-center text-muted py-4">
-                        <p>진행 중인 목표가 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- Sessions Tab -->
+            <div class="tab-pane fade" id="sessions" role="tabpanel" aria-labelledby="sessions-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="session-card">
+                            <h5 class="section-title">
+                                <i data-lucide="message-circle"></i>
+                                모든 코칭 세션
+                            </h5>
+                            <p class="text-muted">진행 중이거나 완료된 모든 코칭 세션을 확인하세요.</p>
+                            
+                            <div class="text-center py-5">
+                                <button class="btn btn-start-coaching" onclick="startNewSession()">
+                                    <i data-lucide="plus" class="me-2"></i>새 세션 시작
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Goals Tab -->
+            <div class="tab-pane fade" id="goals" role="tabpanel" aria-labelledby="goals-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="session-card">
+                            <h5 class="section-title">
+                                <i data-lucide="target"></i>
+                                목표 관리
+                            </h5>
+                            <p class="text-muted">직원들의 성장 목표를 설정하고 관리하세요.</p>
+                            
+                            <div class="text-center py-5">
+                                <a href="{% url 'ai_coaching:goals_list' %}" class="btn btn-success">
+                                    <i data-lucide="target" class="me-2"></i>목표 관리 페이지로 이동
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates Tab -->
+            <div class="tab-pane fade" id="templates" role="tabpanel" aria-labelledby="templates-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="session-card">
+                            <h5 class="section-title">
+                                <i data-lucide="clipboard-list"></i>
+                                코칭 템플릿
+                            </h5>
+                            <p class="text-muted">다양한 상황에 맞는 코칭 템플릿을 활용하세요.</p>
+                            
+                            <div class="row mt-4">
+                                {% for template in templates %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="template-card" onclick="startSessionWithTemplate('{{ template.id }}')">
+                                        <h6 class="mb-1">{{ template.name }}</h6>
+                                        <small class="text-muted">{{ template.description|truncatewords:10 }}</small>
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <span class="badge bg-light text-dark">{{ template.get_category_display }}</span>
+                                            <small class="text-muted">{{ template.usage_count }}회 사용</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <p class="text-muted text-center py-3">사용 가능한 템플릿이 없습니다.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -465,6 +623,7 @@ lucide.createIcons();
 
 document.addEventListener('DOMContentLoaded', function() {
     loadEmployees();
+    initializeTabs();
 });
 
 function getCookie(name) {
@@ -482,9 +641,39 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function initializeTabs() {
+    // Tab click event handling
+    const tabButtons = document.querySelectorAll('#coachingTabs button[data-bs-toggle="tab"]');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('shown.bs.tab', function (event) {
+            // Re-initialize Lucide icons after tab change
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+            
+            // Store active tab in localStorage
+            const tabId = event.target.getAttribute('data-bs-target');
+            localStorage.setItem('activeCoachingTab', tabId);
+        });
+    });
+    
+    // Restore last active tab
+    const lastActiveTab = localStorage.getItem('activeCoachingTab');
+    if (lastActiveTab) {
+        const tabButton = document.querySelector(`button[data-bs-target="${lastActiveTab}"]`);
+        if (tabButton) {
+            const tab = new bootstrap.Tab(tabButton);
+            tab.show();
+        }
+    }
+}
+
 function loadEmployees() {
     // Load employee list (temporary dummy data)
     const employeeSelect = document.getElementById('employeeSelect');
+    
+    if (!employeeSelect) return;
     
     const employees = [
         {id: 1, name: '김철수', department: '개발팀'},

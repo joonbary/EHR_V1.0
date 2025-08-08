@@ -70,6 +70,7 @@
         /* Sidebar Auto-Hide Styles */
         #sidebar {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
         }
         
         #sidebar.sidebar-hidden {
@@ -77,12 +78,19 @@
         }
         
         #main-content {
-            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                        padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: margin-left, padding-left;
         }
         
         @media (min-width: 1024px) {
             #main-content {
                 margin-left: 18rem; /* Default margin when sidebar is visible */
+            }
+            
+            /* Smooth transition when sidebar is animating */
+            #main-content.transitioning {
+                transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
         }
         
@@ -448,6 +456,7 @@
         // Function to hide sidebar
         function hideSidebar() {
             sidebar.classList.add('sidebar-hidden');
+            mainContent.classList.add('transitioning');
             // Use inline style for desktop, remove margin
             if (window.innerWidth >= 1024) {
                 mainContent.style.marginLeft = '0';
@@ -456,11 +465,17 @@
             sidebarToggleSwitch.querySelector('span').textContent = '';
             sidebarHidden = true;
             localStorage.setItem('sidebarHidden', 'true');
+            
+            // Remove transitioning class after animation
+            setTimeout(() => {
+                mainContent.classList.remove('transitioning');
+            }, 300);
         }
         
         // Function to show sidebar
         function showSidebar() {
             sidebar.classList.remove('sidebar-hidden');
+            mainContent.classList.add('transitioning');
             // Use inline style for desktop, add margin
             if (window.innerWidth >= 1024) {
                 mainContent.style.marginLeft = '18rem'; // 72 * 0.25rem = 18rem
@@ -469,6 +484,11 @@
             sidebarToggleSwitch.querySelector('span').textContent = '사이드바';
             sidebarHidden = false;
             localStorage.setItem('sidebarHidden', 'false');
+            
+            // Remove transitioning class after animation
+            setTimeout(() => {
+                mainContent.classList.remove('transitioning');
+            }, 300);
         }
         
         // Toggle sidebar on switch click
@@ -485,6 +505,15 @@
             if (sidebarHidden) {
                 clearTimeout(hoverTimeout);
                 sidebar.classList.remove('sidebar-hidden');
+                mainContent.classList.add('transitioning');
+                // Temporarily adjust margin for hover state
+                if (window.innerWidth >= 1024) {
+                    mainContent.style.marginLeft = '18rem';
+                }
+                // Remove transitioning class after animation
+                setTimeout(() => {
+                    mainContent.classList.remove('transitioning');
+                }, 300);
             }
         });
         
@@ -493,6 +522,15 @@
             if (sidebarHidden) {
                 hoverTimeout = setTimeout(() => {
                     sidebar.classList.add('sidebar-hidden');
+                    mainContent.classList.add('transitioning');
+                    // Reset margin when sidebar hides again
+                    if (window.innerWidth >= 1024) {
+                        mainContent.style.marginLeft = '0';
+                    }
+                    // Remove transitioning class after animation
+                    setTimeout(() => {
+                        mainContent.classList.remove('transitioning');
+                    }, 300);
                 }, 300);
             }
         });
