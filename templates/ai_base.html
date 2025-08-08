@@ -1,12 +1,41 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}AIRISS AI Quick Win - OK금융그룹{% endblock %}</title>
     
-    <!-- Bootstrap CSS -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#FF6B00',
+                            hover: '#E55A00',
+                            light: '#FFF4ED',
+                            lighter: '#FFEDE5',
+                            dark: '#CC5500'
+                        },
+                        accent: {
+                            DEFAULT: '#FFAA00',
+                            hover: '#E69900',
+                            light: '#FFF8E6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'Noto Sans KR', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Bootstrap CSS (for compatibility) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Fonts -->
@@ -35,46 +64,126 @@
             min-height: 100vh;
         }
         
-        /* Navigation Bar */
-        .navbar {
-            background: white !important;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            padding: 1rem 0;
+        /* Sidebar Auto-Hide Styles */
+        #sidebar {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
+        #sidebar.sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        
+        #main-content {
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        #main-content.sidebar-hidden {
+            margin-left: 0 !important;
+        }
+        
+        .sidebar-hover-zone {
+            position: fixed;
+            left: 0;
+            top: 80px;
+            bottom: 0;
+            width: 10px;
+            z-index: 35;
+            cursor: pointer;
+        }
+        
+        .sidebar-hover-zone:hover {
+            background: linear-gradient(to right, rgba(255, 107, 0, 0.1), transparent);
+        }
+        
+        .sidebar-toggle-switch {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 45;
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-toggle-switch:hover {
+            box-shadow: 0 6px 16px rgba(255, 107, 0, 0.2);
+        }
+        
+        .sidebar-toggle-switch.hidden-mode {
+            left: 10px;
+            background: rgba(255, 107, 0, 0.95);
+            color: white;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar-hover-zone,
+            .sidebar-toggle-switch {
+                display: none;
+            }
+        }
+        
+        /* Glass effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .glass-dark {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* Gradient backgrounds */
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        }
+        
+        .gradient-text {
             background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        .nav-link {
-            color: var(--text-dark) !important;
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+        /* Hover effects */
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .nav-link:hover {
-            background: var(--primary-light);
-            color: var(--primary-color) !important;
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
         }
         
-        .nav-link.active {
-            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-            color: white !important;
+        /* Submenu styles */
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
         }
         
-        /* Main Content Area */
-        .main-content {
-            padding: 2rem 0;
+        .submenu.open {
+            max-height: 500px;
+            transition: max-height 0.3s ease-in;
         }
         
-        /* Cards and Containers */
+        .menu-chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .menu-chevron.rotate {
+            transform: rotate(180deg);
+        }
+        
+        /* Cards and Containers (Bootstrap override) */
         .stats-card {
             background: white;
             border-radius: var(--border-radius);
@@ -90,7 +199,7 @@
             box-shadow: 0 8px 24px rgba(255, 107, 0, 0.1);
         }
         
-        .chart-container {
+        .chart-container, .session-card, .project-card, .action-card {
             background: white;
             border-radius: var(--border-radius);
             padding: 24px;
@@ -117,145 +226,316 @@
             color: var(--primary-color);
         }
         
-        /* Buttons */
-        .btn {
-            border-radius: 8px;
-            font-weight: 500;
-            padding: 10px 20px;
-            transition: all 0.3s ease;
+        /* Bootstrap compatibility fixes */
+        .container-fluid {
+            max-width: 100% !important;
         }
         
+        /* Ensure proper button styles */
         .btn-primary {
-            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-            border: none;
+            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%) !important;
+            border: none !important;
         }
         
         .btn-primary:hover {
-            background: linear-gradient(135deg, #E55A00 0%, #FF9900 100%);
+            background: linear-gradient(135deg, #E55A00 0%, #FF9900 100%) !important;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
-        }
-        
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-outline-primary:hover {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        /* Badges */
-        .badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        
-        /* Gradients */
-        .gradient-bg {
-            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 1rem 0;
-            }
-            
-            .stats-card {
-                padding: 16px;
-                margin-bottom: 1rem;
-            }
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i data-lucide="brain" style="width: 32px; height: 32px;" class="me-2"></i>
-                AIRISS AI Quick Win
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'executive_dashboard' %}active{% endif %}" 
-                           href="{% url 'ai_insights:executive_dashboard' %}">
-                            <i data-lucide="target" class="me-1"></i>
-                            AI 인사이트
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'turnover_dashboard' %}active{% endif %}" 
-                           href="{% url 'ai_predictions:turnover_dashboard' %}">
-                            <i data-lucide="trending-up" class="me-1"></i>
-                            이직 예측
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'interview_dashboard' %}active{% endif %}" 
-                           href="{% url 'ai_interviewer:interview_dashboard' %}">
-                            <i data-lucide="users" class="me-1"></i>
-                            AI 면접관
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'team_optimizer_dashboard' %}active{% endif %}" 
-                           href="{% url 'ai_team_optimizer:dashboard' %}">
-                            <i data-lucide="users-2" class="me-1"></i>
-                            팀 최적화
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'coaching_dashboard' %}active{% endif %}" 
-                           href="{% url 'ai_coaching:dashboard' %}">
-                            <i data-lucide="message-square" class="me-1"></i>
-                            AI 코칭
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">
-                            <i data-lucide="home" class="me-1"></i>
-                            메인으로
-                        </a>
-                    </li>
-                </ul>
+<body class="bg-gray-50 dark:bg-gray-900 h-full">
+    <!-- Main container -->
+    <div class="flex h-full">
+        <!-- Top Bar -->
+        <header class="fixed top-0 left-0 right-0 h-20 glass dark:glass-dark border-b border-gray-200/50 dark:border-gray-700/50 z-50">
+            <div class="h-full flex items-center justify-between px-6">
+                <!-- Left section -->
+                <div class="flex items-center space-x-4">
+                    <!-- Mobile menu toggle -->
+                    <button id="mobile-menu-toggle" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    
+                    <!-- Logo -->
+                    <a href="/" class="flex items-center space-x-3">
+                        <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center shadow-lg">
+                            <i data-lucide="brain" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold gradient-text">AIRISS AI Quick Win</h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">OK금융그룹 통합 인사 시스템</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Right section -->
+                <div class="flex items-center space-x-4">
+                    <!-- Search -->
+                    <div class="hidden md:block">
+                        <div class="relative">
+                            <input type="search" placeholder="검색... (Ctrl+K)" 
+                                   class="w-64 pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/50">
+                            <i data-lucide="search" class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Dark mode toggle -->
+                    <button id="dark-mode-toggle" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <i data-lucide="sun" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+                    
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    
+                    <!-- User menu -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                        <div class="hidden lg:block">
+                            <p class="text-sm font-medium">{% if user.is_authenticated %}{{ user.username }}{% else %}Guest{% endif %}</p>
+                            <p class="text-xs text-gray-500">관리자</p>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </header>
+        
+        <!-- Sidebar hover zone -->
+        <div class="sidebar-hover-zone" id="sidebar-hover-zone"></div>
+        
+        <!-- Sidebar toggle switch -->
+        <div class="sidebar-toggle-switch" id="sidebar-toggle-switch">
+            <i data-lucide="panel-left" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">사이드바</span>
         </div>
-    </nav>
-    
-    <!-- Main Content -->
-    <main class="main-content">
-        {% block content %}{% endblock %}
-    </main>
-    
-    <!-- Footer -->
-    <footer class="text-center py-4 mt-5 border-top">
-        <p class="text-muted mb-0">© 2024 OK금융그룹 AIRISS AI Quick Win. All rights reserved.</p>
-    </footer>
+        
+        <!-- Mobile menu overlay -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 z-30 opacity-0 pointer-events-none transition-opacity lg:hidden"></div>
+        
+        <!-- Left Sidebar -->
+        <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-72 glass dark:glass-dark border-r border-gray-200/50 dark:border-gray-700/50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
+            <div class="h-full flex flex-col pt-20">
+                <!-- Navigation menu -->
+                <nav class="flex-1 p-4 overflow-y-auto">
+                    <!-- AI Quick Win Menu -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">AI Quick Win</h3>
+                        <div class="space-y-1">
+                            <a href="{% url 'ai_insights:executive_dashboard' %}" 
+                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'executive_dashboard' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
+                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'executive_dashboard' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
+                                    <i data-lucide="target" class="w-5 h-5 {% if request.resolver_match.url_name == 'executive_dashboard' %}text-white{% else %}text-primary{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">AI 인사이트</span>
+                            </a>
+                            
+                            <a href="{% url 'ai_predictions:turnover_dashboard' %}" 
+                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'turnover_dashboard' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
+                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'turnover_dashboard' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
+                                    <i data-lucide="trending-up" class="w-5 h-5 {% if request.resolver_match.url_name == 'turnover_dashboard' %}text-white{% else %}text-primary{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">이직 위험도 예측</span>
+                            </a>
+                            
+                            <a href="{% url 'ai_interviewer:interview_dashboard' %}" 
+                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'interview_dashboard' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
+                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'interview_dashboard' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
+                                    <i data-lucide="users" class="w-5 h-5 {% if request.resolver_match.url_name == 'interview_dashboard' %}text-white{% else %}text-primary{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">AI 채용 면접관</span>
+                            </a>
+                            
+                            <a href="{% url 'ai_team_optimizer:dashboard' %}" 
+                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'team_optimizer_dashboard' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
+                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'team_optimizer_dashboard' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
+                                    <i data-lucide="users-2" class="w-5 h-5 {% if request.resolver_match.url_name == 'team_optimizer_dashboard' %}text-white{% else %}text-primary{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">팀 조합 최적화</span>
+                            </a>
+                            
+                            <a href="{% url 'ai_coaching:dashboard' %}" 
+                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'coaching_dashboard' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
+                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'coaching_dashboard' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
+                                    <i data-lucide="message-square" class="w-5 h-5 {% if request.resolver_match.url_name == 'coaching_dashboard' %}text-white{% else %}text-primary{% endif %}"></i>
+                                </div>
+                                <span class="font-medium">실시간 코칭 어시스턴트</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Other Menus -->
+                    <div class="mb-8">
+                        <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">기타 메뉴</h3>
+                        <div class="space-y-1">
+                            <a href="/" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="home" class="w-5 h-5 text-gray-600"></i>
+                                </div>
+                                <span class="font-medium">메인 대시보드</span>
+                            </a>
+                            
+                            <a href="{% url 'ai_chatbot' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-cyan-100 group-hover:bg-cyan-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="bot" class="w-5 h-5 text-cyan-600"></i>
+                                </div>
+                                <span class="font-medium">AI 챗봇</span>
+                            </a>
+                            
+                            <a href="{% url 'leader_ai_assistant' %}" class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <div class="w-10 h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="brain" class="w-5 h-5 text-purple-600"></i>
+                                </div>
+                                <span class="font-medium">리더 AI 어시스턴트</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Sidebar footer -->
+                <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>© 2024 OK금융그룹</span>
+                        <span>v1.0.0</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 lg:ml-72">
+            <div class="pt-20">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
     
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Initialize Lucide Icons -->
+    <!-- JavaScript for sidebar and interactions -->
     <script>
+        // Initialize Lucide icons
         document.addEventListener('DOMContentLoaded', function() {
             lucide.createIcons();
+        });
+        
+        // Sidebar auto-hide functionality
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const sidebarHoverZone = document.getElementById('sidebar-hover-zone');
+        const sidebarToggleSwitch = document.getElementById('sidebar-toggle-switch');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        let sidebarHidden = false;
+        let hoverTimeout;
+        
+        // Initialize sidebar state from localStorage
+        if (localStorage.getItem('sidebarHidden') === 'true') {
+            hideSidebar();
+        }
+        
+        // Function to hide sidebar
+        function hideSidebar() {
+            sidebar.classList.add('sidebar-hidden');
+            mainContent.classList.add('sidebar-hidden');
+            sidebarToggleSwitch.classList.add('hidden-mode');
+            sidebarToggleSwitch.querySelector('span').textContent = '';
+            sidebarHidden = true;
+            localStorage.setItem('sidebarHidden', 'true');
+        }
+        
+        // Function to show sidebar
+        function showSidebar() {
+            sidebar.classList.remove('sidebar-hidden');
+            mainContent.classList.remove('sidebar-hidden');
+            sidebarToggleSwitch.classList.remove('hidden-mode');
+            sidebarToggleSwitch.querySelector('span').textContent = '사이드바';
+            sidebarHidden = false;
+            localStorage.setItem('sidebarHidden', 'false');
+        }
+        
+        // Toggle sidebar on switch click
+        sidebarToggleSwitch.addEventListener('click', function() {
+            if (sidebarHidden) {
+                showSidebar();
+            } else {
+                hideSidebar();
+            }
+        });
+        
+        // Show sidebar on hover zone hover (when hidden)
+        sidebarHoverZone.addEventListener('mouseenter', function() {
+            if (sidebarHidden) {
+                clearTimeout(hoverTimeout);
+                sidebar.classList.remove('sidebar-hidden');
+            }
+        });
+        
+        // Hide sidebar when mouse leaves (if it was hidden)
+        sidebar.addEventListener('mouseleave', function() {
+            if (sidebarHidden) {
+                hoverTimeout = setTimeout(() => {
+                    sidebar.classList.add('sidebar-hidden');
+                }, 300);
+            }
+        });
+        
+        // Keep sidebar visible when hovering over it
+        sidebar.addEventListener('mouseenter', function() {
+            clearTimeout(hoverTimeout);
+        });
+        
+        // Mobile menu toggle
+        mobileMenuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('-translate-x-full');
+            mobileMenuOverlay.classList.toggle('opacity-0');
+            mobileMenuOverlay.classList.toggle('pointer-events-none');
+            mobileMenuOverlay.classList.toggle('opacity-100');
+        });
+        
+        // Close mobile menu on overlay click
+        mobileMenuOverlay.addEventListener('click', function() {
+            sidebar.classList.add('-translate-x-full');
+            mobileMenuOverlay.classList.add('opacity-0', 'pointer-events-none');
+            mobileMenuOverlay.classList.remove('opacity-100');
+        });
+        
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const html = document.documentElement;
+        
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true' || 
+            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+        
+        darkModeToggle.addEventListener('click', function() {
+            html.classList.toggle('dark');
+            localStorage.setItem('darkMode', html.classList.contains('dark'));
+        });
+        
+        // Search shortcut
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('input[type="search"]').focus();
+            }
+        });
+        
+        // ESC key to close sidebar
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                mobileMenuOverlay.classList.add('opacity-0', 'pointer-events-none');
+                mobileMenuOverlay.classList.remove('opacity-100');
+            }
         });
     </script>
     
