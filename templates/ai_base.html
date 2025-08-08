@@ -29,6 +29,9 @@
                     },
                     fontFamily: {
                         sans: ['Pretendard', 'Noto Sans KR', 'sans-serif']
+                    },
+                    margin: {
+                        '72': '18rem'
                     }
                 }
             }
@@ -77,9 +80,7 @@
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        #main-content.sidebar-hidden {
-            margin-left: 0 !important;
-        }
+        /* Remove the old CSS rule since we're using Tailwind classes */
         
         .sidebar-hover-zone {
             position: fixed;
@@ -408,7 +409,7 @@
         </aside>
         
         <!-- Main Content -->
-        <main id="main-content" class="flex-1 lg:ml-72">
+        <main id="main-content" class="flex-1 lg:ml-72 transition-all duration-300">
             <div class="pt-20">
                 {% block content %}{% endblock %}
             </div>
@@ -443,7 +444,8 @@
         // Function to hide sidebar
         function hideSidebar() {
             sidebar.classList.add('sidebar-hidden');
-            mainContent.classList.add('sidebar-hidden');
+            mainContent.classList.remove('lg:ml-72');
+            mainContent.classList.add('lg:ml-0');
             sidebarToggleSwitch.classList.add('hidden-mode');
             sidebarToggleSwitch.querySelector('span').textContent = '';
             sidebarHidden = true;
@@ -453,7 +455,8 @@
         // Function to show sidebar
         function showSidebar() {
             sidebar.classList.remove('sidebar-hidden');
-            mainContent.classList.remove('sidebar-hidden');
+            mainContent.classList.remove('lg:ml-0');
+            mainContent.classList.add('lg:ml-72');
             sidebarToggleSwitch.classList.remove('hidden-mode');
             sidebarToggleSwitch.querySelector('span').textContent = '사이드바';
             sidebarHidden = false;
