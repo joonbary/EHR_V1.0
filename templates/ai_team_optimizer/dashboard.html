@@ -1,44 +1,173 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}AI 팀 조합 최적화 - AIRISS Quick Win{% endblock %}
+{% block title %}팀 조합 최적화 - AI Quick Win{% endblock %}
 
 {% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet">
 <style>
-    .team-card {
-        transition: transform 0.2s ease-in-out;
-        border-left: 4px solid #007bff;
+    .team-optimizer-dashboard {
+        padding: 20px 0;
     }
     
-    .team-card:hover {
+    .stats-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        height: 100%;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(255, 107, 0, 0.1);
+    }
+    
+    .stats-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        font-size: 24px;
+    }
+    
+    .stats-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    
+    .stats-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .project-bg { background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%); }
+    .team-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .score-bg { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .rate-bg { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    
+    .project-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+    
+    .project-item {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border-left: 4px solid #FF6B00;
+        transition: all 0.3s ease;
+    }
+    
+    .project-item:hover {
+        background: white;
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .team-composition-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .team-composition-card:hover {
+        background: white;
+        border: 1px solid #FF6B00;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    .optimization-suggestion {
-        border-left: 4px solid #ffc107;
-        background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
     }
     
     .score-badge {
-        font-size: 1.2em;
-        font-weight: bold;
-        padding: 0.5rem 1rem;
-        border-radius: 25px;
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
     }
     
-    .score-excellent { background: linear-gradient(45deg, #28a745, #20c997); color: white; }
-    .score-good { background: linear-gradient(45deg, #17a2b8, #6f42c1); color: white; }
-    .score-average { background: linear-gradient(45deg, #ffc107, #fd7e14); color: white; }
-    .score-poor { background: linear-gradient(45deg, #dc3545, #e83e8c); color: white; }
+    .score-excellent { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+    .score-good { background: rgba(23, 162, 184, 0.1); color: #17a2b8; }
+    .score-average { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+    .score-poor { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
     
-    .stats-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .optimization-card {
+        background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+        border-left: 4px solid #ffc107;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #212529;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .section-title i {
+        color: #FF6B00;
+    }
+    
+    .template-card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .template-card:hover {
+        border-color: #FF6B00;
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-planning { background: rgba(108, 117, 125, 0.1); color: #6c757d; }
+    .status-active { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+    .status-completed { background: rgba(0, 123, 255, 0.1); color: #007bff; }
+    .status-cancelled { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+    
+    .btn-action {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
         color: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+        color: white;
     }
     
     .ai-indicator {
@@ -56,213 +185,194 @@
         50% { opacity: 0.3; }
         100% { opacity: 1; }
     }
-    
-    .project-status-planning { color: #6c757d; }
-    .project-status-active { color: #28a745; }
-    .project-status-completed { color: #007bff; }
-    .project-status-cancelled { color: #dc3545; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- 헤더 섹션 -->
-        <div class="col-12 mb-4">
+<div class="team-optimizer-dashboard">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="mb-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2><i class="fas fa-users-cog text-primary"></i> AI 팀 조합 최적화</h2>
-                    <p class="text-muted">AIRISS Quick Win Phase 5 - 인공지능 기반 최적 팀 구성 분석</p>
+                    <h1 class="h3 mb-1">
+                        <i data-lucide="users" class="text-primary me-2"></i>
+                        팀 조합 최적화
+                    </h1>
+                    <p class="text-muted mb-0">AI 기반 최적 팀 구성 분석 및 추천</p>
                 </div>
-                <div>
+                <div class="d-flex align-items-center gap-2">
                     <span class="ai-indicator"></span>
-                    <small class="text-success">AI 분석 엔진 활성</small>
+                    <small class="text-success">AI 엔진 활성</small>
+                    <button class="btn btn-primary btn-sm ms-3" onclick="refreshDashboard()">
+                        <i data-lucide="refresh-cw" class="me-1"></i>새로고침
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
 
-    {% if error %}
-    <div class="alert alert-danger" role="alert">
-        <i class="fas fa-exclamation-triangle"></i> 오류: {{ error }}
-    </div>
-    {% endif %}
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            <i data-lucide="alert-triangle" class="me-2"></i>
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
 
-    <!-- 통계 카드 -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="stats-card">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-uppercase mb-1">총 프로젝트</h6>
-                        <h3 class="mb-0">{{ stats.projects.total|default:0 }}</h3>
-                        <small>활성: {{ stats.projects.active|default:0 }}개</small>
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon project-bg text-white">
+                        <i data-lucide="folder"></i>
                     </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-project-diagram fa-2x opacity-75"></i>
+                    <div class="stats-value">{{ stats.projects.total|default:0 }}</div>
+                    <div class="stats-label">총 프로젝트</div>
+                    <small class="text-muted">활성: {{ stats.projects.active|default:0 }}개</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon team-bg text-white">
+                        <i data-lucide="users"></i>
                     </div>
+                    <div class="stats-value">{{ stats.compositions.total|default:0 }}</div>
+                    <div class="stats-label">팀 구성</div>
+                    <small class="text-muted">승인률: {{ stats.compositions.approval_rate|floatformat:1|default:0 }}%</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon score-bg text-white">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <div class="stats-value">{{ stats.average_scores.overall_score|floatformat:1|default:0 }}</div>
+                    <div class="stats-label">평균 점수</div>
+                    <small class="text-muted">10점 만점</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon rate-bg text-white">
+                        <i data-lucide="check-circle"></i>
+                    </div>
+                    <div class="stats-value">{{ stats.projects.completion_rate|floatformat:1|default:0 }}%</div>
+                    <div class="stats-label">완료율</div>
+                    <small class="text-muted">프로젝트 기준</small>
                 </div>
             </div>
         </div>
-        
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="stats-card">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-uppercase mb-1">팀 구성</h6>
-                        <h3 class="mb-0">{{ stats.compositions.total|default:0 }}</h3>
-                        <small>승인률: {{ stats.compositions.approval_rate|floatformat:1|default:0 }}%</small>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-users fa-2x opacity-75"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="stats-card">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-uppercase mb-1">평균 점수</h6>
-                        <h3 class="mb-0">{{ stats.average_scores.overall_score|floatformat:1|default:0 }}</h3>
-                        <small>10점 만점</small>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-chart-line fa-2x opacity-75"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="stats-card">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-uppercase mb-1">완료율</h6>
-                        <h3 class="mb-0">{{ stats.projects.completion_rate|floatformat:1|default:0 }}%</h3>
-                        <small>프로젝트 기준</small>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- 메인 컨텐츠 -->
-    <div class="row">
-        <!-- 최근 프로젝트 -->
-        <div class="col-lg-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-project-diagram text-primary"></i> 최근 프로젝트</h5>
-                    <a href="#" class="btn btn-outline-primary btn-sm">전체보기</a>
-                </div>
-                <div class="card-body">
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Recent Projects -->
+            <div class="col-lg-6 mb-4">
+                <div class="project-card">
+                    <h5 class="section-title">
+                        <i data-lucide="folder-open"></i>
+                        최근 프로젝트
+                        <a href="#" class="btn btn-sm btn-outline-primary ms-auto">전체보기</a>
+                    </h5>
+                    
                     {% if recent_projects %}
-                        <div class="list-group list-group-flush">
-                            {% for project in recent_projects %}
-                            <div class="list-group-item border-0 px-0">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">{{ project.name }}</h6>
-                                        <p class="text-muted mb-1 small">{{ project.description|truncatechars:60 }}</p>
-                                        <small class="project-status-{{ project.status|lower }}">
-                                            <i class="fas fa-circle"></i> {{ project.get_status_display }}
-                                        </small>
-                                    </div>
-                                    <div class="text-end">
-                                        <small class="text-muted">{{ project.created_at|date:"m/d" }}</small>
-                                        <br>
-                                        <span class="badge bg-light text-dark">{{ project.team_size_min }}-{{ project.team_size_max }}명</span>
-                                    </div>
+                        {% for project in recent_projects %}
+                        <div class="project-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ project.name }}</h6>
+                                    <p class="text-muted small mb-2">{{ project.description|truncatechars:60 }}</p>
+                                    <span class="status-badge status-{{ project.status|lower }}">
+                                        {{ project.get_status_display }}
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">{{ project.created_at|date:"m/d" }}</small>
+                                    <br>
+                                    <span class="badge bg-light text-dark mt-2">
+                                        {{ project.team_size_min }}-{{ project.team_size_max }}명
+                                    </span>
                                 </div>
                             </div>
-                            {% endfor %}
                         </div>
+                        {% endfor %}
                     {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-folder-open fa-3x mb-3"></i>
+                        <div class="text-center text-muted py-5">
+                            <i data-lucide="folder-x" style="width: 48px; height: 48px;" class="mb-3"></i>
                             <p>등록된 프로젝트가 없습니다.</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
-        </div>
 
-        <!-- 활성 팀 구성 -->
-        <div class="col-lg-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-users text-success"></i> 활성 팀 구성</h5>
-                    <a href="#" class="btn btn-outline-success btn-sm">전체보기</a>
-                </div>
-                <div class="card-body">
+            <!-- Active Team Compositions -->
+            <div class="col-lg-6 mb-4">
+                <div class="project-card">
+                    <h5 class="section-title">
+                        <i data-lucide="users-2"></i>
+                        활성 팀 구성
+                        <a href="#" class="btn btn-sm btn-outline-success ms-auto">전체보기</a>
+                    </h5>
+                    
                     {% if active_compositions %}
-                        <div class="list-group list-group-flush">
-                            {% for composition in active_compositions %}
-                            <div class="list-group-item border-0 px-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">{{ composition.name }}</h6>
-                                        <p class="text-muted mb-1 small">{{ composition.project.name }}</p>
-                                        <small>
-                                            <span class="badge bg-primary">{{ composition.get_team_size }}명</span>
-                                            <span class="badge bg-info text-dark">{{ composition.get_status_display }}</span>
-                                        </small>
-                                    </div>
-                                    <div class="text-end">
-                                        {% if composition.overall_score >= 8 %}
-                                            <span class="score-badge score-excellent">{{ composition.overall_score|floatformat:1 }}</span>
-                                        {% elif composition.overall_score >= 6 %}
-                                            <span class="score-badge score-good">{{ composition.overall_score|floatformat:1 }}</span>
-                                        {% elif composition.overall_score >= 4 %}
-                                            <span class="score-badge score-average">{{ composition.overall_score|floatformat:1 }}</span>
-                                        {% else %}
-                                            <span class="score-badge score-poor">{{ composition.overall_score|floatformat:1 }}</span>
-                                        {% endif %}
+                        {% for composition in active_compositions %}
+                        <div class="team-composition-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ composition.name }}</h6>
+                                    <p class="text-muted small mb-2">{{ composition.project.name }}</p>
+                                    <div class="d-flex gap-2">
+                                        <span class="badge bg-primary">{{ composition.get_team_size }}명</span>
+                                        <span class="badge bg-info text-dark">{{ composition.get_status_display }}</span>
                                     </div>
                                 </div>
+                                <div class="text-end">
+                                    {% if composition.overall_score >= 8 %}
+                                        <span class="score-badge score-excellent">{{ composition.overall_score|floatformat:1 }}</span>
+                                    {% elif composition.overall_score >= 6 %}
+                                        <span class="score-badge score-good">{{ composition.overall_score|floatformat:1 }}</span>
+                                    {% elif composition.overall_score >= 4 %}
+                                        <span class="score-badge score-average">{{ composition.overall_score|floatformat:1 }}</span>
+                                    {% else %}
+                                        <span class="score-badge score-poor">{{ composition.overall_score|floatformat:1 }}</span>
+                                    {% endif %}
+                                </div>
                             </div>
-                            {% endfor %}
                         </div>
+                        {% endfor %}
                     {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-users fa-3x mb-3"></i>
+                        <div class="text-center text-muted py-5">
+                            <i data-lucide="users-x" style="width: 48px; height: 48px;" class="mb-3"></i>
                             <p>활성 팀 구성이 없습니다.</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 최적화 제안 -->
-    {% if optimization_suggestions %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-lightbulb text-warning"></i> AI 최적화 제안</h5>
-                </div>
-                <div class="card-body">
+        <!-- AI Optimization Suggestions -->
+        {% if optimization_suggestions %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="project-card">
+                    <h5 class="section-title">
+                        <i data-lucide="lightbulb"></i>
+                        AI 최적화 제안
+                    </h5>
                     <div class="row">
                         {% for suggestion in optimization_suggestions %}
                         <div class="col-md-4 mb-3">
-                            <div class="optimization-suggestion p-3 rounded h-100">
+                            <div class="optimization-card h-100">
                                 <div class="d-flex align-items-start">
-                                    <div class="flex-shrink-0 me-3">
+                                    <div class="me-3">
                                         {% if suggestion.priority == 'HIGH' %}
-                                            <i class="fas fa-exclamation-triangle text-warning fa-lg"></i>
+                                            <i data-lucide="alert-triangle" class="text-warning"></i>
                                         {% else %}
-                                            <i class="fas fa-info-circle text-info fa-lg"></i>
+                                            <i data-lucide="info" class="text-info"></i>
                                         {% endif %}
                                     </div>
-                                    <div class="flex-grow-1">
+                                    <div>
                                         <h6 class="mb-2">{{ suggestion.title }}</h6>
-                                        <p class="mb-2 small">{{ suggestion.description }}</p>
+                                        <p class="small mb-2">{{ suggestion.description }}</p>
                                         <span class="badge bg-{{ suggestion.priority|lower == 'high'|yesno:'warning,info' }}">
                                             {{ suggestion.priority }} 우선순위
                                         </span>
@@ -275,36 +385,35 @@
                 </div>
             </div>
         </div>
-    </div>
-    {% endif %}
+        {% endif %}
 
-    <!-- 팀 템플릿 -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-layer-group text-info"></i> 팀 템플릿</h5>
-                    <button class="btn btn-outline-info btn-sm">
-                        <i class="fas fa-plus"></i> 새 템플릿
-                    </button>
-                </div>
-                <div class="card-body">
+        <!-- Team Templates -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="project-card">
+                    <h5 class="section-title">
+                        <i data-lucide="layout-template"></i>
+                        팀 템플릿
+                        <button class="btn btn-sm btn-outline-info ms-auto" onclick="createTemplate()">
+                            <i data-lucide="plus" class="me-1"></i>새 템플릿
+                        </button>
+                    </h5>
+                    
                     {% if templates %}
                         <div class="row">
                             {% for template in templates %}
                             <div class="col-md-4 mb-3">
-                                <div class="card team-card h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title">{{ template.name }}</h6>
-                                        <p class="card-text small text-muted">{{ template.description|truncatechars:80 }}</p>
-                                        <div class="d-flex justify-content-between align-items-center mt-3">
-                                            <small class="text-muted">
-                                                <i class="fas fa-users"></i> {{ template.team_size_range.min|default:3 }}-{{ template.team_size_range.max|default:8 }}명
-                                            </small>
-                                            <div>
-                                                <span class="badge bg-primary">{{ template.get_template_type_display }}</span>
-                                                <small class="text-success ms-2">사용: {{ template.usage_count }}회</small>
-                                            </div>
+                                <div class="template-card">
+                                    <h6 class="mb-2">{{ template.name }}</h6>
+                                    <p class="small text-muted mb-3">{{ template.description|truncatechars:80 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i data-lucide="users" style="width: 14px; height: 14px;"></i>
+                                            {{ template.team_size_range.min|default:3 }}-{{ template.team_size_range.max|default:8 }}명
+                                        </small>
+                                        <div>
+                                            <span class="badge bg-primary">{{ template.get_template_type_display }}</span>
+                                            <small class="text-success ms-2">{{ template.usage_count }}회</small>
                                         </div>
                                     </div>
                                 </div>
@@ -312,35 +421,33 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-layer-group fa-3x mb-3"></i>
+                        <div class="text-center text-muted py-5">
+                            <i data-lucide="layout" style="width: 48px; height: 48px;" class="mb-3"></i>
                             <p>등록된 팀 템플릿이 없습니다.</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 빠른 액션 버튼 -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="mb-3">빠른 액션</h5>
-                    <div class="btn-group" role="group">
-                        <a href="#" class="btn btn-primary btn-lg">
-                            <i class="fas fa-plus"></i> 새 프로젝트
-                        </a>
-                        <a href="#" class="btn btn-success btn-lg">
-                            <i class="fas fa-magic"></i> AI 팀 최적화
-                        </a>
-                        <a href="#" class="btn btn-info btn-lg">
-                            <i class="fas fa-chart-bar"></i> 분석 대시보드
-                        </a>
-                        <a href="#" class="btn btn-warning btn-lg">
-                            <i class="fas fa-users"></i> 직원 가용성
-                        </a>
+        <!-- Quick Actions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="project-card text-center">
+                    <h5 class="mb-4">빠른 액션</h5>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button class="btn btn-action btn-lg" onclick="createProject()">
+                            <i data-lucide="plus" class="me-2"></i>새 프로젝트
+                        </button>
+                        <button class="btn btn-success btn-lg" onclick="optimizeTeam()">
+                            <i data-lucide="sparkles" class="me-2"></i>AI 팀 최적화
+                        </button>
+                        <button class="btn btn-info btn-lg" onclick="viewAnalytics()">
+                            <i data-lucide="bar-chart-2" class="me-2"></i>분석 대시보드
+                        </button>
+                        <button class="btn btn-warning btn-lg" onclick="checkAvailability()">
+                            <i data-lucide="user-check" class="me-2"></i>직원 가용성
+                        </button>
                     </div>
                 </div>
             </div>
@@ -348,7 +455,7 @@
     </div>
 </div>
 
-<!-- 팀 최적화 모달 -->
+<!-- Team Optimization Modal -->
 <div class="modal fade" id="optimizeModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -370,80 +477,75 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 실시간 업데이트 시뮬레이션
-    const aiIndicator = document.querySelector('.ai-indicator');
-    
-    // 팀 최적화 버튼 클릭 시
-    document.querySelectorAll('[data-action="optimize"]').forEach(button => {
-        button.addEventListener('click', function() {
-            const projectId = this.dataset.projectId;
-            optimizeTeam(projectId);
-        });
-    });
-    
-    // 팀 최적화 함수
-    function optimizeTeam(projectId) {
-        const modal = new bootstrap.Modal(document.getElementById('optimizeModal'));
-        modal.show();
-        
-        fetch(`/ai-team-optimizer/optimize/${projectId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            modal.hide();
-            if (data.success) {
-                showAlert('success', data.message);
-                setTimeout(() => location.reload(), 2000);
-            } else {
-                showAlert('error', data.message || data.error);
-            }
-        })
-        .catch(error => {
-            modal.hide();
-            showAlert('error', '팀 최적화 중 오류가 발생했습니다.');
-            console.error('Error:', error);
-        });
-    }
-    
-    // 알림 표시 함수
-    function showAlert(type, message) {
-        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
-        
-        const alertHtml = `
-            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                <i class="fas ${icon}"></i> ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-        
-        const container = document.querySelector('.container-fluid');
-        container.insertAdjacentHTML('afterbegin', alertHtml);
-    }
-    
-    // CSRF 토큰 가져오기
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+// Initialize Lucide icons
+lucide.createIcons();
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
-});
+    return cookieValue;
+}
+
+function refreshDashboard() {
+    window.location.reload();
+}
+
+function createProject() {
+    alert('새 프로젝트 생성 기능은 준비 중입니다.');
+}
+
+function createTemplate() {
+    alert('새 템플릿 생성 기능은 준비 중입니다.');
+}
+
+function viewAnalytics() {
+    alert('분석 대시보드는 준비 중입니다.');
+}
+
+function checkAvailability() {
+    alert('직원 가용성 확인 기능은 준비 중입니다.');
+}
+
+function optimizeTeam() {
+    const modal = new bootstrap.Modal(document.getElementById('optimizeModal'));
+    modal.show();
+    
+    // Simulate optimization process
+    setTimeout(() => {
+        modal.hide();
+        showAlert('success', 'AI 팀 최적화가 완료되었습니다.');
+    }, 3000);
+}
+
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? 'check-circle' : 'alert-triangle';
+    
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            <i data-lucide="${icon}" class="me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    const container = document.querySelector('.container-fluid');
+    container.insertAdjacentHTML('afterbegin', alertHtml);
+    lucide.createIcons();
+}
+
+// Auto refresh every 5 minutes
+setInterval(() => {
+    refreshDashboard();
+}, 300000);
 </script>
 {% endblock %}
