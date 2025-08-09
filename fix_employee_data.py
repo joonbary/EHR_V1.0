@@ -29,7 +29,7 @@ def fix_employee_data():
     print(f"  - 이름이 없는 직원: {bad_count}명")
     
     # 삭제 대신 업데이트할 예정
-    print(f"  📝 {bad_count}명을 업데이트 예정")
+    print(f"  -> {bad_count}명을 업데이트 예정")
     
     # 정상 데이터 재업로드
     print("\n[2단계] 정상 데이터 업로드")
@@ -44,7 +44,7 @@ def fix_employee_data():
     
     for file_path in excel_files:
         if not os.path.exists(file_path):
-            print(f"  ❌ 파일 없음: {file_path}")
+            print(f"  [주의] 파일 없음: {file_path}")
             continue
         
         print(f"\n  파일 처리: {file_path}")
@@ -219,10 +219,10 @@ def fix_employee_data():
                         print(f"    오류 (행 {idx}): {e}")
                         continue
             
-            print(f"    ✅ 완료 - 생성: {total_created}, 업데이트: {total_updated}")
+            print(f"    [완료] - 생성: {total_created}, 업데이트: {total_updated}")
             
         except Exception as e:
-            print(f"  ❌ 파일 처리 오류: {e}")
+            print(f"  [오류] 파일 처리 오류: {e}")
     
     # 최종 점검
     print("\n[3단계] 최종 점검")
