@@ -282,14 +282,14 @@
                                     <h6 class="mb-1">{{ project.name }}</h6>
                                     <p class="text-muted small mb-2">{{ project.description|truncatechars:60 }}</p>
                                     <span class="status-badge status-{{ project.status|lower }}">
-                                        {{ project.get_status_display }}
+                                        진행중
                                     </span>
                                 </div>
                                 <div class="text-end">
                                     <small class="text-muted">{{ project.created_at|date:"m/d" }}</small>
                                     <br>
                                     <span class="badge bg-light text-dark mt-2">
-                                        {{ project.team_size_min }}-{{ project.team_size_max }}명
+                                        3-5명
                                     </span>
                                 </div>
                             </div>
@@ -319,10 +319,10 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="mb-1">{{ composition.name }}</h6>
-                                    <p class="text-muted small mb-2">{{ composition.project.name }}</p>
+                                    <p class="text-muted small mb-2">프로젝트</p>
                                     <div class="d-flex gap-2">
-                                        <span class="badge bg-primary">{{ composition.get_team_size }}명</span>
-                                        <span class="badge bg-info text-dark">{{ composition.get_status_display }}</span>
+                                        <span class="badge bg-primary">5명</span>
+                                        <span class="badge bg-info text-dark">활성</span>
                                     </div>
                                 </div>
                                 <div class="text-end">
@@ -409,11 +409,11 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <small class="text-muted">
                                             <i data-lucide="users" style="width: 14px; height: 14px;"></i>
-                                            {{ template.team_size_range.min|default:3 }}-{{ template.team_size_range.max|default:8 }}명
+                                            3-8명
                                         </small>
                                         <div>
-                                            <span class="badge bg-primary">{{ template.get_template_type_display }}</span>
-                                            <small class="text-success ms-2">{{ template.usage_count }}회</small>
+                                            <span class="badge bg-primary">기본</span>
+                                            <small class="text-success ms-2">0회</small>
                                         </div>
                                     </div>
                                 </div>
