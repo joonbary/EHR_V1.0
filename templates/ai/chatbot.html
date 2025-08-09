@@ -1,39 +1,49 @@
-{% extends "ai_base.html" %}
+{% extends "base_revolutionary.html" %}
 {% load static %}
 
 {% block title %}AI 챗봇 - OK금융그룹{% endblock %}
 
+{% block page_header %}AI Intelligence Hub{% endblock %}
+{% block content_title %}AI 챗봇 어시스턴트{% endblock %}
+{% block page_subtitle %}
+<p class="page-subtitle">
+    차세대 AI 기반 HR 질의응답 시스템
+</p>
+{% endblock %}
+
 {% block extra_css %}
 <style>
-/* AI 테마 색상 변수 */
+/* Revolutionary AI 테마 색상 변수 */
 :root {
-    --ai-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --ai-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --ai-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --ai-text: #2d3748;
-    --ai-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --message-bg: rgba(255, 255, 255, 0.95);
-    --user-msg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --ai-msg: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    --ai-primary: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    --ai-secondary: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+    --ai-accent: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+    --ai-text: #ffffff;
+    --ai-bg: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
+    --message-bg: rgba(0, 0, 0, 0.3);
+    --user-msg: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    --ai-msg: rgba(255, 255, 255, 0.05);
 }
 
 .chatbot-container {
-    height: calc(100vh - 120px);
+    height: calc(100vh - 280px);
     display: flex;
     flex-direction: column;
     padding: 24px;
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    background: transparent;
 }
 
 .chat-header {
     background: var(--ai-bg);
+    border: 1px solid rgba(0, 212, 255, 0.3);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 24px;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
-    color: white;
+    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+    color: #00d4ff;
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(10px);
 }
 
 .chat-header::before {
@@ -82,8 +92,9 @@
 .chat-window {
     flex: 1;
     background: var(--message-bg);
+    border: 1px solid rgba(0, 212, 255, 0.2);
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -94,7 +105,7 @@
     flex: 1;
     padding: 24px;
     overflow-y: auto;
-    background: linear-gradient(135deg, #fafbfc 0%, #f4f6f8 100%);
+    background: rgba(0, 0, 0, 0.2);
     position: relative;
 }
 
@@ -148,17 +159,18 @@
 
 .message.user .message-content {
     background: var(--user-msg);
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    color: #000;
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
     border-bottom-right-radius: 6px;
 }
 
 .message.assistant .message-content {
     background: var(--ai-msg);
-    border: 1px solid rgba(102, 126, 234, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.1);
     border-bottom-left-radius: 6px;
     position: relative;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .message.assistant .message-content::before {
@@ -186,8 +198,8 @@
 
 .chat-input {
     padding: 24px;
-    background: white;
-    border-top: 1px solid rgba(102, 126, 234, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .input-group {
@@ -199,32 +211,37 @@
 .chat-input input {
     flex: 1;
     padding: 16px 24px;
-    border: 2px solid rgba(102, 126, 234, 0.2);
+    border: 2px solid rgba(0, 212, 255, 0.3);
     border-radius: 25px;
     outline: none;
     font-size: 16px;
     transition: all 0.3s ease;
-    background: rgba(247, 250, 252, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
 }
 
 .chat-input input:focus {
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    border-color: #00d4ff;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2);
     transform: translateY(-1px);
+}
+
+.chat-input input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .chat-input button {
     padding: 16px 28px;
-    background: var(--ai-bg);
-    color: white;
+    background: var(--ai-primary);
+    color: #000;
     border: none;
     border-radius: 25px;
     cursor: pointer;
     font-weight: 600;
     font-size: 16px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -232,7 +249,7 @@
 
 .chat-input button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
 }
 
 .chat-input button::after {
@@ -251,20 +268,20 @@
     display: inline-flex;
     align-items: center;
     padding: 10px 16px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 147, 251, 0.1) 100%);
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.3);
     border-radius: 20px;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
-    color: var(--ai-text);
+    color: #00d4ff;
 }
 
 .suggestion-chip:hover {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(240, 147, 251, 0.2) 100%);
+    background: rgba(0, 212, 255, 0.2);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
 }
 
 .suggestion-chip::before {
@@ -281,7 +298,7 @@
 
 .typing-indicator::before {
     content: '🤖 생각하는 중';
-    color: #667eea;
+    color: #00d4ff;
     font-weight: 500;
     margin-right: 12px;
 }
@@ -291,7 +308,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
     margin: 0 3px;
     animation: typing 1.4s ease-in-out infinite;
 }
@@ -321,12 +338,12 @@
 }
 
 .chat-messages::-webkit-scrollbar-track {
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(0, 212, 255, 0.1);
     border-radius: 3px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-    background: var(--ai-bg);
+    background: var(--ai-primary);
     border-radius: 3px;
 }
 
@@ -346,10 +363,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="chatbot-container">
+<div class="chatbot-container landing-card">
     <div class="chat-header">
-        <h2>HR AI 어시스턴트</h2>
-        <p class="text-muted">인사 관련 질문에 대해 AI가 도움을 드립니다.</p>
+        <h2>🤖 HR AI 어시스턴트</h2>
+        <p style="color: rgba(255, 255, 255, 0.8);">차세대 AI 기반 인사 질의응답 시스템으로 혁신적인 HR 경험을 제공합니다.</p>
     </div>
 
     <div class="chat-window">
@@ -357,9 +374,12 @@
             <!-- 환영 메시지 -->
             <div class="message assistant">
                 <div>
-                    <div class="message-content">안녕하세요! OK금융그룹 HR AI 어시스턴트입니다.
-인사 정책, 복리후생, 평가, 교육 등에 대해 궁금하신 점을 질문해 주세요.</div>
-                    <div class="message-time">오전 9:00</div>
+                    <div class="message-content">🌟 안녕하세요! OK Financial Group의 차세대 AI 어시스턴트입니다.
+
+혁신적인 AI 기술로 인사 정책, 복리후생, 성과평가, 교육 프로그램 등 모든 HR 관련 질문에 대해 정확하고 신속한 답변을 제공합니다.
+
+💡 무엇을 도와드릴까요?</div>
+                    <div class="message-time">온라인</div>
                 </div>
             </div>
         </div>
@@ -378,17 +398,20 @@
             </div>
             
             <div class="suggested-questions">
-                <div class="suggestion-chip" onclick="askQuestion('연차 사용 규정이 어떻게 되나요?')">
-                    연차 사용 규정
+                <div class="suggestion-chip" onclick="askQuestion('AI 기반 성과평가 시스템을 알려주세요')">
+                    🎯 AI 성과평가 시스템
                 </div>
-                <div class="suggestion-chip" onclick="askQuestion('평가 프로세스에 대해 설명해주세요')">
-                    평가 프로세스
+                <div class="suggestion-chip" onclick="askQuestion('스마트 워크 정책과 디지털 근무환경은?')">
+                    💼 스마트 워크 정책
                 </div>
-                <div class="suggestion-chip" onclick="askQuestion('교육 프로그램 신청은 어떻게 하나요?')">
-                    교육 신청 방법
+                <div class="suggestion-chip" onclick="askQuestion('개인화된 학습 경로 추천을 받고 싶습니다')">
+                    🚀 개인화 학습 추천
                 </div>
-                <div class="suggestion-chip" onclick="askQuestion('재택근무 정책이 궁금합니다')">
-                    재택근무 정책
+                <div class="suggestion-chip" onclick="askQuestion('팀 시너지 분석과 조직 최적화는?')">
+                    ⚡ 팀 시너지 분석
+                </div>
+                <div class="suggestion-chip" onclick="askQuestion('AI 예측 분석으로 이직위험도를 확인하고 싶어요')">
+                    📊 이직위험도 예측
                 </div>
             </div>
         </div>
