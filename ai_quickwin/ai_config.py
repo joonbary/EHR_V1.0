@@ -170,18 +170,18 @@ class AIServiceClient:
             raise ValueError(f"지원하지 않는 프로바이더: {self.config.provider}")
     
     def _call_openai(self, prompt: str, system_prompt: Optional[str] = None, **kwargs) -> str:
-        """OpenAI API 호출"""
+        """OpenAI API 호출 (v1.0+ 호환)"""
         try:
-            import openai
+            from openai import OpenAI
             
-            openai.api_key = self.config.api_key
+            client = OpenAI(api_key=self.config.api_key)
             
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
             
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model=self.config.model_name,
                 messages=messages,
                 temperature=kwargs.get('temperature', self.config.temperature),
@@ -244,22 +244,23 @@ class AIServiceClient:
             raise
     
     def _call_azure(self, prompt: str, system_prompt: Optional[str] = None, **kwargs) -> str:
-        """Azure OpenAI API 호출"""
+        """Azure OpenAI API 호출 (v1.0+ 호환)"""
         try:
-            import openai
+            from openai import AzureOpenAI
             
-            openai.api_type = "azure"
-            openai.api_key = self.config.api_key
-            openai.api_base = self.config.endpoint
-            openai.api_version = os.getenv('AZURE_OPENAI_API_VERSION', '2024-02-15-preview')
+            client = AzureOpenAI(
+                api_key=self.config.api_key,
+                api_version=os.getenv('AZURE_OPENAI_API_VERSION', '2024-02-15-preview'),
+                azure_endpoint=self.config.endpoint
+            )
             
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
             
-            response = openai.ChatCompletion.create(
-                engine=self.config.model_name,
+            response = client.chat.completions.create(
+                model=self.config.model_name,
                 messages=messages,
                 temperature=kwargs.get('temperature', self.config.temperature),
                 max_tokens=kwargs.get('max_tokens', self.config.max_tokens)
