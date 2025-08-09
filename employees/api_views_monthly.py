@@ -75,8 +75,9 @@ def get_monthly_workforce_data(request):
                 'positions': []
             }
             for pos in company['positions']:
-                if pos != '계' or row['is_total']:
-                    count = random.randint(0, 20) if not row['is_total'] else 0
+                is_total = row.get('is_total', False)
+                if pos != '계' or is_total:
+                    count = random.randint(0, 20) if not is_total else 0
                     company_data['positions'].append({
                         'position': pos,
                         'count': count
