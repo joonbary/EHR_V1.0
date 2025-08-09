@@ -44,7 +44,8 @@
       "Bash(railway logs:*)",
       "Bash(del \"C:\\Users\\apro\\OneDrive\\Desktop\\EHR_V1.0\\templates\\login.html\")",
       "Bash(del db.sqlite3)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }

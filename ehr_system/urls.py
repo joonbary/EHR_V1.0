@@ -11,8 +11,11 @@ urlpatterns = [
     
     # 인증 URL - 제거됨
     
+    # 랜딩 페이지 (프레젠테이션용)
+    path('', TemplateView.as_view(template_name='landing_showcase.html'), name='landing'),
+    
     # 메인 대시보드
-    path('', DashboardView.as_view(), name='home'),
+    path('home/', DashboardView.as_view(), name='home'),
     path('dashboard/', include('dashboard.urls')),  # 대시보드 하위 메뉴
     
     # 앱별 URL
