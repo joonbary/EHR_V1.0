@@ -37,7 +37,7 @@ def compensation_dashboard(request):
             'grade_stats': [],
             'no_data': True
         }
-        return render(request, 'compensation/dashboard.html', context)
+        return render(request, 'compensation/dashboard_revolutionary.html', context)
     
     try:
         # 기본 통계
@@ -180,7 +180,7 @@ def compensation_dashboard(request):
             'position_data': json.dumps(position_data),
             }
         
-        return render(request, 'compensation/dashboard.html', context)
+        return render(request, 'compensation/dashboard_revolutionary.html', context)
         
     except Exception as e:
         # Handle any database errors
@@ -193,7 +193,7 @@ def compensation_dashboard(request):
             'no_data': True,
             'error_message': str(e)
         }
-        return render(request, 'compensation/dashboard.html', context)
+        return render(request, 'compensation/dashboard_revolutionary.html', context)
 
 
 def api_compensation_summary(request):

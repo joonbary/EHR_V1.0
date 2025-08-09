@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class AIExecutiveDashboard(TemplateView):
     """AI 경영진 대시보드"""
-    template_name = 'ai_insights/executive_dashboard.html'
+    template_name = 'ai_insights/executive_dashboard_revolutionary.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

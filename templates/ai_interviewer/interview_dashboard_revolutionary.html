@@ -1,0 +1,342 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 면접관 - 채용 면접 자동화 시스템{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Interview specific styles */
+    .interview-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .interview-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #00d4ff, #0099cc, #00d4ff);
+        border-radius: 20px;
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s ease;
+    }
+
+    .interview-card:hover::before {
+        opacity: 0.3;
+    }
+
+    .session-timeline {
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 15px;
+        padding: 1.5rem;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 3rem;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: -2rem;
+        width: 2px;
+        background: linear-gradient(180deg, #00d4ff, transparent);
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #0a0f1b;
+        border: 3px solid #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .ai-personality {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 204, 0.1));
+        border-radius: 30px;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .question-flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .question-card {
+        background: rgba(0, 212, 255, 0.05);
+        padding: 1rem;
+        border-radius: 15px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .question-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    }
+
+    .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem 0.8rem;
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid rgba(255, 0, 0, 0.3);
+        border-radius: 20px;
+        animation: live-pulse 2s infinite;
+    }
+
+    @keyframes live-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
+    .live-indicator::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ff0000;
+        animation: blink 1s infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">AI 면접관</span>
+            </h1>
+            <p class="hero-subtitle">차세대 AI 기반 채용 면접 자동화 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ stats.total_sessions|default:"0" }}</div>
+                    <div class="stat-label">총 면접 세션</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ active_sessions|length|default:"0" }}</div>
+                    <div class="stat-label">진행중 면접</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff5252);">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ stats.avg_ai_accuracy|default:"95" }}%</div>
+                    <div class="stat-label">AI 정확도</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ stats.avg_duration|default:"25" }}분</div>
+                    <div class="stat-label">평균 면접시간</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Interview Sessions -->
+    {% if active_sessions %}
+    <div class="interview-card mb-4">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-broadcast-tower me-2"></i>진행중인 면접
+        </h3>
+        <div class="row g-3">
+            {% for session in active_sessions %}
+            <div class="col-md-6">
+                <div class="question-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 style="color: #fff;">{{ session.candidate_name }}</h5>
+                        <span class="live-indicator">LIVE</span>
+                    </div>
+                    <p class="text-muted mb-2">{{ session.job_profile.title }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="ai-personality">
+                            <i class="fas fa-robot"></i>
+                            {{ session.get_ai_personality_display }}
+                        </span>
+                        <a href="{% url 'ai_interviewer:live_interview' session.session_id %}" 
+                           class="btn btn-sm btn-gradient">
+                            <i class="fas fa-video me-1"></i>참여하기
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Interview Templates -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-8">
+            <div class="interview-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-clipboard-list me-2"></i>면접 템플릿
+                </h3>
+                <div class="question-flow">
+                    {% for template in templates %}
+                    <div class="question-card">
+                        <h5 style="color: #fff; font-size: 1rem;">{{ template.name }}</h5>
+                        <p class="text-muted small mb-2">{{ template.description|truncatewords:10 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="badge bg-primary">{{ template.usage_count }}회 사용</span>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">등록된 템플릿이 없습니다.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="interview-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-history me-2"></i>최근 면접
+                </h3>
+                <div class="session-timeline">
+                    {% for session in recent_sessions %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h6 style="color: #fff;">{{ session.candidate_name }}</h6>
+                            <p class="text-muted small mb-1">{{ session.job_profile.title }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-{{ session.status|lower }}">
+                                    {{ session.get_status_display }}
+                                </span>
+                                <small class="text-muted">{{ session.created_at|timesince }} 전</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">최근 면접이 없습니다.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="interview-card">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-bolt me-2"></i>빠른 실행
+        </h3>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <button class="btn btn-gradient w-100" onclick="createNewSession()">
+                    <i class="fas fa-plus-circle me-2"></i>새 면접 시작
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="viewTemplates()">
+                    <i class="fas fa-file-alt me-2"></i>템플릿 관리
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="viewAnalytics()">
+                    <i class="fas fa-chart-bar me-2"></i>분석 리포트
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="generateTemplates()">
+                    <i class="fas fa-magic me-2"></i>AI 템플릿 생성
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function createNewSession() {
+    // 새 면접 세션 생성 로직
+    console.log('Creating new interview session...');
+}
+
+function viewTemplates() {
+    window.location.href = "{% url 'ai_interviewer:template_list' %}";
+}
+
+function viewAnalytics() {
+    // 분석 페이지로 이동
+    console.log('Viewing analytics...');
+}
+
+function generateTemplates() {
+    fetch("{% url 'ai_interviewer:api_generate_templates' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('AI 템플릿이 성공적으로 생성되었습니다!');
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}
