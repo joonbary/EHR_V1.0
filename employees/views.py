@@ -22,7 +22,7 @@ from django.db.models import Q
 
 class EmployeeListView(ListView):
     model = Employee
-    template_name = 'employees/employee_list.html'
+    template_name = 'employees/employee_list_revolutionary.html'
     context_object_name = 'employees'
     paginate_by = 20
     

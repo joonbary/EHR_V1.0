@@ -1,0 +1,392 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}채용 관리 대시보드{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Recruitment specific styles */
+    .recruitment-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .job-posting-card {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .job-posting-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        background: rgba(0, 212, 255, 0.1);
+    }
+
+    .applicant-card {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent);
+        border-left: 3px solid #00d4ff;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .applicant-card:hover {
+        transform: translateX(10px);
+        background: rgba(0, 212, 255, 0.1);
+    }
+
+    .stage-pipeline {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .stage-pipeline::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #00d4ff, #00ff88);
+        z-index: 0;
+    }
+
+    .stage-item {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        flex: 1;
+    }
+
+    .stage-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #0a0f1b;
+        border: 3px solid #00d4ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        font-weight: bold;
+        color: #00d4ff;
+    }
+
+    .stage-item.active .stage-circle {
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        color: white;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .interview-schedule {
+        background: rgba(0, 255, 136, 0.05);
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .interview-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem 0.8rem;
+        background: rgba(0, 255, 136, 0.2);
+        border-radius: 20px;
+        color: #00ff88;
+        font-size: 0.9rem;
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-open {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+        border: 1px solid #00ff88;
+    }
+
+    .status-closed {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff4444;
+        border: 1px solid #ff4444;
+    }
+
+    .status-draft {
+        background: rgba(255, 187, 51, 0.2);
+        color: #ffbb33;
+        border: 1px solid #ffbb33;
+    }
+
+    .urgency-indicator {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ff4444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .application-flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .flow-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 15px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .flow-number {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">채용 관리</span>
+            </h1>
+            <p class="hero-subtitle">스마트 채용 프로세스 관리 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ active_postings|default:"0" }}</div>
+                    <div class="stat-label">진행중 공고</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ total_applications|default:"0" }}</div>
+                    <div class="stat-label">총 지원자</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ scheduled_interviews|default:"0" }}</div>
+                    <div class="stat-label">예정 면접</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ pending_applications|default:"0" }}</div>
+                    <div class="stat-label">검토 대기</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recruitment Pipeline -->
+    <div class="recruitment-card mb-4">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-tasks me-2"></i>채용 프로세스 현황
+        </h3>
+        <div class="stage-pipeline">
+            <div class="stage-item active">
+                <div class="stage-circle">{{ stage_stats.applied|default:"0" }}</div>
+                <div class="text-muted">지원서 접수</div>
+            </div>
+            <div class="stage-item">
+                <div class="stage-circle">{{ stage_stats.screening|default:"0" }}</div>
+                <div class="text-muted">서류 심사</div>
+            </div>
+            <div class="stage-item">
+                <div class="stage-circle">{{ stage_stats.interview|default:"0" }}</div>
+                <div class="text-muted">면접 진행</div>
+            </div>
+            <div class="stage-item">
+                <div class="stage-circle">{{ stage_stats.final|default:"0" }}</div>
+                <div class="text-muted">최종 심사</div>
+            </div>
+            <div class="stage-item">
+                <div class="stage-circle">{{ stage_stats.hired|default:"0" }}</div>
+                <div class="text-muted">채용 완료</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Active Job Postings -->
+        <div class="col-md-8">
+            <div class="recruitment-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 style="color: #00d4ff;">
+                        <i class="fas fa-bullhorn me-2"></i>진행중인 채용공고
+                    </h3>
+                    <button class="btn btn-gradient btn-sm" onclick="createJobPosting()">
+                        <i class="fas fa-plus me-1"></i>새 공고
+                    </button>
+                </div>
+                
+                {% for posting in active_job_postings %}
+                <div class="job-posting-card" onclick="viewPosting({{ posting.id }})">
+                    {% if posting.is_urgent %}
+                    <div class="urgency-indicator">!</div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 style="color: #fff;">{{ posting.title }}</h5>
+                            <p class="text-muted mb-2">{{ posting.department }} | {{ posting.location }}</p>
+                            <div class="application-flow">
+                                <div class="flow-item">
+                                    <div class="flow-number">{{ posting.application_count|default:"0" }}</div>
+                                    <small class="text-muted">지원자</small>
+                                </div>
+                                <div class="flow-item">
+                                    <div class="flow-number">{{ posting.views|default:"0" }}</div>
+                                    <small class="text-muted">조회수</small>
+                                </div>
+                                <div class="flow-item">
+                                    <div class="flow-number">{{ posting.days_remaining|default:"0" }}</div>
+                                    <small class="text-muted">남은 일수</small>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="status-badge status-{{ posting.status }}">
+                            {{ posting.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">진행중인 채용공고가 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Today's Interviews & Recent Applications -->
+        <div class="col-md-4">
+            <!-- Today's Interviews -->
+            <div class="recruitment-card mb-4">
+                <h4 class="mb-3" style="color: #00d4ff;">
+                    <i class="fas fa-calendar-day me-2"></i>오늘의 면접
+                </h4>
+                {% for interview in today_interviews %}
+                <div class="interview-schedule">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 style="color: #fff;">{{ interview.application.applicant.name }}</h6>
+                        <span class="interview-time">
+                            <i class="fas fa-clock"></i>
+                            {{ interview.scheduled_date|date:"H:i" }}
+                        </span>
+                    </div>
+                    <p class="text-muted small mb-1">{{ interview.application.job_posting.title }}</p>
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-map-marker-alt me-1"></i>{{ interview.location|default:"온라인" }}
+                    </p>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">오늘 예정된 면접이 없습니다.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Recent Applications -->
+            <div class="recruitment-card">
+                <h4 class="mb-3" style="color: #00d4ff;">
+                    <i class="fas fa-user-clock me-2"></i>최근 지원자
+                </h4>
+                {% for application in recent_applications %}
+                <div class="applicant-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 style="color: #fff; margin-bottom: 0.25rem;">
+                                {{ application.applicant.name }}
+                            </h6>
+                            <small class="text-muted">
+                                {{ application.job_posting.title|truncatewords:3 }}
+                            </small>
+                        </div>
+                        <small class="text-muted">
+                            {{ application.applied_date|timesince }} 전
+                        </small>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">최근 지원자가 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewPosting(postingId) {
+    window.location.href = `/recruitment/posting/${postingId}/`;
+}
+
+function createJobPosting() {
+    window.location.href = "{% url 'recruitment:job_posting_create' %}";
+}
+</script>
+{% endblock %}

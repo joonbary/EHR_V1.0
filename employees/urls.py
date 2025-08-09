@@ -7,7 +7,8 @@ from .views_test import test_database
 app_name = 'employees'
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='employees/employee_management.html'), name='employee_management'),
+    path('', TemplateView.as_view(template_name='employees/employee_management_revolutionary.html'), name='employee_management'),
+    path('list/', views.EmployeeListView.as_view(), name='employee_list'),
     path('create/', views.EmployeeCreateView.as_view(), name='employee_create'),
     path('bulk-upload/', views.BulkUploadView.as_view(), name='employee_bulk_upload'),
     path('download-template/', views.download_template, name='employee_download_template'),

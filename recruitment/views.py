@@ -63,7 +63,7 @@ def recruitment_dashboard(request):
         'stage_statistics': stage_statistics,
     }
     
-    return render(request, 'recruitment/dashboard.html', context)
+    return render(request, 'recruitment/dashboard_revolutionary.html', context)
 
 
 def job_posting_list(request):
