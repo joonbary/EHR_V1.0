@@ -474,6 +474,22 @@
 {% block extra_js %}
 <script>
 // 페이지 로드 시 데이터 불러오기
+// 안전한 toLocaleString 헬퍼 함수
+function safeToLocaleString(value, defaultValue = '0') {
+    if (value === undefined || value === null) {
+        return defaultValue;
+    }
+    if (typeof value === 'number') {
+        return value.toLocaleString();
+    }
+    // 숫자로 변환 시도
+    const num = Number(value);
+    if (!isNaN(num)) {
+        return num.toLocaleString();
+    }
+    return String(value);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     loadMonthlyWorkforce();
     setupEventListeners();
@@ -699,21 +715,36 @@ function createTemplateTable(data) {
 }
 
 function updateSummaryCards(summary) {
-    document.getElementById('currentTotal').textContent = summary.total_current.toLocaleString();
-    document.getElementById('previousTotal').textContent = summary.total_previous.toLocaleString();
+    // 안전한 값 가져오기
+    const currentTotal = summary.total_current || 0;
+    const previousTotal = summary.total_previous || (currentTotal - (summary.month_change || 0));
+    const totalChange = summary.total_change || summary.month_change || 0;
     
-    const change = summary.total_change;
+    // 현재 인원
+    const currentElement = document.getElementById('currentTotal');
+    if (currentElement) {
+        currentElement.textContent = currentTotal.toLocaleString();
+    }
+    
+    // 이전 인원
+    const previousElement = document.getElementById('previousTotal');
+    if (previousElement) {
+        previousElement.textContent = previousTotal.toLocaleString();
+    }
+    
+    // 변동 인원
     const changeElement = document.getElementById('changeTotal');
-    changeElement.textContent = (change >= 0 ? '+' : '') + change.toLocaleString();
-    
-    // 증감에 따른 색상 변경
-    changeElement.className = 'text-3xl font-bold mt-2 ' + 
-        (change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-600');
+    if (changeElement) {
+        changeElement.textContent = (totalChange >= 0 ? '+' : '') + totalChange.toLocaleString();
+        // 증감에 따른 색상 변경
+        changeElement.className = 'text-3xl font-bold mt-2 ' + 
+            (totalChange > 0 ? 'text-green-600' : totalChange < 0 ? 'text-red-600' : 'text-gray-600');
+    }
 }
 
 function updateAIInsights(data) {
-    const summary = data.summary;
-    const totalEmployees = summary.total_current;
+    const summary = data.summary || {};
+    const totalEmployees = summary.total_current || 0;
     
     // 카테고리별 계산
     const byCategory = summary.by_category || {};
@@ -748,19 +779,24 @@ function updateAIInsights(data) {
     const regularRate = Math.round(((nonPlCount + plCount) / totalEmployees) * 100);
     const contractRate = Math.round((contractCount / totalEmployees) * 100);
     
-    // AI 인사이트 데이터 업데이트
-    document.getElementById('totalEmployees').textContent = totalEmployees.toLocaleString() + '명';
-    document.getElementById('nonPlCount').textContent = nonPlCount.toLocaleString();
-    document.getElementById('plCount').textContent = plCount.toLocaleString();
-    document.getElementById('managerCount').textContent = managerCount.toLocaleString();
-    document.getElementById('managementSpan').textContent = managementSpan.toFixed(1) + '명';
-    document.getElementById('largestCompany').textContent = largestCompany;
-    document.getElementById('maxCompanySize').textContent = maxCompanySize.toLocaleString() + '명';
-    document.getElementById('avgCompanySize').textContent = avgCompanySize.toLocaleString() + '명';
-    document.getElementById('regularRate').textContent = regularRate + '%';
-    document.getElementById('contractRate').textContent = contractRate + '%';
-    document.getElementById('contractCount').textContent = contractCount.toLocaleString();
-    document.getElementById('otherCount').textContent = otherCount.toLocaleString();
+    // AI 인사이트 데이터 업데이트 (안전하게)
+    const setTextContent = (id, value) => {
+        const elem = document.getElementById(id);
+        if (elem) elem.textContent = value;
+    };
+    
+    setTextContent('totalEmployees', safeToLocaleString(totalEmployees) + '명');
+    setTextContent('nonPlCount', safeToLocaleString(nonPlCount));
+    setTextContent('plCount', safeToLocaleString(plCount));
+    setTextContent('managerCount', safeToLocaleString(managerCount));
+    setTextContent('managementSpan', (managementSpan || 0).toFixed(1) + '명');
+    setTextContent('largestCompany', largestCompany || '');
+    setTextContent('maxCompanySize', safeToLocaleString(maxCompanySize) + '명');
+    setTextContent('avgCompanySize', safeToLocaleString(avgCompanySize) + '명');
+    setTextContent('regularRate', (regularRate || 0) + '%');
+    setTextContent('contractRate', (contractRate || 0) + '%');
+    setTextContent('contractCount', safeToLocaleString(contractCount));
+    setTextContent('otherCount', safeToLocaleString(otherCount));
 }
 
 function showError(message) {
