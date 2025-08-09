@@ -55,8 +55,13 @@ urlpatterns = [
     # AI 팀 조합 최적화
     path('ai-team-optimizer/', include('ai_team_optimizer.urls')),
     
-    # AI 실시간 코칭 어시스턴트
+    # AI Quick Win 메뉴들
+    path('ai/', include('ai_quickwin.urls')),  # AI Quick Win 통합 대시보드
     path('ai-coaching/', include('ai_coaching.urls')),
+    path('ai-team-optimizer/', include('ai_team_optimizer.urls')),
+    path('ai-insights/', include('ai_insights.urls')),
+    path('ai-predictions/', include('ai_predictions.urls')),
+    path('ai-interviewer/', include('ai_interviewer.urls')),
     
     # 조직관리
     path('organization/', include('organization.urls')),

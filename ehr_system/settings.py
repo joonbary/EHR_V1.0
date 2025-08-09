@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "ai_recruitment",
     "ai_team_optimizer",
     "ai_coaching",
+    "ai_quickwin",
 ]
 
 MIDDLEWARE = [
