@@ -495,12 +495,31 @@ function loadMonthlyWorkforce() {
             }
             
             // 헤더 업데이트
-            document.getElementById('lastUpdated').textContent = '최종 업데이트: ' + data.last_updated;
-            document.getElementById('totalEmployees').textContent = data.summary.total_current.toLocaleString() + '명';
+            document.getElementById('lastUpdated').textContent = '최종 업데이트: ' + (data.last_updated || '');
             
-            // 요약 카드 업데이트 및 표시
-            updateSummaryCards(data.summary);
-            document.getElementById('summaryCards').style.display = 'block';
+            // summary가 있는지 확인
+            if (data.summary && data.summary.total_current !== undefined) {
+                document.getElementById('totalEmployees').textContent = data.summary.total_current.toLocaleString() + '명';
+                // 요약 카드 업데이트 및 표시
+                updateSummaryCards(data.summary);
+                document.getElementById('summaryCards').style.display = 'block';
+            } else {
+                // summary가 없으면 data 배열에서 계산
+                const total = data.data ? data.data.reduce((sum, row) => sum + (row.total || 0), 0) : 0;
+                document.getElementById('totalEmployees').textContent = total.toLocaleString() + '명';
+                
+                // 기본 summary 생성
+                const defaultSummary = {
+                    total_current: total,
+                    month_change: 0,
+                    year_change: 0,
+                    promotion_rate: 0,
+                    regular_rate: 0,
+                    average_tenure: 0
+                };
+                updateSummaryCards(defaultSummary);
+                document.getElementById('summaryCards').style.display = 'block';
+            }
             
             // AI 인사이트 업데이트 및 표시
             updateAIInsights(data);
