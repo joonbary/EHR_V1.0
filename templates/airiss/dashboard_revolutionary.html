@@ -1,0 +1,470 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AIRISS AI 분석 시스템 - 혁신적 HRM{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}">
+<style>
+    .airiss-hero {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        border-radius: 24px;
+        padding: 64px 48px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .airiss-hero::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(0,212,255,0.1) 0%, transparent 60%);
+        animation: rotate 20s linear infinite;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .airiss-feature-card {
+        background: rgba(26, 31, 46, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 32px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .airiss-feature-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #00d4ff, #0099ff, #00d4ff);
+        border-radius: 20px;
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s ease;
+    }
+    
+    .airiss-feature-card:hover::before {
+        opacity: 1;
+        animation: gradient-shift 3s ease infinite;
+    }
+    
+    .airiss-feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3);
+    }
+    
+    @keyframes gradient-shift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .analysis-stat {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.05) 100%);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .analysis-stat:hover {
+        transform: scale(1.05);
+        border-color: #00d4ff;
+        box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
+    }
+    
+    .analysis-stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+    }
+    
+    .analysis-stat-label {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .ai-pulse {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        background: #00d4ff;
+        border-radius: 50%;
+        position: relative;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .ai-pulse::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        right: -8px;
+        bottom: -8px;
+        background: rgba(0, 212, 255, 0.4);
+        border-radius: 50%;
+        animation: pulse-ring 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-ring {
+        0% { transform: scale(0.8); opacity: 1; }
+        100% { transform: scale(1.5); opacity: 0; }
+    }
+    
+    .upload-zone {
+        border: 2px dashed rgba(0, 212, 255, 0.3);
+        border-radius: 16px;
+        padding: 48px;
+        text-align: center;
+        background: rgba(0, 212, 255, 0.02);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-zone:hover {
+        border-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.05);
+        transform: scale(1.02);
+    }
+    
+    .upload-zone.dragging {
+        border-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.1);
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <!-- Hero Section -->
+    <div class="airiss-hero">
+        <div class="relative z-10">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="ai-pulse"></div>
+                <span class="text-cyan-400 font-semibold">AI 실시간 분석 중</span>
+            </div>
+            
+            <h1 class="text-5xl font-bold text-white mb-4">
+                AIRISS <span class="text-cyan-400">v4.0</span>
+            </h1>
+            <p class="text-2xl text-gray-300 mb-8">
+                AI-Driven HR Intelligence & Strategic Support System
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="analysis-stat">
+                    <div class="analysis-stat-value">2,847</div>
+                    <div class="analysis-stat-label">직원 분석</div>
+                </div>
+                <div class="analysis-stat">
+                    <div class="analysis-stat-value">94.8%</div>
+                    <div class="analysis-stat-label">예측 정확도</div>
+                </div>
+                <div class="analysis-stat">
+                    <div class="analysis-stat-value">156</div>
+                    <div class="analysis-stat-label">인사이트 생성</div>
+                </div>
+                <div class="analysis-stat">
+                    <div class="analysis-stat-value">12ms</div>
+                    <div class="analysis-stat-label">응답 시간</div>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button class="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-semibold text-lg hover:shadow-2xl transform hover:scale-105 transition-all">
+                    <i class="fas fa-robot mr-2"></i>
+                    AI 분석 시작
+                </button>
+                <button class="px-8 py-4 bg-gray-800 border border-cyan-500/30 text-cyan-400 rounded-xl font-semibold text-lg hover:bg-gray-700 transition-all">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    실시간 대시보드
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Features Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <!-- Executive Dashboard -->
+        <div class="airiss-feature-card">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="p-4 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-2xl">
+                    <i class="fas fa-chart-pie text-3xl text-cyan-400"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Executive Dashboard</h3>
+                    <p class="text-gray-400 text-sm">경영진 종합 분석</p>
+                </div>
+            </div>
+            <p class="text-gray-300 mb-6">
+                조직 전체의 HR 지표를 한눈에 파악하고 전략적 의사결정을 지원합니다.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-6">
+                <span class="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-xs font-semibold">
+                    실시간 분석
+                </span>
+                <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold">
+                    예측 모델
+                </span>
+                <span class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-semibold">
+                    트렌드 분석
+                </span>
+            </div>
+            <a href="{% url 'airiss:executive_dashboard' %}" class="flex items-center justify-center px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-cyan-400 rounded-xl font-semibold hover:from-cyan-500/30 hover:to-blue-600/30 transition-all">
+                대시보드 열기 <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        
+        <!-- Employee Analysis -->
+        <div class="airiss-feature-card">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="p-4 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-2xl">
+                    <i class="fas fa-users text-3xl text-purple-400"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Employee Analysis</h3>
+                    <p class="text-gray-400 text-sm">직원 개별 분석</p>
+                </div>
+            </div>
+            <p class="text-gray-300 mb-6">
+                개인별 성과, 역량, 잠재력을 AI가 심층 분석하여 맞춤형 인사이트를 제공합니다.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-6">
+                <span class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-semibold">
+                    성과 예측
+                </span>
+                <span class="px-3 py-1 bg-pink-500/20 text-pink-400 rounded-full text-xs font-semibold">
+                    역량 분석
+                </span>
+                <span class="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-semibold">
+                    이탈 위험
+                </span>
+            </div>
+            <a href="{% url 'airiss:employee_analysis_all' %}" class="flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-purple-400 rounded-xl font-semibold hover:from-purple-500/30 hover:to-pink-600/30 transition-all">
+                분석 시작 <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        
+        <!-- Data Upload -->
+        <div class="airiss-feature-card">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="p-4 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-green-400"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Data Upload</h3>
+                    <p class="text-gray-400 text-sm">평가 데이터 업로드</p>
+                </div>
+            </div>
+            <p class="text-gray-300 mb-6">
+                Excel 파일을 업로드하여 AI 기반 평가 분석과 인사이트를 즉시 받아보세요.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-6">
+                <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold">
+                    Excel 지원
+                </span>
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-semibold">
+                    자동 분석
+                </span>
+                <span class="px-3 py-1 bg-teal-500/20 text-teal-400 rounded-full text-xs font-semibold">
+                    보안 처리
+                </span>
+            </div>
+            <a href="{% url 'airiss:upload_integrated' %}" class="flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500/20 to-emerald-600/20 text-green-400 rounded-xl font-semibold hover:from-green-500/30 hover:to-emerald-600/30 transition-all">
+                업로드 <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Quick Upload Zone -->
+    <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-8 mb-12">
+        <h2 class="text-2xl font-bold text-white mb-6">빠른 데이터 업로드</h2>
+        
+        <div class="upload-zone" id="uploadZone">
+            <i class="fas fa-cloud-upload-alt text-6xl text-cyan-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-white mb-2">
+                파일을 드래그 앤 드롭하거나 클릭하여 선택
+            </h3>
+            <p class="text-gray-400 mb-4">
+                Excel 파일 (.xlsx, .xls) 지원 | 최대 10MB
+            </p>
+            <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+            <button class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all">
+                파일 선택
+            </button>
+        </div>
+    </div>
+    
+    <!-- AI Insights -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Recent Analysis -->
+        <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+            <h3 class="text-xl font-bold text-white mb-6">최근 AI 분석</h3>
+            
+            <div class="space-y-4">
+                <div class="flex items-start gap-4 p-4 bg-gray-700/30 rounded-xl">
+                    <div class="p-2 bg-cyan-500/20 rounded-lg">
+                        <i class="fas fa-brain text-cyan-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-white font-semibold mb-1">성과 예측 모델 업데이트</h4>
+                        <p class="text-gray-400 text-sm mb-2">
+                            3분기 성과 데이터 기반 예측 정확도 96.2% 달성
+                        </p>
+                        <span class="text-xs text-cyan-400">5분 전</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4 p-4 bg-gray-700/30 rounded-xl">
+                    <div class="p-2 bg-purple-500/20 rounded-lg">
+                        <i class="fas fa-chart-line text-purple-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-white font-semibold mb-1">이탈 위험 알림</h4>
+                        <p class="text-gray-400 text-sm mb-2">
+                            핵심 인재 3명 이탈 위험도 상승 감지
+                        </p>
+                        <span class="text-xs text-purple-400">15분 전</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4 p-4 bg-gray-700/30 rounded-xl">
+                    <div class="p-2 bg-green-500/20 rounded-lg">
+                        <i class="fas fa-award text-green-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-white font-semibold mb-1">승진 추천 리스트</h4>
+                        <p class="text-gray-400 text-sm mb-2">
+                            AI 기반 승진 후보자 12명 자동 선정 완료
+                        </p>
+                        <span class="text-xs text-green-400">1시간 전</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI Recommendations -->
+        <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+            <h3 class="text-xl font-bold text-white mb-6">AI 추천 액션</h3>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-gradient-to-r from-cyan-500/10 to-blue-600/10 rounded-xl border border-cyan-500/30">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-white font-semibold">팀 재배치 최적화</h4>
+                        <span class="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-semibold">
+                            높음
+                        </span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-3">
+                        영업 2팀과 마케팅팀 간 시너지 효과 예상
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-cyan-400 text-sm font-semibold">
+                            예상 효과: +23% 생산성
+                        </span>
+                        <button class="text-cyan-400 hover:text-cyan-300 transition-colors">
+                            상세보기 →
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-purple-500/10 to-pink-600/10 rounded-xl border border-purple-500/30">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-white font-semibold">교육 프로그램 추천</h4>
+                        <span class="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-semibold">
+                            중간
+                        </span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-3">
+                        데이터 분석 역량 강화 프로그램 필요
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-purple-400 text-sm font-semibold">
+                            대상: 42명
+                        </span>
+                        <button class="text-purple-400 hover:text-purple-300 transition-colors">
+                            상세보기 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Upload zone functionality
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    
+    uploadZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragging');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragging');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragging');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileUpload(files[0]);
+        }
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFileUpload(e.target.files[0]);
+        }
+    });
+    
+    function handleFileUpload(file) {
+        // Check file type
+        if (!file.name.match(/\.(xlsx|xls)$/)) {
+            alert('Excel 파일만 업로드 가능합니다.');
+            return;
+        }
+        
+        // Check file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('파일 크기는 10MB 이하여야 합니다.');
+            return;
+        }
+        
+        // Redirect to upload page with file
+        window.location.href = "{% url 'airiss:upload_integrated' %}";
+    }
+});
+</script>
+{% endblock %}

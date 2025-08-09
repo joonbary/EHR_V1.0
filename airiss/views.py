@@ -416,7 +416,7 @@ def dashboard(request):
         "total_analyses": len(recent_analyses),
         "avg_score": sum(a.ai_score for a in recent_analyses) / len(recent_analyses) if recent_analyses else 0
     }
-    return render(request, "airiss/dashboard.html", context)
+    return render(request, "airiss/dashboard_revolutionary.html", context)
 
 def analytics(request):
     """AIRISS 분석"""

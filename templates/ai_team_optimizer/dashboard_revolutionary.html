@@ -1,0 +1,372 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 팀 최적화 - 혁신적 HRM 시스템{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}">
+<style>
+    .team-optimizer-hero {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        border-radius: 24px;
+        padding: 48px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .team-optimizer-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(0,212,255,0.1) 0%, transparent 70%);
+        animation: pulse 6s ease-in-out infinite;
+    }
+    
+    .optimizer-stat-card {
+        background: rgba(26, 31, 46, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+    
+    .optimizer-stat-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(0, 212, 255, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+    }
+    
+    .team-composition-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.9) 0%, rgba(26, 31, 46, 0.6) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        padding: 24px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .team-composition-card:hover {
+        transform: translateX(8px);
+        border-color: #00d4ff;
+        box-shadow: 0 12px 40px rgba(0, 212, 255, 0.3);
+    }
+    
+    .skill-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        color: #00d4ff;
+        font-size: 0.875rem;
+        margin: 4px;
+    }
+    
+    .optimization-score {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, #00d4ff 0deg, #00d4ff calc(var(--score) * 3.6deg), rgba(0, 212, 255, 0.1) calc(var(--score) * 3.6deg));
+        position: relative;
+    }
+    
+    .optimization-score::before {
+        content: attr(data-score);
+        position: absolute;
+        inset: 8px;
+        background: #0a0f1b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #00d4ff;
+    }
+    
+    .project-timeline {
+        position: relative;
+        padding-left: 40px;
+    }
+    
+    .project-timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg, #00d4ff 0%, transparent 100%);
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 24px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -35px;
+        top: 8px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <!-- Hero Section -->
+    <div class="team-optimizer-hero">
+        <div class="relative z-10">
+            <h1 class="text-4xl font-bold text-white mb-4">
+                AI 팀 최적화 시스템
+            </h1>
+            <p class="text-xl text-gray-300 mb-8">
+                인공지능 기반 최적 팀 구성 및 스킬 매칭
+            </p>
+            
+            <!-- Quick Actions -->
+            <div class="flex gap-4">
+                <button class="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                    <i class="fas fa-magic mr-2"></i>
+                    새 팀 최적화
+                </button>
+                <button class="px-8 py-3 bg-gray-800 border border-cyan-500/30 text-cyan-400 rounded-xl font-semibold hover:bg-gray-700 transition-all">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    분석 대시보드
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="optimizer-stat-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl">
+                    <i class="fas fa-project-diagram text-2xl text-cyan-400"></i>
+                </div>
+                <span class="text-green-400 text-sm font-semibold">+12%</span>
+            </div>
+            <div class="text-3xl font-bold text-white mb-1">{{ stats.projects.total|default:0 }}</div>
+            <div class="text-gray-400 text-sm">전체 프로젝트</div>
+            <div class="mt-3 h-1 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-600" style="width: {{ stats.projects.completion_rate|default:0 }}%"></div>
+            </div>
+        </div>
+        
+        <div class="optimizer-stat-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-xl">
+                    <i class="fas fa-users text-2xl text-purple-400"></i>
+                </div>
+                <span class="text-green-400 text-sm font-semibold">+8%</span>
+            </div>
+            <div class="text-3xl font-bold text-white mb-1">{{ stats.teams.total|default:0 }}</div>
+            <div class="text-gray-400 text-sm">최적화된 팀</div>
+            <div class="mt-3 h-1 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-purple-500 to-pink-600" style="width: {{ stats.teams.optimization_rate|default:0 }}%"></div>
+            </div>
+        </div>
+        
+        <div class="optimizer-stat-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-xl">
+                    <i class="fas fa-check-circle text-2xl text-green-400"></i>
+                </div>
+                <span class="text-yellow-400 text-sm font-semibold">동일</span>
+            </div>
+            <div class="text-3xl font-bold text-white mb-1">{{ stats.compositions.approval_rate|default:0 }}%</div>
+            <div class="text-gray-400 text-sm">승인율</div>
+            <div class="mt-3 h-1 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-green-500 to-emerald-600" style="width: {{ stats.compositions.approval_rate|default:0 }}%"></div>
+            </div>
+        </div>
+        
+        <div class="optimizer-stat-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-xl">
+                    <i class="fas fa-chart-line text-2xl text-orange-400"></i>
+                </div>
+                <span class="text-green-400 text-sm font-semibold">+15%</span>
+            </div>
+            <div class="text-3xl font-bold text-white mb-1">{{ stats.average_scores.overall_score|default:0|floatformat:1 }}</div>
+            <div class="text-gray-400 text-sm">평균 점수</div>
+            <div class="mt-3 h-1 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-orange-500 to-red-600" style="width: {{ stats.average_scores.overall_score|default:0|floatformat:0 }}%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recent Projects -->
+        <div class="lg:col-span-2">
+            <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-white">최근 프로젝트</h2>
+                    <a href="#" class="text-cyan-400 hover:text-cyan-300 transition-colors">
+                        모두 보기 <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                
+                <div class="space-y-4">
+                    {% for project in recent_projects|slice:":3" %}
+                    <div class="team-composition-card">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-white mb-2">
+                                    {{ project.name|default:"프로젝트명" }}
+                                </h3>
+                                <p class="text-gray-400 text-sm">
+                                    {{ project.description|default:"프로젝트 설명" }}
+                                </p>
+                            </div>
+                            <div class="optimization-score" style="--score: {{ project.optimization_score|default:75 }}" data-score="{{ project.optimization_score|default:75 }}">
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 mb-4">
+                            <span class="text-sm text-gray-400">
+                                <i class="fas fa-calendar-alt mr-1"></i>
+                                {{ project.start_date|date:"Y.m.d" }}
+                            </span>
+                            <span class="text-sm text-gray-400">
+                                <i class="fas fa-users mr-1"></i>
+                                {{ project.team_size|default:5 }}명
+                            </span>
+                            <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold">
+                                {{ project.status|default:"진행중" }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <span class="skill-badge">Python</span>
+                            <span class="skill-badge">React</span>
+                            <span class="skill-badge">AWS</span>
+                            <span class="skill-badge">+3</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-folder-open text-4xl text-gray-600 mb-4"></i>
+                        <p class="text-gray-400">진행 중인 프로젝트가 없습니다</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Optimization Suggestions -->
+        <div>
+            <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+                <h2 class="text-xl font-bold text-white mb-6">최적화 제안</h2>
+                
+                <div class="space-y-4">
+                    {% for suggestion in optimization_suggestions|slice:":4" %}
+                    <div class="p-4 bg-gradient-to-r from-cyan-500/10 to-blue-600/10 rounded-xl border border-cyan-500/30 hover:border-cyan-400 transition-all cursor-pointer">
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 bg-cyan-500/20 rounded-lg">
+                                <i class="fas fa-lightbulb text-cyan-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-white font-semibold mb-1">
+                                    {{ suggestion.title|default:"최적화 제안" }}
+                                </h4>
+                                <p class="text-gray-400 text-sm">
+                                    {{ suggestion.description|default:"제안 설명" }}
+                                </p>
+                                <div class="mt-2">
+                                    <span class="text-xs px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full">
+                                        {{ suggestion.priority|default:"HIGH" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-check-circle text-3xl text-green-400 mb-3"></i>
+                        <p class="text-gray-400 text-sm">모든 팀이 최적화되었습니다</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Active Compositions -->
+            <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6 mt-6">
+                <h2 class="text-xl font-bold text-white mb-6">활성 팀 구성</h2>
+                
+                <div class="project-timeline">
+                    {% for composition in active_compositions|slice:":3" %}
+                    <div class="timeline-item">
+                        <h4 class="text-white font-semibold mb-1">
+                            {{ composition.name|default:"팀 구성" }}
+                        </h4>
+                        <p class="text-gray-400 text-sm mb-2">
+                            {{ composition.project.name|default:"프로젝트" }}
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-cyan-400 text-sm font-semibold">
+                                점수: {{ composition.overall_score|floatformat:1 }}/10
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <p class="text-gray-400 text-sm">활성 팀 구성이 없습니다</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation for optimization scores
+    const scores = document.querySelectorAll('.optimization-score');
+    scores.forEach(score => {
+        const value = score.style.getPropertyValue('--score');
+        let current = 0;
+        const increment = value / 30;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= value) {
+                current = value;
+                clearInterval(timer);
+            }
+            score.style.setProperty('--score', current);
+        }, 30);
+    });
+    
+    // Hover effects for cards
+    const cards = document.querySelectorAll('.team-composition-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(8px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0) scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

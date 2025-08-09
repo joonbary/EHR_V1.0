@@ -52,6 +52,10 @@
                         <span class="nav-icon">🤖</span>
                         AI 통합 허브
                     </a>
+                    <a href="{% url 'airiss:dashboard' %}" class="nav-item {% if 'airiss' in request.resolver_match.url_name %}active{% endif %}">
+                        <span class="nav-icon">🧠</span>
+                        AIRISS AI 분석
+                    </a>
                     <a href="{% url 'ai_coaching:dashboard' %}" class="nav-item">
                         <span class="nav-icon">🎯</span>
                         AI 스마트 코칭

@@ -175,7 +175,7 @@ def evaluation_dashboard(request):
     
     if not active_period:
         messages.warning(request, "활성화된 평가 기간이 없습니다.")
-        return render(request, 'evaluations/dashboard.html')
+        return render(request, 'evaluations/dashboard_revolutionary.html')
     
     # 현재 사용자의 평가 진행상황
     # 임시로 첫 번째 직원 사용 (나중에 로그인 기능 구현 시 수정)
@@ -183,7 +183,7 @@ def evaluation_dashboard(request):
     
     if not employee:
         messages.error(request, "직원 정보를 찾을 수 없습니다.")
-        return render(request, 'evaluations/dashboard.html')
+        return render(request, 'evaluations/dashboard_revolutionary.html')
     
     # 각 평가 단계별 상태 확인
     contribution_eval = ContributionEvaluation.objects.filter(
@@ -223,7 +223,7 @@ def evaluation_dashboard(request):
         'comprehensive_eval': comprehensive_eval,
     }
     
-    return render(request, 'evaluations/dashboard.html', context)
+    return render(request, 'evaluations/dashboard_revolutionary.html', context)
 
 
 def contribution_evaluation(request, employee_id):
