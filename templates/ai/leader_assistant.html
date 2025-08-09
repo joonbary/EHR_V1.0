@@ -1,553 +1,83 @@
-{% extends "base.html" %}
+{% extends "base_modern.html" %}
 {% load static %}
 
 {% block title %}리더 AI 어시스턴트 - OK금융그룹{% endblock %}
 
-{% block extra_css %}
-<style>
-/* AI 테마 색상 변수 */
-:root {
-    --ai-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --ai-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --ai-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --ai-text: #2d3748;
-    --ai-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --message-bg: rgba(255, 255, 255, 0.95);
-    --user-msg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --ai-msg: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-    --leader-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.leader-container {
-    height: calc(100vh - 120px);
-    display: flex;
-    flex-direction: column;
-    padding: 24px;
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-}
-
-.leader-header {
-    background: var(--leader-accent);
-    border-radius: 20px;
-    padding: 30px;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 32px rgba(240, 147, 251, 0.3);
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-
-.leader-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    animation: shimmer 3s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(180deg); }
-}
-
-.leader-header h2 {
-    margin: 0 0 8px 0;
-    font-size: 28px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.leader-header h2::before {
-    content: '👑';
-    font-size: 32px;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.leader-header p {
-    margin: 0;
-    opacity: 0.95;
-    font-size: 18px;
-    font-weight: 300;
-}
-
-.chat-window {
-    flex: 1;
-    background: var(--message-bg);
-    border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-}
-
-.chat-messages {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
-    background: linear-gradient(135deg, #fafbfc 0%, #f4f6f8 100%);
-    position: relative;
-}
-
-.chat-messages::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-        radial-gradient(circle at 25% 25%, rgba(240, 147, 251, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(245, 87, 108, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-}
-
-.message {
-    margin-bottom: 20px;
-    display: flex;
-    align-items: flex-start;
-    animation: messageSlide 0.3s ease-out;
-}
-
-@keyframes messageSlide {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.message.user {
-    justify-content: flex-end;
-}
-
-.message-content {
-    max-width: 75%;
-    padding: 16px 20px;
-    border-radius: 18px;
-    font-size: 16px;
-    line-height: 1.6;
-    position: relative;
-    font-weight: 400;
-    letter-spacing: 0.3px;
-    word-break: break-word;
-    white-space: pre-wrap;
-}
-
-.message.user .message-content {
-    background: var(--leader-accent);
-    color: white;
-    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
-    border-bottom-right-radius: 6px;
-}
-
-.message.assistant .message-content {
-    background: var(--ai-msg);
-    border: 1px solid rgba(240, 147, 251, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-bottom-left-radius: 6px;
-    position: relative;
-}
-
-.message.assistant .message-content::before {
-    content: '👑';
-    position: absolute;
-    left: -30px;
-    top: 16px;
-    font-size: 18px;
-    background: var(--leader-accent);
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
-}
-
-.message-time {
-    font-size: 12px;
-    color: #a0aec0;
-    margin-top: 6px;
-    font-weight: 300;
-}
-
-.chat-input {
-    padding: 24px;
-    background: white;
-    border-top: 1px solid rgba(240, 147, 251, 0.1);
-}
-
-.input-group {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-.chat-input input {
-    flex: 1;
-    padding: 16px 24px;
-    border: 2px solid rgba(240, 147, 251, 0.2);
-    border-radius: 25px;
-    outline: none;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    background: rgba(247, 250, 252, 0.8);
-}
-
-.chat-input input:focus {
-    border-color: #f093fb;
-    background: white;
-    box-shadow: 0 0 0 4px rgba(240, 147, 251, 0.1);
-    transform: translateY(-1px);
-}
-
-.chat-input button {
-    padding: 16px 28px;
-    background: var(--leader-accent);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.chat-input button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
-}
-
-.chat-input button::after {
-    content: '🚀';
-    font-size: 14px;
-}
-
-.leadership-questions {
-    margin-top: 16px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.question-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 16px;
-    background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
-    border: 1px solid rgba(240, 147, 251, 0.2);
-    border-radius: 20px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    color: var(--ai-text);
-}
-
-.question-chip:hover {
-    background: linear-gradient(135deg, rgba(240, 147, 251, 0.2) 0%, rgba(245, 87, 108, 0.2) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);
-}
-
-.question-chip::before {
-    content: '🎯';
-    margin-right: 6px;
-    font-size: 12px;
-}
-
-.typing-indicator {
-    display: none;
-    padding: 24px;
-    text-align: left;
-}
-
-.typing-indicator::before {
-    content: '👑 전략 수립 중';
-    color: #f093fb;
-    font-weight: 500;
-    margin-right: 12px;
-}
-
-.typing-dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    margin: 0 3px;
-    animation: typing 1.4s ease-in-out infinite;
-}
-
-.typing-dot:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-dot:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes typing {
-    0%, 60%, 100% {
-        opacity: 0.3;
-        transform: translateY(0);
-    }
-    30% {
-        opacity: 1;
-        transform: translateY(-8px);
-    }
-}
-
-.leadership-stats {
-    display: flex;
-    gap: 15px;
-    margin-top: 15px;
-    flex-wrap: wrap;
-}
-
-.stat-item {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-}
-
-/* 스크롤바 스타일링 */
-.chat-messages::-webkit-scrollbar {
-    width: 6px;
-}
-
-.chat-messages::-webkit-scrollbar-track {
-    background: rgba(240, 147, 251, 0.1);
-    border-radius: 3px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-    background: var(--leader-accent);
-    border-radius: 3px;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-    .message-content {
-        max-width: 85%;
-        font-size: 15px;
-        padding: 14px 18px;
-    }
-    
-    .chat-input input {
-        font-size: 16px; /* iOS 줌 방지 */
-    }
-    
-    .leadership-stats {
-        gap: 10px;
-    }
-    
-    .stat-item {
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-}
-</style>
-{% endblock %}
+{% block page_header %}리더 AI 어시스턴트{% endblock %}
 
 {% block content %}
-<div class="leader-container">
-    <div class="leader-header">
-        <h2>리더십 AI 어시스턴트</h2>
-        <p>관리자와 리더를 위한 전문적인 리더십 조언과 솔루션을 제공합니다</p>
-        <div class="leadership-stats">
-            <div class="stat-item">🎯 전략적 사고</div>
-            <div class="stat-item">👥 팀 관리</div>
-            <div class="stat-item">🗣️ 커뮤니케이션</div>
-            <div class="stat-item">📈 성과 관리</div>
-        </div>
-    </div>
-
-    <div class="chat-window">
-        <div class="chat-messages" id="chatMessages">
-            <!-- 환영 메시지 -->
-            <div class="message assistant">
-                <div>
-                    <div class="message-content">안녕하세요! OK금융그룹 리더십 AI 어시스턴트입니다.
-
-팀 관리, 성과 개선, 리더십 개발, 조직 운영에 대한 전문적인 조언을 제공합니다.
-현재 직면한 리더십 과제나 궁금한 점을 자유롭게 질문해 주세요.</div>
-                    <div class="message-time">오전 9:00</div>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>🎯 리더십 AI 어시스턴트</h3>
                 </div>
-            </div>
-        </div>
-
-        <div class="typing-indicator" id="typingIndicator">
-            🤖 생각하는 중
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-        </div>
-
-        <div class="chat-input">
-            <div class="input-group">
-                <input type="text" id="messageInput" placeholder="리더십 관련 질문을 입력하세요..." 
-                       onkeypress="if(event.key==='Enter') sendMessage()">
-                <button onclick="sendMessage()">전송</button>
-            </div>
-            
-            <div class="leadership-questions">
-                <div class="question-chip" onclick="askQuestion('팀원들의 동기부여가 어려워요. 어떤 방법이 있을까요?')">
-                    팀원 동기부여 방법
-                </div>
-                <div class="question-chip" onclick="askQuestion('성과가 낮은 직원을 어떻게 관리해야 할까요?')">
-                    저성과자 관리
-                </div>
-                <div class="question-chip" onclick="askQuestion('팀 내 갈등을 효과적으로 해결하는 방법은?')">
-                    갈등 해결 전략
-                </div>
-                <div class="question-chip" onclick="askQuestion('원격 근무 환경에서 팀을 효과적으로 이끄는 방법은?')">
-                    원격 팀 관리
-                </div>
-                <div class="question-chip" onclick="askQuestion('변화 관리를 성공적으로 이끄는 리더십 스킬은?')">
-                    변화 관리 리더십
-                </div>
-                <div class="question-chip" onclick="askQuestion('부하직원과의 1:1 미팅을 효과적으로 진행하는 방법은?')">
-                    1:1 미팅 노하우
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h4>📈 리더십 인사이트가 필요하신가요?</h4>
+                        <p class="mb-0">팀 관리, 성과 향상, 의사결정 지원을 위한 AI 어시스턴트입니다.</p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-card text-center">
+                                <span class="stat-icon">👥</span>
+                                <div class="stat-value">152</div>
+                                <div class="stat-label">관리 대상 팀원</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card text-center">
+                                <span class="stat-icon">📊</span>
+                                <div class="stat-value">94%</div>
+                                <div class="stat-label">목표 달성률</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card text-center">
+                                <span class="stat-icon">⚡</span>
+                                <div class="stat-value">87%</div>
+                                <div class="stat-label">팀 만족도</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>🎯 주요 기능</h5>
+                                    <ul class="list-unstyled">
+                                        <li>📋 팀 성과 분석 및 개선 제안</li>
+                                        <li>👤 개별 직원 코칭 가이드</li>
+                                        <li>📈 목표 설정 및 추적 지원</li>
+                                        <li>🤝 팀 커뮤니케이션 개선 방안</li>
+                                        <li>📊 리더십 역량 진단</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>💡 AI 추천사항</h5>
+                                    <div class="alert alert-success">
+                                        <strong>이번 주 포커스:</strong><br>
+                                        팀 내 소통 개선을 위한 1:1 미팅 시간 확대를 권장합니다.
+                                    </div>
+                                    <div class="alert alert-warning">
+                                        <strong>주의사항:</strong><br>
+                                        일부 팀원의 업무 부하가 높아 번아웃 위험이 있습니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function sendMessage() {
-    const input = document.getElementById('messageInput');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    // 사용자 메시지 추가
-    addMessage(message, 'user');
-    input.value = '';
-    
-    // 타이핑 인디케이터 표시
-    showTypingIndicator();
-    
-    // 실제 AI API 호출
-    callLeadershipAPI(message);
-}
-
-function addMessage(text, sender) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
-    
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-    
-    messageDiv.innerHTML = `
-        <div>
-            <div class="message-content">${text}</div>
-            <div class="message-time">${timeString}</div>
-        </div>
-    `;
-    
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function askQuestion(question) {
-    document.getElementById('messageInput').value = question;
-    sendMessage();
-}
-
-function showTypingIndicator() {
-    document.getElementById('typingIndicator').style.display = 'block';
-    const messagesDiv = document.getElementById('chatMessages');
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function hideTypingIndicator() {
-    document.getElementById('typingIndicator').style.display = 'none';
-}
-
-// 실제 리더십 AI API 호출 함수
-function callLeadershipAPI(message) {
-    fetch('/ai/api/leader-assistant/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            message: message
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        hideTypingIndicator();
-        
-        if (data.success) {
-            let responseText = data.response;
-            
-            // 폴백 응답인 경우 표시
-            if (data.fallback) {
-                responseText += '\n\n💡 *AI 서비스 연결 문제로 제한적인 응답을 제공하고 있습니다.*';
-            }
-            
-            addMessage(responseText, 'assistant');
-        } else {
-            const errorMessage = data.error || '죄송합니다. 응답을 생성할 수 없습니다.';
-            addMessage(`⚠️ ${errorMessage}`, 'assistant');
-        }
-    })
-    .catch(error => {
-        console.error('API 호출 오류:', error);
-        hideTypingIndicator();
-        addMessage('⚠️ 네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'assistant');
-    });
-}
-
-// CSRF 토큰 가져오기 함수
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-</script>
 {% endblock %}

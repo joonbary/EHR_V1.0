@@ -353,7 +353,7 @@
                         <span class="nav-icon">🏠</span>
                         대시보드
                     </a>
-                    <a href="{% url 'employee_list' %}" class="nav-item {% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'employees:employee_management' %}" class="nav-item {% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
                         <span class="nav-icon">👥</span>
                         직원 관리
                     </a>
@@ -362,27 +362,27 @@
                 <!-- AI Features -->
                 <div class="nav-section">
                     <div class="nav-section-title">AI Quick Win</div>
-                    <a href="{% url 'ai_quick_win_dashboard' %}" class="nav-item {% if 'ai_quick_win' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'ai_quickwin:dashboard' %}" class="nav-item {% if 'ai_quickwin' in request.resolver_match.url_name %}active{% endif %}">
                         <span class="nav-icon">🤖</span>
                         AI 대시보드
                     </a>
-                    <a href="{% url 'ai_coaching_dashboard' %}" class="nav-item">
+                    <a href="{% url 'ai_coaching:dashboard' %}" class="nav-item">
                         <span class="nav-icon">🎯</span>
                         AI 코칭
                     </a>
-                    <a href="{% url 'ai_team_optimizer_dashboard' %}" class="nav-item">
+                    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="nav-item">
                         <span class="nav-icon">⚡</span>
                         팀 최적화
                     </a>
-                    <a href="{% url 'ai_insights_dashboard' %}" class="nav-item">
+                    <a href="{% url 'ai_insights:executive_dashboard' %}" class="nav-item">
                         <span class="nav-icon">💡</span>
                         AI 인사이트
                     </a>
-                    <a href="{% url 'ai_predictions_dashboard' %}" class="nav-item">
+                    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="nav-item">
                         <span class="nav-icon">📈</span>
                         예측 분석
                     </a>
-                    <a href="{% url 'ai_interviewer_dashboard' %}" class="nav-item">
+                    <a href="{% url 'ai_interviewer:interview_dashboard' %}" class="nav-item">
                         <span class="nav-icon">🎤</span>
                         AI 면접관
                     </a>
@@ -391,7 +391,7 @@
                 <!-- HR Management -->
                 <div class="nav-section">
                     <div class="nav-section-title">HR Management</div>
-                    <a href="{% url 'recruitment_dashboard' %}" class="nav-item">
+                    <a href="{% url 'recruitment:dashboard' %}" class="nav-item">
                         <span class="nav-icon">📋</span>
                         채용 관리
                     </a>
@@ -403,7 +403,7 @@
                         <span class="nav-icon">💰</span>
                         보상 관리
                     </a>
-                    <a href="{% url 'training_list' %}" class="nav-item">
+                    <a href="{% url 'trainings:training_list' %}" class="nav-item">
                         <span class="nav-icon">📚</span>
                         교육 훈련
                     </a>

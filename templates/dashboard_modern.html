@@ -11,9 +11,9 @@
     .dashboard-hero {
         background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
         border: 1px solid rgba(0, 212, 255, 0.2);
-        border-radius: var(--radius-xl);
-        padding: var(--spacing-2xl);
-        margin-bottom: var(--spacing-xl);
+        border-radius: 30px;
+        padding: 4rem;
+        margin-bottom: 3rem;
         position: relative;
         overflow: hidden;
     }
@@ -57,16 +57,16 @@
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: var(--spacing-lg);
-        margin: var(--spacing-xl) 0;
+        gap: 2rem;
+        margin: 3rem 0;
     }
 
     .stat-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-default);
-        border-radius: var(--radius-lg);
-        padding: var(--spacing-lg);
-        transition: all var(--transition-normal);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
     }
@@ -88,9 +88,9 @@
 
     .stat-card:hover {
         transform: translateY(-5px);
-        background: var(--bg-card-hover);
-        border-color: var(--border-hover);
-        box-shadow: var(--shadow-lg);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
     }
 
     .stat-icon {
@@ -102,13 +102,13 @@
     .stat-value {
         font-size: 36px;
         font-weight: 800;
-        color: var(--primary-color);
+        color: #00d4ff;
         margin-bottom: 0.5rem;
     }
 
     .stat-label {
         font-size: 14px;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.6);
         text-transform: uppercase;
         letter-spacing: 1px;
     }
@@ -116,25 +116,25 @@
     .quick-actions {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: var(--spacing-lg);
-        margin-top: var(--spacing-xl);
+        gap: 2rem;
+        margin-top: 3rem;
     }
 
     .action-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-default);
-        border-radius: var(--radius-lg);
-        padding: var(--spacing-lg);
-        transition: all var(--transition-normal);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
         text-decoration: none;
         color: inherit;
     }
 
     .action-card:hover {
         transform: translateY(-5px);
-        background: var(--bg-card-hover);
-        border-color: var(--border-hover);
-        box-shadow: var(--shadow-lg);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
         color: inherit;
     }
 
@@ -148,21 +148,21 @@
         font-size: 20px;
         font-weight: 700;
         margin-bottom: 0.5rem;
-        color: var(--primary-color);
+        color: #00d4ff;
     }
 
     .action-description {
         font-size: 14px;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.8);
         line-height: 1.5;
     }
 
     .airiss-section {
-        margin-top: var(--spacing-2xl);
-        padding: var(--spacing-2xl);
+        margin-top: 4rem;
+        padding: 4rem;
         background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
         border: 1px solid rgba(0, 212, 255, 0.2);
-        border-radius: var(--radius-xl);
+        border-radius: 30px;
         position: relative;
         overflow: hidden;
     }
@@ -170,12 +170,12 @@
     .airiss-badge {
         display: inline-block;
         padding: 8px 20px;
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
         color: #000;
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 1px;
-        border-radius: var(--radius-round);
+        border-radius: 50px;
         margin-bottom: 1rem;
         text-transform: uppercase;
     }
@@ -191,7 +191,7 @@
 
     .airiss-description {
         font-size: 16px;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.8);
         margin-bottom: 2rem;
         line-height: 1.6;
     }
@@ -199,27 +199,27 @@
     .airiss-metrics {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: var(--spacing-lg);
+        gap: 2rem;
     }
 
     .metric-item {
         text-align: center;
-        padding: var(--spacing-md);
+        padding: 1.5rem;
         background: rgba(0, 0, 0, 0.3);
-        border-radius: var(--radius-md);
+        border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .metric-value {
         font-size: 32px;
         font-weight: 800;
-        color: var(--primary-color);
+        color: #00d4ff;
         margin-bottom: 0.5rem;
     }
 
     .metric-label {
         font-size: 12px;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.6);
         text-transform: uppercase;
         letter-spacing: 1px;
     }
@@ -230,7 +230,7 @@
 <!-- Dashboard Hero Section -->
 <div class="dashboard-hero">
     <div class="hero-content">
-        <h1 class="welcome-title">AI가 이끄는 인사혁명</h1>
+        <h1 class="welcome-title">AI가 합류한 새로운 인사정보시스템</h1>
         <p class="welcome-subtitle">
             1,700여명의 임직원 데이터로 만드는 차세대 HRM 시스템에 오신 것을 환영합니다
         </p>
@@ -266,7 +266,7 @@
 
 <!-- Quick Actions -->
 <div class="quick-actions">
-    <a href="{% url 'ai_quick_win_dashboard' %}" class="action-card">
+    <a href="{% url 'ai_quickwin:dashboard' %}" class="action-card">
         <span class="action-icon">🤖</span>
         <div class="action-title">AI 통합 대시보드</div>
         <div class="action-description">
@@ -274,7 +274,7 @@
         </div>
     </a>
     
-    <a href="{% url 'employee_list' %}" class="action-card">
+    <a href="{% url 'employees:employee_management' %}" class="action-card">
         <span class="action-icon">👥</span>
         <div class="action-title">직원 관리</div>
         <div class="action-description">
@@ -282,7 +282,7 @@
         </div>
     </a>
     
-    <a href="{% url 'ai_coaching_dashboard' %}" class="action-card">
+    <a href="{% url 'ai_coaching:dashboard' %}" class="action-card">
         <span class="action-icon">🎯</span>
         <div class="action-title">AI 코칭</div>
         <div class="action-description">
@@ -290,7 +290,7 @@
         </div>
     </a>
     
-    <a href="{% url 'ai_team_optimizer_dashboard' %}" class="action-card">
+    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="action-card">
         <span class="action-icon">⚡</span>
         <div class="action-title">팀 최적화</div>
         <div class="action-description">
@@ -298,7 +298,7 @@
         </div>
     </a>
     
-    <a href="{% url 'ai_insights_dashboard' %}" class="action-card">
+    <a href="{% url 'ai_insights:executive_dashboard' %}" class="action-card">
         <span class="action-icon">💡</span>
         <div class="action-title">AI 인사이트</div>
         <div class="action-description">
@@ -306,7 +306,7 @@
         </div>
     </a>
     
-    <a href="{% url 'ai_predictions_dashboard' %}" class="action-card">
+    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="action-card">
         <span class="action-icon">📈</span>
         <div class="action-title">예측 분석</div>
         <div class="action-description">

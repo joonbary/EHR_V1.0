@@ -18,7 +18,7 @@ from .services import AIQuickWinOrchestrator
 
 class AIQuickWinDashboardView(TemplateView):
     """AI Quick Win 메인 대시보드"""
-    template_name = 'ai/quickwin_dashboard.html'
+    template_name = 'ai_quickwin/dashboard_revolutionary.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

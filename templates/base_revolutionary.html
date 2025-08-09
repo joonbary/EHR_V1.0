@@ -1,0 +1,268 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OK Financial Group - AI-Powered HRM{% endblock %}</title>
+    
+    <!-- Google Fonts - 랜딩페이지와 동일한 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Revolutionary Design System -->
+    <link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}">
+    
+    <!-- Bootstrap for Grid System (Optional) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="main-wrapper">
+        <!-- REVOLUTIONARY SIDEBAR -->
+        <aside class="sidebar-wrapper" id="sidebar">
+            <!-- 랜딩페이지 스타일의 사이드바 헤더 -->
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    OK Financial HRM
+                </div>
+            </div>
+            
+            <!-- 혁신적 네비게이션 -->
+            <nav class="sidebar-nav">
+                <!-- Main Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Dashboard</div>
+                    <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <span class="nav-icon">🏠</span>
+                        AI 통합 대시보드
+                    </a>
+                    <a href="{% url 'employees:employee_management' %}" class="nav-item {% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
+                        <span class="nav-icon">👥</span>
+                        직원 관리 센터
+                    </a>
+                </div>
+                
+                <!-- AI Quick Win Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">AI Intelligence</div>
+                    <a href="{% url 'ai_quickwin:dashboard' %}" class="nav-item {% if 'ai_quickwin' in request.resolver_match.url_name %}active{% endif %}">
+                        <span class="nav-icon">🤖</span>
+                        AI 통합 허브
+                    </a>
+                    <a href="{% url 'ai_coaching:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">🎯</span>
+                        AI 스마트 코칭
+                    </a>
+                    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">⚡</span>
+                        팀 최적화 엔진
+                    </a>
+                    <a href="{% url 'ai_insights:executive_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">💡</span>
+                        경영진 인사이트
+                    </a>
+                    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📈</span>
+                        예측 분석 센터
+                    </a>
+                    <a href="{% url 'ai_interviewer:interview_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">🎤</span>
+                        AI 면접 시스템
+                    </a>
+                </div>
+                
+                <!-- HR Management Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">HR Operations</div>
+                    <a href="{% url 'recruitment:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📋</span>
+                        스마트 채용관리
+                    </a>
+                    <a href="{% url 'evaluations:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📊</span>
+                        성과 평가 센터
+                    </a>
+                    <a href="{% url 'compensation:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">💰</span>
+                        보상 최적화
+                    </a>
+                    <a href="{% url 'trainings:training_list' %}" class="nav-item">
+                        <span class="nav-icon">📚</span>
+                        학습 개발 센터
+                    </a>
+                </div>
+                
+                <!-- Analytics Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Analytics Hub</div>
+                    <a href="{% url 'leader_kpi_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📈</span>
+                        경영진 KPI 센터
+                    </a>
+                    <a href="{% url 'workforce_comp_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📊</span>
+                        인력 구성 분석
+                    </a>
+                    <a href="{% url 'skillmap_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">🗺️</span>
+                        스킬맵 인텔리전스
+                    </a>
+                </div>
+                
+                <!-- Advanced Features Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Advanced AI</div>
+                    <a href="{% url 'ai_chatbot' %}" class="nav-item">
+                        <span class="nav-icon">💬</span>
+                        AI 어시스턴트
+                    </a>
+                    <a href="{% url 'leader_ai_assistant' %}" class="nav-item">
+                        <span class="nav-icon">👑</span>
+                        리더십 AI 파트너
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- MAIN CONTENT AREA -->
+        <main class="content-wrapper" id="content">
+            <!-- Revolutionary Header -->
+            <header class="header-modern">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <button class="menu-toggle" onclick="toggleSidebar()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </button>
+                        <h1 class="logo-text">
+                            {% block page_header %}AI-Powered Intelligence{% endblock %}
+                        </h1>
+                    </div>
+                    
+                    <div class="header-actions">
+                        <a href="#" class="btn-landing btn-ghost" onclick="location.reload()">
+                            ⚡ 새로고침
+                        </a>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Revolutionary Page Content -->
+            <div class="page-content">
+                <!-- Page Header Section -->
+                <div class="page-header animate-fadeInUp">
+                    <h1 class="page-title animate-glow">
+                        {% block content_title %}{% block page_header %}{% endblock %}{% endblock %}
+                    </h1>
+                    {% block page_subtitle %}
+                    <p class="page-subtitle">
+                        AI 기반 차세대 인사정보시스템의 혁신을 경험하세요
+                    </p>
+                    {% endblock %}
+                </div>
+                
+                <!-- Main Content -->
+                <div class="animate-slideInLeft">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Revolutionary Custom Scripts -->
+    <script>
+        // Enhanced Sidebar Toggle with Landing-style Animation
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('expanded');
+            
+            // Add landing-style animation effect
+            sidebar.style.transform = sidebar.classList.contains('collapsed') 
+                ? 'translateX(-320px)' 
+                : 'translateX(0)';
+        }
+        
+        // Auto-hide sidebar on mobile with smooth transition
+        function handleResize() {
+            if (window.innerWidth < 992) {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.getElementById('content').classList.add('expanded');
+            } else {
+                document.getElementById('sidebar').classList.remove('collapsed');
+                document.getElementById('content').classList.remove('expanded');
+            }
+        }
+        
+        // Initialize responsive behavior
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Call on page load
+        
+        // Landing-style Page Load Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Stagger animation for nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+                item.classList.add('animate-slideInLeft');
+            });
+            
+            // Add glow effect to active navigation items
+            const activeItem = document.querySelector('.nav-item.active');
+            if (activeItem) {
+                activeItem.style.textShadow = '0 0 10px rgba(0, 212, 255, 0.8)';
+            }
+            
+            // Smooth scroll behavior for better UX
+            document.documentElement.style.scrollBehavior = 'smooth';
+        });
+        
+        // Enhanced hover effects for cards and buttons
+        function addLandingEffects() {
+            const cards = document.querySelectorAll('.landing-card, .feature-card, .stat-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        }
+        
+        // Initialize enhanced effects
+        document.addEventListener('DOMContentLoaded', addLandingEffects);
+        
+        // Add dynamic background effects
+        function addDynamicBackground() {
+            const body = document.body;
+            const coords = { x: 0, y: 0 };
+            
+            body.addEventListener('mousemove', function(e) {
+                coords.x = e.clientX;
+                coords.y = e.clientY;
+                
+                // Create subtle interactive glow effect
+                const glow = `radial-gradient(600px circle at ${coords.x}px ${coords.y}px, rgba(0, 212, 255, 0.05), transparent 40%)`;
+                body.style.backgroundImage = `${glow}, linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%)`;
+            });
+        }
+        
+        // Initialize dynamic background
+        addDynamicBackground();
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -3,6 +3,7 @@
 """
 
 from django.urls import path
+from django.views.generic import TemplateView
 from .training_api import (
     MyGrowthTrainingRecommendationsAPI,
     TrainingEnrollmentAPI,
@@ -13,6 +14,9 @@ from .training_api import (
 app_name = 'trainings'
 
 urlpatterns = [
+    # 메인 페이지
+    path('', TemplateView.as_view(template_name='trainings/training_list.html'), name='training_list'),
+    
     # API 엔드포인트
     path('api/my-growth-training-recommendations/', 
          MyGrowthTrainingRecommendationsAPI.as_view(), 

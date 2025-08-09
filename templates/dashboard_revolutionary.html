@@ -1,0 +1,547 @@
+{% extends "base_revolutionary.html" %}
+
+{% block title %}AI가 합류한 새로운 인사정보시스템 - OK Financial Group{% endblock %}
+
+{% block page_header %}AI Intelligence Center{% endblock %}
+
+{% block content_title %}AI가 합류한 새로운 인사정보시스템{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    <span style="color: #00d4ff; font-weight: 600;">1,700여명</span>의 임직원 데이터로 만드는 
+    <span style="color: #00d4ff; font-weight: 600;">차세대 AI 기반 HRM 시스템</span>
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 랜딩페이지 스타일의 히어로 섹션 */
+    .dashboard-hero {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 30px;
+        padding: 4rem 3rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .welcome-title {
+        font-size: clamp(32px, 6vw, 64px);
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.5rem;
+        line-height: 1.1;
+    }
+
+    .welcome-subtitle {
+        font-size: 20px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+        font-weight: 300;
+    }
+
+    /* 혁신적 통계 카드 그리드 */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .stat-card {
+        padding: 2.5rem 2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+    }
+
+    .stat-card:hover::before {
+        left: 100%;
+    }
+
+    .stat-icon {
+        font-size: 48px;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .stat-value {
+        font-size: 42px;
+        font-weight: 800;
+        color: #00d4ff;
+        margin-bottom: 0.8rem;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    /* 혁신적 액션 카드 */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .action-card {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+        overflow: hidden;
+        display: block;
+    }
+
+    .action-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-12px);
+        border-color: #00d4ff;
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .action-card:hover::after {
+        transform: scaleY(1);
+    }
+
+    .action-icon {
+        font-size: 42px;
+        margin-bottom: 1.5rem;
+        display: block;
+        text-align: center;
+    }
+
+    .action-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #00d4ff;
+        text-align: center;
+    }
+
+    .action-description {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    /* AIRISS 섹션 - 랜딩페이지와 동일한 스타일 */
+    .airiss-section {
+        margin: 4rem 0;
+        padding: 4rem 3rem;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .airiss-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    .airiss-header {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .airiss-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border-radius: 50px;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+    }
+
+    .airiss-title {
+        font-size: 48px;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #fff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .airiss-description {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 3rem;
+        line-height: 1.6;
+    }
+
+    .airiss-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .metric-item {
+        text-align: center;
+        padding: 2rem 1.5rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .metric-item:hover {
+        transform: translateX(8px);
+        border-color: #00d4ff;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .metric-item:hover::before {
+        transform: scaleX(1);
+    }
+
+    .metric-value {
+        font-size: 36px;
+        font-weight: 800;
+        color: #00d4ff;
+        margin-bottom: 0.8rem;
+        text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    }
+
+    .metric-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .dashboard-hero {
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .quick-actions {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .airiss-metrics {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .airiss-metrics {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 혁신적 대시보드 히어로 섹션 -->
+<div class="dashboard-hero animate-fadeInUp">
+    <div class="hero-content">
+        <h1 class="welcome-title animate-glow">AI가 합류한 새로운 인사정보시스템</h1>
+        <p class="welcome-subtitle">
+            1,700여명의 임직원 데이터로 만드는 차세대 HRM 시스템에 오신 것을 환영합니다
+        </p>
+    </div>
+</div>
+
+<!-- 핵심 통계 - 랜딩페이지 스타일 -->
+<div class="stats-grid">
+    <div class="stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
+        <span class="stat-icon">👥</span>
+        <div class="stat-value">1,700+</div>
+        <div class="stat-label">총 임직원</div>
+    </div>
+    
+    <div class="stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
+        <span class="stat-icon">🤖</span>
+        <div class="stat-value">7</div>
+        <div class="stat-label">AI 기능</div>
+    </div>
+    
+    <div class="stat-card animate-fadeInUp" style="animation-delay: 0.3s;">
+        <span class="stat-icon">⚡</span>
+        <div class="stat-value">95%</div>
+        <div class="stat-label">업무 자동화</div>
+    </div>
+    
+    <div class="stat-card animate-fadeInUp" style="animation-delay: 0.4s;">
+        <span class="stat-icon">📊</span>
+        <div class="stat-value">24/7</div>
+        <div class="stat-label">실시간 분석</div>
+    </div>
+</div>
+
+<!-- 빠른 액션 메뉴 - 혁신적 디자인 -->
+<div class="quick-actions">
+    <a href="{% url 'ai_quickwin:dashboard' %}" class="action-card animate-slideInLeft" style="animation-delay: 0.1s;">
+        <span class="action-icon">🤖</span>
+        <div class="action-title">AI 통합 대시보드</div>
+        <div class="action-description">
+            7가지 AI 기능을 한눈에 관리하고 모니터링할 수 있는 통합 허브
+        </div>
+    </a>
+    
+    <a href="{% url 'employees:employee_management' %}" class="action-card animate-slideInLeft" style="animation-delay: 0.2s;">
+        <span class="action-icon">👥</span>
+        <div class="action-title">스마트 직원 관리</div>
+        <div class="action-description">
+            1,700여명의 임직원 정보를 AI로 체계적으로 관리하고 분석
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_coaching:dashboard' %}" class="action-card animate-slideInLeft" style="animation-delay: 0.3s;">
+        <span class="action-icon">🎯</span>
+        <div class="action-title">AI 스마트 코칭</div>
+        <div class="action-description">
+            개인별 맞춤형 성장 경로 및 스킬 개발 가이드를 AI가 제공
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="action-card animate-slideInLeft" style="animation-delay: 0.4s;">
+        <span class="action-icon">⚡</span>
+        <div class="action-title">팀 최적화 엔진</div>
+        <div class="action-description">
+            AI 기반 팀 구성 최적화 및 업무 효율성 극대화 솔루션
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_insights:executive_dashboard' %}" class="action-card animate-slideInLeft" style="animation-delay: 0.5s;">
+        <span class="action-icon">💡</span>
+        <div class="action-title">경영진 인사이트</div>
+        <div class="action-description">
+            데이터 기반 인사 전략 수립을 위한 핵심 경영 인사이트 제공
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="action-card animate-slideInLeft" style="animation-delay: 0.6s;">
+        <span class="action-icon">📈</span>
+        <div class="action-title">예측 분석 센터</div>
+        <div class="action-description">
+            성과 예측, 이탈 위험 분석 등 미래 지향적 HR 분석 시스템
+        </div>
+    </a>
+</div>
+
+<!-- AIRISS 시스템 소개 - 랜딩페이지와 동일한 스타일 -->
+<div class="airiss-section animate-fadeInUp">
+    <div class="airiss-header">
+        <span class="airiss-badge">MSA Architecture</span>
+        <h2 class="airiss-title">AIRISS</h2>
+        <p class="airiss-description">
+            AI Result & Intelligence Scoring System - 마이크로서비스 아키텍처로 구현된 
+            차세대 AI 평가 엔진이 실시간으로 HR 데이터를 분석합니다
+        </p>
+    </div>
+    
+    <div class="airiss-metrics">
+        <div class="metric-item">
+            <div class="metric-value">0.05s</div>
+            <div class="metric-label">응답시간</div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">99.9%</div>
+            <div class="metric-label">정확도</div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">24/7</div>
+            <div class="metric-label">가용성</div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">실시간</div>
+            <div class="metric-label">데이터 처리</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 랜딩페이지 스타일의 인터랙션 효과
+    document.addEventListener('DOMContentLoaded', function() {
+        // 스탯 카드 hover 효과 강화
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-12px) scale(1.03)';
+                const value = this.querySelector('.stat-value');
+                if (value) {
+                    value.style.textShadow = '0 0 30px rgba(0, 212, 255, 0.8)';
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                const value = this.querySelector('.stat-value');
+                if (value) {
+                    value.style.textShadow = '0 0 20px rgba(0, 212, 255, 0.5)';
+                }
+            });
+        });
+        
+        // 액션 카드 3D 효과
+        const actionCards = document.querySelectorAll('.action-card');
+        actionCards.forEach(card => {
+            card.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const rotateY = (x - rect.width / 2) / rect.width * 10;
+                const rotateX = (rect.height / 2 - y) / rect.height * 10;
+                
+                this.style.transform = `translateY(-12px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+            });
+        });
+        
+        // AIRISS 메트릭 카운터 애니메이션
+        const metricsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const metricValue = entry.target.querySelector('.metric-value');
+                    if (metricValue && metricValue.textContent.includes('%')) {
+                        animateNumber(metricValue, parseFloat(metricValue.textContent), '%');
+                    } else if (metricValue && metricValue.textContent.includes('s')) {
+                        // 시간 값은 애니메이션하지 않음
+                    } else if (metricValue && !isNaN(parseFloat(metricValue.textContent))) {
+                        animateNumber(metricValue, parseFloat(metricValue.textContent));
+                    }
+                }
+            });
+        });
+        
+        document.querySelectorAll('.metric-item').forEach(item => {
+            metricsObserver.observe(item);
+        });
+        
+        function animateNumber(element, target, suffix = '') {
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current) + suffix;
+            }, 50);
+        }
+    });
+</script>
+{% endblock %}
