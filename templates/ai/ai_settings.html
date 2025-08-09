@@ -297,14 +297,22 @@
 </div>
 
 <script>
+// 저장된 설정 데이터
+let savedSettings = {};
+
 // 프로바이더 연결 테스트
 function testProvider(provider) {
-    const apiKey = document.getElementById(`${provider}-api-key`).value;
+    let apiKey = document.getElementById(`${provider}-api-key`).value;
     const model = document.getElementById(`${provider}-model`).value;
     
+    // 마스킹된 키인 경우 저장된 실제 키 사용
     if (!apiKey || apiKey.includes('•')) {
-        alert('API 키를 입력해주세요.');
-        return;
+        if (savedSettings[provider] && savedSettings[provider].api_key) {
+            apiKey = savedSettings[provider].api_key;
+        } else {
+            alert('API 키를 먼저 저장해주세요.');
+            return;
+        }
     }
     
     // 로딩 표시
@@ -350,8 +358,8 @@ function saveProvider(provider) {
     const apiKey = document.getElementById(`${provider}-api-key`).value;
     const model = document.getElementById(`${provider}-model`).value;
     
-    if (!apiKey) {
-        alert('API 키를 입력해주세요.');
+    if (!apiKey || apiKey.includes('•')) {
+        alert('유효한 API 키를 입력해주세요.');
         return;
     }
     
@@ -363,16 +371,31 @@ function saveProvider(provider) {
         },
         body: JSON.stringify({
             provider: provider,
-            api_key: apiKey,
-            model: model
+            settings: {
+                api_key: apiKey,
+                model_name: model
+            }
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             alert('설정이 저장되었습니다.');
+            
+            // 저장된 설정을 메모리에 보관
+            if (!savedSettings[provider]) {
+                savedSettings[provider] = {};
+            }
+            savedSettings[provider].api_key = apiKey;
+            savedSettings[provider].model_name = model;
+            
             // 마스킹된 키로 표시
             document.getElementById(`${provider}-api-key`).value = '••••••••••••••••';
+            
+            // 상태 업데이트
+            const statusEl = document.getElementById(`${provider}-status`);
+            statusEl.textContent = '저장됨';
+            statusEl.className = 'px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800';
         } else {
             alert(`저장 실패: ${data.error}`);
         }
@@ -435,9 +458,67 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Lucide 아이콘 초기화
+// 저장된 설정 불러오기
+function loadSavedSettings() {
+    fetch('/ai/api/load-settings/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            savedSettings = data.saved_settings || {};
+            
+            // UI에 설정 반영
+            Object.keys(savedSettings).forEach(provider => {
+                const settings = savedSettings[provider];
+                
+                // API 키가 있으면 마스킹하여 표시
+                if (settings.api_key) {
+                    const apiKeyEl = document.getElementById(`${provider}-api-key`);
+                    if (apiKeyEl) {
+                        apiKeyEl.value = '••••••••••••••••';
+                        apiKeyEl.placeholder = '저장된 API 키 사용 중';
+                    }
+                    
+                    // 상태 표시
+                    const statusEl = document.getElementById(`${provider}-status`);
+                    if (statusEl) {
+                        statusEl.textContent = '설정됨';
+                        statusEl.className = 'px-3 py-1 text-sm rounded-full bg-green-100 text-green-800';
+                    }
+                }
+                
+                // 모델명 설정
+                if (settings.model_name) {
+                    const modelEl = document.getElementById(`${provider}-model`);
+                    if (modelEl) {
+                        modelEl.value = settings.model_name;
+                    }
+                }
+            });
+            
+            // 환경 변수 기반 설정도 표시
+            if (data.environment_config) {
+                Object.keys(data.environment_config).forEach(configKey => {
+                    if (data.environment_config[configKey]) {
+                        const provider = configKey.replace('_configured', '');
+                        const statusEl = document.getElementById(`${provider}-status`);
+                        if (statusEl && !savedSettings[provider]) {
+                            statusEl.textContent = '환경변수 설정됨';
+                            statusEl.className = 'px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800';
+                        }
+                    }
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.error('설정 불러오기 실패:', error);
+    });
+}
+
+// Lucide 아이콘 초기화 및 설정 로드
 document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
+    loadSavedSettings();
 });
 </script>
 {% endblock %}
