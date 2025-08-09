@@ -173,22 +173,35 @@ class AIServiceClient:
         """OpenAI API 호출 (v1.0+ 호환)"""
         try:
             from openai import OpenAI
+            import logging
+            logger = logging.getLogger(__name__)
             
-            # 클라이언트 생성 시 timeout 제거 (API 호출 시에만 사용)
-            client = OpenAI(api_key=self.config.api_key)
+            # 클라이언트 생성 시 필요한 매개변수만 사용
+            logger.info(f"OpenAI 클라이언트 생성 시작, API 키 존재: {bool(self.config.api_key)}")
+            
+            client = OpenAI(
+                api_key=self.config.api_key,
+                timeout=30.0  # 타임아웃을 클라이언트 레벨에서 설정
+            )
+            
+            logger.info("OpenAI 클라이언트 생성 완료")
             
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
             
-            # API 호출 시 timeout 설정
+            logger.info(f"OpenAI API 호출 시작: {self.config.model_name}")
+            
+            # API 호출
             response = client.chat.completions.create(
                 model=self.config.model_name,
                 messages=messages,
                 temperature=kwargs.get('temperature', self.config.temperature),
                 max_tokens=kwargs.get('max_tokens', self.config.max_tokens)
             )
+            
+            logger.info("OpenAI API 호출 성공")
             
             return response.choices[0].message.content
             
