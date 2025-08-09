@@ -5,55 +5,129 @@
 
 {% block extra_css %}
 <style>
+/* AI 테마 색상 변수 */
+:root {
+    --ai-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --ai-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --ai-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --ai-text: #2d3748;
+    --ai-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --message-bg: rgba(255, 255, 255, 0.95);
+    --user-msg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --ai-msg: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    --leader-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
 .leader-container {
-    height: calc(100vh - 150px);
+    height: calc(100vh - 120px);
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 24px;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
 }
 
 .leader-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 8px;
-    padding: 25px;
-    margin-bottom: 20px;
+    background: var(--leader-accent);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(240, 147, 251, 0.3);
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.leader-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
 }
 
 .leader-header h2 {
     margin: 0 0 8px 0;
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.leader-header h2::before {
+    content: '👑';
+    font-size: 32px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 .leader-header p {
     margin: 0;
-    opacity: 0.9;
-    font-size: 16px;
+    opacity: 0.95;
+    font-size: 18px;
+    font-weight: 300;
 }
 
 .chat-window {
     flex: 1;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: var(--message-bg);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    backdrop-filter: blur(10px);
 }
 
 .chat-messages {
     flex: 1;
-    padding: 20px;
+    padding: 24px;
     overflow-y: auto;
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, #fafbfc 0%, #f4f6f8 100%);
+    position: relative;
+}
+
+.chat-messages::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(240, 147, 251, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(245, 87, 108, 0.05) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .message {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     align-items: flex-start;
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .message.user {
@@ -62,116 +136,165 @@
 
 .message-content {
     max-width: 75%;
-    padding: 15px 18px;
-    border-radius: 12px;
-    font-size: 14px;
+    padding: 16px 20px;
+    border-radius: 18px;
+    font-size: 16px;
     line-height: 1.6;
+    position: relative;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    word-break: break-word;
     white-space: pre-wrap;
 }
 
 .message.user .message-content {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--leader-accent);
     color: white;
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+    border-bottom-right-radius: 6px;
 }
 
 .message.assistant .message-content {
-    background-color: white;
-    border: 1px solid #e0e0e0;
+    background: var(--ai-msg);
+    border: 1px solid rgba(240, 147, 251, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-bottom-left-radius: 6px;
     position: relative;
 }
 
 .message.assistant .message-content::before {
-    content: '🤖';
+    content: '👑';
     position: absolute;
-    left: -25px;
-    top: 15px;
-    font-size: 16px;
+    left: -30px;
+    top: 16px;
+    font-size: 18px;
+    background: var(--leader-accent);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
 }
 
 .message-time {
-    font-size: 11px;
-    color: #999;
-    margin-top: 4px;
+    font-size: 12px;
+    color: #a0aec0;
+    margin-top: 6px;
+    font-weight: 300;
 }
 
 .chat-input {
-    padding: 20px;
+    padding: 24px;
     background: white;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid rgba(240, 147, 251, 0.1);
 }
 
 .input-group {
     display: flex;
     gap: 12px;
+    align-items: center;
 }
 
 .chat-input input {
     flex: 1;
-    padding: 12px 18px;
-    border: 1px solid #ddd;
+    padding: 16px 24px;
+    border: 2px solid rgba(240, 147, 251, 0.2);
     border-radius: 25px;
     outline: none;
-    font-size: 14px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: rgba(247, 250, 252, 0.8);
 }
 
 .chat-input input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #f093fb;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(240, 147, 251, 0.1);
+    transform: translateY(-1px);
 }
 
 .chat-input button {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 16px 28px;
+    background: var(--leader-accent);
     color: white;
     border: none;
     border-radius: 25px;
     cursor: pointer;
-    font-weight: 500;
-    transition: transform 0.2s;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .chat-input button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+}
+
+.chat-input button::after {
+    content: '🚀';
+    font-size: 14px;
 }
 
 .leadership-questions {
-    margin-top: 12px;
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .question-chip {
-    display: inline-block;
-    padding: 8px 14px;
-    margin: 5px;
-    background-color: #f0f2ff;
-    border: 1px solid #e0e4ff;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+    border: 1px solid rgba(240, 147, 251, 0.2);
     border-radius: 20px;
-    font-size: 13px;
+    font-size: 14px;
     cursor: pointer;
-    transition: all 0.2s;
-    color: #4c63d2;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: var(--ai-text);
 }
 
 .question-chip:hover {
-    background-color: #e0e4ff;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(76, 99, 210, 0.2);
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.2) 0%, rgba(245, 87, 108, 0.2) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);
+}
+
+.question-chip::before {
+    content: '🎯';
+    margin-right: 6px;
+    font-size: 12px;
 }
 
 .typing-indicator {
     display: none;
-    padding: 20px;
+    padding: 24px;
     text-align: left;
+}
+
+.typing-indicator::before {
+    content: '👑 전략 수립 중';
+    color: #f093fb;
+    font-weight: 500;
+    margin-right: 12px;
 }
 
 .typing-dot {
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background-color: #667eea;
-    margin: 0 2px;
-    animation: typing 1.4s infinite;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    margin: 0 3px;
+    animation: typing 1.4s ease-in-out infinite;
 }
 
 .typing-dot:nth-child(2) {
@@ -197,13 +320,60 @@
     display: flex;
     gap: 15px;
     margin-top: 15px;
+    flex-wrap: wrap;
 }
 
 .stat-item {
     background: rgba(255, 255, 255, 0.2);
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* 스크롤바 스타일링 */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(240, 147, 251, 0.1);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--leader-accent);
+    border-radius: 3px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .message-content {
+        max-width: 85%;
+        font-size: 15px;
+        padding: 14px 18px;
+    }
+    
+    .chat-input input {
+        font-size: 16px; /* iOS 줌 방지 */
+    }
+    
+    .leadership-stats {
+        gap: 10px;
+    }
+    
+    .stat-item {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
 }
 </style>
 {% endblock %}
@@ -211,7 +381,7 @@
 {% block content %}
 <div class="leader-container">
     <div class="leader-header">
-        <h2>👑 리더십 AI 어시스턴트</h2>
+        <h2>리더십 AI 어시스턴트</h2>
         <p>관리자와 리더를 위한 전문적인 리더십 조언과 솔루션을 제공합니다</p>
         <div class="leadership-stats">
             <div class="stat-item">🎯 전략적 사고</div>
@@ -248,7 +418,7 @@
             <div class="input-group">
                 <input type="text" id="messageInput" placeholder="리더십 관련 질문을 입력하세요..." 
                        onkeypress="if(event.key==='Enter') sendMessage()">
-                <button onclick="sendMessage()">💬 전송</button>
+                <button onclick="sendMessage()">전송</button>
             </div>
             
             <div class="leadership-questions">
