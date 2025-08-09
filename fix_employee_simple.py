@@ -29,17 +29,25 @@ def add_missing_column():
             columns = [row[0] for row in cursor.fetchall()]
             print("Current columns:", len(columns))
             
-            # 필요한 컬럼들 확인 및 추가
-            required_columns = ['dummy_chinese_name', 'dummy_name', 'dummy_mobile']
+            # 필요한 컬럼들 확인 및 추가 (데이터 타입 포함)
+            required_columns = {
+                'dummy_chinese_name': 'VARCHAR(100)',
+                'dummy_name': 'VARCHAR(100)',
+                'dummy_mobile': 'VARCHAR(20)',
+                'dummy_registered_address': 'TEXT',
+                'dummy_residence_address': 'TEXT',
+                'dummy_email': 'VARCHAR(254)'
+            }
             
-            for col_name in required_columns:
+            for col_name, col_type in required_columns.items():
                 if col_name not in columns:
                     # 컬럼 추가
-                    cursor.execute(f"ALTER TABLE employees_employee ADD COLUMN {col_name} VARCHAR(100) NULL")
-                    print(f"Added {col_name} column")
+                    cursor.execute(f"ALTER TABLE employees_employee ADD COLUMN {col_name} {col_type} NULL")
+                    print(f"Added {col_name} column ({col_type})")
                     
                     # 기본값 설정
-                    cursor.execute(f"UPDATE employees_employee SET {col_name} = '익명화' WHERE {col_name} IS NULL")
+                    default_value = 'dummy@example.com' if 'email' in col_name else '익명화'
+                    cursor.execute(f"UPDATE employees_employee SET {col_name} = %s WHERE {col_name} IS NULL", [default_value])
                     print(f"Updated {col_name} values")
                 else:
                     print(f"{col_name} column already exists")
