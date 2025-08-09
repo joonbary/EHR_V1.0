@@ -3,7 +3,7 @@ HR Dashboard URL Configuration
 """
 
 from django.urls import path, include
-from . import api_views_hr, api_views_outsourced, api_views_monthly, api_views_full_workforce, api_views_monthly_download, api_views_overseas
+from . import api_views_hr, api_views_outsourced, api_views_monthly, api_views_full_workforce, api_views_monthly_download_simple, api_views_overseas
 
 app_name = 'hr_api'
 
@@ -32,7 +32,7 @@ urlpatterns = [
     # 월간 인력현황
     path('monthly-workforce/', api_views_monthly.get_monthly_workforce_data, name='monthly_workforce_data'),
     path('monthly-workforce/upload/', api_views_monthly.upload_monthly_workforce_file, name='upload_monthly_workforce'),
-    path('monthly-workforce/download/', api_views_monthly_download.download_monthly_workforce_excel, name='download_monthly_workforce'),
+    path('monthly-workforce/download/', api_views_monthly_download_simple.download_monthly_workforce_excel, name='download_monthly_workforce'),
     
     # 전체 인력현황 (emp_upload.xlsx 기반)
     path('full-workforce/', api_views_full_workforce.get_full_workforce_data, name='full_workforce_data'),

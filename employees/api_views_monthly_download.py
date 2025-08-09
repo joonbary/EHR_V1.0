@@ -7,6 +7,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import io
+import traceback
 from .api_views_monthly import get_monthly_workforce_data
 
 def download_monthly_workforce_excel(request):
@@ -34,7 +35,8 @@ def download_monthly_workforce_excel(request):
         # Excel 파일 생성
         output = io.BytesIO()
         
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        # openpyxl 엔진 사용 (xlsxwriter 대신)
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
             # GET 요청일 때 데이터를 재구성
             if request.method == 'GET':
                 # 헤더 생성
@@ -103,32 +105,25 @@ def download_monthly_workforce_excel(request):
             # Excel 파일에 쓰기
             df.to_excel(writer, sheet_name='인력현황', index=False, startrow=5)
             
-            # 워크북과 워크시트 가져오기
+            # openpyxl 스타일 설정
+            from openpyxl.styles import Font, Alignment, PatternFill
+            
             workbook = writer.book
             worksheet = writer.sheets['인력현황']
             
-            # 스타일 설정
-            header_format = workbook.add_format({
-                'bold': True,
-                'text_wrap': True,
-                'valign': 'center',
-                'align': 'center',
-                'border': 1,
-                'bg_color': '#D7E4BD'
-            })
-            
-            title_format = workbook.add_format({
-                'bold': True,
-                'font_size': 16,
-                'align': 'center'
-            })
-            
             # 제목 스타일 적용
-            worksheet.merge_range('A1:H1', title, title_format)
+            title_cell = worksheet['A1']
+            title_cell.font = Font(bold=True, size=16)
+            title_cell.alignment = Alignment(horizontal='center')
+            worksheet.merge_cells('A1:H1')
             
             # 컬럼 너비 설정
-            worksheet.set_column('A:B', 15)
-            worksheet.set_column('C:Z', 12)
+            for col in range(1, 30):  # A부터 Z까지
+                col_letter = chr(64 + col)
+                if col <= 2:  # A, B 열
+                    worksheet.column_dimensions[col_letter].width = 15
+                else:  # 나머지 열
+                    worksheet.column_dimensions[col_letter].width = 12
             
         # 파일 포인터를 처음으로 이동
         output.seek(0)
@@ -143,4 +138,7 @@ def download_monthly_workforce_excel(request):
         return response
         
     except Exception as e:
-        return HttpResponse(str(e), status=500)
+        # 디버깅을 위한 상세한 에러 정보
+        error_msg = f"Excel 다운로드 오류: {str(e)}\n{traceback.format_exc()}"
+        print(error_msg)  # 서버 로그에 출력
+        return HttpResponse(error_msg, status=500)
