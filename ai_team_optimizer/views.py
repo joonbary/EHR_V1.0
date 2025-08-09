@@ -31,20 +31,45 @@ class TeamOptimizerDashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         
         try:
-            analyzer = TeamAnalyzer()
-            
-            # 기본 통계
+            # 기본 통계 - 안전한 초기화
             context.update({
-                'stats': analyzer.get_team_statistics(),
-                'recent_projects': self._get_recent_projects(),
-                'active_compositions': self._get_active_compositions(),
-                'optimization_suggestions': self._get_optimization_suggestions(),
-                'templates': TeamTemplate.objects.filter(is_active=True)[:5]
+                'stats': {
+                    'projects': {
+                        'total': 0,
+                        'active': 0,
+                        'completed': 0,
+                    },
+                    'teams': {
+                        'total': 0,
+                        'approved': 0,
+                        'optimization_rate': 0
+                    }
+                },
+                'recent_projects': [],
+                'active_compositions': [],
+                'optimization_suggestions': [],
+                'templates': []
             })
             
+            # TeamAnalyzer가 있으면 실제 데이터 로드
+            try:
+                analyzer = TeamAnalyzer()
+                context['stats'] = analyzer.get_team_statistics()
+            except:
+                pass  # 기본값 사용
+                
+            context['recent_projects'] = self._get_recent_projects()
+            context['active_compositions'] = self._get_active_compositions()
+            context['optimization_suggestions'] = self._get_optimization_suggestions()
+            
+            try:
+                context['templates'] = TeamTemplate.objects.filter(is_active=True)[:5]
+            except:
+                context['templates'] = []
+            
         except Exception as e:
-            logger.error(f"대시보드 데이터 로드 오류: {e}")
-            context['error'] = str(e)
+            logger.error(f"대시보드 데이터 로드 오류: {e}", exc_info=True)
+            context['error'] = f"데이터베이스 초기화가 필요합니다: {str(e)}"
         
         return context
     

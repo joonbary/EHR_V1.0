@@ -77,7 +77,13 @@ class CoachingDashboardView(TemplateView):
             }
         except Exception as e:
             logger.error(f"코칭 통계 조회 오류: {e}")
-            return {}
+            return {
+                'total_sessions': 0,
+                'active_sessions': 0,
+                'completed_sessions': 0,
+                'completion_rate': 0,
+                'avg_satisfaction': 0
+            }
     
     def _get_active_sessions(self):
         """활성 세션 조회"""
