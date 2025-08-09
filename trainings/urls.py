@@ -15,7 +15,7 @@ app_name = 'trainings'
 
 urlpatterns = [
     # 메인 페이지
-    path('', TemplateView.as_view(template_name='trainings/training_list.html'), name='training_list'),
+    path('', TemplateView.as_view(template_name='trainings/training_list_revolutionary.html'), name='training_list'),
     
     # API 엔드포인트
     path('api/my-growth-training-recommendations/', 
