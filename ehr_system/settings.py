@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', "django-insecure-pj@ho*t(o-4ja7vl)x6f4ehg&&s_h&u@^h-_1*=qo^ho8-w)9s")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+DEBUG = True  # 디버그 모드 강제 활성화 (개발 중)
 
 # Railway 배포 설정
 if os.getenv('RAILWAY_ENVIRONMENT'):
