@@ -43,18 +43,6 @@ urlpatterns = [
     # AIRISS (AI 기반 HR 지원)
     path('airiss/', include('airiss.urls')),
     
-    # AI 인사이트 대시보드
-    path('ai-insights/', include('ai_insights.urls')),
-    
-    # AI 이직 위험도 분석
-    path('ai-predictions/', include('ai_predictions.urls')),
-    
-    # AI 면접관
-    path('ai-interviewer/', include('ai_interviewer.urls')),
-    
-    # AI 팀 조합 최적화
-    path('ai-team-optimizer/', include('ai_team_optimizer.urls')),
-    
     # AI Quick Win 메뉴들
     path('ai/', include('ai_quickwin.urls')),  # AI Quick Win 통합 대시보드
     path('ai-coaching/', include('ai_coaching.urls')),
