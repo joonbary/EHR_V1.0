@@ -3,6 +3,24 @@
 
 {% block title %}AI Quick Win Dashboard - OK금융그룹{% endblock %}
 
+{% block breadcrumb %}
+<div class="px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <nav aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm">
+            <li>
+                <a href="{% url 'home' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">AI Quick Win 통합 대시보드</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
 {% block extra_css %}
 <style>
     .ai-module-card {
@@ -368,12 +386,51 @@
             </div>
         </div>
     </div>
+    
+    <!-- AIRISS 통합 상태 섹션 -->
+    <div class="mt-8 bg-white rounded-2xl shadow-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-900">AIRISS 서비스 통합 상태</h2>
+            <button onclick="checkIntegrationStatus()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors">
+                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                상태 확인
+            </button>
+        </div>
+        
+        <div id="integration-status" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 통합 상태가 여기에 동적으로 로드됩니다 -->
+            <div class="text-center text-gray-500 col-span-full py-8">
+                <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+                <p>통합 상태를 불러오는 중...</p>
+            </div>
+        </div>
+        
+        <!-- 직원 동기화 섹션 -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <h3 class="text-lg font-semibold mb-4">직원 데이터 동기화</h3>
+            <div class="flex items-center gap-4">
+                <input type="number" id="employee-id" placeholder="직원 ID 입력" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                <button onclick="syncEmployee()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i data-lucide="user-check" class="w-4 h-4 inline mr-2"></i>
+                    개별 동기화
+                </button>
+                <button onclick="generateReport()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>
+                    종합 리포트
+                </button>
+            </div>
+            <div id="sync-result" class="mt-4"></div>
+        </div>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Lucide icons
     lucide.createIcons();
+    
+    // Load integration status on page load
+    checkIntegrationStatus();
     
     // Animate progress bars on page load
     setTimeout(() => {
@@ -393,5 +450,236 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// AIRISS 통합 상태 확인
+function checkIntegrationStatus() {
+    fetch('/ai/api/integration-status/')
+        .then(response => response.json())
+        .then(data => {
+            displayIntegrationStatus(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('integration-status').innerHTML = `
+                <div class="col-span-full text-center text-red-500">
+                    <p>통합 상태를 불러오는데 실패했습니다.</p>
+                </div>
+            `;
+        });
+}
+
+// 통합 상태 표시
+function displayIntegrationStatus(data) {
+    const statusContainer = document.getElementById('integration-status');
+    let html = '';
+    
+    // 전체 상태 표시
+    const healthColor = data.integration_health === 'HEALTHY' ? 'green' : 
+                       data.integration_health === 'DEGRADED' ? 'yellow' : 'red';
+    
+    html += `
+        <div class="col-span-full mb-4 p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center justify-between">
+                <span class="font-semibold">전체 통합 상태</span>
+                <span class="px-3 py-1 bg-${healthColor}-100 text-${healthColor}-800 rounded-full text-sm font-medium">
+                    ${data.integration_health}
+                </span>
+            </div>
+        </div>
+    `;
+    
+    // 각 모듈 상태 표시
+    if (data.modules) {
+        Object.entries(data.modules).forEach(([module, info]) => {
+            const isActive = info.active || info.connected;
+            const statusColor = isActive ? 'green' : 'gray';
+            const statusText = isActive ? 'Active' : 'Inactive';
+            
+            html += `
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-900">${formatModuleName(module)}</h4>
+                        <span class="w-2 h-2 bg-${statusColor}-500 rounded-full"></span>
+                    </div>
+                    <p class="text-sm text-gray-600">상태: ${statusText}</p>
+                    ${info.recent_insights !== undefined ? `<p class="text-sm text-gray-600">최근 활동: ${info.recent_insights}</p>` : ''}
+                    ${info.active_sessions !== undefined ? `<p class="text-sm text-gray-600">활성 세션: ${info.active_sessions}</p>` : ''}
+                    ${info.active_projects !== undefined ? `<p class="text-sm text-gray-600">활성 프로젝트: ${info.active_projects}</p>` : ''}
+                </div>
+            `;
+        });
+    }
+    
+    statusContainer.innerHTML = html;
+    lucide.createIcons();
+}
+
+// 모듈 이름 포맷팅
+function formatModuleName(module) {
+    const names = {
+        'airiss': 'AIRISS Core',
+        'ai_insights': 'AI 인사이트',
+        'ai_predictions': '이직 예측',
+        'ai_interviewer': 'AI 면접관',
+        'ai_team_optimizer': '팀 최적화',
+        'ai_coaching': '코칭 어시스턴트'
+    };
+    return names[module] || module;
+}
+
+// 직원 동기화
+function syncEmployee() {
+    const employeeId = document.getElementById('employee-id').value;
+    
+    if (!employeeId) {
+        alert('직원 ID를 입력해주세요.');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('sync-result');
+    resultDiv.innerHTML = '<p class="text-gray-500">동기화 중...</p>';
+    
+    fetch(`/ai/api/sync/employee/${employeeId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-green-800 font-medium">동기화 성공!</p>
+                    <p class="text-sm text-green-600 mt-1">직원: ${data.employee_name}</p>
+                    <p class="text-sm text-green-600">이직 위험도: ${data.analysis_summary.risk_level} (${data.analysis_summary.turnover_risk_score}%)</p>
+                    <p class="text-sm text-green-600">승진 준비도: ${data.analysis_summary.promotion_readiness} (${data.analysis_summary.promotion_potential_score}%)</p>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p class="text-red-800">동기화 실패: ${data.error}</p>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultDiv.innerHTML = `
+            <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-red-800">오류가 발생했습니다.</p>
+            </div>
+        `;
+    });
+}
+
+// 종합 리포트 생성
+function generateReport() {
+    const employeeId = document.getElementById('employee-id').value;
+    
+    if (!employeeId) {
+        alert('직원 ID를 입력해주세요.');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('sync-result');
+    resultDiv.innerHTML = '<p class="text-gray-500">리포트 생성 중...</p>';
+    
+    fetch(`/ai/api/report/${employeeId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayReport(data.report);
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-red-800">리포트 생성 실패: ${data.error}</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultDiv.innerHTML = `
+                <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p class="text-red-800">오류가 발생했습니다.</p>
+                </div>
+            `;
+        });
+}
+
+// 리포트 표시
+function displayReport(report) {
+    const resultDiv = document.getElementById('sync-result');
+    
+    let html = `
+        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h4 class="font-bold text-blue-900 mb-3">종합 AI 분석 리포트</h4>
+            <div class="space-y-2">
+                <p class="text-sm"><strong>직원:</strong> ${report.employee.name} (${report.employee.position})</p>
+                <p class="text-sm"><strong>부서:</strong> ${report.employee.department}</p>
+    `;
+    
+    if (report.modules.airiss) {
+        const airiss = report.modules.airiss;
+        html += `
+            <div class="mt-3 pt-3 border-t border-blue-200">
+                <p class="font-semibold text-blue-800">AIRISS 분석</p>
+                <p class="text-sm">이직 위험도: ${airiss.turnover_risk.score}%</p>
+                <p class="text-sm">승진 가능성: ${airiss.promotion_potential.score}%</p>
+            </div>
+        `;
+    }
+    
+    if (report.modules.coaching) {
+        const coaching = report.modules.coaching;
+        html += `
+            <div class="mt-3 pt-3 border-t border-blue-200">
+                <p class="font-semibold text-blue-800">코칭 현황</p>
+                <p class="text-sm">활성 세션: ${coaching.active_sessions}</p>
+                <p class="text-sm">완료 목표: ${coaching.completed_goals} / ${coaching.total_goals}</p>
+            </div>
+        `;
+    }
+    
+    if (report.summary) {
+        html += `
+            <div class="mt-3 pt-3 border-t border-blue-200">
+                <p class="font-semibold text-blue-800">종합 평가</p>
+                <p class="text-sm">상태: ${report.summary.overall_status}</p>
+                ${report.summary.immediate_actions.length > 0 ? 
+                    `<p class="text-sm mt-1"><strong>즉시 조치사항:</strong></p>
+                    <ul class="list-disc list-inside text-sm ml-2">
+                        ${report.summary.immediate_actions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>` : ''}
+            </div>
+        `;
+    }
+    
+    html += `
+            </div>
+        </div>
+    `;
+    
+    resultDiv.innerHTML = html;
+}
+
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 {% endblock %}

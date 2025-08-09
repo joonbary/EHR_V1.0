@@ -3,756 +3,441 @@
 
 {% block title %}실시간 코칭 어시스턴트 - AI Quick Win{% endblock %}
 
+{% block breadcrumb %}
+<div class="px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <nav aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm">
+            <li>
+                <a href="{% url 'home' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <a href="{% url 'ai_quickwin:dashboard' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    AI Quick Win
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">실시간 코칭 어시스턴트</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
 {% block extra_css %}
 <style>
-    .coaching-dashboard {
-        padding: 20px 0;
-    }
-    
-    .stats-card {
+    .coaching-card {
         background: white;
         border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         transition: all 0.3s ease;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        height: 100%;
     }
     
-    .stats-card:hover {
+    .coaching-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(255, 107, 0, 0.1);
+        box-shadow: 0 8px 30px rgba(255, 107, 0, 0.15);
     }
     
-    .stats-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 12px;
+    .chat-container {
+        height: 500px;
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+    
+    .message {
         margin-bottom: 16px;
-        font-size: 24px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
     }
     
-    .stats-value {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 4px;
+    .message.user {
+        flex-direction: row-reverse;
     }
     
-    .stats-label {
-        color: #6c757d;
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .total-bg { background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%); }
-    .active-bg { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); }
-    .rate-bg { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); }
-    .satisfaction-bg { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); }
-    
-    .session-card {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-    }
-    
-    .coaching-item {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-        border-left: 4px solid #17a2b8;
-        transition: all 0.3s ease;
-    }
-    
-    .coaching-item:hover {
-        background: white;
-        transform: translateX(4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .session-type-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    
-    .session-performance { background: rgba(0, 123, 255, 0.1); color: #004085; }
-    .session-leadership { background: rgba(255, 193, 7, 0.1); color: #856404; }
-    .session-skill_development { background: rgba(40, 167, 69, 0.1); color: #155724; }
-    .session-career_path { background: rgba(220, 53, 69, 0.1); color: #721c24; }
-    .session-communication { background: rgba(102, 16, 242, 0.1); color: #6610f2; }
-    .session-goal_setting { background: rgba(23, 162, 184, 0.1); color: #17a2b8; }
-    
-    .goal-card {
-        background: white;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-        border-left: 3px solid #28a745;
-        transition: all 0.3s ease;
-    }
-    
-    .goal-card:hover {
-        background: #f8f9fa;
-        transform: translateX(2px);
-    }
-    
-    .priority-high { border-left-color: #dc3545; }
-    .priority-medium { border-left-color: #ffc107; }
-    .priority-low { border-left-color: #28a745; }
-    
-    .coach-avatar {
-        width: 80px;
-        height: 80px;
+    .message-avatar {
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 2rem;
-        font-weight: bold;
-        margin: 0 auto 20px;
-        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+        font-weight: 600;
+        font-size: 0.875rem;
+        flex-shrink: 0;
     }
     
-    .btn-start-coaching {
+    .message.ai .message-avatar {
         background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
         color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 12px 30px;
-        font-size: 1rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
     }
     
-    .btn-start-coaching:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
+    .message.user .message-avatar {
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .message-content {
+        max-width: 70%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .message.user .message-content {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
         color: white;
     }
     
-    .template-card {
-        background: white;
+    .chat-input {
+        padding: 20px;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 12px;
+    }
+    
+    .coaching-metric {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .metric-bar {
+        width: 100px;
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    
+    .metric-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #FF6B00, #FFAA00);
+        border-radius: 3px;
+        transition: width 0.6s ease;
+    }
+    
+    .suggestion-card {
+        background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
         border-radius: 12px;
         padding: 16px;
         margin-bottom: 12px;
-        border: 1px solid #e9ecef;
+        border-left: 4px solid #FF6B00;
         cursor: pointer;
         transition: all 0.3s ease;
     }
     
-    .template-card:hover {
-        border-color: #FF6B00;
-        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.1);
-        transform: translateY(-2px);
+    .suggestion-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
     }
     
-    .section-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-        color: #212529;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .section-title i {
-        color: #FF6B00;
-    }
-    
-    /* Tab Navigation Styles */
-    .nav-tabs {
-        border-bottom: 2px solid #e9ecef;
-    }
-    
-    .nav-tabs .nav-link {
-        color: #6c757d;
-        border: none;
-        border-radius: 8px 8px 0 0;
-        padding: 12px 20px;
-        font-weight: 500;
-        background: transparent;
-        position: relative;
+    .goal-card {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
         transition: all 0.3s ease;
     }
     
-    .nav-tabs .nav-link:hover {
-        color: #FF6B00;
-        background: rgba(255, 107, 0, 0.05);
+    .goal-card.completed {
+        border-color: #28a745;
+        background: #f1f9f1;
     }
     
-    .nav-tabs .nav-link.active {
-        color: #FF6B00;
-        background: white;
-        border: 2px solid #e9ecef;
-        border-bottom: 2px solid white;
-        margin-bottom: -2px;
-    }
-    
-    .nav-tabs .nav-link.active::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-    }
-    
-    .nav-tabs .nav-link i {
-        vertical-align: middle;
-    }
-    
-    .tab-content {
-        padding-top: 20px;
+    .goal-card:hover {
+        border-color: #FF6B00;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="coaching-dashboard">
-    <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-1">
-                        <i data-lucide="message-square" class="text-primary me-2"></i>
-                        실시간 코칭 어시스턴트
-                    </h1>
-                    <p class="text-muted mb-0">개인 맞춤형 AI 코칭으로 직원 성장을 지원합니다</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{% url 'ai_coaching:session_history' %}" class="btn btn-outline-primary btn-sm">
-                        <i data-lucide="history" class="me-1"></i>세션 기록
-                    </a>
-                    <a href="{% url 'ai_coaching:goals_list' %}" class="btn btn-outline-success btn-sm">
-                        <i data-lucide="target" class="me-1"></i>목표 관리
-                    </a>
-                    <button class="btn btn-primary btn-sm" onclick="refreshDashboard()">
-                        <i data-lucide="refresh-cw" class="me-1"></i>새로고침
-                    </button>
-                </div>
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">실시간 코칭 어시스턴트</h1>
+                <p class="text-sm text-gray-600 mt-1">개인별 맞춤 코칭과 실시간 피드백</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    <i data-lucide="history" class="w-4 h-4 inline mr-2"></i>
+                    코칭 기록
+                </button>
+                <button class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all">
+                    <i data-lucide="message-circle" class="w-4 h-4 inline mr-2"></i>
+                    새 세션 시작
+                </button>
             </div>
         </div>
-
-        {% if error %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i data-lucide="alert-triangle" class="me-2"></i>
-            {{ error }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
-
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon total-bg text-white">
-                        <i data-lucide="message-circle"></i>
-                    </div>
-                    <div class="stats-value">{{ stats.total_sessions|default:0 }}</div>
-                    <div class="stats-label">총 세션 수</div>
+    </div>
+    
+    <div class="p-6">
+        <!-- 핵심 지표 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="coaching-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">코칭 세션</span>
+                    <i data-lucide="message-circle" class="w-5 h-5 text-blue-500"></i>
                 </div>
+                <div class="text-3xl font-bold text-gray-900">124</div>
+                <p class="text-gray-500 text-xs mt-2">이번 달 진행</p>
             </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon active-bg text-white">
-                        <i data-lucide="activity"></i>
-                    </div>
-                    <div class="stats-value text-success">{{ stats.active_sessions|default:0 }}</div>
-                    <div class="stats-label">활성 세션</div>
+            
+            <div class="coaching-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">평균 만족도</span>
+                    <i data-lucide="star" class="w-5 h-5 text-yellow-500"></i>
                 </div>
+                <div class="text-3xl font-bold text-gray-900">4.8</div>
+                <p class="text-gray-500 text-xs mt-2">5점 만점</p>
             </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon rate-bg text-white">
-                        <i data-lucide="check-circle"></i>
-                    </div>
-                    <div class="stats-value text-info">{{ stats.completion_rate|floatformat:1|default:0 }}%</div>
-                    <div class="stats-label">완료율</div>
+            
+            <div class="coaching-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">목표 달성률</span>
+                    <i data-lucide="target" class="w-5 h-5 text-green-500"></i>
                 </div>
+                <div class="text-3xl font-bold text-gray-900">78%</div>
+                <p class="text-gray-500 text-xs mt-2">전월 대비 +12%</p>
             </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon satisfaction-bg text-white">
-                        <i data-lucide="star"></i>
-                    </div>
-                    <div class="stats-value" style="color: #ffc107;">{{ stats.avg_satisfaction|floatformat:1|default:0 }}</div>
-                    <div class="stats-label">평균 만족도</div>
+            
+            <div class="coaching-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">활성 사용자</span>
+                    <i data-lucide="users" class="w-5 h-5 text-purple-500"></i>
                 </div>
+                <div class="text-3xl font-bold text-gray-900">342</div>
+                <p class="text-gray-500 text-xs mt-2">주간 활성</p>
             </div>
         </div>
-
-        <!-- Tab Navigation -->
-        <div class="mb-4">
-            <ul class="nav nav-tabs" id="coachingTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
-                        <i data-lucide="home" class="me-2" style="width: 16px; height: 16px;"></i>
-                        대시보드
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions" type="button" role="tab" aria-controls="sessions" aria-selected="false">
-                        <i data-lucide="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>
-                        코칭 세션
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="goals-tab" data-bs-toggle="tab" data-bs-target="#goals" type="button" role="tab" aria-controls="goals" aria-selected="false">
-                        <i data-lucide="target" class="me-2" style="width: 16px; height: 16px;"></i>
-                        목표 관리
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="templates-tab" data-bs-toggle="tab" data-bs-target="#templates" type="button" role="tab" aria-controls="templates" aria-selected="false">
-                        <i data-lucide="clipboard-list" class="me-2" style="width: 16px; height: 16px;"></i>
-                        템플릿
-                    </button>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="coachingTabContent">
-            <!-- Overview Tab -->
-            <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-                <div class="row">
-                    <!-- AI Coach Section -->
-                    <div class="col-md-4">
-                        <div class="session-card">
-                            <div class="text-center">
-                                <div class="coach-avatar">AI</div>
-                                <h4 class="mb-3">AI 코치와 대화하기</h4>
-                                <p class="text-muted mb-4">개인 맞춤형 코칭을 시작하세요</p>
-                                
-                                <button class="btn btn-start-coaching w-100" onclick="startNewSession()">
-                                    <i data-lucide="play" class="me-2"></i>새 코칭 시작
-                                </button>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 실시간 코칭 챗봇 -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-lg font-semibold mb-4">AI 코칭 어시스턴트</h2>
+                    
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message ai">
+                                <div class="message-avatar">AI</div>
+                                <div class="message-content">
+                                    <p class="font-medium mb-1">코칭 어시스턴트</p>
+                                    <p class="text-sm">안녕하세요! 오늘은 어떤 도움이 필요하신가요? 업무 관련 고민이나 커리어 개발에 대해 편하게 이야기해주세요.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="message user">
+                                <div class="message-avatar">나</div>
+                                <div class="message-content">
+                                    <p class="text-sm">최근 팀 리더로 승진했는데, 팀원들과의 소통이 어렵습니다.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="message ai">
+                                <div class="message-avatar">AI</div>
+                                <div class="message-content">
+                                    <p class="text-sm mb-2">축하드립니다! 새로운 역할에서의 도전은 자연스러운 과정입니다. 효과적인 팀 소통을 위한 몇 가지 제안을 드릴게요:</p>
+                                    <ul class="text-sm space-y-1">
+                                        <li>• 정기적인 1:1 미팅 스케줄 설정</li>
+                                        <li>• 팀원들의 강점과 관심사 파악</li>
+                                        <li>• 투명한 의사결정 프로세스 공유</li>
+                                        <li>• 적극적 경청과 피드백 문화 조성</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Coaching Templates -->
-                        <div class="session-card">
-                            <h5 class="section-title">
-                                <i data-lucide="clipboard-list"></i>
-                                코칭 템플릿
-                            </h5>
-                            
-                            {% for template in templates %}
-                            <div class="template-card" onclick="startSessionWithTemplate('{{ template.id }}')">
-                                <h6 class="mb-1">{{ template.name }}</h6>
-                                <small class="text-muted">{{ template.description|truncatewords:10 }}</small>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <span class="badge bg-light text-dark">{{ template.get_category_display }}</span>
-                                    <small class="text-muted">{{ template.usage_count }}회 사용</small>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <p class="text-muted text-center py-3">사용 가능한 템플릿이 없습니다.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Active Sessions -->
-                    <div class="col-md-4">
-                        <div class="session-card">
-                            <h5 class="section-title">
-                                <i data-lucide="clock"></i>
-                                활성 세션
-                            </h5>
-                            
-                            {% for session in active_sessions %}
-                            <div class="coaching-item">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">{{ session.employee.name }}</h6>
-                                        <p class="mb-2 text-muted small">{{ session.title }}</p>
-                                        <span class="session-type-badge session-{{ session.session_type|lower }}">
-                                            {{ session.get_session_type_display }}
-                                        </span>
-                                    </div>
-                                    <small class="text-muted">{{ session.scheduled_at|date:"m.d H:i" }}</small>
-                                </div>
-                                <div class="mt-3">
-                                    <a href="{% url 'ai_coaching:session_detail' session.session_id %}" 
-                                       class="btn btn-sm btn-outline-info w-100">
-                                        <i data-lucide="eye" class="me-1"></i>참여하기
-                                    </a>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="text-center text-muted py-5">
-                                <i data-lucide="message-square-off" style="width: 48px; height: 48px;" class="mb-3"></i>
-                                <p>진행 중인 세션이 없습니다.</p>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Recent Sessions & Goals -->
-                    <div class="col-md-4">
-                        <!-- Recent Completed Sessions -->
-                        <div class="session-card">
-                            <h5 class="section-title">
-                                <i data-lucide="history"></i>
-                                최근 완료된 세션
-                            </h5>
-                            
-                            {% for session in recent_sessions %}
-                            <div class="coaching-item">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">{{ session.employee.name }}</h6>
-                                        <p class="mb-2 text-muted small">{{ session.title }}</p>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="session-type-badge session-{{ session.session_type|lower }}">
-                                                {{ session.get_session_type_display }}
-                                            </span>
-                                            {% if session.satisfaction_score > 0 %}
-                                            <small class="text-warning">
-                                                <i data-lucide="star" style="width: 14px; height: 14px;"></i>
-                                                {{ session.satisfaction_score|floatformat:1 }}
-                                            </small>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">{{ session.ended_at|date:"m.d" }}</small>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="text-center text-muted py-4">
-                                <p>최근 완료된 세션이 없습니다.</p>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Coaching Goals -->
-                        <div class="session-card">
-                            <h5 class="section-title">
-                                <i data-lucide="target"></i>
-                                진행 중인 목표
-                            </h5>
-                            
-                            {% for goal in coaching_goals %}
-                            <div class="goal-card priority-{{ goal.priority|lower }}">
-                                <h6 class="mb-1">{{ goal.title }}</h6>
-                                <p class="mb-2 text-muted small">{{ goal.description|truncatewords:15 }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-light text-dark">{{ goal.session.employee.name }}</span>
-                                    {% if goal.target_date %}
-                                    <small class="text-muted">{{ goal.target_date|date:"m.d" }}까지</small>
-                                    {% endif %}
-                                </div>
-                                {% if goal.progress_percentage > 0 %}
-                                <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-success" style="width: {{ goal.progress_percentage }}%"></div>
-                                </div>
-                                {% endif %}
-                            </div>
-                            {% empty %}
-                            <div class="text-center text-muted py-4">
-                                <p>진행 중인 목표가 없습니다.</p>
-                            </div>
-                            {% endfor %}
+                        
+                        <div class="chat-input">
+                            <input type="text" class="form-control flex-1" placeholder="메시지를 입력하세요..." id="chat-input">
+                            <button class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all" onclick="sendMessage()">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Sessions Tab -->
-            <div class="tab-pane fade" id="sessions" role="tabpanel" aria-labelledby="sessions-tab">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="session-card">
-                            <h5 class="section-title">
-                                <i data-lucide="message-circle"></i>
-                                모든 코칭 세션
-                            </h5>
-                            <p class="text-muted">진행 중이거나 완료된 모든 코칭 세션을 확인하세요.</p>
-                            
-                            <div class="text-center py-5">
-                                <button class="btn btn-start-coaching" onclick="startNewSession()">
-                                    <i data-lucide="plus" class="me-2"></i>새 세션 시작
-                                </button>
-                            </div>
-                        </div>
+            
+            <!-- 코칭 인사이트 -->
+            <div>
+                <!-- AI 추천 코칭 주제 -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">오늘의 추천 코칭</h2>
+                    
+                    <div class="suggestion-card" onclick="startCoaching('leadership')">
+                        <h3 class="font-medium text-gray-900 mb-1">
+                            <i data-lucide="crown" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            리더십 스킬 향상
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            팀 리더를 위한 효과적인 커뮤니케이션 전략
+                        </p>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="startCoaching('productivity')">
+                        <h3 class="font-medium text-gray-900 mb-1">
+                            <i data-lucide="zap" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            생산성 최적화
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            시간 관리와 우선순위 설정 기법
+                        </p>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="startCoaching('stress')">
+                        <h3 class="font-medium text-gray-900 mb-1">
+                            <i data-lucide="heart" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            스트레스 관리
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            업무 스트레스 해소와 워라밸 개선
+                        </p>
                     </div>
                 </div>
-            </div>
-
-            <!-- Goals Tab -->
-            <div class="tab-pane fade" id="goals" role="tabpanel" aria-labelledby="goals-tab">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="session-card">
-                            <h5 class="section-title">
-                                <i data-lucide="target"></i>
-                                목표 관리
-                            </h5>
-                            <p class="text-muted">직원들의 성장 목표를 설정하고 관리하세요.</p>
-                            
-                            <div class="text-center py-5">
-                                <a href="{% url 'ai_coaching:goals_list' %}" class="btn btn-success">
-                                    <i data-lucide="target" class="me-2"></i>목표 관리 페이지로 이동
-                                </a>
-                            </div>
+                
+                <!-- 개인 성장 목표 -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-lg font-semibold mb-4">나의 성장 목표</h2>
+                    
+                    <div class="goal-card completed">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-medium text-gray-900">프레젠테이션 스킬</h3>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Templates Tab -->
-            <div class="tab-pane fade" id="templates" role="tabpanel" aria-labelledby="templates-tab">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="session-card">
-                            <h5 class="section-title">
-                                <i data-lucide="clipboard-list"></i>
-                                코칭 템플릿
-                            </h5>
-                            <p class="text-muted">다양한 상황에 맞는 코칭 템플릿을 활용하세요.</p>
-                            
-                            <div class="row mt-4">
-                                {% for template in templates %}
-                                <div class="col-md-4 mb-3">
-                                    <div class="template-card" onclick="startSessionWithTemplate('{{ template.id }}')">
-                                        <h6 class="mb-1">{{ template.name }}</h6>
-                                        <small class="text-muted">{{ template.description|truncatewords:10 }}</small>
-                                        <div class="d-flex justify-content-between mt-2">
-                                            <span class="badge bg-light text-dark">{{ template.get_category_display }}</span>
-                                            <small class="text-muted">{{ template.usage_count }}회 사용</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <div class="col-12">
-                                    <p class="text-muted text-center py-3">사용 가능한 템플릿이 없습니다.</p>
-                                </div>
-                                {% endfor %}
-                            </div>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 100%;"></div>
                         </div>
+                        <p class="text-xs text-gray-500 mt-2">완료 • 2주 소요</p>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="session-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="section-title mb-0">
-                            <i data-lucide="zap"></i>
-                            빠른 작업
-                        </h5>
-                        <button class="btn btn-outline-primary btn-sm" onclick="openEmployeeSelector()">
-                            <i data-lucide="user-plus" class="me-1"></i>직원 코칭 시작
-                        </button>
+                    
+                    <div class="goal-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-medium text-gray-900">갈등 관리 능력</h3>
+                            <span class="text-sm font-medium text-orange-600">진행중</span>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 65%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">65% 완료 • 3일 남음</p>
                     </div>
+                    
+                    <div class="goal-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-medium text-gray-900">데이터 분석 역량</h3>
+                            <span class="text-sm font-medium text-gray-400">예정</span>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 0%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">다음 주 시작</p>
+                    </div>
+                    
+                    <button class="w-full mt-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                        <i data-lucide="plus" class="w-4 h-4 inline mr-1"></i>
+                        새 목표 추가
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Start Session Modal -->
-<div class="modal fade" id="startSessionModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">새 코칭 세션 시작</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="startSessionForm">
-                    <div class="mb-3">
-                        <label class="form-label">직원 선택</label>
-                        <select class="form-select" id="employeeSelect" required>
-                            <option value="">직원을 선택하세요</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">코칭 유형</label>
-                        <select class="form-select" id="sessionTypeSelect" required>
-                            <option value="PERFORMANCE">성과 코칭</option>
-                            <option value="LEADERSHIP">리더십 코칭</option>
-                            <option value="SKILL_DEVELOPMENT">역량 개발</option>
-                            <option value="CAREER_PATH">커리어 패스</option>
-                            <option value="COMMUNICATION">소통 개선</option>
-                            <option value="GOAL_SETTING">목표 설정</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">세션 제목</label>
-                        <input type="text" class="form-control" id="sessionTitle" placeholder="코칭 세션 제목을 입력하세요">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">코칭 목표 (선택사항)</label>
-                        <textarea class="form-control" id="coachingObjectives" rows="3" 
-                                placeholder="이번 코칭에서 달성하고자 하는 목표를 입력하세요"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-primary" onclick="submitStartSession()">세션 시작</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-// Initialize Lucide icons
-lucide.createIcons();
-
 document.addEventListener('DOMContentLoaded', function() {
-    loadEmployees();
-    initializeTabs();
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Auto-scroll chat to bottom
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Add user message
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user';
+    userMessage.innerHTML = `
+        <div class="message-avatar">나</div>
+        <div class="message-content">
+            <p class="text-sm">${message}</p>
+        </div>
+    `;
+    chatMessages.appendChild(userMessage);
+    
+    // Clear input
+    input.value = '';
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Simulate AI response
+    setTimeout(() => {
+        const aiMessage = document.createElement('div');
+        aiMessage.className = 'message ai';
+        aiMessage.innerHTML = `
+            <div class="message-avatar">AI</div>
+            <div class="message-content">
+                <p class="text-sm">메시지를 분석 중입니다. 맞춤형 코칭 답변을 준비하고 있습니다...</p>
+            </div>
+        `;
+        chatMessages.appendChild(aiMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 1000);
 }
 
-function initializeTabs() {
-    // Tab click event handling
-    const tabButtons = document.querySelectorAll('#coachingTabs button[data-bs-toggle="tab"]');
-    
-    tabButtons.forEach(button => {
-        button.addEventListener('shown.bs.tab', function (event) {
-            // Re-initialize Lucide icons after tab change
-            setTimeout(() => {
-                lucide.createIcons();
-            }, 100);
-            
-            // Store active tab in localStorage
-            const tabId = event.target.getAttribute('data-bs-target');
-            localStorage.setItem('activeCoachingTab', tabId);
-        });
-    });
-    
-    // Restore last active tab
-    const lastActiveTab = localStorage.getItem('activeCoachingTab');
-    if (lastActiveTab) {
-        const tabButton = document.querySelector(`button[data-bs-target="${lastActiveTab}"]`);
-        if (tabButton) {
-            const tab = new bootstrap.Tab(tabButton);
-            tab.show();
-        }
-    }
-}
-
-function loadEmployees() {
-    // Load employee list (temporary dummy data)
-    const employeeSelect = document.getElementById('employeeSelect');
-    
-    if (!employeeSelect) return;
-    
-    const employees = [
-        {id: 1, name: '김철수', department: '개발팀'},
-        {id: 2, name: '이영희', department: '마케팅팀'},
-        {id: 3, name: '박민수', department: '영업팀'}
-    ];
-    
-    employees.forEach(emp => {
-        const option = document.createElement('option');
-        option.value = emp.id;
-        option.textContent = `${emp.name} (${emp.department})`;
-        employeeSelect.appendChild(option);
-    });
-}
-
-function refreshDashboard() {
-    window.location.reload();
-}
-
-function startNewSession() {
-    const modal = new bootstrap.Modal(document.getElementById('startSessionModal'));
-    modal.show();
-}
-
-function startSessionWithTemplate(templateId) {
-    console.log('템플릿으로 세션 시작:', templateId);
-    startNewSession();
-}
-
-function openEmployeeSelector() {
-    startNewSession();
-}
-
-function submitStartSession() {
-    const employeeId = document.getElementById('employeeSelect').value;
-    const sessionType = document.getElementById('sessionTypeSelect').value;
-    const title = document.getElementById('sessionTitle').value || 'AI 코칭 세션';
-    const objectives = document.getElementById('coachingObjectives').value;
-    
-    if (!employeeId || !sessionType) {
-        alert('직원과 코칭 유형을 선택해주세요.');
-        return;
-    }
-    
-    const sessionData = {
-        employee_id: employeeId,
-        session_type: sessionType,
-        title: title,
-        objectives: objectives.split('\n').filter(obj => obj.trim()),
-        focus_areas: []
+function startCoaching(topic) {
+    const topicMessages = {
+        leadership: "리더십 코칭 세션을 시작하겠습니다. 현재 팀 규모와 리더십 경험에 대해 알려주시겠어요?",
+        productivity: "생산성 향상 코칭을 시작합니다. 현재 가장 시간을 많이 소비하는 업무는 무엇인가요?",
+        stress: "스트레스 관리 코칭을 시작하겠습니다. 최근 가장 스트레스를 받는 상황을 공유해주시겠어요?"
     };
     
-    fetch('/ai-coaching/start/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(sessionData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('startSessionModal'));
-            modal.hide();
-            
-            // Navigate to session detail page
-            window.location.href = `/ai-coaching/session/${data.session_id}/`;
-        } else {
-            alert(data.message || '세션 시작 중 오류가 발생했습니다.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('세션 시작 중 오류가 발생했습니다.');
-    });
+    const chatMessages = document.getElementById('chat-messages');
+    const aiMessage = document.createElement('div');
+    aiMessage.className = 'message ai';
+    aiMessage.innerHTML = `
+        <div class="message-avatar">AI</div>
+        <div class="message-content">
+            <p class="font-medium mb-1">코칭 세션 시작</p>
+            <p class="text-sm">${topicMessages[topic]}</p>
+        </div>
+    `;
+    chatMessages.appendChild(aiMessage);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Auto refresh every 5 minutes
-setInterval(refreshDashboard, 300000);
+// Enter key to send message
+document.getElementById('chat-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
 </script>
 {% endblock %}

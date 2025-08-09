@@ -418,6 +418,10 @@
                                     <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'ai_' in request.resolver_match.url_name or 'ai_chatbot' in request.resolver_match.url_name or 'leader_ai_assistant' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
                                 </button>
                                 <div id="ai-quickwin-submenu" class="submenu {% if 'ai_' in request.resolver_match.url_name or 'ai_chatbot' in request.resolver_match.url_name or 'leader_ai_assistant' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                    <a href="{% url 'ai_quickwin:dashboard' %}" class="block px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                        <i data-lucide="grid" class="inline w-4 h-4 mr-2"></i>AI Quick Win 통합 대시보드
+                                    </a>
+                                    <hr class="my-2 border-gray-200 dark:border-gray-700">
                                     <a href="{% url 'ai_insights:executive_dashboard' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
                                         <i data-lucide="target" class="inline w-4 h-4 mr-2"></i>AI 인사이트 대시보드
                                     </a>
@@ -548,6 +552,24 @@
         
         <!-- 메인 콘텐츠 -->
         <main id="main-content" class="lg:ml-72 pt-20 min-h-screen">
+            <!-- 빵부스러미 네비게이션 -->
+            {% block breadcrumb %}
+            {% if show_breadcrumb %}
+            <div class="px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <nav aria-label="Breadcrumb">
+                    <ol class="flex items-center space-x-2 text-sm">
+                        <li>
+                            <a href="{% url 'home' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                                <i data-lucide="home" class="w-4 h-4"></i>
+                            </a>
+                        </li>
+                        {% block breadcrumb_items %}{% endblock %}
+                    </ol>
+                </nav>
+            </div>
+            {% endif %}
+            {% endblock %}
+            
             <div class="p-6 lg:p-8">
                 {% block content %}{% endblock %}
             </div>

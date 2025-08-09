@@ -3,451 +3,340 @@
 
 {% block title %}팀 조합 최적화 - AI Quick Win{% endblock %}
 
+{% block breadcrumb %}
+<div class="px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <nav aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm">
+            <li>
+                <a href="{% url 'home' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <a href="{% url 'ai_quickwin:dashboard' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    AI Quick Win
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">팀 조합 최적화</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
 {% block extra_css %}
 <style>
-    .team-optimizer-dashboard {
-        padding: 20px 0;
-    }
-    
-    .stats-card {
+    .optimizer-card {
         background: white;
         border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         transition: all 0.3s ease;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        height: 100%;
     }
     
-    .stats-card:hover {
+    .optimizer-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(255, 107, 0, 0.1);
+        box-shadow: 0 8px 30px rgba(255, 107, 0, 0.15);
     }
     
-    .stats-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 16px;
-        font-size: 24px;
-    }
-    
-    .stats-value {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-    
-    .stats-label {
-        color: #6c757d;
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .project-bg { background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%); }
-    .team-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .score-bg { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-    .rate-bg { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    
-    .project-card {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-    }
-    
-    .project-item {
+    .team-member-card {
         background: #f8f9fa;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: move;
+    }
+    
+    .team-member-card:hover {
+        border-color: #FF6B00;
+        background: white;
+    }
+    
+    .team-member-card.dragging {
+        opacity: 0.5;
+    }
+    
+    .drop-zone {
+        min-height: 200px;
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .drop-zone.drag-over {
+        border-color: #FF6B00;
+        background: rgba(255, 107, 0, 0.05);
+    }
+    
+    .synergy-score {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .skill-tag {
+        display: inline-block;
+        padding: 4px 12px;
+        background: rgba(255, 107, 0, 0.1);
+        color: #FF6B00;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 2px;
+    }
+    
+    .performance-bar {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .performance-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #FF6B00, #FFAA00);
+        border-radius: 4px;
+        transition: width 0.6s ease;
+    }
+    
+    .recommendation-card {
+        background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
         border-radius: 12px;
         padding: 16px;
         margin-bottom: 12px;
         border-left: 4px solid #FF6B00;
-        transition: all 0.3s ease;
-    }
-    
-    .project-item:hover {
-        background: white;
-        transform: translateX(4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .team-composition-card {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-        transition: all 0.3s ease;
-    }
-    
-    .team-composition-card:hover {
-        background: white;
-        border: 1px solid #FF6B00;
-        transform: translateY(-2px);
-    }
-    
-    .score-badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-    
-    .score-excellent { background: rgba(40, 167, 69, 0.1); color: #28a745; }
-    .score-good { background: rgba(23, 162, 184, 0.1); color: #17a2b8; }
-    .score-average { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
-    .score-poor { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
-    
-    .optimization-card {
-        background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
-        border-left: 4px solid #ffc107;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
-    }
-    
-    .section-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-        color: #212529;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .section-title i {
-        color: #FF6B00;
-    }
-    
-    .template-card {
-        background: white;
-        border-radius: 12px;
-        padding: 16px;
-        border: 1px solid #e9ecef;
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-    
-    .template-card:hover {
-        border-color: #FF6B00;
-        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.1);
-        transform: translateY(-2px);
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    
-    .status-planning { background: rgba(108, 117, 125, 0.1); color: #6c757d; }
-    .status-active { background: rgba(40, 167, 69, 0.1); color: #28a745; }
-    .status-completed { background: rgba(0, 123, 255, 0.1); color: #007bff; }
-    .status-cancelled { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
-    
-    .btn-action {
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
-        color: white;
-    }
-    
-    .ai-indicator {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        background: #28a745;
-        border-radius: 50%;
-        animation: pulse 2s infinite;
-        margin-right: 8px;
-    }
-    
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.3; }
-        100% { opacity: 1; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="team-optimizer-dashboard">
-    <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-1">
-                        <i data-lucide="users" class="text-primary me-2"></i>
-                        팀 조합 최적화
-                    </h1>
-                    <p class="text-muted mb-0">AI 기반 최적 팀 구성 분석 및 추천</p>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="ai-indicator"></span>
-                    <small class="text-success">AI 엔진 활성</small>
-                    <button class="btn btn-primary btn-sm ms-3" onclick="refreshDashboard()">
-                        <i data-lucide="refresh-cw" class="me-1"></i>새로고침
-                    </button>
-                </div>
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">팀 조합 최적화</h1>
+                <p class="text-sm text-gray-600 mt-1">AI 기반 최적의 팀 구성 추천</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                    조합 저장
+                </button>
+                <button class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all" onclick="optimizeTeam()">
+                    <i data-lucide="zap" class="w-4 h-4 inline mr-2"></i>
+                    AI 최적화
+                </button>
             </div>
         </div>
-
-        {% if error %}
-        <div class="alert alert-danger" role="alert">
-            <i data-lucide="alert-triangle" class="me-2"></i>
-            {{ error }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
-
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon project-bg text-white">
-                        <i data-lucide="folder"></i>
-                    </div>
-                    <div class="stats-value">{{ stats.projects.total|default:0 }}</div>
-                    <div class="stats-label">총 프로젝트</div>
-                    <small class="text-muted">활성: {{ stats.projects.active|default:0 }}개</small>
+    </div>
+    
+    <div class="p-6">
+        <!-- 핵심 지표 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="optimizer-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">팀 시너지 점수</span>
+                    <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i>
                 </div>
+                <div class="synergy-score">87%</div>
+                <p class="text-gray-500 text-xs mt-2">이상적 수준</p>
             </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon team-bg text-white">
-                        <i data-lucide="users"></i>
-                    </div>
-                    <div class="stats-value">{{ stats.compositions.total|default:0 }}</div>
-                    <div class="stats-label">팀 구성</div>
-                    <small class="text-muted">승인률: {{ stats.compositions.approval_rate|floatformat:1|default:0 }}%</small>
+            
+            <div class="optimizer-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">스킬 커버리지</span>
+                    <i data-lucide="target" class="w-5 h-5 text-blue-500"></i>
                 </div>
+                <div class="text-3xl font-bold text-gray-900">92%</div>
+                <p class="text-gray-500 text-xs mt-2">필수 역량 충족</p>
             </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon score-bg text-white">
-                        <i data-lucide="trending-up"></i>
-                    </div>
-                    <div class="stats-value">{{ stats.average_scores.overall_score|floatformat:1|default:0 }}</div>
-                    <div class="stats-label">평균 점수</div>
-                    <small class="text-muted">10점 만점</small>
+            
+            <div class="optimizer-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">협업 지수</span>
+                    <i data-lucide="users" class="w-5 h-5 text-purple-500"></i>
                 </div>
+                <div class="text-3xl font-bold text-gray-900">4.5</div>
+                <p class="text-gray-500 text-xs mt-2">5점 만점</p>
             </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon rate-bg text-white">
-                        <i data-lucide="check-circle"></i>
-                    </div>
-                    <div class="stats-value">{{ stats.projects.completion_rate|floatformat:1|default:0 }}%</div>
-                    <div class="stats-label">완료율</div>
-                    <small class="text-muted">프로젝트 기준</small>
+            
+            <div class="optimizer-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">예상 성과</span>
+                    <i data-lucide="award" class="w-5 h-5 text-yellow-500"></i>
                 </div>
+                <div class="text-3xl font-bold text-gray-900">+23%</div>
+                <p class="text-gray-500 text-xs mt-2">현재 대비 상승</p>
             </div>
         </div>
-
-        <!-- Main Content -->
-        <div class="row">
-            <!-- Recent Projects -->
-            <div class="col-lg-6 mb-4">
-                <div class="project-card">
-                    <h5 class="section-title">
-                        <i data-lucide="folder-open"></i>
-                        최근 프로젝트
-                        <a href="#" class="btn btn-sm btn-outline-primary ms-auto">전체보기</a>
-                    </h5>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 팀 구성 영역 -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-lg font-semibold mb-4">팀 구성</h2>
                     
-                    {% if recent_projects %}
-                        {% for project in recent_projects %}
-                        <div class="project-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">{{ project.name }}</h6>
-                                    <p class="text-muted small mb-2">{{ project.description|truncatechars:60 }}</p>
-                                    <span class="status-badge status-{{ project.status|lower }}">
-                                        진행중
-                                    </span>
-                                </div>
-                                <div class="text-end">
-                                    <small class="text-muted">{{ project.created_at|date:"m/d" }}</small>
-                                    <br>
-                                    <span class="badge bg-light text-dark mt-2">
-                                        3-5명
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center text-muted py-5">
-                            <i data-lucide="folder-x" style="width: 48px; height: 48px;" class="mb-3"></i>
-                            <p>등록된 프로젝트가 없습니다.</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Active Team Compositions -->
-            <div class="col-lg-6 mb-4">
-                <div class="project-card">
-                    <h5 class="section-title">
-                        <i data-lucide="users-2"></i>
-                        활성 팀 구성
-                        <a href="#" class="btn btn-sm btn-outline-success ms-auto">전체보기</a>
-                    </h5>
-                    
-                    {% if active_compositions %}
-                        {% for composition in active_compositions %}
-                        <div class="team-composition-card">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">{{ composition.name }}</h6>
-                                    <p class="text-muted small mb-2">프로젝트</p>
-                                    <div class="d-flex gap-2">
-                                        <span class="badge bg-primary">5명</span>
-                                        <span class="badge bg-info text-dark">활성</span>
-                                    </div>
-                                </div>
-                                <div class="text-end">
-                                    {% if composition.overall_score >= 8 %}
-                                        <span class="score-badge score-excellent">{{ composition.overall_score|floatformat:1 }}</span>
-                                    {% elif composition.overall_score >= 6 %}
-                                        <span class="score-badge score-good">{{ composition.overall_score|floatformat:1 }}</span>
-                                    {% elif composition.overall_score >= 4 %}
-                                        <span class="score-badge score-average">{{ composition.overall_score|floatformat:1 }}</span>
-                                    {% else %}
-                                        <span class="score-badge score-poor">{{ composition.overall_score|floatformat:1 }}</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center text-muted py-5">
-                            <i data-lucide="users-x" style="width: 48px; height: 48px;" class="mb-3"></i>
-                            <p>활성 팀 구성이 없습니다.</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- AI Optimization Suggestions -->
-        {% if optimization_suggestions %}
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="project-card">
-                    <h5 class="section-title">
-                        <i data-lucide="lightbulb"></i>
-                        AI 최적화 제안
-                    </h5>
-                    <div class="row">
-                        {% for suggestion in optimization_suggestions %}
-                        <div class="col-md-4 mb-3">
-                            <div class="optimization-card h-100">
-                                <div class="d-flex align-items-start">
-                                    <div class="me-3">
-                                        {% if suggestion.priority == 'HIGH' %}
-                                            <i data-lucide="alert-triangle" class="text-warning"></i>
-                                        {% else %}
-                                            <i data-lucide="info" class="text-info"></i>
-                                        {% endif %}
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">{{ suggestion.title }}</h6>
-                                        <p class="small mb-2">{{ suggestion.description }}</p>
-                                        <span class="badge bg-{{ suggestion.priority|lower == 'high'|yesno:'warning,info' }}">
-                                            {{ suggestion.priority }} 우선순위
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Team Templates -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="project-card">
-                    <h5 class="section-title">
-                        <i data-lucide="layout-template"></i>
-                        팀 템플릿
-                        <button class="btn btn-sm btn-outline-info ms-auto" onclick="createTemplate()">
-                            <i data-lucide="plus" class="me-1"></i>새 템플릿
-                        </button>
-                    </h5>
-                    
-                    {% if templates %}
-                        <div class="row">
-                            {% for template in templates %}
-                            <div class="col-md-4 mb-3">
-                                <div class="template-card">
-                                    <h6 class="mb-2">{{ template.name }}</h6>
-                                    <p class="small text-muted mb-3">{{ template.description|truncatechars:80 }}</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
-                                            <i data-lucide="users" style="width: 14px; height: 14px;"></i>
-                                            3-8명
-                                        </small>
+                    <!-- 현재 팀 -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">현재 팀 멤버</h3>
+                        <div class="drop-zone" id="current-team">
+                            <div class="team-member-card" draggable="true">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                            KH
+                                        </div>
                                         <div>
-                                            <span class="badge bg-primary">기본</span>
-                                            <small class="text-success ms-2">0회</small>
+                                            <p class="font-medium">김현수</p>
+                                            <p class="text-xs text-gray-500">프론트엔드 개발자</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-semibold text-gray-700">성과 85%</div>
+                                        <div class="performance-bar mt-1" style="width: 60px;">
+                                            <div class="performance-fill" style="width: 85%;"></div>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="mt-2">
+                                    <span class="skill-tag">React</span>
+                                    <span class="skill-tag">TypeScript</span>
+                                    <span class="skill-tag">UI/UX</span>
+                                </div>
                             </div>
-                            {% endfor %}
+                            
+                            <div class="team-member-card" draggable="true">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                            PJ
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">박지영</p>
+                                            <p class="text-xs text-gray-500">백엔드 개발자</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-semibold text-gray-700">성과 90%</div>
+                                        <div class="performance-bar mt-1" style="width: 60px;">
+                                            <div class="performance-fill" style="width: 90%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="skill-tag">Java</span>
+                                    <span class="skill-tag">Spring</span>
+                                    <span class="skill-tag">Database</span>
+                                </div>
+                            </div>
                         </div>
-                    {% else %}
-                        <div class="text-center text-muted py-5">
-                            <i data-lucide="layout" style="width: 48px; height: 48px;" class="mb-3"></i>
-                            <p>등록된 팀 템플릿이 없습니다.</p>
+                    </div>
+                    
+                    <!-- 추천 멤버 풀 -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">추천 멤버 풀</h3>
+                        <div class="drop-zone" id="member-pool">
+                            <div class="team-member-card" draggable="true">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                            LM
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">이민준</p>
+                                            <p class="text-xs text-gray-500">DevOps 엔지니어</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-semibold text-gray-700">성과 88%</div>
+                                        <div class="performance-bar mt-1" style="width: 60px;">
+                                            <div class="performance-fill" style="width: 88%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="skill-tag">AWS</span>
+                                    <span class="skill-tag">Docker</span>
+                                    <span class="skill-tag">CI/CD</span>
+                                </div>
+                            </div>
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="row">
-            <div class="col-12">
-                <div class="project-card text-center">
-                    <h5 class="mb-4">빠른 액션</h5>
-                    <div class="d-flex justify-content-center gap-3">
-                        <button class="btn btn-action btn-lg" onclick="createProject()">
-                            <i data-lucide="plus" class="me-2"></i>새 프로젝트
+            
+            <!-- AI 추천 영역 -->
+            <div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-lg font-semibold mb-4">AI 추천</h2>
+                    
+                    <div class="recommendation-card">
+                        <h3 class="font-medium text-gray-900 mb-2">
+                            <i data-lucide="lightbulb" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            최적 조합 제안
+                        </h3>
+                        <p class="text-sm text-gray-700 mb-2">
+                            DevOps 엔지니어 추가 시 배포 효율성 35% 향상 예상
+                        </p>
+                        <button class="text-sm text-orange-600 font-medium hover:text-orange-700">
+                            적용하기 →
                         </button>
-                        <button class="btn btn-success btn-lg" onclick="optimizeTeam()">
-                            <i data-lucide="sparkles" class="me-2"></i>AI 팀 최적화
+                    </div>
+                    
+                    <div class="recommendation-card">
+                        <h3 class="font-medium text-gray-900 mb-2">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            스킬 갭 발견
+                        </h3>
+                        <p class="text-sm text-gray-700 mb-2">
+                            데이터 분석 역량이 부족합니다. 데이터 사이언티스트 추가 권장
+                        </p>
+                        <button class="text-sm text-orange-600 font-medium hover:text-orange-700">
+                            인재 검색 →
                         </button>
-                        <button class="btn btn-info btn-lg" onclick="viewAnalytics()">
-                            <i data-lucide="bar-chart-2" class="me-2"></i>분석 대시보드
-                        </button>
-                        <button class="btn btn-warning btn-lg" onclick="checkAvailability()">
-                            <i data-lucide="user-check" class="me-2"></i>직원 가용성
-                        </button>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">팀 밸런스 분석</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>기술 다양성</span>
+                                    <span class="font-medium">85%</span>
+                                </div>
+                                <div class="performance-bar">
+                                    <div class="performance-fill" style="width: 85%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>경험 레벨</span>
+                                    <span class="font-medium">78%</span>
+                                </div>
+                                <div class="performance-bar">
+                                    <div class="performance-fill" style="width: 78%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>협업 성향</span>
+                                    <span class="font-medium">92%</span>
+                                </div>
+                                <div class="performance-bar">
+                                    <div class="performance-fill" style="width: 92%;"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -455,97 +344,68 @@
     </div>
 </div>
 
-<!-- Team Optimization Modal -->
-<div class="modal fade" id="optimizeModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">AI 팀 최적화</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">분석 중...</span>
-                    </div>
-                    <p class="mt-3">AI가 최적의 팀 구성을 분석하고 있습니다...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-// Initialize Lucide icons
-lucide.createIcons();
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Drag and Drop functionality
+    let draggedElement = null;
+    
+    document.querySelectorAll('.team-member-card').forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+        });
+        
+        card.addEventListener('dragend', function(e) {
+            this.classList.remove('dragging');
+        });
+    });
+    
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        
+        zone.addEventListener('dragleave', function(e) {
+            this.classList.remove('drag-over');
+        });
+        
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (draggedElement) {
+                this.appendChild(draggedElement);
+                updateTeamAnalysis();
             }
-        }
-    }
-    return cookieValue;
-}
-
-function refreshDashboard() {
-    window.location.reload();
-}
-
-function createProject() {
-    alert('새 프로젝트 생성 기능은 준비 중입니다.');
-}
-
-function createTemplate() {
-    alert('새 템플릿 생성 기능은 준비 중입니다.');
-}
-
-function viewAnalytics() {
-    alert('분석 대시보드는 준비 중입니다.');
-}
-
-function checkAvailability() {
-    alert('직원 가용성 확인 기능은 준비 중입니다.');
-}
+        });
+    });
+});
 
 function optimizeTeam() {
-    const modal = new bootstrap.Modal(document.getElementById('optimizeModal'));
-    modal.show();
+    // Simulate AI optimization
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i data-lucide="loader" class="w-4 h-4 inline mr-2 animate-spin"></i>최적화 중...';
     
-    // Simulate optimization process
     setTimeout(() => {
-        modal.hide();
-        showAlert('success', 'AI 팀 최적화가 완료되었습니다.');
-    }, 3000);
+        button.disabled = false;
+        button.innerHTML = '<i data-lucide="zap" class="w-4 h-4 inline mr-2"></i>AI 최적화';
+        lucide.createIcons();
+        
+        // Update synergy score with animation
+        const synergyElement = document.querySelector('.synergy-score');
+        synergyElement.textContent = '94%';
+        
+        alert('팀 구성이 최적화되었습니다!');
+    }, 2000);
 }
 
-function showAlert(type, message) {
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-    const icon = type === 'success' ? 'check-circle' : 'alert-triangle';
-    
-    const alertHtml = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            <i data-lucide="${icon}" class="me-2"></i>${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    const container = document.querySelector('.container-fluid');
-    container.insertAdjacentHTML('afterbegin', alertHtml);
-    lucide.createIcons();
+function updateTeamAnalysis() {
+    // Update team analysis when members are moved
+    console.log('Team composition updated');
 }
-
-// Auto refresh every 5 minutes
-setInterval(() => {
-    refreshDashboard();
-}, 300000);
 </script>
 {% endblock %}

@@ -7,9 +7,23 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from django.db.models import Avg, Count, Q, F, Sum
 from django.utils import timezone
-from employees.models import Employee, Department
-from evaluations.models import EvaluationPeriod, PerformanceEvaluation
-from compensation.models import EmployeeCompensation
+from django.contrib.auth import get_user_model
+from employees.models import Employee
+
+User = get_user_model()
+
+# Optional imports - 일부 모델이 없어도 서비스가 동작하도록 처리
+try:
+    from evaluations.models import EvaluationPeriod, PerformanceEvaluation
+except ImportError:
+    EvaluationPeriod = None
+    PerformanceEvaluation = None
+
+try:
+    from compensation.models import EmployeeCompensation
+except ImportError:
+    EmployeeCompensation = None
+
 from .models import (
     AIAnalysisType, AIAnalysisResult, AIInsight,
     HRChatbotConversation, AIModelConfig
@@ -108,7 +122,7 @@ class AIAnalysisService:
             'timeline': self._estimate_promotion_timeline(potential_score),
         }
     
-    def analyze_team_performance(self, department: Department) -> Dict[str, Any]:
+    def analyze_team_performance(self, department: str) -> Dict[str, Any]:
         """팀/부서 성과 예측 및 분석"""
         # 팀 구성원 분석
         team_members = Employee.objects.filter(department=department)
@@ -143,7 +157,7 @@ class AIAnalysisService:
             'risk_areas': self._identify_team_risks(team_metrics),
         }
     
-    def recommend_talents(self, position: str, department: Optional[Department] = None) -> List[Dict[str, Any]]:
+    def recommend_talents(self, position: str, department: Optional[str] = None) -> List[Dict[str, Any]]:
         """특정 포지션에 적합한 인재 추천"""
         # 포지션 요구사항 분석
         requirements = self._analyze_position_requirements(position)
@@ -175,7 +189,7 @@ class AIAnalysisService:
         
         return recommendations[:10]  # 상위 10명 추천
     
-    def optimize_compensation(self, department: Optional[Department] = None) -> Dict[str, Any]:
+    def optimize_compensation(self, department: Optional[str] = None) -> Dict[str, Any]:
         """급여 최적화 분석"""
         if department:
             employees = Employee.objects.filter(department=department)
@@ -569,7 +583,7 @@ class AIAnalysisService:
         
         return weaknesses
     
-    def _generate_team_optimization(self, department: Department,
+    def _generate_team_optimization(self, department: str,
                                    metrics: Dict[str, float],
                                    strengths: List[str],
                                    weaknesses: List[str]) -> List[Dict[str, str]]:
@@ -992,14 +1006,14 @@ class AIInsightService:
             ]
         )
     
-    def _identify_low_performing_teams(self) -> List[Department]:
+    def _identify_low_performing_teams(self) -> List[str]:
         """저성과 팀 식별"""
         # 시뮬레이션: 실제로는 팀 성과 데이터 분석
         return []
     
-    def _create_team_performance_insight(self, teams: List[Department]) -> AIInsight:
+    def _create_team_performance_insight(self, teams: List[str]) -> AIInsight:
         """팀 성과 인사이트 생성"""
-        team_names = [team.name for team in teams]
+        team_names = teams
         
         return AIInsight(
             title=f"{len(teams)}개 팀의 성과 개선이 필요합니다",
