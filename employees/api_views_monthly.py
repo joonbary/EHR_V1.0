@@ -33,30 +33,72 @@ def get_monthly_workforce_data(request):
         {'name': 'OK데이터시스템', 'positions': ['부장', '본사팀장', '팀원', '계']},
     ]
     
-    # 더미 데이터 생성
-    data = []
-    for row in [
+    # 템플릿 구조에 맞는 행 정의
+    rows_structure = [
         {'category': 'Non-PL', 'position': '부장'},
         {'category': 'Non-PL', 'position': '차장'},
         {'category': 'Non-PL', 'position': '대리'},
         {'category': 'Non-PL', 'position': '사원'},
-    ]:
+        {'category': 'Non-PL', 'position': '계', 'is_total': True},
+        {'category': 'PL', 'position': '프로'},
+        {'category': 'PL', 'position': '책임'},
+        {'category': 'PL', 'position': '선임 이하'},
+        {'category': 'PL', 'position': '관리전문직'},
+        {'category': 'PL', 'position': '계', 'is_total': True},
+        {'category': '정규직', 'position': '계', 'is_total': True},
+        {'category': '계약직', 'position': '별정직'},
+        {'category': '계약직', 'position': '전문계약직'},
+        {'category': '계약직', 'position': '인턴/계약직 등'},
+        {'category': '계약직', 'position': '계', 'is_total': True},
+        {'category': '직원', 'position': '계', 'is_total': True},
+        {'category': '기타', 'position': '도급'},
+        {'category': '기타', 'position': '위임직 채권추심인'},
+        {'category': '기타', 'position': '외주인력'},
+        {'category': '기타', 'position': '계', 'is_total': True},
+        {'category': '총계', 'position': '', 'is_total': True}
+    ]
+    
+    # 템플릿 테이블 데이터 생성
+    table_data = []
+    for row in rows_structure:
         row_data = {
             'category': row['category'],
             'position': row['position'],
-            'total': 0
+            'is_total': row.get('is_total', False),
+            'companies': []
         }
+        
+        # 각 회사별 데이터 생성
         for company in companies_structure:
+            company_data = {
+                'name': company['name'],
+                'positions': []
+            }
             for pos in company['positions']:
-                if pos != '계':
-                    key = f"{company['name']}_{pos}"
-                    row_data[key] = random.randint(0, 15)
-                    row_data['total'] += row_data[key]
-        data.append(row_data)
+                if pos != '계' or row['is_total']:
+                    count = random.randint(0, 20) if not row['is_total'] else 0
+                    company_data['positions'].append({
+                        'position': pos,
+                        'count': count
+                    })
+            row_data['companies'].append(company_data)
+        
+        table_data.append(row_data)
+    
+    # 총계 계산
+    total_count = 0
+    for row in table_data:
+        if not row['is_total']:
+            for company_data in row['companies']:
+                for pos_data in company_data['positions']:
+                    if pos_data['position'] != '계':
+                        total_count += pos_data['count']
     
     # 요약 데이터
     summary = {
-        'total_current': sum(row['total'] for row in data),
+        'total_current': total_count,
+        'total_previous': total_count - random.randint(-10, 20),
+        'total_change': random.randint(-10, 20),
         'month_change': random.randint(-10, 20),
         'year_change': random.randint(-50, 100),
         'promotion_rate': round(random.uniform(5, 15), 1),
@@ -65,7 +107,8 @@ def get_monthly_workforce_data(request):
     }
     
     return JsonResponse({
-        'data': data,
+        'table_data': table_data,
+        'companies_header': companies_structure,
         'summary': summary,
         'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M'),
         'companies_structure': companies_structure,

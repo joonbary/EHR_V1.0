@@ -572,7 +572,8 @@ function createTemplateTable(data) {
     dataBody.innerHTML = '';
     
     // 회사 헤더 생성
-    data.companies_header.forEach(company => {
+    const companiesHeader = data.companies_header || data.companies_structure || [];
+    companiesHeader.forEach(company => {
         const th = document.createElement('th');
         th.className = 'company-header';
         th.colSpan = company.positions.length;
@@ -590,13 +591,15 @@ function createTemplateTable(data) {
     companyHeaderRow.appendChild(groupTotalHeader);
     
     // 직책 헤더 생성
-    data.companies_header.forEach(company => {
-        company.positions.forEach(position => {
-            const th = document.createElement('th');
-            th.className = 'position-header';
-            th.textContent = position;
-            positionHeaderRow.appendChild(th);
-        });
+    companiesHeader.forEach(company => {
+        if (company.positions && Array.isArray(company.positions)) {
+            company.positions.forEach(position => {
+                const th = document.createElement('th');
+                th.className = 'position-header';
+                th.textContent = position;
+                positionHeaderRow.appendChild(th);
+            });
+        }
     });
     
     // 그룹 전체 하위 헤더 추가
@@ -611,7 +614,8 @@ function createTemplateTable(data) {
     
     // 데이터 행 생성
     let currentCategory = '';
-    data.table_data.forEach(rowData => {
+    const tableData = data.table_data || [];
+    tableData.forEach(rowData => {
         const tr = document.createElement('tr');
         
         // 카테고리별 스타일 적용
