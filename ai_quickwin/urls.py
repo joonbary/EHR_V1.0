@@ -7,6 +7,7 @@ from .views import (
     AIQuickWinAPIView,
     ai_chatbot_view,
     ai_leader_assistant_view,
+    ai_settings_view,
     EmployeeSyncAPIView,
     InterviewToCoachingAPIView,
     ComprehensiveReportAPIView,
@@ -34,4 +35,7 @@ urlpatterns = [
     # 개별 AI 기능
     path('chatbot/', ai_chatbot_view, name='chatbot'),
     path('leader-assistant/', ai_leader_assistant_view, name='leader_assistant'),
+    
+    # AI 설정 관리
+    path('settings/', ai_settings_view, name='settings'),
 ]

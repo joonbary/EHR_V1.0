@@ -1,0 +1,443 @@
+{% extends 'ai_base.html' %}
+{% load static %}
+
+{% block title %}AI 설정 관리 - OK금융그룹{% endblock %}
+
+{% block breadcrumb %}
+<div class="px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <nav aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm">
+            <li>
+                <a href="{% url 'home' %}" class="text-gray-500 hover:text-primary dark:text-gray-400">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <a href="{% url 'ai_quickwin:dashboard' %}" class="text-gray-500 hover:text-primary">AI Quick Win</a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">AI 설정 관리</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="px-6 lg:px-8 py-8">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">AI 설정 관리</h1>
+        <p class="mt-2 text-gray-600">AI 모델 연결 설정 및 API 키 관리</p>
+    </div>
+
+    <!-- 상태 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">활성 프로바이더</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ active_providers|length }}</p>
+                </div>
+                <i data-lucide="cpu" class="w-8 h-8 text-primary"></i>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">이번 달 사용량</p>
+                    <p class="text-2xl font-bold text-gray-900">${{ usage.total_cost|floatformat:2 }}</p>
+                </div>
+                <i data-lucide="dollar-sign" class="w-8 h-8 text-green-600"></i>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">API 호출</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ usage.total_requests|default:0 }}</p>
+                </div>
+                <i data-lucide="activity" class="w-8 h-8 text-blue-600"></i>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">예산 사용률</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ budget_usage_percent }}%</p>
+                </div>
+                <i data-lucide="pie-chart" class="w-8 h-8 text-purple-600"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 프로바이더 설정 -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6">AI 프로바이더 설정</h2>
+        
+        <div class="space-y-6">
+            <!-- OpenAI -->
+            <div class="border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="OpenAI" class="w-8 h-8 mr-3">
+                        <div>
+                            <h3 class="font-semibold">OpenAI</h3>
+                            <p class="text-sm text-gray-500">GPT-4, GPT-3.5 Turbo</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span id="openai-status" class="px-3 py-1 text-sm rounded-full {% if 'openai' in active_providers %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if 'openai' in active_providers %}활성{% else %}비활성{% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                        <input type="password" id="openai-api-key" 
+                               value="{% if openai_configured %}••••••••••••••••{% endif %}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                               placeholder="sk-...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">모델</label>
+                        <select id="openai-model" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
+                            <option value="gpt-4">GPT-4</option>
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex justify-end">
+                    <button onclick="testProvider('openai')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 mr-2">
+                        연결 테스트
+                    </button>
+                    <button onclick="saveProvider('openai')" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover">
+                        저장
+                    </button>
+                </div>
+            </div>
+
+            <!-- Claude (Anthropic) -->
+            <div class="border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white font-bold">C</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Claude (Anthropic)</h3>
+                            <p class="text-sm text-gray-500">Claude 3 Opus, Sonnet, Haiku</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span id="anthropic-status" class="px-3 py-1 text-sm rounded-full {% if 'anthropic' in active_providers %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if 'anthropic' in active_providers %}활성{% else %}비활성{% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                        <input type="password" id="anthropic-api-key" 
+                               value="{% if anthropic_configured %}••••••••••••••••{% endif %}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                               placeholder="sk-ant-...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">모델</label>
+                        <select id="anthropic-model" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                            <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                            <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex justify-end">
+                    <button onclick="testProvider('anthropic')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 mr-2">
+                        연결 테스트
+                    </button>
+                    <button onclick="saveProvider('anthropic')" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover">
+                        저장
+                    </button>
+                </div>
+            </div>
+
+            <!-- Google Gemini -->
+            <div class="border rounded-lg p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" alt="Gemini" class="w-8 h-8 mr-3">
+                        <div>
+                            <h3 class="font-semibold">Google Gemini</h3>
+                            <p class="text-sm text-gray-500">Gemini Pro, Gemini Ultra</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span id="google-status" class="px-3 py-1 text-sm rounded-full {% if 'google' in active_providers %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if 'google' in active_providers %}활성{% else %}비활성{% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                        <input type="password" id="google-api-key" 
+                               value="{% if google_configured %}••••••••••••••••{% endif %}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                               placeholder="AIza...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">모델</label>
+                        <select id="google-model" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="gemini-pro">Gemini Pro</option>
+                            <option value="gemini-pro-vision">Gemini Pro Vision</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex justify-end">
+                    <button onclick="testProvider('google')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 mr-2">
+                        연결 테스트
+                    </button>
+                    <button onclick="saveProvider('google')" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover">
+                        저장
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모듈별 설정 -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-6">AI 모듈별 설정</h2>
+        
+        <div class="space-y-4">
+            {% for module in modules %}
+            <div class="flex items-center justify-between p-4 border rounded-lg">
+                <div class="flex items-center">
+                    <i data-lucide="{{ module.icon }}" class="w-5 h-5 text-gray-500 mr-3"></i>
+                    <div>
+                        <h4 class="font-medium">{{ module.name }}</h4>
+                        <p class="text-sm text-gray-500">{{ module.description }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <select id="module-{{ module.id }}-provider" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                        <option value="">기본 프로바이더 사용</option>
+                        <option value="openai">OpenAI</option>
+                        <option value="anthropic">Claude</option>
+                        <option value="google">Gemini</option>
+                    </select>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="module-{{ module.id }}-enabled" 
+                               {% if module.enabled %}checked{% endif %}
+                               class="rounded border-gray-300 text-primary focus:ring-primary">
+                        <span class="ml-2 text-sm">활성화</span>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+            <button onclick="saveModuleSettings()" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover">
+                모듈 설정 저장
+            </button>
+        </div>
+    </div>
+
+    <!-- 사용량 통계 -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-xl font-semibold mb-6">AI 사용량 통계</h2>
+        
+        <div class="mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium">월간 예산 사용률</span>
+                <span class="text-sm text-gray-500">${{ usage.total_cost|floatformat:2 }} / ${{ monthly_budget }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary h-2 rounded-full" style="width: {{ budget_usage_percent }}%"></div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            {% for provider, data in usage.by_provider.items %}
+            <div class="border rounded-lg p-4">
+                <h4 class="font-medium mb-2">{{ provider|title }}</h4>
+                <div class="space-y-1 text-sm">
+                    <p class="flex justify-between">
+                        <span class="text-gray-500">비용:</span>
+                        <span class="font-medium">${{ data.cost|floatformat:2 }}</span>
+                    </p>
+                    <p class="flex justify-between">
+                        <span class="text-gray-500">토큰:</span>
+                        <span class="font-medium">{{ data.tokens|default:0 }}</span>
+                    </p>
+                    <p class="flex justify-between">
+                        <span class="text-gray-500">요청:</span>
+                        <span class="font-medium">{{ data.requests|default:0 }}</span>
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+// 프로바이더 연결 테스트
+function testProvider(provider) {
+    const apiKey = document.getElementById(`${provider}-api-key`).value;
+    const model = document.getElementById(`${provider}-model`).value;
+    
+    if (!apiKey || apiKey.includes('•')) {
+        alert('API 키를 입력해주세요.');
+        return;
+    }
+    
+    // 로딩 표시
+    const statusEl = document.getElementById(`${provider}-status`);
+    statusEl.textContent = '테스트 중...';
+    statusEl.className = 'px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800';
+    
+    fetch('/ai/api/test-provider/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            provider: provider,
+            api_key: apiKey,
+            model: model
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusEl.textContent = '연결 성공';
+            statusEl.className = 'px-3 py-1 text-sm rounded-full bg-green-100 text-green-800';
+            setTimeout(() => {
+                statusEl.textContent = '활성';
+            }, 2000);
+        } else {
+            statusEl.textContent = '연결 실패';
+            statusEl.className = 'px-3 py-1 text-sm rounded-full bg-red-100 text-red-800';
+            alert(`연결 실패: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        statusEl.textContent = '오류';
+        statusEl.className = 'px-3 py-1 text-sm rounded-full bg-red-100 text-red-800';
+    });
+}
+
+// 프로바이더 설정 저장
+function saveProvider(provider) {
+    const apiKey = document.getElementById(`${provider}-api-key`).value;
+    const model = document.getElementById(`${provider}-model`).value;
+    
+    if (!apiKey) {
+        alert('API 키를 입력해주세요.');
+        return;
+    }
+    
+    fetch('/ai/api/save-provider/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            provider: provider,
+            api_key: apiKey,
+            model: model
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('설정이 저장되었습니다.');
+            // 마스킹된 키로 표시
+            document.getElementById(`${provider}-api-key`).value = '••••••••••••••••';
+        } else {
+            alert(`저장 실패: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('저장 중 오류가 발생했습니다.');
+    });
+}
+
+// 모듈 설정 저장
+function saveModuleSettings() {
+    const modules = [];
+    document.querySelectorAll('[id^="module-"]').forEach(el => {
+        if (el.id.includes('-provider')) {
+            const moduleId = el.id.split('-')[1];
+            modules.push({
+                id: moduleId,
+                provider: el.value,
+                enabled: document.getElementById(`module-${moduleId}-enabled`).checked
+            });
+        }
+    });
+    
+    fetch('/ai/api/save-module-settings/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ modules: modules })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('모듈 설정이 저장되었습니다.');
+        } else {
+            alert(`저장 실패: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('저장 중 오류가 발생했습니다.');
+    });
+}
+
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Lucide 아이콘 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

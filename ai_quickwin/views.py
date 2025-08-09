@@ -134,6 +134,73 @@ def ai_leader_assistant_view(request):
     return render(request, 'ai/leader_assistant.html')
 
 
+def ai_settings_view(request):
+    """AI 설정 관리 뷰"""
+    from .ai_config import ai_config_manager
+    import os
+    
+    # 현재 설정 정보 가져오기
+    context = {
+        'active_providers': ai_config_manager.get_available_providers(),
+        'openai_configured': bool(os.getenv('OPENAI_API_KEY') and os.getenv('OPENAI_API_KEY') != 'your-openai-api-key-here'),
+        'anthropic_configured': bool(os.getenv('ANTHROPIC_API_KEY') and os.getenv('ANTHROPIC_API_KEY') != 'your-anthropic-api-key-here'),
+        'google_configured': bool(os.getenv('GOOGLE_AI_API_KEY') and os.getenv('GOOGLE_AI_API_KEY') != 'your-google-api-key-here'),
+        'monthly_budget': os.getenv('AI_MONTHLY_BUDGET_USD', '100'),
+        'usage': ai_config_manager.usage_tracker.get_current_usage(),
+        'modules': [
+            {
+                'id': 'insights',
+                'name': 'AI 인사이트',
+                'description': '조직 전반의 인사이트 분석',
+                'icon': 'trending-up',
+                'enabled': ai_config_manager.is_module_enabled('insights')
+            },
+            {
+                'id': 'predictions',
+                'name': '이직 예측',
+                'description': '이직 리스크 분석 및 예측',
+                'icon': 'user-check',
+                'enabled': ai_config_manager.is_module_enabled('predictions')
+            },
+            {
+                'id': 'interviewer',
+                'name': 'AI 면접관',
+                'description': 'AI 기반 면접 질문 생성',
+                'icon': 'video',
+                'enabled': ai_config_manager.is_module_enabled('interviewer')
+            },
+            {
+                'id': 'team_optimizer',
+                'name': '팀 최적화',
+                'description': '최적의 팀 구성 추천',
+                'icon': 'users',
+                'enabled': ai_config_manager.is_module_enabled('team_optimizer')
+            },
+            {
+                'id': 'coaching',
+                'name': '코칭 어시스턴트',
+                'description': '개인별 맞춤 코칭',
+                'icon': 'message-circle',
+                'enabled': ai_config_manager.is_module_enabled('coaching')
+            },
+            {
+                'id': 'airiss',
+                'name': 'AIRISS Core',
+                'description': '통합 AI 분석 엔진',
+                'icon': 'cpu',
+                'enabled': ai_config_manager.is_module_enabled('airiss')
+            }
+        ]
+    }
+    
+    # 예산 사용률 계산
+    total_cost = context['usage'].get('total_cost', 0)
+    monthly_budget = float(context['monthly_budget'])
+    context['budget_usage_percent'] = int((total_cost / monthly_budget) * 100) if monthly_budget > 0 else 0
+    
+    return render(request, 'ai/ai_settings.html', context)
+
+
 class EmployeeSyncAPIView(View):
     """직원 프로파일 동기화 API"""
     
