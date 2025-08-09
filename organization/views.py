@@ -45,7 +45,7 @@ def organization_dashboard(request):
         ).select_related('manager')[:10],
     }
     
-    return render(request, 'organization/dashboard.html', context)
+    return render(request, 'organization/dashboard_revolutionary.html', context)
 
 
 def department_list(request):

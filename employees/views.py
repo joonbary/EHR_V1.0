@@ -135,7 +135,7 @@ class EmployeeListView(ListView):
 
 class EmployeeDetailView(DetailView):
     model = Employee
-    template_name = 'employees/employee_detail.html'
+    template_name = 'employees/employee_detail_revolutionary.html'
     context_object_name = 'employee'
 
     def get_context_data(self, **kwargs):

@@ -1,0 +1,403 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}{{ employee.name }} - 직원 상세 정보{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Employee detail styles */
+    .profile-header {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+
+    .profile-info {
+        flex: 1;
+        margin-left: 2rem;
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-position {
+        font-size: 1.2rem;
+        color: #00d4ff;
+        margin-bottom: 1rem;
+    }
+
+    .profile-meta {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #8892b0;
+    }
+
+    .info-section {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 10px;
+        border-left: 3px solid #00d4ff;
+    }
+
+    .info-label {
+        color: #8892b0;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .tab-navigation {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        padding-bottom: 1rem;
+    }
+
+    .tab-button {
+        padding: 0.8rem 1.5rem;
+        background: transparent;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 10px;
+        color: #8892b0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tab-button.active,
+    .tab-button:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        color: #00d4ff;
+        transform: translateY(-2px);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .skill-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 204, 0.1));
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        margin: 0.25rem;
+        color: #00d4ff;
+    }
+
+    .performance-chart {
+        height: 300px;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="action-buttons">
+            <a href="{% url 'employees:employee_update' employee.pk %}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-2"></i>수정
+            </a>
+            <button class="btn btn-outline-danger" onclick="confirmDelete()">
+                <i class="fas fa-trash me-2"></i>삭제
+            </button>
+        </div>
+        
+        <div class="d-flex align-items-center">
+            <div class="profile-avatar">
+                {{ employee.name|slice:":1" }}
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name">{{ employee.name }}</h1>
+                <div class="profile-position">{{ employee.position|default:"미지정" }}</div>
+                <div class="profile-meta">
+                    <span class="meta-item">
+                        <i class="fas fa-id-badge"></i>
+                        {{ employee.employee_id }}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-building"></i>
+                        {{ employee.department|default:"미지정" }}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-envelope"></i>
+                        {{ employee.email|default:"없음" }}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-phone"></i>
+                        {{ employee.phone|default:"없음" }}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        입사일: {{ employee.hire_date|date:"Y-m-d"|default:"미지정" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+        <button class="tab-button active" onclick="showTab('basic')">
+            <i class="fas fa-user me-2"></i>기본 정보
+        </button>
+        <button class="tab-button" onclick="showTab('career')">
+            <i class="fas fa-briefcase me-2"></i>경력 정보
+        </button>
+        <button class="tab-button" onclick="showTab('education')">
+            <i class="fas fa-graduation-cap me-2"></i>학력/자격
+        </button>
+        <button class="tab-button" onclick="showTab('performance')">
+            <i class="fas fa-chart-line me-2"></i>성과 분석
+        </button>
+        <button class="tab-button" onclick="showTab('compensation')">
+            <i class="fas fa-won-sign me-2"></i>보상 정보
+        </button>
+    </div>
+
+    <!-- Tab Contents -->
+    <!-- Basic Information -->
+    <div id="basic-tab" class="tab-content active">
+        <div class="info-section">
+            <h3 class="mb-4" style="color: #00d4ff;">
+                <i class="fas fa-info-circle me-2"></i>기본 정보
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">사원번호</div>
+                    <div class="info-value">{{ employee.employee_id }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">이름</div>
+                    <div class="info-value">{{ employee.name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">부서</div>
+                    <div class="info-value">{{ employee.department|default:"미지정" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">직급</div>
+                    <div class="info-value">{{ employee.position|default:"미지정" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">직종</div>
+                    <div class="info-value">{{ employee.job_type|default:"미지정" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">고용 상태</div>
+                    <div class="info-value">{{ employee.employment_status|default:"재직" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">입사일</div>
+                    <div class="info-value">{{ employee.hire_date|date:"Y-m-d"|default:"미지정" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">이메일</div>
+                    <div class="info-value">{{ employee.email|default:"없음" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">전화번호</div>
+                    <div class="info-value">{{ employee.phone|default:"없음" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">관리자</div>
+                    <div class="info-value">{{ employee.manager.name|default:"없음" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Career Information -->
+    <div id="career-tab" class="tab-content">
+        <div class="info-section">
+            <h3 class="mb-4" style="color: #00d4ff;">
+                <i class="fas fa-briefcase me-2"></i>경력 정보
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">근속 연수</div>
+                    <div class="info-value">{{ employee.years_of_service|default:"0" }}년</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">성장 레벨</div>
+                    <div class="info-value">Level {{ employee.growth_level|default:"1" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">이전 직장</div>
+                    <div class="info-value">{{ employee.previous_company|default:"없음" }}</div>
+                </div>
+            </div>
+            
+            <h4 class="mt-4 mb-3" style="color: #00d4ff;">
+                <i class="fas fa-code me-2"></i>보유 기술
+            </h4>
+            <div>
+                {% for skill in employee.skills.all %}
+                <span class="skill-badge">{{ skill.name }}</span>
+                {% empty %}
+                <p class="text-muted">등록된 기술이 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Education Information -->
+    <div id="education-tab" class="tab-content">
+        <div class="info-section">
+            <h3 class="mb-4" style="color: #00d4ff;">
+                <i class="fas fa-graduation-cap me-2"></i>학력 및 자격
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">최종 학력</div>
+                    <div class="info-value">{{ employee.education|default:"미지정" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">전공</div>
+                    <div class="info-value">{{ employee.major|default:"미지정" }}</div>
+                </div>
+            </div>
+            
+            <h4 class="mt-4 mb-3" style="color: #00d4ff;">
+                <i class="fas fa-certificate me-2"></i>자격증
+            </h4>
+            <div>
+                {% for cert in employee.certifications.all %}
+                <span class="skill-badge">{{ cert.name }}</span>
+                {% empty %}
+                <p class="text-muted">등록된 자격증이 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Analysis -->
+    <div id="performance-tab" class="tab-content">
+        <div class="info-section">
+            <h3 class="mb-4" style="color: #00d4ff;">
+                <i class="fas fa-chart-line me-2"></i>성과 분석
+            </h3>
+            <div class="performance-chart">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compensation Information -->
+    <div id="compensation-tab" class="tab-content">
+        <div class="info-section">
+            <h3 class="mb-4" style="color: #00d4ff;">
+                <i class="fas fa-won-sign me-2"></i>보상 정보
+            </h3>
+            <p class="text-muted text-center py-5">권한이 없거나 정보가 없습니다.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+}
+
+function confirmDelete() {
+    if (confirm('정말 이 직원 정보를 삭제하시겠습니까?')) {
+        window.location.href = "{% url 'employees:employee_delete' employee.pk %}";
+    }
+}
+</script>
+{% endblock %}
