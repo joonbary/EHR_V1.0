@@ -13,17 +13,7 @@
 
 {% block extra_css %}
 <style>
-/* Revolutionary AI 테마 색상 변수 */
-:root {
-    --ai-primary: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-    --ai-secondary: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
-    --ai-accent: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
-    --ai-text: #ffffff;
-    --ai-bg: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
-    --message-bg: rgba(0, 0, 0, 0.3);
-    --user-msg: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-    --ai-msg: rgba(255, 255, 255, 0.05);
-}
+/* AI 채팅 전용 스타일 - 테마 시스템과 호환 */
 
 .chatbot-container {
     height: calc(100vh - 280px);
@@ -34,13 +24,13 @@
 }
 
 .chat-header {
-    background: var(--ai-bg);
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    background: var(--theme-surface);
+    border: 1px solid var(--theme-border);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 24px;
-    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
-    color: #00d4ff;
+    box-shadow: var(--theme-shadow);
+    color: var(--theme-text-primary);
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(10px);
@@ -91,10 +81,10 @@
 
 .chat-window {
     flex: 1;
-    background: var(--message-bg);
-    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: var(--theme-card);
+    border: 1px solid var(--theme-border);
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+    box-shadow: var(--theme-shadow);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -105,7 +95,7 @@
     flex: 1;
     padding: 24px;
     overflow-y: auto;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--theme-surface);
     position: relative;
 }
 
@@ -158,19 +148,19 @@
 }
 
 .message.user .message-content {
-    background: var(--user-msg);
-    color: #000;
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+    background: var(--theme-primary);
+    color: var(--theme-bg);
+    box-shadow: var(--theme-shadow);
     border-bottom-right-radius: 6px;
 }
 
 .message.assistant .message-content {
-    background: var(--ai-msg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.1);
+    background: var(--theme-card);
+    border: 1px solid var(--theme-border);
+    box-shadow: var(--theme-shadow);
     border-bottom-left-radius: 6px;
     position: relative;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--theme-text-primary);
 }
 
 .message.assistant .message-content::before {
@@ -198,8 +188,8 @@
 
 .chat-input {
     padding: 24px;
-    background: rgba(0, 0, 0, 0.3);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--theme-surface);
+    border-top: 1px solid var(--theme-border);
 }
 
 .input-group {
@@ -211,37 +201,37 @@
 .chat-input input {
     flex: 1;
     padding: 16px 24px;
-    border: 2px solid rgba(0, 212, 255, 0.3);
+    border: 2px solid var(--theme-border);
     border-radius: 25px;
     outline: none;
     font-size: 16px;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
+    background: var(--theme-card);
+    color: var(--theme-text-primary);
 }
 
 .chat-input input:focus {
-    border-color: #00d4ff;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2);
+    border-color: var(--theme-primary);
+    background: var(--theme-card);
+    box-shadow: 0 0 0 4px rgba(var(--theme-primary), 0.2);
     transform: translateY(-1px);
 }
 
 .chat-input input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--theme-text-muted);
 }
 
 .chat-input button {
     padding: 16px 28px;
-    background: var(--ai-primary);
-    color: #000;
+    background: var(--theme-primary);
+    color: var(--theme-bg);
     border: none;
     border-radius: 25px;
     cursor: pointer;
     font-weight: 600;
     font-size: 16px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    box-shadow: var(--theme-shadow);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -249,7 +239,7 @@
 
 .chat-input button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+    box-shadow: var(--theme-glow);
 }
 
 .chat-input button::after {
@@ -268,20 +258,21 @@
     display: inline-flex;
     align-items: center;
     padding: 10px 16px;
-    background: rgba(0, 212, 255, 0.1);
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    background: var(--theme-card);
+    border: 1px solid var(--theme-border);
     border-radius: 20px;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
-    color: #00d4ff;
+    color: var(--theme-text-secondary);
 }
 
 .suggestion-chip:hover {
-    background: rgba(0, 212, 255, 0.2);
+    background: var(--theme-primary);
+    color: var(--theme-bg);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    box-shadow: var(--theme-shadow);
 }
 
 .suggestion-chip::before {
@@ -298,7 +289,7 @@
 
 .typing-indicator::before {
     content: '🤖 생각하는 중';
-    color: #00d4ff;
+    color: var(--theme-primary);
     font-weight: 500;
     margin-right: 12px;
 }
@@ -308,7 +299,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    background: var(--theme-primary);
     margin: 0 3px;
     animation: typing 1.4s ease-in-out infinite;
 }
@@ -338,12 +329,12 @@
 }
 
 .chat-messages::-webkit-scrollbar-track {
-    background: rgba(0, 212, 255, 0.1);
+    background: var(--theme-border);
     border-radius: 3px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-    background: var(--ai-primary);
+    background: var(--theme-primary);
     border-radius: 3px;
 }
 

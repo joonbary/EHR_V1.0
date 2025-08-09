@@ -1,0 +1,298 @@
+/* ==============================================
+   THEME SYSTEM - Revolutionary vs Professional
+   ============================================== */
+
+/* Theme Variables */
+:root {
+  /* Revolutionary Theme (Default) */
+  --theme-primary: #00d4ff;
+  --theme-primary-hover: #0099ff;
+  --theme-secondary: #ff00ff;
+  --theme-accent: #00ff88;
+  --theme-bg: rgba(10, 15, 27, 0.95);
+  --theme-surface: rgba(26, 31, 46, 0.8);
+  --theme-card: rgba(255, 255, 255, 0.03);
+  --theme-border: rgba(0, 212, 255, 0.2);
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: rgba(255, 255, 255, 0.8);
+  --theme-text-muted: rgba(255, 255, 255, 0.5);
+  --theme-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+  --theme-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+/* Professional Theme */
+[data-theme="professional"] {
+  --theme-primary: #2563eb;
+  --theme-primary-hover: #1d4ed8;
+  --theme-secondary: #7c3aed;
+  --theme-accent: #059669;
+  --theme-bg: rgba(255, 255, 255, 0.98);
+  --theme-surface: rgba(248, 250, 252, 0.95);
+  --theme-card: rgba(255, 255, 255, 0.9);
+  --theme-border: rgba(226, 232, 240, 0.8);
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #94a3b8;
+  --theme-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --theme-glow: 0 0 0 rgba(37, 99, 235, 0.1);
+}
+
+/* Nature Theme */
+[data-theme="nature"] {
+  --theme-primary: #059669;
+  --theme-primary-hover: #047857;
+  --theme-secondary: #92400e;
+  --theme-accent: #7c2d12;
+  --theme-bg: rgba(254, 252, 232, 0.98);
+  --theme-surface: rgba(240, 253, 244, 0.95);
+  --theme-card: rgba(255, 255, 255, 0.9);
+  --theme-border: rgba(34, 197, 94, 0.2);
+  --theme-text-primary: #14532d;
+  --theme-text-secondary: #166534;
+  --theme-text-muted: #86efac;
+  --theme-shadow: 0 4px 20px rgba(34, 197, 94, 0.1);
+  --theme-glow: 0 0 15px rgba(34, 197, 94, 0.2);
+}
+
+/* Corporate Theme */
+[data-theme="corporate"] {
+  --theme-primary: #1e40af;
+  --theme-primary-hover: #1e3a8a;
+  --theme-secondary: #d97706;
+  --theme-accent: #dc2626;
+  --theme-bg: rgba(15, 23, 42, 0.95);
+  --theme-surface: rgba(30, 41, 59, 0.9);
+  --theme-card: rgba(51, 65, 85, 0.8);
+  --theme-border: rgba(30, 64, 175, 0.3);
+  --theme-text-primary: #f8fafc;
+  --theme-text-secondary: rgba(226, 232, 240, 0.9);
+  --theme-text-muted: rgba(148, 163, 184, 0.7);
+  --theme-shadow: 0 8px 25px rgba(30, 64, 175, 0.15);
+  --theme-glow: 0 0 20px rgba(217, 119, 6, 0.2);
+}
+
+/* Theme Transition Animation */
+* {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Theme Toggle Button Styles */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--theme-card);
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  padding: 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--theme-shadow);
+}
+
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin: 0 2px;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--theme-primary);
+  color: var(--theme-bg);
+}
+
+.theme-toggle-btn.active {
+  background: var(--theme-primary);
+  color: var(--theme-bg);
+  box-shadow: var(--theme-glow);
+}
+
+/* Theme-specific Body Backgrounds */
+[data-theme="revolutionary"] body {
+  background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+}
+
+[data-theme="professional"] body {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+[data-theme="nature"] body {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+[data-theme="corporate"] body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* Universal Component Styles */
+.sidebar-wrapper {
+  background: var(--theme-surface) !important;
+  border-right: 1px solid var(--theme-border) !important;
+}
+
+.sidebar-logo {
+  color: var(--theme-text-primary) !important;
+}
+
+.nav-section-title {
+  color: var(--theme-text-muted) !important;
+}
+
+.nav-item {
+  color: var(--theme-text-secondary) !important;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  background: var(--theme-card) !important;
+  color: var(--theme-text-primary) !important;
+}
+
+.nav-item.active {
+  background: var(--theme-primary) !important;
+  color: var(--theme-bg) !important;
+}
+
+.header-modern {
+  background: var(--theme-surface) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+}
+
+.logo-text {
+  color: var(--theme-text-primary) !important;
+}
+
+.btn-landing {
+  background: var(--theme-primary) !important;
+  color: var(--theme-bg) !important;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-landing:hover {
+  background: var(--theme-primary-hover) !important;
+  box-shadow: var(--theme-glow);
+  transform: translateY(-2px);
+}
+
+.page-title {
+  color: var(--theme-text-primary) !important;
+}
+
+.page-subtitle {
+  color: var(--theme-text-secondary) !important;
+}
+
+.landing-card,
+.feature-card,
+.stat-card {
+  background: var(--theme-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  box-shadow: var(--theme-shadow);
+  backdrop-filter: blur(10px);
+}
+
+/* Chat-specific Theme Styles */
+.chatbot-container.landing-card {
+  background: var(--theme-card) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+.chat-header {
+  background: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text-primary) !important;
+}
+
+.chat-window {
+  background: var(--theme-card) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+.chat-messages {
+  background: var(--theme-surface) !important;
+}
+
+.message.assistant .message-content {
+  background: var(--theme-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text-primary) !important;
+}
+
+.message.user .message-content {
+  background: var(--theme-primary) !important;
+  color: var(--theme-bg) !important;
+}
+
+.chat-input {
+  background: var(--theme-surface) !important;
+  border-top: 1px solid var(--theme-border) !important;
+}
+
+.chat-input input {
+  background: var(--theme-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text-primary) !important;
+}
+
+.chat-input input::placeholder {
+  color: var(--theme-text-muted) !important;
+}
+
+.suggestion-chip {
+  background: var(--theme-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text-secondary) !important;
+}
+
+.suggestion-chip:hover {
+  background: var(--theme-primary) !important;
+  color: var(--theme-bg) !important;
+}
+
+/* Professional Theme Specific Adjustments */
+[data-theme="professional"] .chat-header h2::before {
+  content: '💼';
+}
+
+[data-theme="professional"] .suggestion-chip::before {
+  content: '📋';
+}
+
+/* Nature Theme Specific Adjustments */
+[data-theme="nature"] .chat-header h2::before {
+  content: '🌿';
+}
+
+[data-theme="nature"] .suggestion-chip::before {
+  content: '🌱';
+}
+
+/* Corporate Theme Specific Adjustments */
+[data-theme="corporate"] .chat-header h2::before {
+  content: '🏢';
+}
+
+[data-theme="corporate"] .suggestion-chip::before {
+  content: '💼';
+}
+
+/* Revolutionary Theme keeps robot emoji */
+[data-theme="revolutionary"] .chat-header h2::before {
+  content: '🤖';
+}
+
+[data-theme="revolutionary"] .suggestion-chip::before {
+  content: '💡';
+}
