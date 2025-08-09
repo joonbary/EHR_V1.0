@@ -22,15 +22,14 @@ def fix_employee_data():
     print("직원 데이터 수정 시작")
     print("=" * 80)
     
-    # 잘못된 데이터 삭제 (이름이 없는 데이터)
-    print("\n[1단계] 잘못된 데이터 삭제")
+    # 잘못된 데이터 확인 (이름이 없는 데이터)
+    print("\n[1단계] 잘못된 데이터 확인")
     bad_employees = Employee.objects.filter(name='')
     bad_count = bad_employees.count()
     print(f"  - 이름이 없는 직원: {bad_count}명")
     
-    if bad_count > 0:
-        bad_employees.delete()
-        print(f"  ✅ {bad_count}명 삭제 완료")
+    # 삭제 대신 업데이트할 예정
+    print(f"  📝 {bad_count}명을 업데이트 예정")
     
     # 정상 데이터 재업로드
     print("\n[2단계] 정상 데이터 업로드")
