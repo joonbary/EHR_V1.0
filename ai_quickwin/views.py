@@ -570,9 +570,15 @@ class AIChatAPIView(View):
             
             # AI 클라이언트 가져오기
             from .ai_config import get_ai_client
+            import logging
+            logger = logging.getLogger(__name__)
             
             # 세션에서 저장된 설정 사용 또는 환경변수 설정 사용
             ai_client = self._get_ai_client_for_session(request, 'chatbot')
+            
+            logger.info(f"AI 클라이언트 상태: {ai_client is not None}")
+            if hasattr(request, 'session'):
+                logger.info(f"세션에 저장된 설정: {list(request.session.keys())}")
             
             if not ai_client:
                 return JsonResponse({
@@ -597,6 +603,7 @@ class AIChatAPIView(View):
             5. 한국어로 자연스럽게 응답"""
             
             try:
+                logger.info(f"AI 응답 생성 시작: {user_message[:50]}")
                 # AI 응답 생성
                 response = ai_client.generate_completion(
                     prompt=user_message,
@@ -605,6 +612,8 @@ class AIChatAPIView(View):
                     max_tokens=500
                 )
                 
+                logger.info(f"AI 응답 완료: {bool(response)}")
+                
                 if response:
                     return JsonResponse({
                         'success': True,
@@ -612,18 +621,21 @@ class AIChatAPIView(View):
                         'timestamp': timezone.now().isoformat()
                     })
                 else:
+                    logger.warning("AI 서비스에서 빈 응답")
                     return JsonResponse({
                         'success': False,
                         'error': 'AI 서비스에서 응답을 받지 못했습니다'
                     })
                     
             except Exception as e:
+                logger.error(f"AI 호출 중 예외 발생: {str(e)}")
                 # AI 호출 실패 시 폴백 응답
                 fallback_response = self._get_fallback_response(user_message)
                 return JsonResponse({
                     'success': True,
                     'response': fallback_response,
                     'fallback': True,
+                    'error_detail': str(e),  # 디버깅용
                     'timestamp': timezone.now().isoformat()
                 })
                 
@@ -641,9 +653,12 @@ class AIChatAPIView(View):
     def _get_ai_client_for_session(self, request, module_name):
         """세션 또는 환경변수 기반 AI 클라이언트 가져오기"""
         from .ai_config import get_ai_client, AIServiceClient, AIModelConfig, AIProvider
+        import logging
+        logger = logging.getLogger(__name__)
         
         # 먼저 환경변수 기반 클라이언트 시도
         ai_client = get_ai_client(module_name)
+        logger.info(f"환경변수 기반 클라이언트: {ai_client is not None}")
         if ai_client:
             return ai_client
         
@@ -652,9 +667,11 @@ class AIChatAPIView(View):
             # 기본 프로바이더 확인
             default_provider = request.session.get('default_ai_provider', 'openai')
             session_key = f'ai_config_{default_provider}'
+            logger.info(f"기본 프로바이더: {default_provider}, 세션 키: {session_key}")
             
             if session_key in request.session:
                 settings = request.session[session_key]
+                logger.info(f"세션에서 찾은 설정: {bool(settings.get('api_key'))}")
                 
                 try:
                     # 세션 기반 설정으로 클라이언트 생성
@@ -672,11 +689,16 @@ class AIChatAPIView(View):
                         max_tokens=500
                     )
                     
-                    return AIServiceClient(config)
+                    client = AIServiceClient(config)
+                    logger.info(f"세션 기반 클라이언트 생성 성공")
+                    return client
                     
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.error(f"세션 기반 클라이언트 생성 실패: {e}")
+        else:
+            logger.warning("세션이 없습니다")
         
+        logger.error("AI 클라이언트를 생성할 수 없습니다")
         return None
     
     def _get_fallback_response(self, message):
