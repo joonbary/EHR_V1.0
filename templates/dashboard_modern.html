@@ -1,389 +1,349 @@
-{% extends "base.html" %}
+{% extends "base_modern.html" %}
 {% load static %}
-{% load humanize %}
 
-{% block title %}대시보드 - OK금융그룹 e-HR{% endblock %}
+{% block title %}OK Financial Group - AI HRM Dashboard{% endblock %}
+
+{% block page_header %}AI-Powered HRM Dashboard{% endblock %}
 
 {% block extra_css %}
 <style>
+    /* Dashboard Specific Styles */
+    .dashboard-hero {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-2xl);
+        margin-bottom: var(--spacing-xl);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .welcome-title {
+        font-size: 48px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .welcome-subtitle {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+        margin: var(--spacing-xl) 0;
+    }
+
     .stat-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200;
+        background: var(--bg-card);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        transition: all var(--transition-normal);
+        position: relative;
+        overflow: hidden;
     }
-    
-    .chart-container {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6;
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: left 0.5s ease;
     }
-    
-    .activity-item {
-        @apply flex items-start space-x-3 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0;
+
+    .stat-card:hover::before {
+        left: 100%;
     }
-    
-    .progress-bar {
-        @apply bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden;
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        background: var(--bg-card-hover);
+        border-color: var(--border-hover);
+        box-shadow: var(--shadow-lg);
     }
-    
-    .progress-fill {
-        @apply bg-primary h-full rounded-full transition-all duration-500;
+
+    .stat-icon {
+        font-size: 48px;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .stat-value {
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--spacing-lg);
+        margin-top: var(--spacing-xl);
+    }
+
+    .action-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        transition: all var(--transition-normal);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        background: var(--bg-card-hover);
+        border-color: var(--border-hover);
+        box-shadow: var(--shadow-lg);
+        color: inherit;
+    }
+
+    .action-icon {
+        font-size: 40px;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .action-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--primary-color);
+    }
+
+    .action-description {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    .airiss-section {
+        margin-top: var(--spacing-2xl);
+        padding: var(--spacing-2xl);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: var(--radius-xl);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .airiss-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: #000;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border-radius: var(--radius-round);
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+    }
+
+    .airiss-title {
+        font-size: 36px;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #fff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .airiss-description {
+        font-size: 16px;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .airiss-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-lg);
+    }
+
+    .metric-item {
+        text-align: center;
+        padding: var(--spacing-md);
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .metric-value {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Page Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">안녕하세요, {{ user.get_full_name|default:user.username }}님!</h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-2">오늘도 좋은 하루 되세요. 현재 시각: <span id="current-time"></span></p>
+<!-- Dashboard Hero Section -->
+<div class="dashboard-hero">
+    <div class="hero-content">
+        <h1 class="welcome-title">AI가 이끄는 인사혁명</h1>
+        <p class="welcome-subtitle">
+            1,700여명의 임직원 데이터로 만드는 차세대 HRM 시스템에 오신 것을 환영합니다
+        </p>
+    </div>
+</div>
+
+<!-- Key Statistics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-icon">👥</span>
+        <div class="stat-value">1,700+</div>
+        <div class="stat-label">총 임직원</div>
     </div>
     
-    <!-- Quick Actions -->
-    <div class="mb-8">
-        <div class="flex flex-wrap gap-4">
-            <button class="btn btn-primary" onclick="window.location.href='{% url 'evaluations:dashboard' %}'">
-                <i class="fas fa-plus-circle mr-2"></i> 평가 시작
-            </button>
-            <button class="btn btn-secondary" onclick="window.location.href='{% url 'employees:list' %}'">
-                <i class="fas fa-users mr-2"></i> 직원 조회
-            </button>
-            <button class="btn btn-secondary" onclick="window.location.href='{% url 'job_profiles:hierarchy' %}'">
-                <i class="fas fa-sitemap mr-2"></i> 직무 체계도
-            </button>
-            <button class="btn btn-ghost" onclick="showToast('기능 준비 중입니다', 'info')">
-                <i class="fas fa-file-export mr-2"></i> 보고서 생성
-            </button>
-        </div>
+    <div class="stat-card">
+        <span class="stat-icon">🤖</span>
+        <div class="stat-value">7</div>
+        <div class="stat-label">AI 기능</div>
     </div>
     
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Total Employees -->
-        <div class="stat-card">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">전체 직원</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ total_employees|default:"1,234" }}</p>
-                    <p class="text-sm text-green-600 mt-2">
-                        <i class="fas fa-arrow-up"></i> +2.5% 전월 대비
-                    </p>
-                </div>
-                <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
-                    <i class="fas fa-users text-2xl text-blue-600 dark:text-blue-300"></i>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Active Evaluations -->
-        <div class="stat-card">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">진행중인 평가</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ active_evaluations|default:"45" }}</p>
-                    <p class="text-sm text-amber-600 mt-2">
-                        <i class="fas fa-clock"></i> 7일 남음
-                    </p>
-                </div>
-                <div class="p-3 bg-amber-100 dark:bg-amber-900 rounded-full">
-                    <i class="fas fa-chart-line text-2xl text-amber-600 dark:text-amber-300"></i>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Pending Approvals -->
-        <div class="stat-card">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">승인 대기</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ pending_approvals|default:"12" }}</p>
-                    <p class="text-sm text-red-600 mt-2">
-                        <i class="fas fa-exclamation-circle"></i> 즉시 확인 필요
-                    </p>
-                </div>
-                <div class="p-3 bg-red-100 dark:bg-red-900 rounded-full">
-                    <i class="fas fa-inbox text-2xl text-red-600 dark:text-red-300"></i>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Training Progress -->
-        <div class="stat-card">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">교육 이수율</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ training_completion|default:"78%" }}</p>
-                    <p class="text-sm text-green-600 mt-2">
-                        <i class="fas fa-check-circle"></i> 목표 초과 달성
-                    </p>
-                </div>
-                <div class="p-3 bg-green-100 dark:bg-green-900 rounded-full">
-                    <i class="fas fa-graduation-cap text-2xl text-green-600 dark:text-green-300"></i>
-                </div>
-            </div>
-        </div>
+    <div class="stat-card">
+        <span class="stat-icon">⚡</span>
+        <div class="stat-value">95%</div>
+        <div class="stat-label">업무 자동화</div>
     </div>
     
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Department Performance Chart -->
-        <div class="lg:col-span-2">
-            <div class="chart-container">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">부서별 성과 현황</h3>
-                    <select class="text-sm px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
-                        <option>이번 분기</option>
-                        <option>지난 분기</option>
-                        <option>연간</option>
-                    </select>
-                </div>
-                <div class="h-64">
-                    <canvas id="departmentChart"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recent Activities -->
-        <div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">최근 활동</h3>
-                <div class="space-y-1">
-                    <div class="activity-item">
-                        <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
-                            <i class="fas fa-user-plus text-blue-600 dark:text-blue-300"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">신규 직원 입사</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">김철수 - IT개발팀</p>
-                            <p class="text-xs text-gray-400 mt-1">2시간 전</p>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="p-2 bg-green-100 dark:bg-green-900 rounded-full">
-                            <i class="fas fa-check-circle text-green-600 dark:text-green-300"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">평가 완료</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">2023년 상반기 평가</p>
-                            <p class="text-xs text-gray-400 mt-1">5시간 전</p>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="p-2 bg-amber-100 dark:bg-amber-900 rounded-full">
-                            <i class="fas fa-award text-amber-600 dark:text-amber-300"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">승진 발표</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">박영희 과장 → 차장</p>
-                            <p class="text-xs text-gray-400 mt-1">1일 전</p>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-full">
-                            <i class="fas fa-certificate text-purple-600 dark:text-purple-300"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">자격증 취득</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">정보처리기사 - 이민수</p>
-                            <p class="text-xs text-gray-400 mt-1">2일 전</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="w-full mt-4 text-sm text-primary hover:text-primary-hover font-medium">
-                    전체 활동 보기 <i class="fas fa-arrow-right ml-1"></i>
-                </button>
-            </div>
-        </div>
+    <div class="stat-card">
+        <span class="stat-icon">📊</span>
+        <div class="stat-value">24/7</div>
+        <div class="stat-label">실시간 분석</div>
     </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <a href="{% url 'ai_quick_win_dashboard' %}" class="action-card">
+        <span class="action-icon">🤖</span>
+        <div class="action-title">AI 통합 대시보드</div>
+        <div class="action-description">
+            7가지 AI 기능을 한눈에 관리하고 모니터링할 수 있는 통합 대시보드
+        </div>
+    </a>
     
-    <!-- Secondary Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <!-- Team Progress -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">팀별 목표 달성률</h3>
-            <div class="space-y-4">
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">IT개발팀</span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">92%</span>
-                    </div>
-                    <div class="progress-bar h-2">
-                        <div class="progress-fill" style="width: 92%"></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">영업팀</span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">87%</span>
-                    </div>
-                    <div class="progress-bar h-2">
-                        <div class="progress-fill" style="width: 87%"></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">마케팅팀</span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">78%</span>
-                    </div>
-                    <div class="progress-bar h-2">
-                        <div class="progress-fill" style="width: 78%"></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">인사팀</span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">95%</span>
-                    </div>
-                    <div class="progress-bar h-2">
-                        <div class="progress-fill" style="width: 95%"></div>
-                    </div>
-                </div>
-            </div>
+    <a href="{% url 'employee_list' %}" class="action-card">
+        <span class="action-icon">👥</span>
+        <div class="action-title">직원 관리</div>
+        <div class="action-description">
+            1,700여명의 임직원 정보를 체계적으로 관리하고 분석
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_coaching_dashboard' %}" class="action-card">
+        <span class="action-icon">🎯</span>
+        <div class="action-title">AI 코칭</div>
+        <div class="action-description">
+            개인별 맞춤형 성장 경로 및 스킬 개발 가이드 제공
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_team_optimizer_dashboard' %}" class="action-card">
+        <span class="action-icon">⚡</span>
+        <div class="action-title">팀 최적화</div>
+        <div class="action-description">
+            AI 기반 팀 구성 최적화 및 업무 효율성 극대화
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_insights_dashboard' %}" class="action-card">
+        <span class="action-icon">💡</span>
+        <div class="action-title">AI 인사이트</div>
+        <div class="action-description">
+            데이터 기반 인사 전략 수립을 위한 핵심 인사이트 제공
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_predictions_dashboard' %}" class="action-card">
+        <span class="action-icon">📈</span>
+        <div class="action-title">예측 분석</div>
+        <div class="action-description">
+            성과 예측, 이탈 위험 분석 등 미래 지향적 HR 분석
+        </div>
+    </a>
+</div>
+
+<!-- AIRISS Section -->
+<div class="airiss-section">
+    <span class="airiss-badge">MSA Architecture</span>
+    <h2 class="airiss-title">AIRISS</h2>
+    <p class="airiss-description">
+        AI Result & Intelligence Scoring System - 마이크로서비스 아키텍처로 구현된 
+        차세대 AI 평가 엔진이 실시간으로 HR 데이터를 분석합니다
+    </p>
+    
+    <div class="airiss-metrics">
+        <div class="metric-item">
+            <div class="metric-value">0.05s</div>
+            <div class="metric-label">응답시간</div>
         </div>
         
-        <!-- Upcoming Events -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">예정된 일정</h3>
-            <div class="space-y-3">
-                <div class="flex items-start space-x-3">
-                    <div class="text-center">
-                        <div class="text-xs text-gray-500 dark:text-gray-400">12월</div>
-                        <div class="text-2xl font-bold text-primary">15</div>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900 dark:text-white">연말 평가 마감</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">2023년 하반기 성과평가</p>
-                        <div class="flex items-center mt-1 text-xs text-gray-500">
-                            <i class="fas fa-clock mr-1"></i> 오후 6:00
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex items-start space-x-3">
-                    <div class="text-center">
-                        <div class="text-xs text-gray-500 dark:text-gray-400">12월</div>
-                        <div class="text-2xl font-bold text-primary">20</div>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900 dark:text-white">리더십 워크샵</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">팀장 이상 필수 참석</p>
-                        <div class="flex items-center mt-1 text-xs text-gray-500">
-                            <i class="fas fa-map-marker-alt mr-1"></i> 본사 대회의실
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex items-start space-x-3">
-                    <div class="text-center">
-                        <div class="text-xs text-gray-500 dark:text-gray-400">12월</div>
-                        <div class="text-2xl font-bold text-primary">28</div>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900 dark:text-white">송년회</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">전 직원 참석</p>
-                        <div class="flex items-center mt-1 text-xs text-gray-500">
-                            <i class="fas fa-glass-cheers mr-1"></i> 오후 6:30
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <button class="w-full mt-4 text-sm text-primary hover:text-primary-hover font-medium">
-                전체 일정 보기 <i class="fas fa-calendar-alt ml-1"></i>
-            </button>
+        <div class="metric-item">
+            <div class="metric-value">99.9%</div>
+            <div class="metric-label">정확도</div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">24/7</div>
+            <div class="metric-label">가용성</div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">실시간</div>
+            <div class="metric-label">데이터 처리</div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'js/components/ui-components.js' %}"></script>
-<script>
-    // Update current time
-    function updateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleString('ko-KR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            weekday: 'long'
-        });
-        document.getElementById('current-time').textContent = timeString;
-    }
-    updateTime();
-    setInterval(updateTime, 1000);
-    
-    // Department Performance Chart
-    const ctx = document.getElementById('departmentChart').getContext('2d');
-    const departmentChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['IT개발', '영업', '마케팅', '인사', '재무', '운영'],
-            datasets: [{
-                label: '목표 달성률',
-                data: [92, 87, 78, 95, 83, 90],
-                backgroundColor: '#1443FF',
-                borderRadius: 8,
-                barThickness: 40
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.parsed.y + '%';
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                }
-            }
-        }
-    });
-    
-    // Apply dark mode to chart
-    function updateChartTheme() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const textColor = isDark ? '#E5E7EB' : '#374151';
-        const gridColor = isDark ? '#374151' : '#E5E7EB';
-        
-        departmentChart.options.scales.x.ticks.color = textColor;
-        departmentChart.options.scales.y.ticks.color = textColor;
-        departmentChart.options.scales.x.grid.color = gridColor;
-        departmentChart.options.scales.y.grid.color = gridColor;
-        departmentChart.update();
-    }
-    
-    // Watch for theme changes
-    const observer = new MutationObserver(updateChartTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    updateChartTheme();
-    
-    // Demo: Show random notifications
-    setTimeout(() => {
-        showToast('새로운 평가 요청이 있습니다', 'info');
-    }, 3000);
-</script>
 {% endblock %}
