@@ -193,9 +193,14 @@ class AIServiceClient:
                 "max_tokens": kwargs.get('max_tokens', self.config.max_tokens)
             }
             
+            # API 키 정리 (공백과 줄바꿈 제거)
+            clean_api_key = self.config.api_key.strip().replace('\n', '').replace('\r', '').replace(' ', '')
+            
+            logger.info(f"정리된 API 키 길이: {len(clean_api_key)}")
+            
             # 헤더 구성
             headers = {
-                "Authorization": f"Bearer {self.config.api_key}",
+                "Authorization": f"Bearer {clean_api_key}",
                 "Content-Type": "application/json"
             }
             
