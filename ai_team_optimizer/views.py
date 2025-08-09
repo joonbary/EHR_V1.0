@@ -74,6 +74,27 @@ class TeamOptimizerDashboardView(TemplateView):
             'templates': []
         })
         
+        # 데이터베이스 조회를 시도하되, 실패하면 빈 리스트 유지
+        try:
+            # Project 모델 조회 시도
+            context['recent_projects'] = Project.objects.select_related().order_by('-created_at')[:5]
+        except:
+            pass
+            
+        try:
+            # TeamComposition 모델 조회 시도
+            context['active_compositions'] = TeamComposition.objects.filter(
+                status__in=['PROPOSED', 'APPROVED', 'ACTIVE']
+            ).select_related('project').order_by('-overall_score')[:5]
+        except:
+            pass
+            
+        try:
+            # TeamTemplate 모델 조회 시도
+            context['templates'] = TeamTemplate.objects.filter(is_active=True)[:5]
+        except:
+            pass
+        
         return context
     
     def _get_recent_projects(self):
