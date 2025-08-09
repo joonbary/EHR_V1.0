@@ -137,17 +137,24 @@ def direct_update():
         for data in all_data:
             try:
                 # 이메일로 찾아서 업데이트
-                updated = Employee.objects.filter(email=data['email']).update(
-                    name=data.get('name', ''),
-                    company=data.get('company', Employee.objects.filter(email=data['email']).first().company),
-                    department=data.get('department', ''),
-                    final_department=data.get('final_department', ''),
-                    position=data.get('position', ''),
-                    current_position=data.get('current_position', ''),
-                    gender=data.get('gender', ''),
-                    age=data.get('age', 0) if 'age' in data else None,
-                    hire_date=data.get('hire_date') if 'hire_date' in data else None
-                )
+                emp = Employee.objects.filter(email=data['email']).first()
+                if emp:
+                    emp.name = data.get('name', emp.name)
+                    emp.company = data.get('company', emp.company)
+                    emp.department = data.get('department', emp.department)
+                    emp.final_department = data.get('final_department', emp.final_department)
+                    emp.position = data.get('position', emp.position)
+                    emp.current_position = data.get('current_position', emp.current_position)
+                    if 'gender' in data:
+                        emp.gender = data['gender']
+                    if 'age' in data:
+                        emp.age = data['age']
+                    if 'hire_date' in data:
+                        emp.hire_date = data['hire_date']
+                    emp.save()
+                    updated = 1
+                else:
+                    updated = 0
                 if updated:
                     updated_count += updated
                     
