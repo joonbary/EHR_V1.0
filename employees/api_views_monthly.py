@@ -88,7 +88,7 @@ def get_monthly_workforce_data(request):
     # 총계 계산
     total_count = 0
     for row in table_data:
-        if not row['is_total']:
+        if not row.get('is_total', False):  # 안전하게 is_total 확인
             for company_data in row['companies']:
                 for pos_data in company_data['positions']:
                     if pos_data['position'] != '계':
