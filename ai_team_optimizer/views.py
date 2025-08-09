@@ -40,7 +40,7 @@ except ImportError as e:
 
 class TeamOptimizerDashboardView(TemplateView):
     """팀 최적화 대시보드"""
-    template_name = 'ai_team_optimizer/dashboard.html'
+    template_name = 'ai_team_optimizer/dashboard_simple.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
