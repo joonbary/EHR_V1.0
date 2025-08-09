@@ -2,11 +2,19 @@
 AI Team Optimizer URLs - AI 팀 조합 최적화 URL 패턴
 """
 from django.urls import path
+from django.http import HttpResponse
 from . import views
 
 app_name = 'ai_team_optimizer'
 
+# 테스트 뷰
+def test_view(request):
+    return HttpResponse("AI Team Optimizer is working!")
+
 urlpatterns = [
+    # 테스트 URL
+    path('test/', test_view, name='test'),
+    
     # 대시보드
     path('', views.TeamOptimizerDashboardView.as_view(), name='dashboard'),
     

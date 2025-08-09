@@ -2,11 +2,19 @@
 AI Coaching URLs - AI 실시간 코칭 어시스턴트 URL 설정
 """
 from django.urls import path
+from django.http import HttpResponse
 from . import views
 
 app_name = 'ai_coaching'
 
+# 테스트 뷰
+def test_view(request):
+    return HttpResponse("AI Coaching is working!")
+
 urlpatterns = [
+    # 테스트 URL
+    path('test/', test_view, name='test'),
+    
     # 대시보드
     path('', views.CoachingDashboardView.as_view(), name='dashboard'),
     
