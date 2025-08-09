@@ -80,9 +80,9 @@ def force_upload_employees():
     
     # 모든 가능한 엑셀 파일 확인
     excel_files = [
+        'emp_upload_250801.xlsx',  # 이 파일부터 시작
         'OK_employee_new_part1_08051039.xlsx',
         'OK_employee_new_part2_08051039.xlsx',
-        'emp_upload_250801.xlsx',
         'OK_employee_new_part1.xlsx',
         'OK_employee_new_part2.xlsx',
     ]
