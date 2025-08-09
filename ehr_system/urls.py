@@ -12,7 +12,7 @@ urlpatterns = [
     # 인증 URL - 제거됨
     
     # 랜딩 페이지 (프레젠테이션용)
-    path('', TemplateView.as_view(template_name='landing_showcase.html'), name='landing'),
+    path('', TemplateView.as_view(template_name='landing_simple.html'), name='landing'),
     
     # 메인 대시보드
     path('home/', DashboardView.as_view(), name='home'),
