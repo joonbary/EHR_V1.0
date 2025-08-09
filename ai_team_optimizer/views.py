@@ -46,17 +46,26 @@ class TeamOptimizerDashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         
         # 안전한 기본값만 제공 (프로덕션 환경 대응)
+        # 템플릿에서 사용하는 모든 변수 포함
         context.update({
             'stats': {
                 'projects': {
                     'total': 0,
                     'active': 0,
                     'completed': 0,
+                    'completion_rate': 0
                 },
                 'teams': {
                     'total': 0,
                     'approved': 0,
                     'optimization_rate': 0
+                },
+                'compositions': {
+                    'total': 0,
+                    'approval_rate': 0
+                },
+                'average_scores': {
+                    'overall_score': 0
                 }
             },
             'recent_projects': [],
