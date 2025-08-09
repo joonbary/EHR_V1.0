@@ -174,6 +174,7 @@ class AIServiceClient:
         try:
             from openai import OpenAI
             
+            # 클라이언트 생성 시 timeout 제거 (API 호출 시에만 사용)
             client = OpenAI(api_key=self.config.api_key)
             
             messages = []
@@ -181,12 +182,12 @@ class AIServiceClient:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
             
+            # API 호출 시 timeout 설정
             response = client.chat.completions.create(
                 model=self.config.model_name,
                 messages=messages,
                 temperature=kwargs.get('temperature', self.config.temperature),
-                max_tokens=kwargs.get('max_tokens', self.config.max_tokens),
-                timeout=self.config.timeout
+                max_tokens=kwargs.get('max_tokens', self.config.max_tokens)
             )
             
             return response.choices[0].message.content
