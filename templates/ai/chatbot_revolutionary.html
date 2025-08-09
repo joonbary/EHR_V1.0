@@ -1,0 +1,649 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 어시스턴트 - OK Financial Group{% endblock %}
+
+{% block page_header %}AI 어시스턴트{% endblock %}
+{% block content_title %}AI 어시스턴트{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* AI 챗봇 스타일 */
+    .chatbot-container {
+        height: calc(100vh - 280px);
+        display: flex;
+        gap: 30px;
+        margin-top: 20px;
+    }
+    
+    /* 왼쪽 사이드바 - 대화 기록 */
+    .chat-sidebar {
+        width: 280px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 25px;
+        overflow-y: auto;
+    }
+    
+    .chat-history-header {
+        font-size: 18px;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .chat-history-item {
+        padding: 12px;
+        margin-bottom: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .chat-history-item:hover {
+        background: rgba(0, 212, 255, 0.1);
+        transform: translateX(5px);
+    }
+    
+    .chat-history-item.active {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
+        border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+    
+    .chat-history-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 5px;
+    }
+    
+    .chat-history-time {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* 메인 챗 영역 */
+    .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    /* 챗 헤더 */
+    .chat-header {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
+        padding: 20px 25px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .chat-header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .ai-status {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .ai-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .ai-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .ai-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #00d4ff;
+    }
+    
+    .ai-status-text {
+        font-size: 12px;
+        color: #00ff88;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #00ff88;
+        border-radius: 50%;
+        animation: blink 1.5s infinite;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+    
+    /* 메시지 영역 */
+    .chat-messages {
+        flex: 1;
+        padding: 25px;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .message {
+        margin-bottom: 20px;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message.user {
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .message.ai {
+        display: flex;
+        justify-content: flex-start;
+    }
+    
+    .message-content {
+        max-width: 70%;
+        padding: 15px 20px;
+        border-radius: 20px;
+        position: relative;
+    }
+    
+    .user .message-content {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+        border-bottom-right-radius: 5px;
+    }
+    
+    .ai .message-content {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        border-bottom-left-radius: 5px;
+    }
+    
+    .message-time {
+        font-size: 11px;
+        opacity: 0.7;
+        margin-top: 5px;
+    }
+    
+    .typing-indicator {
+        display: inline-flex;
+        gap: 4px;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        border-bottom-left-radius: 5px;
+    }
+    
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #00d4ff;
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+    }
+    
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes typing {
+        0%, 60%, 100% {
+            transform: translateY(0);
+            opacity: 0.5;
+        }
+        30% {
+            transform: translateY(-10px);
+            opacity: 1;
+        }
+    }
+    
+    /* 입력 영역 */
+    .chat-input-area {
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .chat-input-container {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+    }
+    
+    .chat-input-wrapper {
+        flex: 1;
+        position: relative;
+    }
+    
+    .chat-input {
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        color: #fff;
+        font-size: 15px;
+        resize: none;
+        max-height: 120px;
+        transition: all 0.3s ease;
+    }
+    
+    .chat-input:focus {
+        outline: none;
+        border-color: #00d4ff;
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .chat-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .input-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-attach {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-attach:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #00d4ff;
+        color: #00d4ff;
+    }
+    
+    .btn-send {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        border: none;
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-send:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+    }
+    
+    .btn-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* 빠른 액션 버튼들 */
+    .quick-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .quick-action-btn {
+        padding: 8px 16px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        color: #00d4ff;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-btn:hover {
+        background: rgba(0, 212, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* 모바일 반응형 */
+    @media (max-width: 768px) {
+        .chatbot-container {
+            flex-direction: column;
+            height: calc(100vh - 200px);
+        }
+        
+        .chat-sidebar {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+        }
+        
+        .message-content {
+            max-width: 85%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chatbot-container">
+    <!-- 대화 기록 사이드바 -->
+    <div class="chat-sidebar">
+        <div class="chat-history-header">
+            <i class="fas fa-history"></i> 최근 대화
+        </div>
+        
+        <div class="chat-history-item active">
+            <div class="chat-history-title">성과평가 문의</div>
+            <div class="chat-history-time">방금 전</div>
+        </div>
+        
+        <div class="chat-history-item">
+            <div class="chat-history-title">휴가 신청 방법</div>
+            <div class="chat-history-time">2시간 전</div>
+        </div>
+        
+        <div class="chat-history-item">
+            <div class="chat-history-title">교육 프로그램 추천</div>
+            <div class="chat-history-time">어제</div>
+        </div>
+        
+        <div class="chat-history-item">
+            <div class="chat-history-title">팀 성과 분석</div>
+            <div class="chat-history-time">2일 전</div>
+        </div>
+    </div>
+    
+    <!-- 메인 챗 영역 -->
+    <div class="chat-main">
+        <!-- 챗 헤더 -->
+        <div class="chat-header">
+            <div class="chat-header-content">
+                <div class="ai-status">
+                    <div class="ai-avatar">🤖</div>
+                    <div class="ai-info">
+                        <div class="ai-name">OK AI Assistant</div>
+                        <div class="ai-status-text">
+                            <span class="status-dot"></span>
+                            온라인 - 즉시 응답 가능
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-actions">
+                    <button class="btn-attach" title="대화 내보내기">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn-attach" title="대화 초기화">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 메시지 영역 -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- AI 인사 메시지 -->
+            <div class="message ai">
+                <div class="message-content">
+                    안녕하세요! OK Financial Group의 AI 어시스턴트입니다. 🌟<br><br>
+                    HR 관련 모든 질문에 도움을 드릴 수 있습니다. 무엇을 도와드릴까요?
+                    <div class="message-time">오전 9:00</div>
+                </div>
+            </div>
+            
+            <!-- 사용자 메시지 예시 -->
+            <div class="message user">
+                <div class="message-content">
+                    이번 분기 성과평가는 언제 진행되나요?
+                    <div class="message-time">오전 9:01</div>
+                </div>
+            </div>
+            
+            <!-- AI 응답 예시 -->
+            <div class="message ai">
+                <div class="message-content">
+                    2024년 1분기 성과평가 일정을 안내드립니다. 📅<br><br>
+                    
+                    <strong>📌 주요 일정</strong><br>
+                    • 자기평가: 2024.03.15 ~ 03.25<br>
+                    • 1차 평가: 2024.03.26 ~ 04.05<br>
+                    • 2차 평가: 2024.04.06 ~ 04.15<br>
+                    • 결과 공개: 2024.04.20<br><br>
+                    
+                    평가 시스템은 3월 15일부터 오픈되며, 이메일로도 안내가 발송될 예정입니다.
+                    <div class="message-time">오전 9:01</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 입력 영역 -->
+        <div class="chat-input-area">
+            <!-- 빠른 액션 버튼들 -->
+            <div class="quick-actions">
+                <button class="quick-action-btn" onclick="sendQuickMessage('성과평가 가이드')">
+                    성과평가 가이드
+                </button>
+                <button class="quick-action-btn" onclick="sendQuickMessage('휴가 잔여일수')">
+                    휴가 잔여일수
+                </button>
+                <button class="quick-action-btn" onclick="sendQuickMessage('교육 프로그램')">
+                    교육 프로그램
+                </button>
+                <button class="quick-action-btn" onclick="sendQuickMessage('팀 현황')">
+                    팀 현황
+                </button>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput"
+                        placeholder="메시지를 입력하세요..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                
+                <div class="input-actions">
+                    <button class="btn-attach" title="파일 첨부">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <button class="btn-send" id="sendBtn" title="전송">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 채팅 기능 구현
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    // 메시지 전송 함수
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+        
+        // 사용자 메시지 추가
+        addMessage(message, 'user');
+        
+        // 입력창 초기화
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+        
+        // AI 타이핑 표시
+        showTypingIndicator();
+        
+        // AI 응답 시뮬레이션 (실제로는 API 호출)
+        setTimeout(() => {
+            hideTypingIndicator();
+            const aiResponse = generateAIResponse(message);
+            addMessage(aiResponse, 'ai');
+        }, 1500);
+    }
+    
+    // 메시지 추가 함수
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const now = new Date();
+        const time = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${text}
+                <div class="message-time">${time}</div>
+            </div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // 타이핑 인디케이터 표시
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message ai typing-message';
+        typingDiv.innerHTML = `
+            <div class="typing-indicator">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            </div>
+        `;
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // 타이핑 인디케이터 숨기기
+    function hideTypingIndicator() {
+        const typingMessage = document.querySelector('.typing-message');
+        if (typingMessage) {
+            typingMessage.remove();
+        }
+    }
+    
+    // AI 응답 생성 (시뮬레이션)
+    function generateAIResponse(userMessage) {
+        const responses = {
+            '휴가': '휴가 관련 문의시 HR 포털에서 신청 가능합니다. 현재 남은 연차는 시스템에서 확인하실 수 있습니다.',
+            '교육': '다양한 교육 프로그램이 준비되어 있습니다. 리더십, 디지털 역량, AI/ML 과정을 추천드립니다.',
+            '평가': '성과평가는 분기별로 진행되며, 자기평가와 상사평가로 구성됩니다.',
+            '팀': '팀 현황과 구성원 정보는 조직도 메뉴에서 확인하실 수 있습니다.'
+        };
+        
+        for (const [key, value] of Object.entries(responses)) {
+            if (userMessage.includes(key)) {
+                return value;
+            }
+        }
+        
+        return '네, 문의하신 내용을 확인했습니다. 더 구체적인 정보를 위해 HR 담당자에게 연결해드리거나, 관련 메뉴를 안내해드릴 수 있습니다. 어떤 도움이 필요하신가요?';
+    }
+    
+    // 빠른 메시지 전송
+    function sendQuickMessage(text) {
+        chatInput.value = text;
+        sendMessage();
+    }
+    
+    // 이벤트 리스너
+    sendBtn.addEventListener('click', sendMessage);
+    
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    
+    // 텍스트 영역 자동 크기 조정
+    chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    
+    // 대화 기록 클릭 이벤트
+    document.querySelectorAll('.chat-history-item').forEach(item => {
+        item.addEventListener('click', function() {
+            // 기존 active 제거
+            document.querySelectorAll('.chat-history-item').forEach(i => {
+                i.classList.remove('active');
+            });
+            // 현재 항목 active
+            this.classList.add('active');
+            
+            // 대화 내용 로드 (시뮬레이션)
+            chatMessages.innerHTML = `
+                <div class="message ai">
+                    <div class="message-content">
+                        이전 대화를 불러왔습니다. 계속 대화를 이어가실 수 있습니다.
+                        <div class="message-time">방금 전</div>
+                    </div>
+                </div>
+            `;
+        });
+    });
+</script>
+{% endblock %}

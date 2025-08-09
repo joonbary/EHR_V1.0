@@ -33,8 +33,8 @@ urlpatterns = [
     path('skillmap-dashboard/', TemplateView.as_view(template_name='skillmap/dashboard.html'), name='skillmap_dashboard'),
     
     # AI 도구
-    path('ai-chatbot/', TemplateView.as_view(template_name='ai/chatbot.html'), name='ai_chatbot'),
-    path('leader-ai-assistant/', TemplateView.as_view(template_name='ai/leader_assistant.html'), name='leader_ai_assistant'),
+    path('ai-chatbot/', TemplateView.as_view(template_name='ai/chatbot_revolutionary.html'), name='ai_chatbot'),
+    path('leader-ai-assistant/', TemplateView.as_view(template_name='ai/leader_assistant_revolutionary.html'), name='leader_ai_assistant'),
     
     # 채용관리
     path('recruitment/', include('recruitment.urls')),
