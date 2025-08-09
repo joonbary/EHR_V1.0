@@ -224,12 +224,8 @@ function sendMessage() {
     // 타이핑 인디케이터 표시
     showTypingIndicator();
     
-    // AI 응답 시뮬레이션 (실제로는 백엔드 API 호출)
-    setTimeout(() => {
-        hideTypingIndicator();
-        const response = getAIResponse(message);
-        addMessage(response, 'assistant');
-    }, 1500);
+    // 실제 AI API 호출
+    callAIAPI(message);
 }
 
 function addMessage(text, sender) {
@@ -264,22 +260,57 @@ function hideTypingIndicator() {
     document.getElementById('typingIndicator').style.display = 'none';
 }
 
-// AI 응답 시뮬레이션 함수
-function getAIResponse(message) {
-    const responses = {
-        '연차': '연차휴가는 근속 1년차에 15일이 부여되며, 이후 2년마다 1일씩 추가됩니다. 최대 25일까지 부여 가능하며, 미사용 연차는 다음 해로 이월되지 않습니다.',
-        '평가': '성과평가는 연 2회(상반기/하반기) 실시되며, MBO 평가(60%)와 역량평가(40%)로 구성됩니다. 평가 결과는 승진과 보상에 반영됩니다.',
-        '교육': '교육 프로그램은 HR포털에서 신청 가능합니다. 직무교육, 리더십교육, 어학교육 등 다양한 과정이 있으며, 연간 교육시간은 최소 40시간입니다.',
-        '재택': '재택근무는 주 2회까지 가능하며, 부서장 승인이 필요합니다. 재택근무 시에도 정규 근무시간(9시-6시)을 준수해야 합니다.'
-    };
-    
-    for (const key in responses) {
-        if (message.includes(key)) {
-            return responses[key];
+// 실제 AI API 호출 함수
+function callAIAPI(message) {
+    fetch('/ai/api/chat/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        
+        if (data.success) {
+            let responseText = data.response;
+            
+            // 폴백 응답인 경우 표시
+            if (data.fallback) {
+                responseText += '\n\n💡 *AI 서비스 연결 문제로 제한적인 응답을 제공하고 있습니다.*';
+            }
+            
+            addMessage(responseText, 'assistant');
+        } else {
+            const errorMessage = data.error || '죄송합니다. 응답을 생성할 수 없습니다.';
+            addMessage(`⚠️ ${errorMessage}`, 'assistant');
+        }
+    })
+    .catch(error => {
+        console.error('API 호출 오류:', error);
+        hideTypingIndicator();
+        addMessage('⚠️ 네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'assistant');
+    });
+}
+
+// CSRF 토큰 가져오기 함수
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
         }
     }
-    
-    return '해당 질문에 대한 답변을 찾을 수 없습니다. 더 구체적으로 질문해 주시거나, HR 담당자에게 직접 문의해 주세요.';
+    return cookieValue;
 }
 </script>
 {% endblock %}

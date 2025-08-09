@@ -16,7 +16,10 @@ from .views import (
     # AI 설정 관련 API
     AIProviderTestAPIView,
     AIProviderSaveAPIView,
-    AISettingsLoadAPIView
+    AISettingsLoadAPIView,
+    # 실제 AI 응답 API
+    AIChatAPIView,
+    AILeaderAssistantAPIView
 )
 
 app_name = 'ai_quickwin'
@@ -47,4 +50,8 @@ urlpatterns = [
     path('api/test-provider/', AIProviderTestAPIView.as_view(), name='api_test_provider'),
     path('api/save-provider/', AIProviderSaveAPIView.as_view(), name='api_save_provider'),
     path('api/load-settings/', AISettingsLoadAPIView.as_view(), name='api_load_settings'),
+    
+    # 실제 AI 응답 API 엔드포인트
+    path('api/chat/', AIChatAPIView.as_view(), name='api_chat'),
+    path('api/leader-assistant/', AILeaderAssistantAPIView.as_view(), name='api_leader_assistant'),
 ]

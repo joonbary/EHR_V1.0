@@ -550,3 +550,254 @@ class AISettingsLoadAPIView(View):
                 'success': False,
                 'error': f'설정 로드 중 오류: {str(e)}'
             }, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AIChatAPIView(View):
+    """AI 챗봇 실제 응답 API"""
+    
+    def post(self, request):
+        """사용자 질문에 대한 AI 응답 생성"""
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '').strip()
+            
+            if not user_message:
+                return JsonResponse({
+                    'success': False,
+                    'error': '메시지가 비어있습니다'
+                }, status=400)
+            
+            # AI 클라이언트 가져오기
+            from .ai_config import get_ai_client
+            
+            # 세션에서 저장된 설정 사용 또는 환경변수 설정 사용
+            ai_client = self._get_ai_client_for_session(request, 'chatbot')
+            
+            if not ai_client:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'AI 서비스가 설정되지 않았습니다. 설정 페이지에서 API 키를 구성해주세요.'
+                })
+            
+            # HR 전용 시스템 프롬프트
+            system_prompt = """당신은 OK금융그룹의 전문 HR AI 어시스턴트입니다. 
+            다음과 같은 역할을 수행합니다:
+
+            - 인사 정책, 복리후생, 평가 제도에 대한 정확한 정보 제공
+            - 직원들의 경력 개발과 교육에 대한 조언
+            - 조직 문화와 업무 프로세스에 대한 안내
+            - 근무 환경과 제도 관련 질문 답변
+
+            답변 시 다음 원칙을 지켜주세요:
+            1. 정확하고 도움이 되는 정보 제공
+            2. 친근하고 전문적인 톤 사용
+            3. 불확실한 정보는 HR 담당자 문의 안내
+            4. 개인정보나 기밀 정보는 절대 요구하지 않음
+            5. 한국어로 자연스럽게 응답"""
+            
+            try:
+                # AI 응답 생성
+                response = ai_client.generate_completion(
+                    prompt=user_message,
+                    system_prompt=system_prompt,
+                    temperature=0.7,
+                    max_tokens=500
+                )
+                
+                if response:
+                    return JsonResponse({
+                        'success': True,
+                        'response': response,
+                        'timestamp': timezone.now().isoformat()
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'AI 서비스에서 응답을 받지 못했습니다'
+                    })
+                    
+            except Exception as e:
+                # AI 호출 실패 시 폴백 응답
+                fallback_response = self._get_fallback_response(user_message)
+                return JsonResponse({
+                    'success': True,
+                    'response': fallback_response,
+                    'fallback': True,
+                    'timestamp': timezone.now().isoformat()
+                })
+                
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid JSON data'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'오류가 발생했습니다: {str(e)}'
+            }, status=500)
+    
+    def _get_ai_client_for_session(self, request, module_name):
+        """세션 또는 환경변수 기반 AI 클라이언트 가져오기"""
+        from .ai_config import get_ai_client, AIServiceClient, AIModelConfig, AIProvider
+        
+        # 먼저 환경변수 기반 클라이언트 시도
+        ai_client = get_ai_client(module_name)
+        if ai_client:
+            return ai_client
+        
+        # 세션에서 저장된 설정 사용
+        if hasattr(request, 'session'):
+            # 기본 프로바이더 확인
+            default_provider = request.session.get('default_ai_provider', 'openai')
+            session_key = f'ai_config_{default_provider}'
+            
+            if session_key in request.session:
+                settings = request.session[session_key]
+                
+                try:
+                    # 세션 기반 설정으로 클라이언트 생성
+                    provider_enum = AIProvider.OPENAI  # 기본값
+                    if default_provider.lower() == 'anthropic':
+                        provider_enum = AIProvider.ANTHROPIC
+                    elif default_provider.lower() == 'google':
+                        provider_enum = AIProvider.GOOGLE
+                    
+                    config = AIModelConfig(
+                        provider=provider_enum,
+                        model_name=settings.get('model_name', 'gpt-3.5-turbo'),
+                        api_key=settings.get('api_key'),
+                        temperature=0.7,
+                        max_tokens=500
+                    )
+                    
+                    return AIServiceClient(config)
+                    
+                except Exception:
+                    pass
+        
+        return None
+    
+    def _get_fallback_response(self, message):
+        """AI 호출 실패 시 폴백 응답"""
+        responses = {
+            '연차': 'HR 정책에 따르면 연차휴가는 근속기간에 따라 차등 지급됩니다. 자세한 내용은 HR 담당자에게 문의해주세요.',
+            '평가': '성과평가는 정기적으로 실시되며 다양한 지표를 종합 평가합니다. 구체적인 평가 기준은 HR포털에서 확인 가능합니다.',
+            '교육': '직원 교육 프로그램은 HR포털을 통해 신청하실 수 있습니다. 다양한 교육 과정이 준비되어 있습니다.',
+            '재택': '재택근무 정책에 대한 자세한 내용은 최신 정책을 HR 담당자에게 확인해주시기 바랍니다.',
+            '급여': '급여 관련 문의사항은 HR 담당자 또는 급여 담당자에게 직접 문의해주세요.',
+            '복리후생': '복리후생 제도에 대한 상세 정보는 직원 핸드북이나 HR포털에서 확인하실 수 있습니다.'
+        }
+        
+        # 키워드 매칭
+        for key, response in responses.items():
+            if key in message:
+                return response
+        
+        return '죄송합니다. 현재 AI 서비스 연결에 문제가 있어 정확한 답변을 드리기 어렵습니다. HR 담당자에게 직접 문의해주시거나, 잠시 후 다시 시도해주세요.'
+
+
+@method_decorator(csrf_exempt, name='dispatch')  
+class AILeaderAssistantAPIView(View):
+    """AI 리더 어시스턴트 응답 API"""
+    
+    def post(self, request):
+        """리더십 관련 질문에 대한 AI 응답 생성"""
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '').strip()
+            
+            if not user_message:
+                return JsonResponse({
+                    'success': False,
+                    'error': '메시지가 비어있습니다'
+                }, status=400)
+            
+            # AI 클라이언트 가져오기 (챗봇과 동일한 로직)
+            ai_client = AIChatAPIView()._get_ai_client_for_session(request, 'leader_assistant')
+            
+            if not ai_client:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'AI 서비스가 설정되지 않았습니다. 설정 페이지에서 API 키를 구성해주세요.'
+                })
+            
+            # 리더십 전용 시스템 프롬프트
+            system_prompt = """당신은 OK금융그룹의 전문 리더십 AI 어시스턴트입니다. 
+            관리자와 리더들을 위한 전문적인 조언을 제공합니다.
+
+            전문 분야:
+            - 팀 관리 및 리더십 스킬
+            - 성과 관리 및 평가
+            - 조직 운영 및 의사결정
+            - 직원 동기부여 및 개발
+            - 갈등 해결 및 커뮤니케이션
+            - 전략적 사고 및 비전 수립
+
+            답변 원칙:
+            1. 실용적이고 구체적인 리더십 조언 제공
+            2. 경험과 이론을 바탕으로 한 전문적 답변
+            3. 상황별 맞춤 솔루션 제시
+            4. 윤리적이고 건설적인 관점 유지
+            5. 한국 기업 문화에 적합한 조언"""
+            
+            try:
+                # AI 응답 생성
+                response = ai_client.generate_completion(
+                    prompt=user_message,
+                    system_prompt=system_prompt,
+                    temperature=0.6,  # 리더십 조언은 조금 더 일관성 있게
+                    max_tokens=600
+                )
+                
+                if response:
+                    return JsonResponse({
+                        'success': True,
+                        'response': response,
+                        'timestamp': timezone.now().isoformat()
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'AI 서비스에서 응답을 받지 못했습니다'
+                    })
+                    
+            except Exception as e:
+                # AI 호출 실패 시 폴백 응답
+                fallback_response = self._get_leadership_fallback_response(user_message)
+                return JsonResponse({
+                    'success': True,
+                    'response': fallback_response,
+                    'fallback': True,
+                    'timestamp': timezone.now().isoformat()
+                })
+                
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid JSON data'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'오류가 발생했습니다: {str(e)}'
+            }, status=500)
+    
+    def _get_leadership_fallback_response(self, message):
+        """리더십 관련 폴백 응답"""
+        responses = {
+            '팀': '효과적인 팀 관리를 위해서는 명확한 목표 설정, 정기적인 소통, 그리고 팀원들의 강점을 파악하여 활용하는 것이 중요합니다.',
+            '성과': '성과 관리는 목표 설정, 진행 상황 모니터링, 피드백 제공, 그리고 결과 평가의 순환 과정으로 이루어집니다.',
+            '소통': '리더의 효과적인 소통을 위해서는 경청, 명확한 전달, 그리고 상황에 맞는 커뮤니케이션 방식 선택이 핵심입니다.',
+            '동기': '직원 동기부여를 위해서는 개인의 성장 기회 제공, 성과 인정, 그리고 의미 있는 업무 부여가 효과적입니다.',
+            '의사결정': '좋은 의사결정을 위해서는 충분한 정보 수집, 다양한 관점 고려, 그리고 리스크와 기회의 균형을 맞추는 것이 중요합니다.',
+            '갈등': '갈등 해결 시에는 양측의 입장을 이해하고, 공통의 목표를 찾아 Win-Win 해결책을 모색하는 것이 바람직합니다.'
+        }
+        
+        # 키워드 매칭
+        for key, response in responses.items():
+            if key in message:
+                return response
+        
+        return '리더십은 지속적인 학습과 실践의 과정입니다. 구체적인 상황에 대해 더 자세히 말씀해 주시면 더 정확한 조언을 드릴 수 있습니다. 현재 AI 서비스 연결에 일시적인 문제가 있어 제한적인 답변을 드리고 있습니다.'
