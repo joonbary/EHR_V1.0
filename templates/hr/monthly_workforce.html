@@ -928,38 +928,14 @@ function uploadFile(file) {
 }
 
 function downloadExcel() {
-    // Excel 다운로드 구현 (기존과 동일)
-    const table = document.getElementById('dataTable');
-    
-    fetch('/employees/hr/api/monthly-workforce/download/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        },
-        body: JSON.stringify({
-            title: document.getElementById('pageTitle').textContent
-        })
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.blob();
-        }
-        throw new Error('다운로드 실패');
-    })
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = `월간인력현황_${new Date().toISOString().slice(0,10)}.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => {
-        showError('Excel 다운로드 중 오류 발생: ' + error.message);
-    });
+    // 간단한 GET 방식으로 다운로드
+    const link = document.createElement('a');
+    link.href = '/employees/hr/api/monthly-workforce/download/';
+    link.download = `월간인력현황_${new Date().toISOString().slice(0,10)}.xlsx`;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 </script>
 {% endblock %}
