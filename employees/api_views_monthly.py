@@ -21,10 +21,10 @@ def get_monthly_workforce_data(request):
         # Employee 모델에서 데이터 가져오기
         from .models import Employee
         
-        # 모든 직원 데이터를 DataFrame으로 변환
-        employees = Employee.objects.filter(status='ACTIVE').values(
-            'employee_id', 'name', 'company', 'department', 'position', 
-            'job_title', 'rank', 'employment_type', 'hire_date'
+        # 모든 직원 데이터를 DataFrame으로 변환 (재직중인 직원만)
+        employees = Employee.objects.filter(employment_status='재직').values(
+            'name', 'company', 'department', 'position', 
+            'title', 'employment_type', 'hire_date'
         )
         
         if not employees:
@@ -50,7 +50,7 @@ def get_monthly_workforce_data(request):
             # 컬럼명 매핑
             column_mapping = {
                 'company': '회사',
-                'job_title': '직책',
+                'title': '직책',  # title 필드로 변경
                 'position': '직급',
                 'employment_type': '고용형태'
             }
