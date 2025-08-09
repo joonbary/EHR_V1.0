@@ -1,0 +1,520 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}보고서 관리{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Reports specific styles */
+    .report-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .report-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.05) 0%, transparent 70%);
+        animation: rotate 30s linear infinite;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .template-card {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .template-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #00d4ff, #00ff88);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        background: rgba(0, 212, 255, 0.1);
+    }
+
+    .template-card:hover::after {
+        transform: scaleX(1);
+    }
+
+    .template-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .report-history-item {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.03), transparent);
+        border-left: 3px solid #00d4ff;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .report-history-item:hover {
+        transform: translateX(10px);
+        background: rgba(0, 212, 255, 0.08);
+    }
+
+    .format-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .format-excel {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+        border: 1px solid #00ff88;
+    }
+
+    .format-pdf {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff4444;
+        border: 1px solid #ff4444;
+    }
+
+    .format-csv {
+        background: rgba(255, 187, 51, 0.2);
+        color: #ffbb33;
+        border: 1px solid #ffbb33;
+    }
+
+    .report-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+        color: #8892b0;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .generate-button {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .generate-button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .generate-button:active::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .quick-action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .quick-action-btn {
+        padding: 1rem;
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        color: #00d4ff;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .quick-action-btn:hover {
+        background: rgba(0, 212, 255, 0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">보고서 관리</span>
+            </h1>
+            <p class="hero-subtitle">HR 데이터 분석 및 보고서 생성 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Report Statistics -->
+    <div class="report-stats">
+        <div class="stat-box">
+            <div class="stat-number">{{ total_reports|default:"152" }}</div>
+            <div class="stat-label">전체 보고서</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ monthly_reports|default:"23" }}</div>
+            <div class="stat-label">이번달 생성</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ templates|length|default:"8" }}</div>
+            <div class="stat-label">템플릿</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ scheduled_reports|default:"5" }}</div>
+            <div class="stat-label">예약 보고서</div>
+        </div>
+    </div>
+
+    <!-- Report Templates -->
+    <div class="report-card mb-4">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-file-alt me-2"></i>보고서 템플릿
+        </h3>
+        <div class="row g-4">
+            <!-- Employee Report -->
+            <div class="col-md-3">
+                <div class="template-card" onclick="generateReport('employee')">
+                    <div class="template-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5 style="color: #fff;">직원 명부</h5>
+                    <p class="text-muted small mb-3">전체 직원 정보 및 현황 보고서</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="format-badge format-excel">
+                            <i class="fas fa-file-excel"></i>Excel
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary generate-button">
+                            생성
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluation Report -->
+            <div class="col-md-3">
+                <div class="template-card" onclick="generateReport('evaluation')">
+                    <div class="template-icon" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h5 style="color: #fff;">평가 결과</h5>
+                    <p class="text-muted small mb-3">종합 평가 결과 분석 보고서</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="format-badge format-pdf">
+                            <i class="fas fa-file-pdf"></i>PDF
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary generate-button">
+                            생성
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compensation Report -->
+            <div class="col-md-3">
+                <div class="template-card" onclick="generateReport('compensation')">
+                    <div class="template-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        <i class="fas fa-won-sign"></i>
+                    </div>
+                    <h5 style="color: #fff;">보상 분석</h5>
+                    <p class="text-muted small mb-3">급여 및 보상 현황 분석</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="format-badge format-excel">
+                            <i class="fas fa-file-excel"></i>Excel
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary generate-button">
+                            생성
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Promotion Report -->
+            <div class="col-md-3">
+                <div class="template-card" onclick="generateReport('promotion')">
+                    <div class="template-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                        <i class="fas fa-level-up-alt"></i>
+                    </div>
+                    <h5 style="color: #fff;">승진 현황</h5>
+                    <p class="text-muted small mb-3">승진 대상 및 이력 분석</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="format-badge format-pdf">
+                            <i class="fas fa-file-pdf"></i>PDF
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary generate-button">
+                            생성
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Turnover Report -->
+            <div class="col-md-3">
+                <div class="template-card" onclick="generateReport('turnover')">
+                    <div class="template-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <h5 style="color: #fff;">이직 위험도</h5>
+                    <p class="text-muted small mb-3">AI 기반 이직 위험 분석</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="format-badge format-excel">
+                            <i class="fas fa-file-excel"></i>Excel
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary generate-button">
+                            생성
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recruitment Report -->
+            <div class="col-md-3">
+                <div class="template-card" onclick="generateReport('recruitment')">
+                    <div class="template-icon" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h5 style="color: #fff;">채용 현황</h5>
+                    <p class="text-muted small mb-3">채용 진행 및 결과 분석</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="format-badge format-csv">
+                            <i class="fas fa-file-csv"></i>CSV
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary generate-button">
+                            생성
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Report -->
+            <div class="col-md-3">
+                <div class="template-card" onclick="generateReport('training')">
+                    <div class="template-icon" style="background: linear-gradient(135deg, #ffecd2, #fcb69f);">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h5 style="color: #fff;">교육 이수</h5>
+                    <p class="text-muted small mb-3">교육 프로그램 이수 현황</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="format-badge format-pdf">
+                            <i class="fas fa-file-pdf"></i>PDF
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary generate-button">
+                            생성
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Report -->
+            <div class="col-md-3">
+                <div class="template-card" onclick="createCustomReport()">
+                    <div class="template-icon" style="background: linear-gradient(135deg, #ff9a9e, #fecfef);">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h5 style="color: #fff;">맞춤 보고서</h5>
+                    <p class="text-muted small mb-3">사용자 정의 보고서 생성</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">모든 형식</span>
+                        <button class="btn btn-sm btn-gradient generate-button">
+                            만들기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reports -->
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="report-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-history me-2"></i>최근 생성 보고서
+                </h3>
+                {% for report in recent_reports %}
+                <div class="report-history-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 style="color: #fff;">{{ report.template.name }}</h6>
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-calendar me-1"></i>{{ report.generated_at|date:"Y-m-d H:i" }}
+                            </p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <span class="format-badge format-{{ report.format|lower }}">
+                                <i class="fas fa-file-{{ report.format|lower }}"></i>{{ report.format }}
+                            </span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="downloadReport('{{ report.id }}')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-5">최근 생성된 보고서가 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Quick Actions -->
+            <div class="report-card mb-4">
+                <h4 class="mb-3" style="color: #00d4ff;">
+                    <i class="fas fa-bolt me-2"></i>빠른 실행
+                </h4>
+                <div class="quick-action-grid">
+                    <div class="quick-action-btn" onclick="scheduleReport()">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <div>예약 설정</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="viewTemplates()">
+                        <i class="fas fa-folder-open fa-2x mb-2"></i>
+                        <div>템플릿 관리</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="viewHistory()">
+                        <i class="fas fa-history fa-2x mb-2"></i>
+                        <div>전체 이력</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="exportData()">
+                        <i class="fas fa-database fa-2x mb-2"></i>
+                        <div>데이터 추출</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduled Reports -->
+            <div class="report-card">
+                <h4 class="mb-3" style="color: #00d4ff;">
+                    <i class="fas fa-calendar-check me-2"></i>예약된 보고서
+                </h4>
+                <div class="scheduled-list">
+                    <div class="mb-3 p-3" style="background: rgba(0, 212, 255, 0.05); border-radius: 10px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 style="color: #fff;">월간 인사 현황</h6>
+                                <small class="text-muted">매월 1일 09:00</small>
+                            </div>
+                            <i class="fas fa-check-circle" style="color: #00ff88;"></i>
+                        </div>
+                    </div>
+                    <div class="mb-3 p-3" style="background: rgba(0, 212, 255, 0.05); border-radius: 10px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 style="color: #fff;">주간 채용 리포트</h6>
+                                <small class="text-muted">매주 월요일 08:00</small>
+                            </div>
+                            <i class="fas fa-check-circle" style="color: #00ff88;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generateReport(type) {
+    console.log('Generating report:', type);
+    // 보고서 생성 로직
+    window.location.href = `/reports/generate/${type}/`;
+}
+
+function createCustomReport() {
+    console.log('Creating custom report');
+    // 맞춤 보고서 생성 페이지로 이동
+}
+
+function downloadReport(reportId) {
+    console.log('Downloading report:', reportId);
+    // 보고서 다운로드 로직
+}
+
+function scheduleReport() {
+    console.log('Scheduling report');
+    // 보고서 예약 설정
+}
+
+function viewTemplates() {
+    console.log('Viewing templates');
+    // 템플릿 관리 페이지로 이동
+}
+
+function viewHistory() {
+    console.log('Viewing history');
+    // 전체 이력 페이지로 이동
+}
+
+function exportData() {
+    console.log('Exporting data');
+    // 데이터 추출 페이지로 이동
+}
+</script>
+{% endblock %}

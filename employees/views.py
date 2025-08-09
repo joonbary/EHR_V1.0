@@ -159,7 +159,7 @@ class EmployeeDetailView(DetailView):
 class EmployeeCreateView(CreateView):
     model = Employee
     form_class = EmployeeForm
-    template_name = 'employees/employee_form.html'
+    template_name = 'employees/employee_form_revolutionary.html'
     success_url = reverse_lazy('employees:employee_list')
     
     def form_valid(self, form):
@@ -169,7 +169,7 @@ class EmployeeCreateView(CreateView):
 class EmployeeUpdateView(UpdateView):
     model = Employee
     form_class = EmployeeForm
-    template_name = 'employees/employee_form.html'
+    template_name = 'employees/employee_form_revolutionary.html'
     success_url = reverse_lazy('employees:employee_list')
     
     def form_valid(self, form):

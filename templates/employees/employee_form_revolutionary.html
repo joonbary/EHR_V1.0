@@ -1,0 +1,462 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}{% if object %}직원 정보 수정{% else %}신규 직원 등록{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Form styles */
+    .form-container {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.05) 0%, transparent 70%);
+        animation: rotate 30s linear infinite;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: rgba(0, 212, 255, 0.03);
+        border-radius: 15px;
+        border: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .form-section-title {
+        color: #00d4ff;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: #8892b0;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-label.required::after {
+        content: ' *';
+        color: #ff4444;
+    }
+
+    .form-control,
+    .form-select {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        color: white;
+        padding: 0.8rem 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        outline: none;
+        color: white;
+    }
+
+    .form-control::placeholder {
+        color: #556677;
+    }
+
+    .form-select option {
+        background: #1a1f2e;
+        color: white;
+    }
+
+    .form-check {
+        margin-bottom: 1rem;
+    }
+
+    .form-check-input {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        width: 20px;
+        height: 20px;
+        margin-right: 0.5rem;
+    }
+
+    .form-check-input:checked {
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        border-color: #00d4ff;
+    }
+
+    .form-check-label {
+        color: #fff;
+    }
+
+    .invalid-feedback {
+        color: #ff4444;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-text {
+        color: #556677;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn-group-form {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .form-progress {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .form-progress::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(0, 212, 255, 0.2);
+        z-index: 0;
+    }
+
+    .progress-step {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+
+    .progress-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #0a0f1b;
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        color: #556677;
+    }
+
+    .progress-step.active .progress-circle {
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        border-color: #00d4ff;
+        color: white;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .progress-step.completed .progress-circle {
+        background: #00ff88;
+        border-color: #00ff88;
+        color: #0a0f1b;
+    }
+
+    .progress-label {
+        color: #556677;
+        font-size: 0.85rem;
+    }
+
+    .progress-step.active .progress-label {
+        color: #00d4ff;
+    }
+
+    .file-upload-area {
+        border: 2px dashed rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .file-upload-area:hover {
+        background: rgba(0, 212, 255, 0.05);
+        border-color: #00d4ff;
+    }
+
+    .file-upload-area.dragover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        transform: scale(1.02);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">{% if object %}직원 정보 수정{% else %}신규 직원 등록{% endif %}</span>
+            </h1>
+            <p class="hero-subtitle">{% if object %}{{ object.name }}님의 정보를 수정합니다{% else %}새로운 직원 정보를 등록합니다{% endif %}</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Form Progress (신규 등록시에만) -->
+    {% if not object %}
+    <div class="form-container mb-4">
+        <div class="form-progress">
+            <div class="progress-step active">
+                <div class="progress-circle">1</div>
+                <div class="progress-label">기본 정보</div>
+            </div>
+            <div class="progress-step">
+                <div class="progress-circle">2</div>
+                <div class="progress-label">인사 정보</div>
+            </div>
+            <div class="progress-step">
+                <div class="progress-circle">3</div>
+                <div class="progress-label">연락처</div>
+            </div>
+            <div class="progress-step">
+                <div class="progress-circle">4</div>
+                <div class="progress-label">확인</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Form -->
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <div class="form-container">
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="fas fa-user me-2"></i>기본 정보
+                </h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_employee_id" class="form-label required">사원번호</label>
+                            {{ form.employee_id }}
+                            {% if form.employee_id.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.employee_id.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <small class="form-text">자동 생성되거나 직접 입력 가능</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_name" class="form-label required">이름</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.name.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_department" class="form-label required">부서</label>
+                            {{ form.department }}
+                            {% if form.department.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.department.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_position" class="form-label required">직급</label>
+                            {{ form.position }}
+                            {% if form.position.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.position.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment Information -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="fas fa-briefcase me-2"></i>인사 정보
+                </h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_hire_date" class="form-label required">입사일</label>
+                            {{ form.hire_date }}
+                            {% if form.hire_date.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.hire_date.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_employment_status" class="form-label">고용 상태</label>
+                            {{ form.employment_status }}
+                            {% if form.employment_status.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.employment_status.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_job_type" class="form-label">직종</label>
+                            {{ form.job_type }}
+                            {% if form.job_type.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.job_type.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_manager" class="form-label">관리자</label>
+                            {{ form.manager }}
+                            {% if form.manager.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.manager.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="fas fa-address-card me-2"></i>연락처 정보
+                </h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_email" class="form-label">이메일</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.email.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_phone" class="form-label">전화번호</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.phone.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="id_address" class="form-label">주소</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.address.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="btn-group-form">
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>취소
+                </a>
+                <button type="submit" class="btn btn-gradient">
+                    <i class="fas fa-save me-2"></i>{% if object %}수정{% else %}등록{% endif %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Date picker enhancement
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.showPicker();
+        });
+    });
+});
+</script>
+{% endblock %}

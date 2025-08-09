@@ -14,7 +14,7 @@ from django.conf import settings
 class ReportDashboardView(ListView):
     """리포트 대시보드"""
     model = ReportTemplate
-    template_name = 'reports/dashboard.html'
+    template_name = 'reports/dashboard_revolutionary.html'
     context_object_name = 'templates'
     
     def get_context_data(self, **kwargs):
