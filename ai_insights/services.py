@@ -12,7 +12,7 @@ import json
 import numpy as np
 from collections import defaultdict
 
-from .models import AIInsight, ActionItem, DailyMetrics, InsightTrend
+from .models import AIInsight, ActionItem, DailyMetrics
 from employees.models import Employee
 from ai_services.base import AIServiceBase, AIAnalyzer
 from ai_predictions.models import TurnoverRisk

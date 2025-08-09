@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db import models
-from .services import AIInsightGenerator
+from .services import AIInsightService
 from .models import AIInsight, ActionItem, DailyMetrics
 import json
 import logging
@@ -27,16 +27,21 @@ class AIExecutiveDashboard(TemplateView):
         context = super().get_context_data(**kwargs)
         
         try:
-            ai_generator = AIInsightGenerator()
+            ai_service = AIInsightService()
             
             # 1. 오늘의 핵심 AI 인사이트
-            context['daily_insights'] = ai_generator.generate_daily_insights()
+            context['daily_insights'] = ai_service.generate_organizational_insights()
             
             # 2. AI 추천 액션 아이템
-            context['recommended_actions'] = ai_generator.get_action_items()
+            # AI 추천 액션 아이템 조회
+            action_items = ActionItem.objects.filter(
+                status='PENDING'
+            ).select_related('insight').order_by('-priority', 'due_date')[:10]
+            context['recommended_actions'] = action_items
             
             # 3. 예측 분석
-            context['predictions'] = ai_generator.predict_trends()
+            # 트렌드 예측 분석
+            context['predictions'] = ai_service.get_insight_trends(days=30)
             
             # 4. 최근 해결된 인사이트
             context['resolved_insights'] = AIInsight.objects.filter(
@@ -116,8 +121,8 @@ class AIExecutiveDashboard(TemplateView):
 def api_daily_insights(request):
     """일일 인사이트 API"""
     try:
-        ai_generator = AIInsightGenerator()
-        insights = ai_generator.generate_daily_insights()
+        ai_service = AIInsightService()
+        insights = ai_service.generate_organizational_insights()
         
         return JsonResponse({
             'success': True,
@@ -139,13 +144,29 @@ def api_daily_insights(request):
 def api_action_items(request):
     """액션 아이템 API"""
     try:
-        ai_generator = AIInsightGenerator()
-        actions = ai_generator.get_action_items()
+        ai_service = AIInsightService()
+        # 대기 중인 액션 아이템 조회
+        actions = ActionItem.objects.filter(
+            status='PENDING'
+        ).select_related('insight').order_by('-priority', 'due_date')[:20]
+        
+        # 시리얼라이즈
+        actions_data = [
+            {
+                'id': action.id,
+                'title': action.title,
+                'description': action.description,
+                'priority': action.priority,
+                'due_date': action.due_date.isoformat() if action.due_date else None,
+                'insight_title': action.insight.title if action.insight else None
+            }
+            for action in actions
+        ]
         
         return JsonResponse({
             'success': True,
-            'data': actions,
-            'count': len(actions)
+            'data': actions_data,
+            'count': len(actions_data)
         })
         
     except Exception as e:
