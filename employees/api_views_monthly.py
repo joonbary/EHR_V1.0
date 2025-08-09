@@ -58,6 +58,18 @@ def get_monthly_workforce_data(request):
         {'category': '총계', 'position': '', 'is_total': True}
     ]
     
+    # 먼저 기본 데이터 생성 (비-총계 행들)
+    base_data = {}
+    for row in rows_structure:
+        if not row.get('is_total', False):
+            key = f"{row['category']}_{row['position']}"
+            base_data[key] = {}
+            for company in companies_structure:
+                for pos in company['positions']:
+                    if pos != '계':
+                        company_pos_key = f"{company['name']}_{pos}"
+                        base_data[key][company_pos_key] = random.randint(1, 15)
+    
     # 템플릿 테이블 데이터 생성
     table_data = []
     for row in rows_structure:
@@ -74,14 +86,149 @@ def get_monthly_workforce_data(request):
                 'name': company['name'],
                 'positions': []
             }
+            
             for pos in company['positions']:
-                is_total = row.get('is_total', False)
-                if pos != '계' or is_total:
-                    count = random.randint(0, 20) if not is_total else 0
-                    company_data['positions'].append({
-                        'position': pos,
-                        'count': count
-                    })
+                count = 0
+                
+                if row.get('is_total', False):
+                    # 소계/총계 계산
+                    if pos == '계':
+                        # 각 카테고리별로 해당 회사의 모든 직책 데이터 합산
+                        if row['category'] == 'Non-PL' and row['position'] == '계':
+                            # Non-PL 소계
+                            for sub_row in ['부장', '차장', '대리', '사원']:
+                                key = f"Non-PL_{sub_row}"
+                                if key in base_data:
+                                    # 해당 회사의 모든 직책 합산
+                                    for comp_pos_key in base_data[key]:
+                                        if comp_pos_key.startswith(f"{company['name']}_"):
+                                            count += base_data[key][comp_pos_key]
+                        elif row['category'] == 'PL' and row['position'] == '계':
+                            # PL 소계
+                            for sub_row in ['프로', '책임', '선임 이하', '관리전문직']:
+                                key = f"PL_{sub_row}"
+                                if key in base_data:
+                                    for comp_pos_key in base_data[key]:
+                                        if comp_pos_key.startswith(f"{company['name']}_"):
+                                            count += base_data[key][comp_pos_key]
+                        elif row['category'] == '계약직' and row['position'] == '계':
+                            # 계약직 소계
+                            for sub_row in ['별정직', '전문계약직', '인턴/계약직 등']:
+                                key = f"계약직_{sub_row}"
+                                if key in base_data:
+                                    for comp_pos_key in base_data[key]:
+                                        if comp_pos_key.startswith(f"{company['name']}_"):
+                                            count += base_data[key][comp_pos_key]
+                        elif row['category'] == '기타' and row['position'] == '계':
+                            # 기타 소계
+                            for sub_row in ['도급', '위임직 채권추심인', '외주인력']:
+                                key = f"기타_{sub_row}"
+                                if key in base_data:
+                                    for comp_pos_key in base_data[key]:
+                                        if comp_pos_key.startswith(f"{company['name']}_"):
+                                            count += base_data[key][comp_pos_key]
+                        elif row['category'] == '정규직' and row['position'] == '계':
+                            # 정규직 계 = Non-PL 계 + PL 계
+                            for category in ['Non-PL', 'PL']:
+                                sub_rows = ['부장', '차장', '대리', '사원'] if category == 'Non-PL' else ['프로', '책임', '선임 이하', '관리전문직']
+                                for sub_row in sub_rows:
+                                    key = f"{category}_{sub_row}"
+                                    if key in base_data:
+                                        for comp_pos_key in base_data[key]:
+                                            if comp_pos_key.startswith(f"{company['name']}_"):
+                                                count += base_data[key][comp_pos_key]
+                        elif row['category'] == '직원' and row['position'] == '계':
+                            # 직원 계 = 정규직 + 계약직
+                            for category in ['Non-PL', 'PL', '계약직']:
+                                if category == 'Non-PL':
+                                    sub_rows = ['부장', '차장', '대리', '사원']
+                                elif category == 'PL':
+                                    sub_rows = ['프로', '책임', '선임 이하', '관리전문직']
+                                else:
+                                    sub_rows = ['별정직', '전문계약직', '인턴/계약직 등']
+                                for sub_row in sub_rows:
+                                    key = f"{category}_{sub_row}"
+                                    if key in base_data:
+                                        for comp_pos_key in base_data[key]:
+                                            if comp_pos_key.startswith(f"{company['name']}_"):
+                                                count += base_data[key][comp_pos_key]
+                        elif row['category'] == '총계':
+                            # 총계 = 모든 데이터 합
+                            for key in base_data:
+                                for comp_pos_key in base_data[key]:
+                                    if comp_pos_key.startswith(f"{company['name']}_"):
+                                        count += base_data[key][comp_pos_key]
+                    else:
+                        # 각 직책별 소계 계산
+                        if row['category'] == 'Non-PL' and row['position'] == '계':
+                            for sub_row in ['부장', '차장', '대리', '사원']:
+                                key = f"Non-PL_{sub_row}"
+                                if key in base_data:
+                                    company_pos_key = f"{company['name']}_{pos}"
+                                    if company_pos_key in base_data[key]:
+                                        count += base_data[key][company_pos_key]
+                        elif row['category'] == 'PL' and row['position'] == '계':
+                            for sub_row in ['프로', '책임', '선임 이하', '관리전문직']:
+                                key = f"PL_{sub_row}"
+                                if key in base_data:
+                                    company_pos_key = f"{company['name']}_{pos}"
+                                    if company_pos_key in base_data[key]:
+                                        count += base_data[key][company_pos_key]
+                        elif row['category'] == '계약직' and row['position'] == '계':
+                            for sub_row in ['별정직', '전문계약직', '인턴/계약직 등']:
+                                key = f"계약직_{sub_row}"
+                                if key in base_data:
+                                    company_pos_key = f"{company['name']}_{pos}"
+                                    if company_pos_key in base_data[key]:
+                                        count += base_data[key][company_pos_key]
+                        elif row['category'] == '기타' and row['position'] == '계':
+                            for sub_row in ['도급', '위임직 채권추심인', '외주인력']:
+                                key = f"기타_{sub_row}"
+                                if key in base_data:
+                                    company_pos_key = f"{company['name']}_{pos}"
+                                    if company_pos_key in base_data[key]:
+                                        count += base_data[key][company_pos_key]
+                        elif row['category'] == '정규직' and row['position'] == '계':
+                            for category in ['Non-PL', 'PL']:
+                                sub_rows = ['부장', '차장', '대리', '사원'] if category == 'Non-PL' else ['프로', '책임', '선임 이하', '관리전문직']
+                                for sub_row in sub_rows:
+                                    key = f"{category}_{sub_row}"
+                                    if key in base_data:
+                                        company_pos_key = f"{company['name']}_{pos}"
+                                        if company_pos_key in base_data[key]:
+                                            count += base_data[key][company_pos_key]
+                        elif row['category'] == '직원' and row['position'] == '계':
+                            for category in ['Non-PL', 'PL', '계약직']:
+                                if category == 'Non-PL':
+                                    sub_rows = ['부장', '차장', '대리', '사원']
+                                elif category == 'PL':
+                                    sub_rows = ['프로', '책임', '선임 이하', '관리전문직']
+                                else:
+                                    sub_rows = ['별정직', '전문계약직', '인턴/계약직 등']
+                                for sub_row in sub_rows:
+                                    key = f"{category}_{sub_row}"
+                                    if key in base_data:
+                                        company_pos_key = f"{company['name']}_{pos}"
+                                        if company_pos_key in base_data[key]:
+                                            count += base_data[key][company_pos_key]
+                        elif row['category'] == '총계':
+                            for key in base_data:
+                                company_pos_key = f"{company['name']}_{pos}"
+                                if company_pos_key in base_data[key]:
+                                    count += base_data[key][company_pos_key]
+                else:
+                    # 일반 데이터
+                    key = f"{row['category']}_{row['position']}"
+                    if key in base_data:
+                        company_pos_key = f"{company['name']}_{pos}"
+                        if company_pos_key in base_data[key]:
+                            count = base_data[key][company_pos_key]
+                
+                company_data['positions'].append({
+                    'position': pos,
+                    'count': count
+                })
+            
             row_data['companies'].append(company_data)
         
         table_data.append(row_data)
