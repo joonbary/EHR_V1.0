@@ -12,7 +12,11 @@ from .views import (
     InterviewToCoachingAPIView,
     ComprehensiveReportAPIView,
     ModuleIntegrationStatusAPIView,
-    batch_sync_employees
+    batch_sync_employees,
+    # AI 설정 관련 API
+    AIProviderTestAPIView,
+    AIProviderSaveAPIView,
+    AISettingsLoadAPIView
 )
 
 app_name = 'ai_quickwin'
@@ -38,4 +42,9 @@ urlpatterns = [
     
     # AI 설정 관리
     path('settings/', ai_settings_view, name='settings'),
+    
+    # AI 설정 API 엔드포인트
+    path('api/test-provider/', AIProviderTestAPIView.as_view(), name='api_test_provider'),
+    path('api/save-provider/', AIProviderSaveAPIView.as_view(), name='api_save_provider'),
+    path('api/load-settings/', AISettingsLoadAPIView.as_view(), name='api_load_settings'),
 ]

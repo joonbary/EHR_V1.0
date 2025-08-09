@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.views import View
 import json
 import random
@@ -356,3 +357,196 @@ def batch_sync_employees(request):
             'success': False,
             'error': str(e)
         }, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AIProviderTestAPIView(View):
+    """AI 프로바이더 연결 테스트 API"""
+    
+    def post(self, request):
+        """AI 프로바이더 연결 및 API 키 테스트"""
+        try:
+            data = json.loads(request.body)
+            provider = data.get('provider')
+            api_key = data.get('api_key')
+            model_name = data.get('model_name')
+            endpoint = data.get('endpoint')
+            
+            if not provider or not api_key:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'provider와 api_key는 필수입니다'
+                }, status=400)
+            
+            # AI 설정 임시 생성하여 테스트
+            from .ai_config import AIModelConfig, AIProvider, AIServiceClient
+            
+            # 프로바이더 enum 변환
+            provider_enum = None
+            if provider.lower() == 'openai':
+                provider_enum = AIProvider.OPENAI
+                model_name = model_name or 'gpt-3.5-turbo'
+            elif provider.lower() == 'anthropic':
+                provider_enum = AIProvider.ANTHROPIC  
+                model_name = model_name or 'claude-3-haiku-20240307'
+            elif provider.lower() == 'google':
+                provider_enum = AIProvider.GOOGLE
+                model_name = model_name or 'gemini-pro'
+            elif provider.lower() == 'azure':
+                provider_enum = AIProvider.AZURE
+                model_name = model_name or 'gpt-4'
+            elif provider.lower() == 'local':
+                provider_enum = AIProvider.LOCAL
+                model_name = model_name or 'llama2'
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': f'지원하지 않는 프로바이더: {provider}'
+                }, status=400)
+            
+            # 테스트 구성 생성
+            test_config = AIModelConfig(
+                provider=provider_enum,
+                model_name=model_name,
+                api_key=api_key,
+                endpoint=endpoint,
+                max_tokens=100,
+                timeout=10
+            )
+            
+            # 테스트 클라이언트 생성 및 테스트 호출
+            client = AIServiceClient(test_config)
+            test_prompt = "안녕하세요! 연결 테스트입니다."
+            
+            try:
+                response = client.generate_completion(test_prompt)
+                
+                if response and len(response.strip()) > 0:
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'{provider} 연결 성공!',
+                        'test_response': response[:100] + '...' if len(response) > 100 else response
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'API 응답이 비어있습니다'
+                    })
+                    
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'error': f'API 호출 실패: {str(e)}'
+                })
+                
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid JSON data'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'테스트 중 오류 발생: {str(e)}'
+            }, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AIProviderSaveAPIView(View):
+    """AI 프로바이더 설정 저장 API"""
+    
+    def post(self, request):
+        """AI 프로바이더 설정을 환경 변수로 저장"""
+        try:
+            data = json.loads(request.body)
+            provider = data.get('provider')
+            settings = data.get('settings', {})
+            
+            if not provider:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'provider는 필수입니다'
+                }, status=400)
+            
+            # 설정을 세션에 임시 저장 (실제로는 환경 변수나 DB에 저장해야 함)
+            if not hasattr(request, 'session'):
+                return JsonResponse({
+                    'success': False,
+                    'error': '세션이 활성화되지 않았습니다'
+                }, status=500)
+            
+            session_key = f'ai_config_{provider}'
+            request.session[session_key] = settings
+            request.session.modified = True
+            
+            # 기본 프로바이더 설정도 저장
+            if data.get('is_default'):
+                request.session['default_ai_provider'] = provider
+                request.session.modified = True
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'{provider} 설정이 저장되었습니다',
+                'saved_settings': {
+                    'provider': provider,
+                    'model_name': settings.get('model_name'),
+                    'is_default': data.get('is_default', False)
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid JSON data'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'설정 저장 중 오류: {str(e)}'
+            }, status=500)
+
+
+class AISettingsLoadAPIView(View):
+    """AI 설정 로드 API"""
+    
+    def get(self, request):
+        """현재 AI 설정 불러오기"""
+        try:
+            from .ai_config import ai_config_manager
+            
+            # 사용 가능한 프로바이더 목록
+            available_providers = ai_config_manager.get_available_providers()
+            
+            # 세션에서 저장된 설정 불러오기
+            saved_settings = {}
+            default_provider = None
+            
+            if hasattr(request, 'session'):
+                # 각 프로바이더별 저장된 설정 확인
+                for provider in ['openai', 'anthropic', 'google', 'azure', 'local']:
+                    session_key = f'ai_config_{provider}'
+                    if session_key in request.session:
+                        saved_settings[provider] = request.session[session_key]
+                
+                # 기본 프로바이더 확인
+                default_provider = request.session.get('default_ai_provider')
+            
+            return JsonResponse({
+                'success': True,
+                'available_providers': available_providers,
+                'default_provider': default_provider or ai_config_manager.default_provider,
+                'saved_settings': saved_settings,
+                'environment_config': {
+                    'openai_configured': bool(ai_config_manager.configs.get('openai')),
+                    'anthropic_configured': bool(ai_config_manager.configs.get('anthropic')),
+                    'google_configured': bool(ai_config_manager.configs.get('google')),
+                    'azure_configured': bool(ai_config_manager.configs.get('azure')),
+                    'local_configured': bool(ai_config_manager.configs.get('local'))
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'설정 로드 중 오류: {str(e)}'
+            }, status=500)
