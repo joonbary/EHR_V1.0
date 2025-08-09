@@ -380,18 +380,18 @@
                                 <span class="font-medium">실시간 코칭 어시스턴트</span>
                             </a>
                             
-                            <a href="{% url 'ai_chatbot' %}" 
-                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'ai_chatbot' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
-                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'ai_chatbot' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
-                                    <i data-lucide="bot" class="w-5 h-5 {% if request.resolver_match.url_name == 'ai_chatbot' %}text-white{% else %}text-primary{% endif %}"></i>
+                            <a href="{% url 'ai_quickwin:chatbot' %}" 
+                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'chatbot' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
+                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'chatbot' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
+                                    <i data-lucide="bot" class="w-5 h-5 {% if request.resolver_match.url_name == 'chatbot' %}text-white{% else %}text-primary{% endif %}"></i>
                                 </div>
                                 <span class="font-medium">AI 챗봇</span>
                             </a>
                             
-                            <a href="{% url 'leader_ai_assistant' %}" 
-                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'leader_ai_assistant' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
-                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'leader_ai_assistant' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
-                                    <i data-lucide="brain" class="w-5 h-5 {% if request.resolver_match.url_name == 'leader_ai_assistant' %}text-white{% else %}text-primary{% endif %}"></i>
+                            <a href="{% url 'ai_quickwin:leader_assistant' %}" 
+                               class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover-lift {% if request.resolver_match.url_name == 'leader_assistant' %}gradient-bg text-white{% else %}hover:bg-primary/10{% endif %}">
+                                <div class="w-10 h-10 {% if request.resolver_match.url_name == 'leader_assistant' %}bg-white/20{% else %}bg-primary/10 group-hover:bg-primary/20{% endif %} rounded-lg flex items-center justify-center">
+                                    <i data-lucide="brain" class="w-5 h-5 {% if request.resolver_match.url_name == 'leader_assistant' %}text-white{% else %}text-primary{% endif %}"></i>
                                 </div>
                                 <span class="font-medium">리더 AI 어시스턴트</span>
                             </a>

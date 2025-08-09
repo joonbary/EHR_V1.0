@@ -408,16 +408,16 @@
                             
                             <!-- 7. AI Quick Win -->
                             <div class="menu-item">
-                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-cyan-500/50 {% if 'ai_' in request.resolver_match.url_name or 'ai_chatbot' in request.resolver_match.url_name or 'leader_ai_assistant' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-cyan-50 dark:hover:bg-cyan-900/20{% endif %}" aria-label="AI Quick Win" onclick="toggleSubmenu('ai-quickwin-submenu')">
+                                <button class="w-full group flex items-center justify-between px-4 py-3 rounded-xl hover-lift focus:ring-2 focus:ring-cyan-500/50 {% if 'ai_' in request.resolver_match.url_name or 'chatbot' in request.resolver_match.url_name or 'leader_assistant' in request.resolver_match.url_name %}gradient-bg text-white shadow-glow{% else %}hover:bg-cyan-50 dark:hover:bg-cyan-900/20{% endif %}" aria-label="AI Quick Win" onclick="toggleSubmenu('ai-quickwin-submenu')">
                                     <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 {% if 'ai_' in request.resolver_match.url_name or 'ai_chatbot' in request.resolver_match.url_name or 'leader_ai_assistant' in request.resolver_match.url_name %}bg-white/20{% else %}bg-gradient-to-br from-cyan-400 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-600{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
+                                        <div class="w-10 h-10 {% if 'ai_' in request.resolver_match.url_name or 'chatbot' in request.resolver_match.url_name or 'leader_assistant' in request.resolver_match.url_name %}bg-white/20{% else %}bg-gradient-to-br from-cyan-400 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-600{% endif %} rounded-lg flex items-center justify-center" aria-hidden="true">
                                             <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
                                         </div>
                                         <span class="font-medium">AI Quick Win</span>
                                     </div>
-                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'ai_' in request.resolver_match.url_name or 'ai_chatbot' in request.resolver_match.url_name or 'leader_ai_assistant' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'ai_' in request.resolver_match.url_name or 'chatbot' in request.resolver_match.url_name or 'leader_assistant' in request.resolver_match.url_name %}text-white{% else %}text-gray-500{% endif %}"></i>
                                 </button>
-                                <div id="ai-quickwin-submenu" class="submenu {% if 'ai_' in request.resolver_match.url_name or 'ai_chatbot' in request.resolver_match.url_name or 'leader_ai_assistant' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
+                                <div id="ai-quickwin-submenu" class="submenu {% if 'ai_' in request.resolver_match.url_name or 'chatbot' in request.resolver_match.url_name or 'leader_assistant' in request.resolver_match.url_name %}open{% endif %} ml-14 mt-1">
                                     <a href="{% url 'ai_quickwin:dashboard' %}" class="block px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
                                         <i data-lucide="grid" class="inline w-4 h-4 mr-2"></i>AI Quick Win 통합 대시보드
                                     </a>
@@ -438,10 +438,10 @@
                                         <i data-lucide="message-circle" class="inline w-4 h-4 mr-2"></i>실시간 코칭 어시스턴트
                                     </a>
                                     <hr class="my-2 border-gray-200 dark:border-gray-700">
-                                    <a href="{% url 'ai_chatbot' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                    <a href="{% url 'ai_quickwin:chatbot' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
                                         <i data-lucide="bot" class="inline w-4 h-4 mr-2"></i>AI 챗봇
                                     </a>
-                                    <a href="{% url 'leader_ai_assistant' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                    <a href="{% url 'ai_quickwin:leader_assistant' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
                                         <i data-lucide="brain" class="inline w-4 h-4 mr-2"></i>리더 AI 어시스턴트
                                     </a>
                                     <hr class="my-2 border-gray-200 dark:border-gray-700">

@@ -201,14 +201,14 @@
                 </li>
                 
                 <li class="sidebar-nav-item">
-                    <a href="{% url 'ai_chatbot' %}" class="sidebar-nav-link {% if 'ai_chatbot' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'ai_quickwin:chatbot' %}" class="sidebar-nav-link {% if 'chatbot' in request.resolver_match.url_name %}active{% endif %}">
                         <i data-lucide="message-circle" class="w-4 h-4"></i>
                         <span>AI 챗봇</span>
                     </a>
                 </li>
                 
                 <li class="sidebar-nav-item">
-                    <a href="{% url 'leader_ai_assistant' %}" class="sidebar-nav-link {% if 'leader_ai_assistant' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'ai_quickwin:leader_assistant' %}" class="sidebar-nav-link {% if 'leader_assistant' in request.resolver_match.url_name %}active{% endif %}">
                         <i data-lucide="bot" class="w-4 h-4"></i>
                         <span>리더 AI 어시스턴트</span>
                     </a>
