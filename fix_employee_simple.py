@@ -29,16 +29,20 @@ def add_missing_column():
             columns = [row[0] for row in cursor.fetchall()]
             print("Current columns:", len(columns))
             
-            if 'dummy_chinese_name' not in columns:
-                # dummy_chinese_name 컬럼 추가
-                cursor.execute("ALTER TABLE employees_employee ADD COLUMN dummy_chinese_name VARCHAR(100) NULL")
-                print("Added dummy_chinese_name column")
-                
-                # 기본값 설정
-                cursor.execute("UPDATE employees_employee SET dummy_chinese_name = '익명화' WHERE dummy_chinese_name IS NULL")
-                print("Updated dummy_chinese_name values")
-            else:
-                print("dummy_chinese_name column already exists")
+            # 필요한 컬럼들 확인 및 추가
+            required_columns = ['dummy_chinese_name', 'dummy_name', 'dummy_mobile']
+            
+            for col_name in required_columns:
+                if col_name not in columns:
+                    # 컬럼 추가
+                    cursor.execute(f"ALTER TABLE employees_employee ADD COLUMN {col_name} VARCHAR(100) NULL")
+                    print(f"Added {col_name} column")
+                    
+                    # 기본값 설정
+                    cursor.execute(f"UPDATE employees_employee SET {col_name} = '익명화' WHERE {col_name} IS NULL")
+                    print(f"Updated {col_name} values")
+                else:
+                    print(f"{col_name} column already exists")
                 
         except Exception as e:
             print("Error:", str(e))
