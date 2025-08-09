@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     "ai_team_optimizer",
     "ai_coaching",
     "ai_quickwin",
+    "ai_chatbot",  # AI 챗봇 앱 추가
 ]
 
 MIDDLEWARE = [
