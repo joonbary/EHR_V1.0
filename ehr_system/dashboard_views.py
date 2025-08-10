@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
+from django.db.models import Count, Avg
 from employees.models import Employee
 from compensation.models import EmployeeCompensation
 from utils.dashboard_utils import (
@@ -20,9 +21,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@cache_page(60 * 5)  # 5분 캐시
 def leader_kpi_dashboard(request):
     """경영진 KPI 대시보드"""
+    # 캐시 제거하여 즉시 반영되도록 수정
     # DashboardAggregator 사용
     aggregator = DashboardAggregator()
     formatter = ChartDataFormatter()
@@ -30,8 +31,11 @@ def leader_kpi_dashboard(request):
     # 직원 통계
     employee_stats = aggregator.get_employee_statistics(Employee.objects.all())
     
-    # 보상 통계
-    comp_stats = aggregator.get_compensation_statistics(EmployeeCompensation.objects.all())
+    # 보상 통계 (데이터가 없을 경우 기본값 사용)
+    try:
+        comp_stats = aggregator.get_compensation_statistics(EmployeeCompensation.objects.all())
+    except:
+        comp_stats = {'avg_salary': 0}
     
     # 부서별 요약
     dept_summary = aggregator.get_department_summary(Employee.objects.all())
@@ -84,6 +88,10 @@ def leader_kpi_dashboard(request):
         'kpis': kpis,
         'chart_data': json.dumps(chart_data)
     }
+    
+    # 디버깅 로그
+    logger.info(f"Leader KPI Dashboard - KPIs count: {len(kpis)}")
+    logger.info(f"Leader KPI Dashboard - Employee stats: {employee_stats}")
     
     return render(request, 'dashboards/leader_kpi_dashboard_revolutionary.html', context)
 
