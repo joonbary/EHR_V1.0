@@ -234,53 +234,112 @@ class SendMessageView(View):
     def _generate_ai_response(self, session, user_message):
         """AI 응답 생성"""
         try:
-            # AI 응답 생성 로직 (실제로는 OpenAI API 호출)
-            response_templates = {
-                'PERFORMANCE': [
-                    "성과에 대해 구체적으로 어떤 부분이 가장 중요하다고 생각하시나요?",
-                    "목표 달성을 위해 어떤 지원이 필요하신가요?",
-                    "현재 진행하고 있는 업무 중 가장 만족스러운 부분은 무엇인가요?"
-                ],
-                'LEADERSHIP': [
-                    "팀을 이끌면서 가장 어려운 점은 무엇인가요?",
-                    "리더로서 어떤 스타일을 선호하시나요?",
-                    "팀원들과의 소통에서 개선하고 싶은 부분이 있나요?"
-                ],
-                'SKILL_DEVELOPMENT': [
-                    "어떤 스킬을 가장 먼저 개발하고 싶으신가요?",
-                    "현재 스킬 중 가장 자신 있는 분야는 무엇인가요?",
-                    "스킬 개발을 위해 어떤 방법을 선호하시나요?"
-                ],
-                'CAREER_PATH': [
-                    "3년 후 어떤 모습이 되고 싶으신가요?",
-                    "현재 커리어에서 가장 중요하게 생각하는 가치는 무엇인가요?",
-                    "커리어 발전을 위해 필요한 것들은 무엇이라고 생각하시나요?"
-                ]
-            }
+            # AI 서비스 초기화
+            from ai_services.base import AIServiceBase
+            ai_service = AIServiceBase()
             
-            # 간단한 키워드 기반 응답
-            templates = response_templates.get(session.session_type, [
-                "더 자세히 설명해주실 수 있나요?",
-                "그 부분에 대해 어떻게 생각하시나요?",
-                "구체적인 예시를 들어주실 수 있나요?"
-            ])
+            # 대화 컨텍스트 구성
+            previous_messages = CoachingMessage.objects.filter(
+                session=session
+            ).order_by('-timestamp')[:5]  # 최근 5개 메시지
             
-            import random
-            response_content = random.choice(templates)
+            # OpenAI API용 메시지 포맷
+            messages = [
+                {
+                    "role": "system",
+                    "content": f"""당신은 전문 HR 코치입니다. 
+                    현재 {session.employee.name}님과 {session.get_session_type_display()} 세션을 진행 중입니다.
+                    한국어로 친근하고 전문적으로 대화하며, 구체적이고 실용적인 조언을 제공하세요.
+                    질문을 통해 직원의 생각을 이끌어내고, 스스로 해결책을 찾을 수 있도록 도와주세요."""
+                }
+            ]
+            
+            # 이전 대화 내역 추가
+            for msg in reversed(previous_messages):
+                if msg.sender == 'EMPLOYEE':
+                    messages.append({"role": "user", "content": msg.content})
+                elif msg.sender == 'AI_COACH':
+                    messages.append({"role": "assistant", "content": msg.content})
+            
+            # 현재 메시지 추가
+            messages.append({"role": "user", "content": user_message})
+            
+            # OpenAI API 호출
+            ai_response = ai_service.call_openai(
+                messages=messages,
+                temperature=0.8,
+                max_tokens=300
+            )
+            
+            # API 호출 실패 시 폴백
+            if not ai_response:
+                logger.warning("OpenAI API 호출 실패, 템플릿 응답 사용")
+                return self._get_template_response(session, user_message)
+            
+            # 응답 타입 결정 (질문이 포함되어 있는지 확인)
+            response_type = 'QUESTION' if '?' in ai_response else 'ADVICE'
+            
+            # 핵심 인사이트 추출 (간단한 키워드 기반)
+            insights = []
+            if '목표' in user_message or '목표' in ai_response:
+                insights.append('목표 설정 논의')
+            if '어려' in user_message or '도전' in user_message:
+                insights.append('도전 과제 확인')
+            if '성장' in user_message or '발전' in user_message:
+                insights.append('성장 욕구 파악')
+            if not insights:
+                insights = ['대화 진행 중']
             
             return {
-                'type': 'QUESTION',
-                'content': response_content,
-                'insights': ['사용자 참여도 높음', '추가 질문 필요']
+                'type': response_type,
+                'content': ai_response,
+                'insights': insights
             }
             
         except Exception as e:
             logger.error(f"AI 응답 생성 오류: {e}")
-            return {
-                'type': 'TEXT',
-                'content': '죄송합니다. 응답을 생성하는 중 문제가 발생했습니다. 다시 시도해주세요.',
-                'insights': []
-            }
+            # 오류 시 템플릿 기반 응답으로 폴백
+            return self._get_template_response(session, user_message)
+    
+    def _get_template_response(self, session, user_message):
+        """템플릿 기반 폴백 응답"""
+        response_templates = {
+            'PERFORMANCE': [
+                "성과에 대해 구체적으로 어떤 부분이 가장 중요하다고 생각하시나요?",
+                "목표 달성을 위해 어떤 지원이 필요하신가요?",
+                "현재 진행하고 있는 업무 중 가장 만족스러운 부분은 무엇인가요?"
+            ],
+            'LEADERSHIP': [
+                "팀을 이끌면서 가장 어려운 점은 무엇인가요?",
+                "리더로서 어떤 스타일을 선호하시나요?",
+                "팀원들과의 소통에서 개선하고 싶은 부분이 있나요?"
+            ],
+            'SKILL_DEVELOPMENT': [
+                "어떤 스킬을 가장 먼저 개발하고 싶으신가요?",
+                "현재 스킬 중 가장 자신 있는 분야는 무엇인가요?",
+                "스킬 개발을 위해 어떤 방법을 선호하시나요?"
+            ],
+            'CAREER_PATH': [
+                "3년 후 어떤 모습이 되고 싶으신가요?",
+                "현재 커리어에서 가장 중요하게 생각하는 가치는 무엇인가요?",
+                "커리어 발전을 위해 필요한 것들은 무엇이라고 생각하시나요?"
+            ]
+        }
+        
+        templates = response_templates.get(session.session_type, [
+            "더 자세히 설명해주실 수 있나요?",
+            "그 부분에 대해 어떻게 생각하시나요?",
+            "구체적인 예시를 들어주실 수 있나요?"
+        ])
+        
+        import random
+        response_content = random.choice(templates)
+        
+        return {
+            'type': 'QUESTION',
+            'content': response_content,
+            'insights': ['템플릿 응답 사용']
+        }
 
 
 class SessionDetailView(TemplateView):

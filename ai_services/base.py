@@ -40,16 +40,35 @@ class AIServiceBase:
             return None
             
         try:
-            response = openai.ChatCompletion.create(
-                model=self.model,
-                messages=messages,
-                temperature=kwargs.get('temperature', 0.7),
-                max_tokens=kwargs.get('max_tokens', 500),
-                top_p=kwargs.get('top_p', 1),
-                frequency_penalty=kwargs.get('frequency_penalty', 0),
-                presence_penalty=kwargs.get('presence_penalty', 0),
-            )
-            return response.choices[0].message.content
+            # 새로운 OpenAI API 버전 (v1.0+)
+            try:
+                from openai import OpenAI
+                client = OpenAI(api_key=self.api_key)
+                
+                response = client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=kwargs.get('temperature', 0.7),
+                    max_tokens=kwargs.get('max_tokens', 500),
+                    top_p=kwargs.get('top_p', 1),
+                    frequency_penalty=kwargs.get('frequency_penalty', 0),
+                    presence_penalty=kwargs.get('presence_penalty', 0),
+                )
+                return response.choices[0].message.content
+                
+            except ImportError:
+                # 구버전 OpenAI API (v0.x) 폴백
+                response = openai.ChatCompletion.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=kwargs.get('temperature', 0.7),
+                    max_tokens=kwargs.get('max_tokens', 500),
+                    top_p=kwargs.get('top_p', 1),
+                    frequency_penalty=kwargs.get('frequency_penalty', 0),
+                    presence_penalty=kwargs.get('presence_penalty', 0),
+                )
+                return response.choices[0].message.content
+                
         except Exception as e:
             logger.error(f"OpenAI API error: {e}")
             return None
