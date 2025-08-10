@@ -31,7 +31,7 @@ urlpatterns = [
     # 경영진 대시보드 - 실제 View 함수 사용
     path('leader-kpi-dashboard/', leader_kpi_dashboard, name='leader_kpi_dashboard'),
     path('workforce-comp-dashboard/', workforce_comp_dashboard, name='workforce_comp_dashboard'),
-    path('skillmap-dashboard/', TemplateView.as_view(template_name='skillmap/dashboard.html'), name='skillmap_dashboard'),
+    path('skillmap-dashboard/', TemplateView.as_view(template_name='skillmap/dashboard_revolutionary.html'), name='skillmap_dashboard'),
     
     # AI 도구
     path('ai-chatbot/', include('ai_chatbot.urls')),

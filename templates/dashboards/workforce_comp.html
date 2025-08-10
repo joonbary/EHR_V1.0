@@ -1,7 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
+
+{% block page_header %}인력/보상 통합 대시보드{% endblock %}
+{% block content_title %}Workforce & Compensation Dashboard{% endblock %}
+{% block page_subtitle %}실시간 인력 현황 및 보상 분석{% endblock %}
 
 {% block extra_css %}
 <!-- JavaScript 유틸리티 추가 -->
@@ -16,43 +20,57 @@
     }
     
     .stat-card {
-        background: white;
-        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 15px;
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 12px 32px rgba(0, 212, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+        border-color: rgba(0, 212, 255, 0.3);
     }
     
     .stat-card h3 {
-        color: #6c757d;
+        color: #00d4ff;
         font-size: 0.875rem;
-        font-weight: 500;
+        font-weight: 600;
         margin-bottom: 12px;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.1em;
     }
     
     .stat-value {
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        color: #2c3e50;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         margin-bottom: 8px;
     }
     
     .stat-label {
-        color: #6c757d;
+        color: rgba(255, 255, 255, 0.6);
         font-size: 0.875rem;
     }
     
     .department-table {
-        background: white;
-        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 15px;
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 12px 32px rgba(0, 212, 255, 0.1);
     }
     
     .department-table h3 {
         margin-bottom: 20px;
-        color: #2c3e50;
+        color: #00d4ff;
+        font-weight: 600;
     }
     
     .table {
@@ -61,29 +79,38 @@
     }
     
     .table th {
-        background: #f8f9fa;
+        background: rgba(0, 212, 255, 0.1);
         padding: 12px;
         text-align: left;
         font-weight: 600;
-        color: #6c757d;
-        border-bottom: 2px solid #e9ecef;
+        color: #00d4ff;
+        border-bottom: 2px solid rgba(0, 212, 255, 0.2);
     }
     
     .table td {
         padding: 12px;
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
     }
     
     .table tr:hover {
-        background: #f8f9fa;
+        background: rgba(0, 212, 255, 0.05);
     }
     
     .compensation-chart {
-        background: white;
-        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 15px;
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 12px 32px rgba(0, 212, 255, 0.1);
         height: 400px;
+    }
+    
+    .compensation-chart h3 {
+        color: #00d4ff;
+        font-weight: 600;
+        margin-bottom: 20px;
     }
     
     .page-header {
@@ -107,27 +134,61 @@
         margin-top: 8px;
     }
     
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    
     .progress-fill {
         height: 100%;
-        background: #007bff;
+        background: linear-gradient(90deg, #00d4ff, #0099cc);
         border-radius: 4px;
         transition: width 0.3s ease;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+    
+    .btn-gradient {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        color: #000;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="page-header">
-        <h1>{{ title }}</h1>
-        <div class="header-actions">
-            <button class="btn btn-outline-primary" onclick="exportData()">
-                <i class="fas fa-download"></i> 데이터 내보내기
-            </button>
-            <button class="btn btn-primary" onclick="location.reload()">
-                <i class="fas fa-sync"></i> 새로고침
-            </button>
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">인력/보상 대시보드</span>
+            </h1>
+            <p class="hero-subtitle">실시간 인력 현황 및 보상 체계 분석</p>
         </div>
+        <div class="hero-particles"></div>
+    </div>
+    
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-gradient me-2" onclick="exportData()">
+            <i class="fas fa-download"></i> 데이터 내보내기
+        </button>
+        <button class="btn btn-gradient" onclick="location.reload()">
+            <i class="fas fa-sync"></i> 새로고침
+        </button>
     </div>
     
     <!-- 통계 카드 -->
@@ -322,12 +383,20 @@ function updateSalaryChart(departments) {
             datasets: [{
                 data: topDepartments.map(d => SafeDataAccessor.get(d, 'employeeCount', 0)),
                 backgroundColor: [
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)'
-                ]
+                    'rgba(0, 212, 255, 0.8)',
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(255, 187, 51, 0.8)',
+                    'rgba(0, 255, 136, 0.8)',
+                    'rgba(255, 99, 132, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(0, 212, 255, 1)',
+                    'rgba(139, 92, 246, 1)',
+                    'rgba(255, 187, 51, 1)',
+                    'rgba(0, 255, 136, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 2
             }]
         },
         options: {
@@ -335,7 +404,13 @@ function updateSalaryChart(departments) {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        font: {
+                            size: 12
+                        }
+                    }
                 }
             }
         }

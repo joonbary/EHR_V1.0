@@ -132,7 +132,7 @@ def ai_chatbot_view(request):
 
 def ai_leader_assistant_view(request):
     """리더 AI 어시스턴트 뷰"""
-    return render(request, 'ai/leader_assistant.html')
+    return render(request, 'ai/leader_assistant_revolutionary.html')
 
 
 def ai_settings_view(request):
