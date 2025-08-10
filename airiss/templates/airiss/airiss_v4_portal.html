@@ -1,27 +1,37 @@
-{% extends "base.html" %}
+{% extends "base_revolutionary.html" %}
 {% load static %}
 
 {% block title %}AIRISS v4 - AI 기반 직원 성과역량 평가 시스템{% endblock %}
 
+
+{% block page_header %}AIRISS v4 MSA Integration{% endblock %}
+{% block content_title %}AI HR Intelligence System{% endblock %}
+{% block page_subtitle %}
+<p class="page-subtitle">
+    MSA 기반 차세대 AI 인사 평가 시스템
+</p>
+{% endblock %}
 
 {% block extra_css %}
 <style>
     .airiss-container {
         position: relative;
         width: 100%;
-        height: calc(100vh - 300px);
-        min-height: 600px;
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 24px rgba(255, 107, 0, 0.08);
+        height: calc(100vh - 200px);
+        min-height: 700px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        box-shadow: 0 12px 32px rgba(0, 212, 255, 0.2);
         overflow: hidden;
-        border: 1px solid rgba(0,0,0,0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        backdrop-filter: blur(10px);
     }
     
     .airiss-iframe {
         width: 100%;
         height: 100%;
         border: none;
+        border-radius: 20px;
     }
     
     .airiss-loading {
@@ -30,51 +40,67 @@
         left: 50%;
         transform: translate(-50%, -50%);
         text-align: center;
+        color: #ffffff;
     }
     
     .airiss-error {
         padding: 40px;
         text-align: center;
-        color: #666;
+        color: rgba(255, 255, 255, 0.8);
     }
     
     .connection-info {
         margin-bottom: 20px;
-        padding: 20px;
-        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 107, 0, 0.2);
+        padding: 24px;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.1) 100%);
+        border-radius: 20px;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        backdrop-filter: blur(10px);
     }
     
     .connection-info h4 {
         margin: 0 0 10px 0;
-        color: #FF6B00;
-        font-size: 18px;
-        font-weight: 600;
+        color: #00d4ff;
+        font-size: 20px;
+        font-weight: 700;
     }
     
     .connection-info p {
-        margin: 5px 0;
+        margin: 8px 0;
         font-size: 14px;
-        color: #4B5563;
+        color: rgba(255, 255, 255, 0.8);
     }
     
     .connection-info code {
-        background: rgba(255, 107, 0, 0.1);
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-family: monospace;
+        background: rgba(0, 212, 255, 0.2);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-family: 'Fira Code', monospace;
         font-size: 13px;
-        color: #FF6B00;
+        color: #00d4ff;
         font-weight: 500;
     }
     
+    .connection-info a {
+        color: #00d4ff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .connection-info a:hover {
+        color: #0099ff;
+        transform: translateX(4px);
+    }
+    
     .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #FF6B00;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top: 4px solid #00d4ff;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         animation: spin 1s linear infinite;
         margin: 0 auto 20px;
     }
@@ -82,39 +108,25 @@
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
-    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- 페이지 헤더 -->
-<div class="mb-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-bold gradient-text mb-2">AIRISS v4</h1>
-            <p class="text-gray-600 dark:text-gray-400">AI 기반 직원 성과역량 평가 시스템</p>
-        </div>
-    </div>
-</div>
-
 <div>
     <!-- 연결 정보 표시 -->
     <div class="connection-info">
-        <h4>📊 AIRISS v4 시스템</h4>
-        <p>AIRISS v4는 별도의 시스템으로 운영됩니다.</p>
-        <p>연결 주소: <code>{{ airiss_v4_url }}</code></p>
+        <h4>🚀 AIRISS v4 MSA System</h4>
+        <p>Microservice Architecture 기반 독립 서비스</p>
+        <p>Service URL: <code>{{ airiss_v4_url }}</code></p>
         <p>
-            <a href="{{ airiss_v4_url }}" target="_blank" style="color: #FF6B00; text-decoration: underline;">
-                → 새 창에서 AIRISS v4 직접 열기
+            <a href="{{ airiss_v4_url }}" target="_blank">
+                <i class="fas fa-external-link-alt"></i> 새 창에서 AIRISS v4 열기
             </a>
         </p>
-        <p style="margin-top: 10px;">
-            <a href="{% url 'airiss:upload_integrated' %}" style="color: #FF6B00; text-decoration: underline; font-weight: bold;">
-                ✅ 통합 업로드 페이지 사용 (권장)
+        <p style="margin-top: 12px;">
+            <a href="{% url 'airiss:upload_integrated' %}" style="font-weight: 600;">
+                <i class="fas fa-upload"></i> 통합 업로드 페이지 (대체 옵션)
             </a>
-        </p>
-        <p style="margin-top: 10px; font-size: 12px; color: #666;">
-            외부 서비스 연결 문제 시 통합 업로드 페이지를 사용하세요.
         </p>
     </div>
     
@@ -139,16 +151,18 @@
         
         <!-- 에러 메시지 (숨김 상태) -->
         <div class="airiss-error" id="airissError" style="display: none;">
-            <h3>⚠️ 연결할 수 없습니다</h3>
-            <p>AIRISS v4 시스템에 연결할 수 없습니다.</p>
+            <h3 style="font-size: 24px; margin-bottom: 16px;">⚠️ MSA 서비스 연결 실패</h3>
+            <p style="margin-bottom: 20px;">AIRISS v4 MSA 서비스에 연결할 수 없습니다.</p>
             <p>다음 사항을 확인해주세요:</p>
-            <ul style="text-align: left; display: inline-block;">
-                <li>AIRISS v4 서버가 실행 중인지 확인</li>
-                <li>포트 3000이 사용 가능한지 확인</li>
-                <li>방화벽 설정 확인</li>
+            <ul style="text-align: left; display: inline-block; margin: 20px 0;">
+                <li>AIRISS v4 서비스 상태 확인</li>
+                <li>네트워크 연결 상태 확인</li>
+                <li>브라우저 보안 설정 확인</li>
             </ul>
             <br>
-            <button class="px-6 py-3 gradient-bg text-white rounded-xl hover-lift font-medium" onclick="retryConnection()">다시 시도</button>
+            <button style="background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); color: #000; padding: 12px 24px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;" onclick="retryConnection()">
+                <i class="fas fa-redo"></i> 다시 연결
+            </button>
         </div>
     </div>
 </div>

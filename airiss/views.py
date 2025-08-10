@@ -386,37 +386,13 @@ def msa_integration(request):
     return render(request, "airiss/msa_integration.html", context)
 
 def dashboard(request):
-    """AIRISS 대시보드"""
-    # 최근 분석 결과 가져오기
-    from .models import AIAnalysisResult
-    
-    recent_analyses = []
-    if AIAnalysisResult._meta.db_table in connection.introspection.table_names():
-        recent_analyses = AIAnalysisResult.objects.select_related('employee').order_by('-analyzed_at')[:10]
-    
-    # 부서별 통계
-    department_stats = {}
-    if recent_analyses:
-        for analysis in recent_analyses:
-            dept = analysis.employee.department
-            if dept not in department_stats:
-                department_stats[dept] = {
-                    'count': 0,
-                    'total_score': 0,
-                    'avg_score': 0
-                }
-            department_stats[dept]['count'] += 1
-            department_stats[dept]['total_score'] += analysis.ai_score
-            department_stats[dept]['avg_score'] = department_stats[dept]['total_score'] / department_stats[dept]['count']
-    
+    """AIRISS 대시보드 - MSA 통합 페이지로 리다이렉트"""
+    # MSA 서비스를 iframe으로 표시하는 페이지로 변경
     context = {
-        "page_title": "AIRISS 대시보드",
-        "recent_analyses": recent_analyses,
-        "department_stats": department_stats,
-        "total_analyses": len(recent_analyses),
-        "avg_score": sum(a.ai_score for a in recent_analyses) / len(recent_analyses) if recent_analyses else 0
+        "page_title": "AIRISS v4 - AI 기반 HR 인텔리전스",
+        "airiss_v4_url": settings.AIRISS_SERVICE_URL  # https://web-production-4066.up.railway.app
     }
-    return render(request, "airiss/dashboard_revolutionary.html", context)
+    return render(request, "airiss/airiss_v4_portal.html", context)
 
 def analytics(request):
     """AIRISS 분석"""
