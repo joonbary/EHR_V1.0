@@ -1,0 +1,484 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 예측 - 이직 위험도 분석{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Unified Color Scheme */
+    :root {
+        --danger-color: #ff6b6b;
+        --warning-color: #ffd93d;
+        --safe-color: #6bcf7f;
+        --primary-blue: #00d4ff;
+        --secondary-blue: #0099cc;
+        --card-bg: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        --border-color: rgba(0, 212, 255, 0.1);
+    }
+
+    /* Simplified Risk Levels */
+    .risk-high { 
+        color: var(--danger-color);
+        font-weight: 600;
+    }
+    .risk-medium { 
+        color: var(--warning-color);
+        font-weight: 600;
+    }
+    .risk-low { 
+        color: var(--safe-color);
+        font-weight: 600;
+    }
+
+    /* Clean Card Design */
+    .metric-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 212, 255, 0.1);
+        border-color: rgba(0, 212, 255, 0.2);
+    }
+
+    /* Simplified Risk Meter */
+    .risk-summary {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .risk-score-display {
+        font-size: 3.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .risk-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    /* Clean Employee Cards */
+    .employee-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .employee-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--risk-color, var(--primary-blue));
+    }
+
+    .employee-card:hover {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.98), rgba(0, 212, 255, 0.02));
+        border-color: rgba(0, 212, 255, 0.2);
+    }
+
+    /* Risk Indicator */
+    .risk-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .risk-indicator.high {
+        background: rgba(255, 107, 107, 0.15);
+        color: var(--danger-color);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+
+    .risk-indicator.medium {
+        background: rgba(255, 217, 61, 0.15);
+        color: var(--warning-color);
+        border: 1px solid rgba(255, 217, 61, 0.3);
+    }
+
+    .risk-indicator.low {
+        background: rgba(107, 207, 127, 0.15);
+        color: var(--safe-color);
+        border: 1px solid rgba(107, 207, 127, 0.3);
+    }
+
+    /* Clean Stats Display */
+    .stat-box {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-box:hover {
+        background: rgba(0, 212, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.2);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-title {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Department Heatmap - Simplified */
+    .dept-card {
+        background: rgba(10, 15, 27, 0.6);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .dept-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(0, 212, 255, 0.2);
+    }
+
+    .dept-name {
+        color: var(--primary-blue);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .risk-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+
+    .risk-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    /* Action Cards */
+    .action-card {
+        background: rgba(0, 212, 255, 0.03);
+        border: 1px solid rgba(0, 212, 255, 0.15);
+        border-radius: 10px;
+        padding: 1rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        background: rgba(0, 212, 255, 0.06);
+        border-color: rgba(0, 212, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .action-priority {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .priority-high {
+        background: rgba(255, 107, 107, 0.15);
+        color: var(--danger-color);
+    }
+
+    .priority-medium {
+        background: rgba(255, 217, 61, 0.15);
+        color: var(--warning-color);
+    }
+
+    .priority-low {
+        background: rgba(107, 207, 127, 0.15);
+        color: var(--safe-color);
+    }
+
+    /* Clean Tables */
+    .data-table {
+        background: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .data-table th {
+        background: rgba(0, 212, 255, 0.1);
+        color: var(--primary-blue);
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .data-table td {
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(0, 212, 255, 0.05);
+    }
+
+    .data-table tr:hover {
+        background: rgba(0, 212, 255, 0.03);
+    }
+
+    /* Progress Indicators */
+    .progress-circle {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        margin: 0 auto;
+    }
+
+    .progress-circle svg {
+        transform: rotate(-90deg);
+    }
+
+    .progress-circle-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.1);
+        stroke-width: 8;
+    }
+
+    .progress-circle-fill {
+        fill: none;
+        stroke: var(--primary-blue);
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">AI 이직 위험도 예측</span>
+            </h1>
+            <p class="hero-subtitle">머신러닝 기반 실시간 이직 위험 분석 및 예방 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-3">
+            <div class="metric-card">
+                <div class="risk-summary">
+                    <div class="risk-score-display">{{ risk_stats.total|default:"0" }}</div>
+                    <div class="risk-label">전체 분석 인원</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="metric-card">
+                <h4 class="mb-4" style="color: var(--primary-blue);">위험도 분포 현황</h4>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="stat-box">
+                            <div class="stat-number risk-high">{{ risk_stats.critical|default:"0" }}</div>
+                            <div class="stat-title">고위험군</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-box">
+                            <div class="stat-number risk-medium">{{ risk_stats.high|default:"0" }}</div>
+                            <div class="stat-title">주의군</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-box">
+                            <div class="stat-number risk-low">{{ risk_stats.low|default:"0" }}</div>
+                            <div class="stat-title">안정군</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- High Risk Employees -->
+    <div class="metric-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 style="color: var(--primary-blue);">
+                <i class="fas fa-exclamation-triangle me-2"></i>고위험 직원 현황
+            </h3>
+            <button class="btn btn-sm" style="background: rgba(0, 212, 255, 0.1); border: 1px solid var(--primary-blue); color: var(--primary-blue);">
+                <i class="fas fa-sync-alt me-1"></i>새로고침
+            </button>
+        </div>
+        
+        <div class="row g-3">
+            {% for emp in airiss_risk_employees|slice:":6" %}
+            <div class="col-lg-4">
+                <div class="employee-card" style="--risk-color: {% if emp.risk_level == 'CRITICAL' %}var(--danger-color){% elif emp.risk_level == 'HIGH' %}var(--warning-color){% else %}var(--safe-color){% endif %};">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 style="color: white; margin-bottom: 0.25rem;">{{ emp.name }}</h5>
+                            <small class="text-muted">{{ emp.department }} | {{ emp.position }}</small>
+                        </div>
+                        <span class="risk-indicator {% if emp.risk_level == 'CRITICAL' %}high{% elif emp.risk_level == 'HIGH' %}medium{% else %}low{% endif %}">
+                            {{ emp.risk_score|floatformat:0 }}%
+                        </span>
+                    </div>
+                    
+                    {% if emp.key_factors %}
+                    <div class="mb-2">
+                        <small class="text-muted d-block mb-2">주요 위험 요인</small>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for factor in emp.key_factors|slice:":3" %}
+                            <span class="badge" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8);">
+                                {{ factor }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <button class="btn btn-sm w-100 mt-2" style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); color: var(--primary-blue);">
+                        상세 분석 보기
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Department Risk Analysis -->
+    <div class="metric-card mb-4">
+        <h3 class="mb-4" style="color: var(--primary-blue);">
+            <i class="fas fa-building me-2"></i>부서별 위험도 분석
+        </h3>
+        <div class="row g-3">
+            {% for dept in department_heatmap|slice:":6" %}
+            <div class="col-md-4">
+                <div class="dept-card">
+                    <div class="dept-name">{{ dept.department }}</div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">위험도</span>
+                        <span style="font-weight: 600; color: {% if dept.risk_ratio > 15 %}var(--danger-color){% elif dept.risk_ratio > 10 %}var(--warning-color){% else %}var(--safe-color){% endif %};">
+                            {{ dept.risk_ratio|floatformat:1 }}%
+                        </span>
+                    </div>
+                    <div class="risk-bar">
+                        <div class="risk-bar-fill" style="width: {{ dept.risk_ratio }}%; background: {% if dept.risk_ratio > 15 %}var(--danger-color){% elif dept.risk_ratio > 10 %}var(--warning-color){% else %}var(--safe-color){% endif %};"></div>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        고위험: {{ dept.high_risk_count }}명 / 전체: {{ dept.total_count }}명
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- AI Recommendations -->
+    {% if ai_recommendations %}
+    <div class="metric-card">
+        <h3 class="mb-4" style="color: var(--primary-blue);">
+            <i class="fas fa-robot me-2"></i>AI 권장 조치사항
+        </h3>
+        <div class="row g-3">
+            {% for rec in ai_recommendations|slice:":6" %}
+            <div class="col-md-4">
+                <div class="action-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="action-priority priority-{% if rec.priority == 'high' %}high{% elif rec.priority == 'medium' %}medium{% else %}low{% endif %}">
+                            {{ rec.priority|upper }}
+                        </span>
+                        <small class="text-muted">{{ rec.type }}</small>
+                    </div>
+                    <h6 style="color: white; margin-bottom: 0.5rem;">{{ rec.action }}</h6>
+                    <small class="text-muted">
+                        예상 효과: 
+                        <span style="color: {% if rec.expected_impact == 'high' %}var(--safe-color){% elif rec.expected_impact == 'medium' %}var(--warning-color){% else %}var(--primary-blue){% endif %};">
+                            {{ rec.expected_impact|title }}
+                        </span>
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Add smooth animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate numbers on load
+        const numbers = document.querySelectorAll('.stat-number, .risk-score-display');
+        numbers.forEach(num => {
+            const finalValue = parseInt(num.textContent);
+            let currentValue = 0;
+            const increment = finalValue / 30;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(timer);
+                }
+                num.textContent = Math.floor(currentValue);
+            }, 30);
+        });
+
+        // Animate progress bars
+        const progressBars = document.querySelectorAll('.risk-bar-fill');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}
