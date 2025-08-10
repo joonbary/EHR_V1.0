@@ -54,8 +54,8 @@ def contribution_list(request):
         # Task 개수 및 완료율 (prefetched data 사용)
         tasks = employee.period_tasks
         
-        total_tasks = tasks.count()
-        completed_tasks = tasks.filter(status='COMPLETED').count()
+        total_tasks = len(tasks) if hasattr(tasks, '__len__') else 0
+        completed_tasks = len([t for t in tasks if t.status == 'COMPLETED']) if tasks else 0
         task_completion_rate = round((completed_tasks / total_tasks * 100), 1) if total_tasks > 0 else 0
         
         # 평가 상태
@@ -81,7 +81,7 @@ def contribution_list(request):
         'employees': employee_data,
     }
     
-    return render(request, 'evaluations/contribution_list.html', context)
+    return render(request, 'evaluations/contribution_list_revolutionary.html', context)
 
 
 def expertise_list(request):
