@@ -77,7 +77,7 @@ def create_compensation_data():
             competency_pay = Decimal(str(int(monthly_salary * 0.2)))
             
             # 고정OT (기본급의 약 15%)
-            fixed_overtime = Decimal(str(int(base_salary * 0.15)))
+            fixed_overtime = Decimal(str(int(float(base_salary) * 0.15)))
             
             # 직책급 (직책이 있는 경우)
             position_allowance = Decimal('0')
@@ -96,7 +96,7 @@ def create_compensation_data():
                     break
             
             # 성과급 (기본급의 10~30%)
-            pi_amount = Decimal(str(int(base_salary * random.uniform(0.1, 0.3) / 12)))
+            pi_amount = Decimal(str(int(float(base_salary) * random.uniform(0.1, 0.3) / 12)))
             
             # 총 보상 계산
             total_compensation = base_salary + competency_pay + fixed_overtime + position_allowance + pi_amount
