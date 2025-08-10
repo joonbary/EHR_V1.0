@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
 from .views import DashboardView
-from .dashboard_views import leader_kpi_dashboard, workforce_comp_dashboard
+from .dashboard_views import leader_kpi_dashboard, workforce_comp_dashboard, workforce_comp_api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -60,6 +60,9 @@ urlpatterns = [
     
     # 보고서
     path('reports/', include('reports.urls')),
+    
+    # API 엔드포인트
+    path('api/workforce-comp/', workforce_comp_api, name='api_workforce_comp'),
 ]
 
 if settings.DEBUG:
