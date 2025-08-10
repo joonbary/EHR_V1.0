@@ -93,7 +93,7 @@ def leader_kpi_dashboard(request):
     logger.info(f"Leader KPI Dashboard - KPIs count: {len(kpis)}")
     logger.info(f"Leader KPI Dashboard - Employee stats: {employee_stats}")
     
-    return render(request, 'dashboards/leader_kpi_dashboard_revolutionary.html', context)
+    return render(request, 'dashboards/leader_kpi_dashboard_revolutionary_v2.html', context)
 
 
 def workforce_comp_dashboard(request):

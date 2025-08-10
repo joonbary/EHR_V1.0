@@ -1,0 +1,635 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}Leader KPI Dashboard - OK Financial Group{% endblock %}
+
+{% block page_header %}Executive KPI Dashboard{% endblock %}
+{% block content_title %}리더 성장 KPI 분석{% endblock %}
+{% block page_subtitle %}
+<p class="page-subtitle">
+    AI 기반 경영진 성과 지표 실시간 모니터링
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* KPI Dashboard Styles */
+.kpi-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.kpi-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(0, 212, 255, 0.3);
+}
+
+.kpi-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+}
+
+.kpi-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.kpi-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: #00d4ff;
+    margin-bottom: 8px;
+}
+
+.kpi-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.trend-up {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.trend-down {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.trend-stable {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+/* Department Performance Grid */
+.department-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.department-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+}
+
+.department-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.department-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.department-score {
+    font-size: 24px;
+    font-weight: 800;
+    color: #00d4ff;
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric-row:last-child {
+    border-bottom: none;
+}
+
+.metric-name {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.metric-value {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Charts Section */
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.chart-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.chart-placeholder {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+}
+
+/* Progress Bars */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* Leader Pipeline */
+.pipeline-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+}
+
+.pipeline-stage {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stage-info {
+    flex: 1;
+}
+
+.stage-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.stage-count {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.stage-percentage {
+    font-size: 20px;
+    font-weight: 700;
+    color: #00d4ff;
+    margin-left: 20px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Debug Info V2 -->
+<div style="background: #ff0000; color: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; font-size: 18px; font-weight: bold;">
+    <h2 style="color: yellow;">🔴 디버깅 정보 V2 - 실제 데이터베이스 연동 테스트 🔴</h2>
+    <p>현재 시간: {% now "Y-m-d H:i:s" %}</p>
+    <p>KPIs 데이터 개수: {{ kpis|length|default:"0" }} 개</p>
+    <p>Chart 데이터: {{ chart_data|slice:":50"|default:"없음" }}...</p>
+    {% if kpis %}
+        <h3>실제 데이터:</h3>
+        {% for kpi in kpis %}
+            <p>{{ forloop.counter }}. {{ kpi.title }} = {{ kpi.value }} ({{ kpi.trend_direction }})</p>
+        {% endfor %}
+    {% else %}
+        <p style="color: yellow;">⚠️ KPI 데이터가 전달되지 않음!</p>
+    {% endif %}
+</div>
+
+<!-- KPI Overview -->
+<div class="kpi-overview">
+    {% if kpis %}
+        {% for kpi in kpis %}
+        <div class="kpi-card animate-slideInUp" style="animation-delay: {{ forloop.counter0|floatformat:1 }}s;">
+            <div class="kpi-icon">
+                {% if 'users' in kpi.icon %}👥
+                {% elif 'won' in kpi.icon %}💰
+                {% elif 'building' in kpi.icon %}🏢
+                {% elif 'calendar' in kpi.icon %}📅
+                {% else %}📊{% endif %}
+            </div>
+            <div class="kpi-label">{{ kpi.title }}</div>
+            <div class="kpi-value">{{ kpi.value }}</div>
+            <span class="kpi-trend trend-{{ kpi.trend_direction }}">
+                {% if kpi.trend_direction == 'up' %}
+                    <i class="fas fa-arrow-up"></i> +{{ kpi.trend_value }}%
+                {% elif kpi.trend_direction == 'down' %}
+                    <i class="fas fa-arrow-down"></i> -{{ kpi.trend_value }}%
+                {% else %}
+                    <i class="fas fa-minus"></i> {{ kpi.trend_value }}%
+                {% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- 데이터가 없을 때 기본 표시 -->
+        <div class="kpi-card animate-slideInUp">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-label">전체 직원</div>
+            <div class="kpi-value">1,509</div>
+            <span class="kpi-trend trend-up">
+                <i class="fas fa-arrow-up"></i> +5.2%
+            </span>
+        </div>
+        
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.1s;">
+            <div class="kpi-icon">🎯</div>
+            <div class="kpi-label">리더 준비도</div>
+            <div class="kpi-value">78%</div>
+            <span class="kpi-trend trend-up">
+                <i class="fas fa-arrow-up"></i> +3.2%
+            </span>
+        </div>
+        
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.2s;">
+            <div class="kpi-icon">🏆</div>
+            <div class="kpi-label">인증 완료율</div>
+            <div class="kpi-value">65%</div>
+            <span class="kpi-trend trend-down">
+                <i class="fas fa-arrow-down"></i> -2.1%
+            </span>
+        </div>
+        
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.3s;">
+            <div class="kpi-icon">📈</div>
+            <div class="kpi-label">평균 성과</div>
+            <div class="kpi-value">4.2/5</div>
+            <span class="kpi-trend trend-stable">
+                <i class="fas fa-minus"></i> 0.0%
+            </span>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Department Performance -->
+<h2 style="color: #ffffff; margin-bottom: 20px; font-size: 24px;">부서별 성과 지표</h2>
+<div class="department-grid">
+    <div class="department-card animate-slideInLeft">
+        <div class="department-header">
+            <span class="department-name">IT개발본부</span>
+            <span class="department-score">85점</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">리더 인원</span>
+            <span class="metric-value">24명</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">준비도</span>
+            <span class="metric-value">82%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">교육 이수율</span>
+            <span class="metric-value">95%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">후계자 pool</span>
+            <span class="metric-value">18명</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 85%;"></div>
+        </div>
+    </div>
+    
+    <div class="department-card animate-slideInLeft" style="animation-delay: 0.1s;">
+        <div class="department-header">
+            <span class="department-name">마케팅본부</span>
+            <span class="department-score">78점</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">리더 인원</span>
+            <span class="metric-value">18명</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">준비도</span>
+            <span class="metric-value">75%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">교육 이수율</span>
+            <span class="metric-value">88%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">후계자 pool</span>
+            <span class="metric-value">12명</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 78%;"></div>
+        </div>
+    </div>
+    
+    <div class="department-card animate-slideInLeft" style="animation-delay: 0.2s;">
+        <div class="department-header">
+            <span class="department-name">영업본부</span>
+            <span class="department-score">92점</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">리더 인원</span>
+            <span class="metric-value">32명</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">준비도</span>
+            <span class="metric-value">88%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">교육 이수율</span>
+            <span class="metric-value">97%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">후계자 pool</span>
+            <span class="metric-value">28명</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 92%;"></div>
+        </div>
+    </div>
+    
+    <div class="department-card animate-slideInLeft" style="animation-delay: 0.3s;">
+        <div class="department-header">
+            <span class="department-name">재무본부</span>
+            <span class="department-score">71점</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">리더 인원</span>
+            <span class="metric-value">15명</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">준비도</span>
+            <span class="metric-value">68%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">교육 이수율</span>
+            <span class="metric-value">80%</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">후계자 pool</span>
+            <span class="metric-value">10명</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 71%;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-section">
+    <div class="chart-container animate-fadeIn">
+        <h3 class="chart-title">📊 리더십 파이프라인 현황</h3>
+        <div class="pipeline-container">
+            <div class="pipeline-stage">
+                <div class="stage-info">
+                    <div class="stage-name">임원급 (C-Level)</div>
+                    <div class="stage-count">12명</div>
+                </div>
+                <div class="stage-percentage">100%</div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="stage-info">
+                    <div class="stage-name">본부장급</div>
+                    <div class="stage-count">28명</div>
+                </div>
+                <div class="stage-percentage">95%</div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="stage-info">
+                    <div class="stage-name">팀장급</div>
+                    <div class="stage-count">112명</div>
+                </div>
+                <div class="stage-percentage">78%</div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="stage-info">
+                    <div class="stage-name">예비 리더</div>
+                    <div class="stage-count">245명</div>
+                </div>
+                <div class="stage-percentage">62%</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chart-container animate-fadeIn" style="animation-delay: 0.2s;">
+        <h3 class="chart-title">📈 월별 성과 트렌드</h3>
+        <canvas id="performanceChart" style="height: 300px;"></canvas>
+    </div>
+</div>
+
+<!-- Action Items -->
+<div class="pipeline-container animate-slideInUp">
+    <h3 style="color: #ffffff; margin-bottom: 20px; font-size: 20px;">🎯 주요 실행 항목</h3>
+    <div class="pipeline-stage">
+        <div class="stage-info">
+            <div class="stage-name">리더십 교육 프로그램 강화</div>
+            <div class="stage-count">재무본부 중심으로 교육 이수율 향상 필요</div>
+        </div>
+        <span class="kpi-trend trend-up">진행중</span>
+    </div>
+    <div class="pipeline-stage">
+        <div class="stage-info">
+            <div class="stage-name">후계자 양성 계획 수립</div>
+            <div class="stage-count">팀장급 이상 포지션 대비 후계자 pool 확대</div>
+        </div>
+        <span class="kpi-trend trend-stable">계획중</span>
+    </div>
+    <div class="pipeline-stage">
+        <div class="stage-info">
+            <div class="stage-name">성과 평가 체계 개선</div>
+            <div class="stage-count">AI 기반 다면 평가 시스템 도입</div>
+        </div>
+        <span class="kpi-trend trend-up">진행중</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart data from backend
+    {% if chart_data %}
+    const chartData = {{ chart_data|safe }};
+    {% else %}
+    const chartData = null;
+    {% endif %}
+    
+    // Performance Chart
+    const ctx = document.getElementById('performanceChart');
+    if (ctx) {
+        // Use backend data if available, otherwise use default
+        const chartConfig = chartData ? {
+            type: chartData.type || 'bar',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        } : {
+            type: 'line',
+            data: {
+                labels: ['1월', '2월', '3월', '4월', '5월', '6월'],
+                datasets: [{
+                    label: '평균 성과 점수',
+                    data: [3.8, 3.9, 4.0, 4.1, 4.2, 4.2],
+                    borderColor: '#00d4ff',
+                    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '목표',
+                    data: [4.0, 4.0, 4.0, 4.0, 4.0, 4.0],
+                    borderColor: '#ff6b00',
+                    borderDash: [5, 5],
+                    tension: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        };
+        
+        new Chart(ctx, chartConfig);
+    }
+    
+    // Animate numbers
+    const animateValue = (element, start, end, duration) => {
+        const range = end - start;
+        const increment = range / (duration / 16);
+        let current = start;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= end) {
+                element.textContent = end;
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current);
+            }
+        }, 16);
+    };
+    
+    // Animate KPI values
+    document.querySelectorAll('.kpi-value').forEach(element => {
+        const value = parseInt(element.textContent);
+        if (!isNaN(value)) {
+            animateValue(element, 0, value, 1000);
+        }
+    });
+});
+</script>
+{% endblock %}
