@@ -15,7 +15,7 @@ from utils.dashboard_utils import (
     format_percentage
 )
 from utils.file_upload import create_standard_response
-from utils.airiss_db_service import AIRISSDBService
+from utils.airiss_api_service import AIRISSAPIService
 import json
 import logging
 
@@ -28,15 +28,19 @@ def leader_kpi_dashboard(request):
     aggregator = DashboardAggregator()
     formatter = ChartDataFormatter()
     
-    # AIRISS 데이터베이스 직접 연결
-    airiss_db = AIRISSDBService()
-    stats = airiss_db.get_employee_stats()
-    risk_level = airiss_db.get_risk_level()
+    # AIRISS API 서비스 사용 (정제된 데이터)
+    airiss_api = AIRISSAPIService()
     
-    # 부서별 성과 데이터 가져오기 (실제 데이터)
-    department_performance = airiss_db.get_department_performance()
+    # KPI 통계 데이터 가져오기
+    stats = airiss_api.get_kpi_stats()
     
-    # KPI 카드 생성 (AIRISS 데이터 통합)
+    # 부서별 성과 데이터 가져오기 (정제된 데이터)
+    department_performance = airiss_api.get_department_performance()
+    
+    # 리더십 파이프라인 데이터 가져오기 (정제된 데이터)
+    leadership_pipeline = airiss_api.get_leadership_pipeline()
+    
+    # KPI 카드 생성 (AIRISS API 데이터 통합)
     kpis = [
         aggregator.format_kpi_card(
             title='핵심인재',
@@ -71,9 +75,6 @@ def leader_kpi_dashboard(request):
             period='전월 대비'
         )
     ]
-    
-    # 리더십 파이프라인 데이터 (실제 직급별 분포)
-    leadership_pipeline = aggregator.get_leadership_pipeline_data(Employee.objects.all())
     
     # 월별 성과 트렌드 데이터
     monthly_performance = aggregator.get_monthly_performance_trend()

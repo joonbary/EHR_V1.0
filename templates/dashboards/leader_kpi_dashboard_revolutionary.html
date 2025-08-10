@@ -451,6 +451,30 @@
                 <span class="metric-name">📊 성과수준</span>
                 <span class="metric-value" style="color: {% if dept.performance_level == '우수' %}#10b981{% elif dept.performance_level == '양호' %}#00d4ff{% else %}#ffb700{% endif %};">{{ dept.performance_level }}</span>
             </div>
+            {% if dept.leader_count %}
+            <div class="metric-row">
+                <span class="metric-name">👥 리더 인원</span>
+                <span class="metric-value" style="color: #00d4ff;">{{ dept.leader_count }}명</span>
+            </div>
+            {% endif %}
+            {% if dept.readiness_score %}
+            <div class="metric-row">
+                <span class="metric-name">🎯 준비도</span>
+                <span class="metric-value" style="color: #10b981;">{{ dept.readiness_score }}%</span>
+            </div>
+            {% endif %}
+            {% if dept.training_completion %}
+            <div class="metric-row">
+                <span class="metric-name">📚 교육 이수율</span>
+                <span class="metric-value" style="color: #ff6b00;">{{ dept.training_completion }}%</span>
+            </div>
+            {% endif %}
+            {% if dept.successor_pool %}
+            <div class="metric-row">
+                <span class="metric-name">🌟 후계자 pool</span>
+                <span class="metric-value" style="color: #8b5cf6;">{{ dept.successor_pool }}명</span>
+            </div>
+            {% endif %}
             <div class="progress-bar" style="height: 10px; margin-top: 16px;">
                 <div class="progress-fill" style="width: {{ dept.average_score|floatformat:0 }}%; background: {% if dept.performance_level == '우수' %}linear-gradient(90deg, #10b981 0%, #059669 100%){% elif dept.performance_level == '양호' %}linear-gradient(90deg, #00d4ff 0%, #0099ff 100%){% else %}linear-gradient(90deg, #ffb700 0%, #ff8800 100%){% endif %};"></div>
             </div>
@@ -595,6 +619,21 @@
                     <div class="stage-info">
                         <div class="stage-name">{{ stage.stage }}</div>
                         <div class="stage-count">{{ stage.count }}명 (준비완료: {{ stage.ready_count }}명)</div>
+                        {% if stage.avg_tenure %}
+                        <small class="text-muted">평균 근속: {{ stage.avg_tenure }}년</small>
+                        {% endif %}
+                        {% if stage.succession_strength %}
+                        <small class="d-block mt-1">
+                            후계자 강도: 
+                            {% if stage.succession_strength == 'strong' %}
+                            <span style="color: #10b981;">강함</span>
+                            {% elif stage.succession_strength == 'medium' %}
+                            <span style="color: #ffbb33;">보통</span>
+                            {% else %}
+                            <span style="color: #ff8800;">개발중</span>
+                            {% endif %}
+                        </small>
+                        {% endif %}
                     </div>
                     <div class="stage-percentage" style="color: {% if stage.percentage >= 80 %}#10b981{% elif stage.percentage >= 60 %}#00d4ff{% else %}#ff6b00{% endif %};">{{ stage.percentage }}%</div>
                 </div>
