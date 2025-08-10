@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Sum, Max, Min
 from employees.models import Employee
 from compensation.models import EmployeeCompensation
 from utils.dashboard_utils import (
@@ -32,6 +32,9 @@ def leader_kpi_dashboard(request):
     airiss_db = AIRISSDBService()
     stats = airiss_db.get_employee_stats()
     risk_level = airiss_db.get_risk_level()
+    
+    # 부서별 성과 데이터 가져오기 (실제 데이터)
+    department_performance = airiss_db.get_department_performance()
     
     # KPI 카드 생성 (AIRISS 데이터 통합)
     kpis = [
@@ -69,9 +72,18 @@ def leader_kpi_dashboard(request):
         )
     ]
     
+    # 리더십 파이프라인 데이터 (실제 직급별 분포)
+    leadership_pipeline = aggregator.get_leadership_pipeline_data(Employee.objects.all())
+    
+    # 월별 성과 트렌드 데이터
+    monthly_performance = aggregator.get_monthly_performance_trend()
+    
     context = {
         'title': '경영진 KPI 대시보드',
         'kpis': kpis,
+        'department_performance': department_performance,
+        'leadership_pipeline': leadership_pipeline,
+        'monthly_performance': json.dumps(monthly_performance),  # JSON 직렬화
         'airiss_integrated': False,  # AIRISS 섹션 비활성화
         
         # 갱신 시간

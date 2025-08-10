@@ -174,6 +174,8 @@
     border-radius: 20px;
     padding: 24px;
     backdrop-filter: blur(10px);
+    height: 400px;
+    overflow: hidden;
 }
 
 .chart-title {
@@ -418,121 +420,58 @@
     <span style="color: #00d4ff;">📊</span> 부서별 성과 지표
 </h2>
 <div class="department-grid">
-    <div class="department-card animate-slideInLeft" style="background: linear-gradient(135deg, rgba(26, 31, 46, 0.9) 0%, rgba(26, 31, 46, 0.6) 100%); border: 2px solid rgba(0, 212, 255, 0.3);"
-         onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(0, 212, 255, 0.3)'"
-         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-        <div class="department-header">
-            <span class="department-name" style="font-size: 24px;">IT개발본부</span>
-            <div style="width: 80px; height: 80px; position: relative;">
-                <svg width="80" height="80" style="transform: rotate(-90deg);">
-                    <circle cx="40" cy="40" r="35" stroke="rgba(255, 255, 255, 0.1)" stroke-width="6" fill="none"/>
-                    <circle cx="40" cy="40" r="35" stroke="#00d4ff" stroke-width="6" fill="none"
-                            stroke-dasharray="85 100"
-                            stroke-linecap="round"/>
-                </svg>
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: 800; color: #00d4ff;">
-                    85
+    {% if department_performance %}
+        {% for dept in department_performance %}
+        <div class="department-card animate-slideInLeft" style="animation-delay: {{ forloop.counter0|floatformat:1 }}s;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(0, 212, 255, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div class="department-header">
+                <span class="department-name">{{ dept.name }}</span>
+                <div style="width: 60px; height: 60px; position: relative;">
+                    <svg width="60" height="60" style="transform: rotate(-90deg);">
+                        <circle cx="30" cy="30" r="25" stroke="rgba(255, 255, 255, 0.1)" stroke-width="5" fill="none"/>
+                        <circle cx="30" cy="30" r="25" stroke="{% if dept.performance_level == '우수' %}#10b981{% elif dept.performance_level == '양호' %}#00d4ff{% else %}#ffb700{% endif %}" stroke-width="5" fill="none"
+                                stroke-dasharray="{{ dept.average_score|floatformat:0 }} 100"
+                                stroke-linecap="round"/>
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: 800; color: {% if dept.performance_level == '우수' %}#10b981{% elif dept.performance_level == '양호' %}#00d4ff{% else %}#ffb700{% endif %};">
+                        {{ dept.average_score|floatformat:0 }}
+                    </div>
                 </div>
             </div>
+            <div class="metric-row">
+                <span class="metric-name">🏆 순위</span>
+                <span class="metric-value" style="color: #ff6b00;">{{ dept.rank }}위</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-name">⭐ 핵심인재</span>
+                <span class="metric-value" style="color: #8b5cf6;">{{ dept.core_talent_count }}명</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-name">📊 성과수준</span>
+                <span class="metric-value" style="color: {% if dept.performance_level == '우수' %}#10b981{% elif dept.performance_level == '양호' %}#00d4ff{% else %}#ffb700{% endif %};">{{ dept.performance_level }}</span>
+            </div>
+            <div class="progress-bar" style="height: 10px; margin-top: 16px;">
+                <div class="progress-fill" style="width: {{ dept.average_score|floatformat:0 }}%; background: {% if dept.performance_level == '우수' %}linear-gradient(90deg, #10b981 0%, #059669 100%){% elif dept.performance_level == '양호' %}linear-gradient(90deg, #00d4ff 0%, #0099ff 100%){% else %}linear-gradient(90deg, #ffb700 0%, #ff8800 100%){% endif %};"></div>
+            </div>
         </div>
-        <div class="metric-row">
-            <span class="metric-name" style="font-size: 16px;">👥 리더 인원</span>
-            <span class="metric-value" style="font-size: 20px; color: #00d4ff;">24명</span>
+        {% endfor %}
+    {% else %}
+        <!-- Fallback 데이터 -->
+        <div class="department-card animate-slideInLeft">
+            <div class="department-header">
+                <span class="department-name">IT개발본부</span>
+                <span class="department-score">85점</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-name">핵심인재</span>
+                <span class="metric-value">12명</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 85%;"></div>
+            </div>
         </div>
-        <div class="metric-row">
-            <span class="metric-name" style="font-size: 16px;">🎯 준비도</span>
-            <span class="metric-value" style="font-size: 20px; color: #10b981;">82%</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name" style="font-size: 16px;">📚 교육 이수율</span>
-            <span class="metric-value" style="font-size: 20px; color: #ff6b00;">95%</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name" style="font-size: 16px;">🌟 후계자 pool</span>
-            <span class="metric-value" style="font-size: 20px; color: #8b5cf6;">18명</span>
-        </div>
-        <div class="progress-bar" style="height: 12px; margin-top: 20px;">
-            <div class="progress-fill" style="width: 85%;"></div>
-        </div>
-    </div>
-    
-    <div class="department-card animate-slideInLeft" style="animation-delay: 0.1s;">
-        <div class="department-header">
-            <span class="department-name">마케팅본부</span>
-            <span class="department-score">78점</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">리더 인원</span>
-            <span class="metric-value">18명</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">준비도</span>
-            <span class="metric-value">75%</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">교육 이수율</span>
-            <span class="metric-value">88%</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">후계자 pool</span>
-            <span class="metric-value">12명</span>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: 78%;"></div>
-        </div>
-    </div>
-    
-    <div class="department-card animate-slideInLeft" style="animation-delay: 0.2s;">
-        <div class="department-header">
-            <span class="department-name">영업본부</span>
-            <span class="department-score">92점</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">리더 인원</span>
-            <span class="metric-value">32명</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">준비도</span>
-            <span class="metric-value">88%</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">교육 이수율</span>
-            <span class="metric-value">97%</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">후계자 pool</span>
-            <span class="metric-value">28명</span>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: 92%;"></div>
-        </div>
-    </div>
-    
-    <div class="department-card animate-slideInLeft" style="animation-delay: 0.3s;">
-        <div class="department-header">
-            <span class="department-name">재무본부</span>
-            <span class="department-score">71점</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">리더 인원</span>
-            <span class="metric-value">15명</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">준비도</span>
-            <span class="metric-value">68%</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">교육 이수율</span>
-            <span class="metric-value">80%</span>
-        </div>
-        <div class="metric-row">
-            <span class="metric-name">후계자 pool</span>
-            <span class="metric-value">10명</span>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: 71%;"></div>
-        </div>
-    </div>
+    {% endif %}
 </div>
 
 {% if airiss_integrated and false %}
@@ -650,40 +589,34 @@
     <div class="chart-container animate-fadeIn">
         <h3 class="chart-title">📊 리더십 파이프라인 현황</h3>
         <div class="pipeline-container">
-            <div class="pipeline-stage">
-                <div class="stage-info">
-                    <div class="stage-name">임원급 (C-Level)</div>
-                    <div class="stage-count">12명</div>
+            {% if leadership_pipeline %}
+                {% for stage in leadership_pipeline %}
+                <div class="pipeline-stage">
+                    <div class="stage-info">
+                        <div class="stage-name">{{ stage.stage }}</div>
+                        <div class="stage-count">{{ stage.count }}명 (준비완료: {{ stage.ready_count }}명)</div>
+                    </div>
+                    <div class="stage-percentage" style="color: {% if stage.percentage >= 80 %}#10b981{% elif stage.percentage >= 60 %}#00d4ff{% else %}#ff6b00{% endif %};">{{ stage.percentage }}%</div>
                 </div>
-                <div class="stage-percentage">100%</div>
-            </div>
-            <div class="pipeline-stage">
-                <div class="stage-info">
-                    <div class="stage-name">본부장급</div>
-                    <div class="stage-count">28명</div>
+                {% endfor %}
+            {% else %}
+                <!-- Fallback 데이터 -->
+                <div class="pipeline-stage">
+                    <div class="stage-info">
+                        <div class="stage-name">임원급 (C-Level)</div>
+                        <div class="stage-count">12명</div>
+                    </div>
+                    <div class="stage-percentage">100%</div>
                 </div>
-                <div class="stage-percentage">95%</div>
-            </div>
-            <div class="pipeline-stage">
-                <div class="stage-info">
-                    <div class="stage-name">팀장급</div>
-                    <div class="stage-count">112명</div>
-                </div>
-                <div class="stage-percentage">78%</div>
-            </div>
-            <div class="pipeline-stage">
-                <div class="stage-info">
-                    <div class="stage-name">예비 리더</div>
-                    <div class="stage-count">245명</div>
-                </div>
-                <div class="stage-percentage">62%</div>
-            </div>
+            {% endif %}
         </div>
     </div>
     
-    <div class="chart-container animate-fadeIn" style="animation-delay: 0.2s;">
+    <div class="chart-container animate-fadeIn" style="animation-delay: 0.2s; position: relative;">
         <h3 class="chart-title">📈 월별 성과 트렌드</h3>
-        <canvas id="performanceChart" style="height: 300px;"></canvas>
+        <div style="position: relative; height: 320px;">
+            <canvas id="performanceChart" style="max-height: 320px;"></canvas>
+        </div>
     </div>
 </div>
 
@@ -815,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } : {
             type: 'line',
-            data: {
+            data: {% if monthly_performance %}{{ monthly_performance|safe }}{% else %}{
                 labels: ['1월', '2월', '3월', '4월', '5월', '6월'],
                 datasets: [{
                     label: '평균 성과 점수',
@@ -831,7 +764,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     borderDash: [5, 5],
                     tension: 0
                 }]
-            },
+            }{% endif %},
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
