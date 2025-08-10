@@ -14,7 +14,7 @@ from django.db.models import Q, Count, Avg
 from employees.models import Employee
 from .models import TurnoverRisk, RetentionPlan, TurnoverAlert, RiskFactor
 from .services import TurnoverRiskAnalyzer, TurnoverAlertSystem
-from utils.airiss_db_service import AIRISSDBService
+from utils.airiss_api_service import AIRISSAPIService
 import json
 import logging
 
@@ -29,19 +29,22 @@ class TurnoverRiskDashboard(TemplateView):
         context = super().get_context_data(**kwargs)
         
         try:
-            # AIRISS 데이터베이스 연결
-            airiss_db = AIRISSDBService()
+            # AIRISS API 서비스 사용 (정제된 데이터)
+            airiss_api = AIRISSAPIService()
             
-            # AIRISS에서 위험 직원 데이터 가져오기
-            airiss_risk_employees = airiss_db.get_risk_employees(limit=20)
+            # AIRISS API에서 위험 직원 데이터 가져오기
+            airiss_risk_employees = airiss_api.get_risk_employees(limit=20)
             
-            # AIRISS에서 부서별 리스크 통계 가져오기
-            department_risk_stats = airiss_db.get_department_risk_stats()
+            # AIRISS API에서 부서별 통계 가져오기
+            department_stats = airiss_api.get_department_statistics()
             
-            # AIRISS 통계 데이터 가져오기
-            airiss_stats = airiss_db.get_employee_stats()
+            # AI 추천사항 가져오기
+            ai_recommendations = airiss_api.get_ai_recommendations()
             
-            # 위험도 레벨별 통계 (AIRISS 데이터 기반)
+            # 배치 분석 실행
+            batch_analysis = airiss_api.get_batch_analysis()
+            
+            # 위험도 레벨별 통계 (AIRISS API 데이터 기반)
             risk_stats = {
                 'critical': sum(1 for e in airiss_risk_employees if e['risk_level'] == 'CRITICAL'),
                 'high': sum(1 for e in airiss_risk_employees if e['risk_level'] == 'HIGH'),
@@ -50,9 +53,9 @@ class TurnoverRiskDashboard(TemplateView):
                 'total': len(airiss_risk_employees)
             }
             
-            # AIRISS 통계 추가
-            risk_stats['airiss_total'] = airiss_stats.get('total_employees', 0)
-            risk_stats['airiss_high_risk'] = airiss_stats.get('high_risk_count', 0)
+            # 배치 분석 통계 추가
+            risk_stats['total_analyzed'] = batch_analysis.get('total_analyzed', 0)
+            risk_stats['high_risk_identified'] = batch_analysis.get('high_risk_identified', 0)
             
             # 기존 DB 데이터와 병합 (선택적)
             today = timezone.now().date()
@@ -76,15 +79,17 @@ class TurnoverRiskDashboard(TemplateView):
                 actual_completion_date=today
             ).count()
             
-            # 부서별 리스크 히트맵 데이터 준비
+            # 부서별 리스크 히트맵 데이터 준비 (정제된 API 데이터)
             heatmap_data = []
-            for dept_name, stats in department_risk_stats.items():
+            for dept_name, stats in department_stats.items():
                 heatmap_data.append({
                     'department': dept_name,
-                    'risk_ratio': stats['risk_ratio'],
-                    'high_risk_count': stats['high_risk'],
-                    'total_count': stats['total'],
-                    'avg_score': stats['avg_score']
+                    'risk_ratio': stats.get('risk_ratio', 0),
+                    'high_risk_count': stats.get('high_risk_count', 0),
+                    'total_count': stats.get('total_employees', 0),
+                    'avg_score': stats.get('average_score', 0),
+                    'trend': stats.get('trend', 'stable'),
+                    'top_risks': stats.get('top_risks', [])
                 })
             
             # 상위 리스크 부서 정렬
@@ -100,6 +105,8 @@ class TurnoverRiskDashboard(TemplateView):
                 'active_retention_plans': active_plans,
                 'completed_plans_today': completed_plans_today,
                 'department_heatmap': heatmap_data,
+                'ai_recommendations': ai_recommendations,
+                'batch_analysis': batch_analysis,
                 'airiss_integrated': True,
                 'dashboard_updated': timezone.now()
             })

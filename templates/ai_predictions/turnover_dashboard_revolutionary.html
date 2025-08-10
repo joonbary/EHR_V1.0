@@ -279,14 +279,33 @@
                         </div>
                         <div class="text-end">
                             <div style="font-size: 1.8rem; font-weight: bold; color: {% if emp.risk_level == 'CRITICAL' %}#ff4444{% elif emp.risk_level == 'HIGH' %}#ff8800{% else %}#ffbb33{% endif %};">
-                                {{ emp.overall_score }}점
+                                {{ emp.risk_score|floatformat:1 }}
                             </div>
-                            <small class="text-muted">AI 평가점수</small>
+                            <small class="text-muted">위험도 점수</small>
                         </div>
                     </div>
-                    {% if emp.ai_comment %}
+                    
+                    {% if emp.key_factors %}
+                    <div class="mb-2">
+                        <small class="text-muted d-block mb-1">주요 위험 요인:</small>
+                        {% for factor in emp.key_factors %}
+                        <span class="badge" style="background: rgba(255, 68, 68, 0.2); color: #ff8800; margin-right: 4px;">{{ factor }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if emp.ai_insights %}
                     <div class="mt-2 p-2" style="background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
-                        <small class="text-muted">AI 분석: {{ emp.ai_comment|truncatewords:20 }}</small>
+                        <small class="text-muted">AI 인사이트: {{ emp.ai_insights|truncatewords:20 }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if emp.recommended_actions %}
+                    <div class="mt-2">
+                        <small class="text-muted d-block mb-1">권장 조치:</small>
+                        {% for action in emp.recommended_actions|slice:":2" %}
+                        <small class="d-block" style="color: #00d4ff;">• {{ action }}</small>
+                        {% endfor %}
                     </div>
                     {% endif %}
                 </div>
@@ -307,16 +326,89 @@
                     <div class="d-flex justify-content-between align-items-center mt-2">
                         <span class="text-muted small">리스크율</span>
                         <span style="font-size: 1.2rem; font-weight: bold; color: {% if dept.risk_ratio > 15 %}#ff4444{% elif dept.risk_ratio > 10 %}#ff8800{% else %}#ffbb33{% endif %};">
-                            {{ dept.risk_ratio }}%
+                            {{ dept.risk_ratio|floatformat:1 }}%
                         </span>
                     </div>
                     <div class="progress mt-2" style="height: 5px; background: rgba(255, 255, 255, 0.1);">
                         <div class="progress-bar" style="width: {{ dept.risk_ratio }}%; background: {% if dept.risk_ratio > 15 %}#ff4444{% elif dept.risk_ratio > 10 %}#ff8800{% else %}#ffbb33{% endif %};"></div>
                     </div>
-                    <small class="text-muted">고위험: {{ dept.high_risk_count }}명 / 전체: {{ dept.total_count }}명</small>
+                    <small class="text-muted d-block">고위험: {{ dept.high_risk_count }}명 / 전체: {{ dept.total_count }}명</small>
+                    {% if dept.trend %}
+                    <small class="d-block mt-1">
+                        트렌드: 
+                        {% if dept.trend == 'increasing' %}
+                        <span style="color: #ff4444;">↑ 증가</span>
+                        {% elif dept.trend == 'decreasing' %}
+                        <span style="color: #00ff88;">↓ 감소</span>
+                        {% else %}
+                        <span style="color: #ffbb33;">→ 유지</span>
+                        {% endif %}
+                    </small>
+                    {% endif %}
+                    {% if dept.top_risks %}
+                    <small class="text-muted d-block mt-1">주요 리스크:</small>
+                    {% for risk in dept.top_risks|slice:":2" %}
+                    <small class="badge" style="background: rgba(255, 68, 68, 0.1); color: #ff8800; font-size: 0.7rem;">{{ risk }}</small>
+                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- AI Recommendations Section -->
+        {% if ai_recommendations %}
+        <h4 class="mb-3 mt-4" style="color: #8b5cf6;">AI 추천 조치사항</h4>
+        <div class="row g-3">
+            {% for rec in ai_recommendations %}
+            <div class="col-md-4">
+                <div class="p-3" style="background: rgba(139, 92, 246, 0.1); border-radius: 10px; border: 1px solid rgba(139, 92, 246, 0.3);">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge" style="background: {% if rec.priority == 'high' %}#ff4444{% elif rec.priority == 'medium' %}#ff8800{% else %}#00d4ff{% endif %};">
+                            {{ rec.priority|upper }}
+                        </span>
+                        <small class="ms-2 text-muted">{{ rec.type }}</small>
+                    </div>
+                    <h6 style="color: #fff;">{{ rec.action }}</h6>
+                    <small class="text-muted d-block mt-2">
+                        예상 효과: 
+                        {% if rec.expected_impact == 'high' %}
+                        <span style="color: #00ff88;">높음</span>
+                        {% elif rec.expected_impact == 'medium' %}
+                        <span style="color: #ffbb33;">중간</span>
+                        {% else %}
+                        <span style="color: #00d4ff;">낮음</span>
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Batch Analysis Summary -->
+        {% if batch_analysis %}
+        <div class="mt-4 p-3" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.05)); border-radius: 10px; border: 1px solid rgba(0, 212, 255, 0.3);">
+            <h6 style="color: #00d4ff;">배치 분석 요약</h6>
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <small class="text-muted d-block">분석 완료</small>
+                    <span style="font-size: 1.5rem; color: #fff;">{{ batch_analysis.total_analyzed }}</span>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">고위험 식별</small>
+                    <span style="font-size: 1.5rem; color: #ff4444;">{{ batch_analysis.high_risk_identified }}</span>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">평균 위험도</small>
+                    <span style="font-size: 1.5rem; color: #ff8800;">{{ batch_analysis.average_risk_score|floatformat:2 }}</span>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">마지막 갱신</small>
+                    <small style="color: #00d4ff;">{{ batch_analysis.timestamp|default:"방금 전" }}</small>
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>
