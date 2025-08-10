@@ -249,20 +249,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- REAL DATABASE CONNECTION TEST -->
-<div style="background: #ff0000; color: white; padding: 20px; margin-bottom: 20px; border: 3px solid yellow; font-size: 20px;">
-    <h1 style="color: yellow;">🔴🔴🔴 실제 데이터베이스 연동 확인 🔴🔴🔴</h1>
-    <p><strong>View 함수 실행됨!</strong></p>
-    <p>KPI 데이터 개수: {{ kpis|length|default:"0" }} 개</p>
-    {% if kpis %}
-        {% for kpi in kpis %}
-        <p style="background: black; padding: 5px;">✅ {{ kpi.title }}: {{ kpi.value }}</p>
-        {% endfor %}
-    {% else %}
-        <p style="font-size: 24px;">❌ KPI 데이터가 없습니다!</p>
-    {% endif %}
-</div>
-
 <!-- KPI Overview -->
 <div class="kpi-overview">
     {% if kpis %}

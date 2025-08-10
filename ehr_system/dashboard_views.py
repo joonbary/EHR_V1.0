@@ -89,10 +89,6 @@ def leader_kpi_dashboard(request):
         'chart_data': json.dumps(chart_data)
     }
     
-    # 디버깅 로그
-    logger.info(f"Leader KPI Dashboard - KPIs count: {len(kpis)}")
-    logger.info(f"Leader KPI Dashboard - Employee stats: {employee_stats}")
-    
     return render(request, 'dashboards/leader_kpi_dashboard_revolutionary.html', context)
 
 
