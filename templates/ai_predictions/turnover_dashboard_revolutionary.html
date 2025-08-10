@@ -253,6 +253,75 @@
         </div>
     </div>
 
+    {% if airiss_integrated %}
+    <!-- AIRISS Integration Section -->
+    <div class="dashboard-card mb-4" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05)); border: 2px solid rgba(139, 92, 246, 0.3);">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 style="color: #8b5cf6;">
+                <i class="fas fa-robot me-2"></i>AIRISS AI 분석 - 실시간 위험 직원
+            </h3>
+            <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 0.5rem 1rem;">
+                총 {{ risk_stats.airiss_total }}명 중 {{ risk_stats.airiss_high_risk }}명 고위험
+            </span>
+        </div>
+        
+        <div class="row g-3 mb-4">
+            {% for emp in airiss_risk_employees %}
+            <div class="col-md-6">
+                <div class="employee-risk-card" style="border-left: 4px solid {% if emp.risk_level == 'CRITICAL' %}#ff4444{% elif emp.risk_level == 'HIGH' %}#ff8800{% elif emp.risk_level == 'MEDIUM' %}#ffbb33{% else %}#00d4ff{% endif %};">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 style="color: #fff;">{{ emp.name }}</h5>
+                            <p class="text-muted small mb-1">{{ emp.department }} | {{ emp.position }}</p>
+                            <span class="badge" style="background: {% if emp.grade == 'D' %}#ff4444{% elif emp.grade == 'C' %}#ff8800{% else %}#ffbb33{% endif %};">
+                                등급: {{ emp.grade }}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <div style="font-size: 1.8rem; font-weight: bold; color: {% if emp.risk_level == 'CRITICAL' %}#ff4444{% elif emp.risk_level == 'HIGH' %}#ff8800{% else %}#ffbb33{% endif %};">
+                                {{ emp.overall_score }}점
+                            </div>
+                            <small class="text-muted">AI 평가점수</small>
+                        </div>
+                    </div>
+                    {% if emp.ai_comment %}
+                    <div class="mt-2 p-2" style="background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+                        <small class="text-muted">AI 분석: {{ emp.ai_comment|truncatewords:20 }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Department Risk Heatmap -->
+        {% if department_heatmap %}
+        <h4 class="mb-3" style="color: #8b5cf6;">부서별 리스크 히트맵</h4>
+        <div class="row g-2">
+            {% for dept in department_heatmap %}
+            <div class="col-md-4">
+                <div class="p-3" style="background: linear-gradient(135deg, 
+                    {% if dept.risk_ratio > 15 %}rgba(255, 68, 68, 0.2){% elif dept.risk_ratio > 10 %}rgba(255, 136, 0, 0.2){% elif dept.risk_ratio > 5 %}rgba(255, 187, 51, 0.2){% else %}rgba(0, 212, 255, 0.1){% endif %},
+                    rgba(0, 0, 0, 0.3)); border-radius: 10px; border: 1px solid {% if dept.risk_ratio > 15 %}#ff4444{% elif dept.risk_ratio > 10 %}#ff8800{% elif dept.risk_ratio > 5 %}#ffbb33{% else %}#00d4ff{% endif %};">
+                    <h6 style="color: #fff;">{{ dept.department }}</h6>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="text-muted small">리스크율</span>
+                        <span style="font-size: 1.2rem; font-weight: bold; color: {% if dept.risk_ratio > 15 %}#ff4444{% elif dept.risk_ratio > 10 %}#ff8800{% else %}#ffbb33{% endif %};">
+                            {{ dept.risk_ratio }}%
+                        </span>
+                    </div>
+                    <div class="progress mt-2" style="height: 5px; background: rgba(255, 255, 255, 0.1);">
+                        <div class="progress-bar" style="width: {{ dept.risk_ratio }}%; background: {% if dept.risk_ratio > 15 %}#ff4444{% elif dept.risk_ratio > 10 %}#ff8800{% else %}#ffbb33{% endif %};"></div>
+                    </div>
+                    <small class="text-muted">고위험: {{ dept.high_risk_count }}명 / 전체: {{ dept.total_count }}명</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <!-- High Risk Employees -->
     <div class="dashboard-card mb-4">
         <div class="d-flex justify-content-between align-items-center mb-4">

@@ -14,6 +14,7 @@ from django.db.models import Q, Count, Avg
 from employees.models import Employee
 from .models import TurnoverRisk, RetentionPlan, TurnoverAlert, RiskFactor
 from .services import TurnoverRiskAnalyzer, TurnoverAlertSystem
+from utils.airiss_db_service import AIRISSDBService
 import json
 import logging
 
@@ -28,26 +29,37 @@ class TurnoverRiskDashboard(TemplateView):
         context = super().get_context_data(**kwargs)
         
         try:
-            # 위험도 통계
+            # AIRISS 데이터베이스 연결
+            airiss_db = AIRISSDBService()
+            
+            # AIRISS에서 위험 직원 데이터 가져오기
+            airiss_risk_employees = airiss_db.get_risk_employees(limit=20)
+            
+            # AIRISS에서 부서별 리스크 통계 가져오기
+            department_risk_stats = airiss_db.get_department_risk_stats()
+            
+            # AIRISS 통계 데이터 가져오기
+            airiss_stats = airiss_db.get_employee_stats()
+            
+            # 위험도 레벨별 통계 (AIRISS 데이터 기반)
+            risk_stats = {
+                'critical': sum(1 for e in airiss_risk_employees if e['risk_level'] == 'CRITICAL'),
+                'high': sum(1 for e in airiss_risk_employees if e['risk_level'] == 'HIGH'),
+                'medium': sum(1 for e in airiss_risk_employees if e['risk_level'] == 'MEDIUM'),
+                'low': sum(1 for e in airiss_risk_employees if e['risk_level'] == 'LOW'),
+                'total': len(airiss_risk_employees)
+            }
+            
+            # AIRISS 통계 추가
+            risk_stats['airiss_total'] = airiss_stats.get('total_employees', 0)
+            risk_stats['airiss_high_risk'] = airiss_stats.get('high_risk_count', 0)
+            
+            # 기존 DB 데이터와 병합 (선택적)
             today = timezone.now().date()
             recent_risks = TurnoverRisk.objects.filter(
                 prediction_date__date=today,
                 status='ACTIVE'
             )
-            
-            # 위험도 레벨별 통계
-            risk_stats = {
-                'critical': recent_risks.filter(risk_level='CRITICAL').count(),
-                'high': recent_risks.filter(risk_level='HIGH').count(),
-                'medium': recent_risks.filter(risk_level='MEDIUM').count(),
-                'low': recent_risks.filter(risk_level='LOW').count(),
-                'total': recent_risks.count()
-            }
-            
-            # 고위험 직원 목록 (상위 10명)
-            high_risk_employees = recent_risks.filter(
-                risk_score__gte=0.6
-            ).select_related('employee').order_by('-risk_score')[:10]
             
             # 최근 알림
             recent_alerts = TurnoverAlert.objects.filter(
@@ -64,12 +76,31 @@ class TurnoverRiskDashboard(TemplateView):
                 actual_completion_date=today
             ).count()
             
+            # 부서별 리스크 히트맵 데이터 준비
+            heatmap_data = []
+            for dept_name, stats in department_risk_stats.items():
+                heatmap_data.append({
+                    'department': dept_name,
+                    'risk_ratio': stats['risk_ratio'],
+                    'high_risk_count': stats['high_risk'],
+                    'total_count': stats['total'],
+                    'avg_score': stats['avg_score']
+                })
+            
+            # 상위 리스크 부서 정렬
+            heatmap_data = sorted(heatmap_data, key=lambda x: x['risk_ratio'], reverse=True)[:10]
+            
             context.update({
                 'risk_stats': risk_stats,
-                'high_risk_employees': high_risk_employees,
+                'airiss_risk_employees': airiss_risk_employees[:10],  # 상위 10명만
+                'high_risk_employees': recent_risks.filter(
+                    risk_score__gte=0.6
+                ).select_related('employee').order_by('-risk_score')[:10],
                 'recent_alerts': recent_alerts,
                 'active_retention_plans': active_plans,
                 'completed_plans_today': completed_plans_today,
+                'department_heatmap': heatmap_data,
+                'airiss_integrated': True,
                 'dashboard_updated': timezone.now()
             })
             
@@ -77,10 +108,13 @@ class TurnoverRiskDashboard(TemplateView):
             logger.error(f"이직 위험도 대시보드 오류: {e}")
             context.update({
                 'risk_stats': {'total': 0, 'critical': 0, 'high': 0, 'medium': 0, 'low': 0},
+                'airiss_risk_employees': [],
                 'high_risk_employees': [],
                 'recent_alerts': [],
                 'active_retention_plans': 0,
                 'completed_plans_today': 0,
+                'department_heatmap': [],
+                'airiss_integrated': False,
                 'error_message': 'AI 분석 서비스에 일시적인 문제가 발생했습니다.'
             })
         

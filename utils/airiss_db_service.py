@@ -160,6 +160,128 @@ class AIRISSDBService:
             'talent_density': 10.1
         }
     
+    def get_risk_employees(self, limit: int = 20) -> List[Dict[str, Any]]:
+        """이직 위험 직원 목록 조회"""
+        try:
+            if not self.connect():
+                return self._get_fallback_risk_employees()
+            
+            query = """
+                SELECT 
+                    uid as employee_id,
+                    employee_metadata->>'name' as name,
+                    employee_metadata->>'department' as department,
+                    employee_metadata->>'position' as position,
+                    overall_score,
+                    grade,
+                    dimension_scores,
+                    ai_feedback->>'overall_comment' as ai_comment,
+                    CASE 
+                        WHEN grade = 'D' THEN 'CRITICAL'
+                        WHEN grade = 'C' THEN 'HIGH'
+                        WHEN overall_score < 650 THEN 'MEDIUM'
+                        ELSE 'LOW'
+                    END as risk_level,
+                    CASE 
+                        WHEN grade IN ('C', 'D') THEN overall_score / 1000.0 + 0.3
+                        WHEN overall_score < 650 THEN overall_score / 1000.0 + 0.2
+                        ELSE overall_score / 1000.0
+                    END as risk_score
+                FROM employee_results
+                WHERE grade IN ('C', 'D') 
+                   OR overall_score < 650
+                ORDER BY risk_score DESC
+                LIMIT %s
+            """
+            
+            self.cursor.execute(query, (limit,))
+            results = self.cursor.fetchall()
+            
+            if results:
+                risk_employees = []
+                for row in results:
+                    risk_employees.append({
+                        'employee_id': row['employee_id'],
+                        'name': row['name'] or '미상',
+                        'department': row['department'] or '미정',
+                        'position': row['position'] or '미정',
+                        'overall_score': round(row['overall_score'] or 0, 0),
+                        'grade': row['grade'],
+                        'risk_level': row['risk_level'],
+                        'risk_score': round(row['risk_score'], 2),
+                        'ai_comment': row['ai_comment'] or '',
+                        'dimension_scores': row['dimension_scores'] or {}
+                    })
+                
+                logger.info(f"AIRISS에서 {len(risk_employees)}명의 위험 직원 조회")
+                return risk_employees
+                
+        except Exception as e:
+            logger.error(f"위험 직원 조회 실패: {e}")
+        finally:
+            self.disconnect()
+        
+        return self._get_fallback_risk_employees()
+    
+    def get_department_risk_stats(self) -> Dict[str, Any]:
+        """부서별 리스크 통계"""
+        try:
+            if not self.connect():
+                return self._get_fallback_department_risk()
+            
+            query = """
+                SELECT 
+                    COALESCE(employee_metadata->>'department', '미정') as department,
+                    COUNT(*) as total_count,
+                    COUNT(CASE WHEN grade IN ('C', 'D') THEN 1 END) as high_risk_count,
+                    COUNT(CASE WHEN overall_score < 650 THEN 1 END) as low_score_count,
+                    AVG(overall_score) as avg_score
+                FROM employee_results
+                GROUP BY employee_metadata->>'department'
+                ORDER BY high_risk_count DESC
+            """
+            
+            self.cursor.execute(query)
+            results = self.cursor.fetchall()
+            
+            if results:
+                dept_stats = {}
+                for row in results:
+                    dept_name = row['department']
+                    dept_stats[dept_name] = {
+                        'total': row['total_count'],
+                        'high_risk': row['high_risk_count'],
+                        'low_score': row['low_score_count'],
+                        'avg_score': round(row['avg_score'] or 0, 0),
+                        'risk_ratio': round((row['high_risk_count'] / row['total_count'] * 100) if row['total_count'] > 0 else 0, 1)
+                    }
+                
+                return dept_stats
+                
+        except Exception as e:
+            logger.error(f"부서별 리스크 통계 조회 실패: {e}")
+        finally:
+            self.disconnect()
+        
+        return self._get_fallback_department_risk()
+    
+    def _get_fallback_risk_employees(self) -> List[Dict[str, Any]]:
+        """Fallback 위험 직원 데이터"""
+        return [
+            {'employee_id': 'EMP001', 'name': '김철수', 'department': '마케팅본부', 'position': '대리', 
+             'overall_score': 580, 'grade': 'C', 'risk_level': 'HIGH', 'risk_score': 0.88},
+            {'employee_id': 'EMP002', 'name': '이영희', 'department': 'IT본부', 'position': '사원',
+             'overall_score': 620, 'grade': 'C', 'risk_level': 'HIGH', 'risk_score': 0.82},
+        ]
+    
+    def _get_fallback_department_risk(self) -> Dict[str, Any]:
+        """Fallback 부서별 리스크 데이터"""
+        return {
+            '마케팅본부': {'total': 120, 'high_risk': 15, 'low_score': 18, 'avg_score': 720, 'risk_ratio': 12.5},
+            'IT본부': {'total': 85, 'high_risk': 8, 'low_score': 10, 'avg_score': 750, 'risk_ratio': 9.4},
+            '영업본부': {'total': 150, 'high_risk': 12, 'low_score': 15, 'avg_score': 740, 'risk_ratio': 8.0}
+        }
+    
     def _get_fallback_departments(self) -> List[Dict[str, Any]]:
         """Fallback 부서 데이터"""
         return [
