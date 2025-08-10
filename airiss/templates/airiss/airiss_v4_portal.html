@@ -4,34 +4,73 @@
 {% block title %}AIRISS v4 - AI 기반 직원 성과역량 평가 시스템{% endblock %}
 
 
-{% block page_header %}AIRISS v4 MSA Integration{% endblock %}
-{% block content_title %}AI HR Intelligence System{% endblock %}
-{% block page_subtitle %}
-<p class="page-subtitle">
-    MSA 기반 차세대 AI 인사 평가 시스템
-</p>
-{% endblock %}
+{% block page_header %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block page_subtitle %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .airiss-container {
-        position: relative;
-        width: 100%;
-        height: calc(100vh - 200px);
-        min-height: 700px;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 20px;
-        box-shadow: 0 12px 32px rgba(0, 212, 255, 0.2);
-        overflow: hidden;
-        border: 1px solid rgba(0, 212, 255, 0.2);
+    /* 메인 컨텐츠를 전체 화면으로 확장 */
+    .main-content {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    .content-wrapper {
+        padding: 0 !important;
+    }
+    
+    /* 작은 정보 바 */
+    .info-bar {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: rgba(0, 0, 0, 0.8);
         backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        z-index: 100;
+    }
+    
+    .info-bar span {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+        margin-right: 20px;
+    }
+    
+    .info-bar a {
+        color: #00d4ff;
+        font-size: 12px;
+        text-decoration: none;
+        margin-right: 15px;
+        transition: color 0.3s;
+    }
+    
+    .info-bar a:hover {
+        color: #0099ff;
+    }
+    
+    .airiss-container {
+        position: fixed;
+        top: 100px; /* 헤더 + 정보바 높이 */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: calc(100vh - 100px);
+        background: #000;
+        overflow: hidden;
+        border: none;
     }
     
     .airiss-iframe {
         width: 100%;
         height: 100%;
         border: none;
-        border-radius: 20px;
     }
     
     .airiss-loading {
@@ -47,52 +86,6 @@
         padding: 40px;
         text-align: center;
         color: rgba(255, 255, 255, 0.8);
-    }
-    
-    .connection-info {
-        margin-bottom: 20px;
-        padding: 24px;
-        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.1) 100%);
-        border-radius: 20px;
-        border: 1px solid rgba(0, 212, 255, 0.3);
-        backdrop-filter: blur(10px);
-    }
-    
-    .connection-info h4 {
-        margin: 0 0 10px 0;
-        color: #00d4ff;
-        font-size: 20px;
-        font-weight: 700;
-    }
-    
-    .connection-info p {
-        margin: 8px 0;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.8);
-    }
-    
-    .connection-info code {
-        background: rgba(0, 212, 255, 0.2);
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-family: 'Fira Code', monospace;
-        font-size: 13px;
-        color: #00d4ff;
-        font-weight: 500;
-    }
-    
-    .connection-info a {
-        color: #00d4ff;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .connection-info a:hover {
-        color: #0099ff;
-        transform: translateX(4px);
     }
     
     .spinner {
@@ -113,24 +106,18 @@
 
 {% block content %}
 <div>
-    <!-- 연결 정보 표시 -->
-    <div class="connection-info">
-        <h4>🚀 AIRISS v4 MSA System</h4>
-        <p>Microservice Architecture 기반 독립 서비스</p>
-        <p>Service URL: <code>{{ airiss_v4_url }}</code></p>
-        <p>
-            <a href="{{ airiss_v4_url }}" target="_blank">
-                <i class="fas fa-external-link-alt"></i> 새 창에서 AIRISS v4 열기
-            </a>
-        </p>
-        <p style="margin-top: 12px;">
-            <a href="{% url 'airiss:upload_integrated' %}" style="font-weight: 600;">
-                <i class="fas fa-upload"></i> 통합 업로드 페이지 (대체 옵션)
-            </a>
-        </p>
+    <!-- 최소한의 정보 바 -->
+    <div class="info-bar">
+        <span>AIRISS v4 MSA Service</span>
+        <a href="{{ airiss_v4_url }}" target="_blank" title="새 창에서 열기">
+            <i class="fas fa-external-link-alt"></i> 새 창
+        </a>
+        <a href="{% url 'airiss:upload_integrated' %}" title="통합 업로드">
+            <i class="fas fa-upload"></i> 업로드
+        </a>
     </div>
     
-    <!-- AIRISS v4 컨테이너 -->
+    <!-- AIRISS v4 컨테이너 - 전체 화면 -->
     <div class="airiss-container" id="airissContainer">
         <!-- 로딩 표시 -->
         <div class="airiss-loading" id="airissLoading">
