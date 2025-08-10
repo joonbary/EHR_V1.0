@@ -276,9 +276,12 @@
 <script>
 // 로딩 상태 표시
 function showLoading() {
-    document.querySelectorAll('.stat-value').forEach(el => {
-        el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    });
+    const statValues = document.querySelectorAll('.stat-value');
+    if (statValues && statValues.length > 0) {
+        statValues.forEach(el => {
+            el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        });
+    }
 }
 
 // API에서 데이터 가져오기
@@ -313,10 +316,21 @@ function updateDashboard(data) {
     const totalPayroll = SafeDataAccessor.get(data, 'compensation.totalPayroll', 0);
     const departments = SafeDataAccessor.getArray(data.departments);
     
-    // 통계 카드 업데이트
-    document.querySelector('#total-employees').textContent = totalEmployees.toLocaleString('ko-KR');
-    document.querySelector('#avg-salary').textContent = SafeDataAccessor.formatCurrency(avgSalary);
-    document.querySelector('#total-payroll').textContent = SafeDataAccessor.formatCurrency(totalPayroll);
+    // 통계 카드 업데이트 - 안전하게 처리
+    const totalEmpElement = document.querySelector('#total-employees');
+    if (totalEmpElement) {
+        totalEmpElement.textContent = totalEmployees.toLocaleString('ko-KR');
+    }
+    
+    const avgSalaryElement = document.querySelector('#avg-salary');
+    if (avgSalaryElement) {
+        avgSalaryElement.textContent = SafeDataAccessor.formatCurrency(avgSalary);
+    }
+    
+    const totalPayrollElement = document.querySelector('#total-payroll');
+    if (totalPayrollElement) {
+        totalPayrollElement.textContent = SafeDataAccessor.formatCurrency(totalPayroll);
+    }
     
     // 부서 테이블 업데이트
     updateDepartmentTable(departments, totalEmployees);
@@ -430,7 +444,10 @@ function refreshDashboard() {
 }
 
 // 새로고침 버튼 이벤트 수정
-document.querySelector('button[onclick="location.reload()"]').onclick = refreshDashboard;
+const refreshBtn = document.querySelector('button[onclick="location.reload()"]');
+if (refreshBtn) {
+    refreshBtn.onclick = refreshDashboard;
+}
 
 function exportData() {
     alert('데이터 내보내기 기능은 준비 중입니다.');
