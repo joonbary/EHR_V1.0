@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
 from .views import DashboardView
+from .dashboard_views import leader_kpi_dashboard, workforce_comp_dashboard
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,9 +28,9 @@ urlpatterns = [
     path('promotions/', include('promotions.urls')),
     path('selfservice/', include('selfservice.urls')),
     
-    # 경영진 대시보드
-    path('leader-kpi-dashboard/', TemplateView.as_view(template_name='dashboards/leader_kpi_dashboard.html'), name='leader_kpi_dashboard'),
-    path('workforce-comp-dashboard/', TemplateView.as_view(template_name='dashboards/workforce_comp_dashboard.html'), name='workforce_comp_dashboard'),
+    # 경영진 대시보드 - 실제 View 함수 사용
+    path('leader-kpi-dashboard/', leader_kpi_dashboard, name='leader_kpi_dashboard'),
+    path('workforce-comp-dashboard/', workforce_comp_dashboard, name='workforce_comp_dashboard'),
     path('skillmap-dashboard/', TemplateView.as_view(template_name='skillmap/dashboard.html'), name='skillmap_dashboard'),
     
     # AI 도구
