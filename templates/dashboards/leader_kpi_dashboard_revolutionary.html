@@ -16,17 +16,17 @@
 /* KPI Dashboard Styles */
 .kpi-overview {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
 }
 
 .kpi-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    border-radius: 20px;
-    padding: 24px;
-    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%);
+    border: 3px solid rgba(0, 212, 255, 0.3);
+    border-radius: 24px;
+    padding: 32px;
+    backdrop-filter: blur(20px);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -35,66 +35,72 @@
 .kpi-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
 }
 
 .kpi-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 32px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
 }
 
 .kpi-icon {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
     background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-    border-radius: 15px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    margin-bottom: 16px;
+    font-size: 35px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
 }
 
 .kpi-label {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 14px;
-    margin-bottom: 8px;
+    color: #00d4ff;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
 }
 
 .kpi-value {
-    font-size: 36px;
-    font-weight: 800;
-    color: #00d4ff;
-    margin-bottom: 8px;
+    font-size: 64px;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 16px;
+    line-height: 1;
+    text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
 }
 
 .kpi-trend {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: 800;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .trend-up {
-    background: rgba(16, 185, 129, 0.2);
-    color: #10b981;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
 }
 
 .trend-down {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
 }
 
 .trend-stable {
-    background: rgba(251, 191, 36, 0.2);
-    color: #fbbf24;
+    background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+    color: white;
 }
 
 /* Department Performance Grid */
@@ -249,96 +255,199 @@
 {% endblock %}
 
 {% block content %}
+<!-- 사용 가이드 Tip Box -->
+<div style="background: linear-gradient(135deg, #00d4ff15 0%, #ff6b0015 100%); border: 2px solid #00d4ff; border-radius: 20px; padding: 20px; margin-bottom: 30px;">
+    <div style="display: flex; align-items: start; gap: 20px;">
+        <div style="font-size: 48px;">💡</div>
+        <div style="flex: 1;">
+            <h3 style="color: #00d4ff; font-size: 20px; font-weight: bold; margin-bottom: 10px;">
+                Leader KPI Dashboard 활용 가이드
+            </h3>
+            <p style="color: #ffffff; font-size: 16px; line-height: 1.8; margin-bottom: 15px;">
+                <strong>경영진을 위한 핵심 성과 지표:</strong><br>
+                ✅ 리더십 파이프라인 현황 실시간 모니터링<br>
+                ✅ 부서별 리더 준비도 및 성과 평가<br>
+                ✅ 후계자 양성 계획 수립 및 추적<br>
+                ✅ AI 기반 리더 역량 분석 및 개발 제안
+            </p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <div style="background: rgba(0, 212, 255, 0.2); padding: 10px 20px; border-radius: 10px;">
+                    <strong style="color: #00d4ff;">매일:</strong>
+                    <span style="color: #ffffff; margin-left: 10px;">성과 지표 확인</span>
+                </div>
+                <div style="background: rgba(0, 212, 255, 0.2); padding: 10px 20px; border-radius: 10px;">
+                    <strong style="color: #00d4ff;">매주:</strong>
+                    <span style="color: #ffffff; margin-left: 10px;">부서별 리뷰</span>
+                </div>
+                <div style="background: rgba(255, 107, 0, 0.2); padding: 10px 20px; border-radius: 10px;">
+                    <strong style="color: #ff6b00;">매월:</strong>
+                    <span style="color: #ffffff; margin-left: 10px;">전략 조정</span>
+                </div>
+            </div>
+        </div>
+        <button onclick="this.parentElement.parentElement.style.display='none'" 
+                style="background: none; border: none; color: #ffffff50; font-size: 24px; cursor: pointer;">
+            ×
+        </button>
+    </div>
+</div>
+
 <!-- KPI Overview -->
 <div class="kpi-overview">
     {% if kpis %}
         {% for kpi in kpis %}
-        <div class="kpi-card animate-slideInUp" style="animation-delay: {{ forloop.counter0|floatformat:1 }}s;">
-            <div class="kpi-icon">
-                {% if 'users' in kpi.icon %}👥
-                {% elif 'won' in kpi.icon %}💰
-                {% elif 'building' in kpi.icon %}🏢
-                {% elif 'calendar' in kpi.icon %}📅
-                {% else %}📊{% endif %}
+        <div class="kpi-card animate-slideInUp" style="animation-delay: {{ forloop.counter0|floatformat:1 }}s;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(0, 212, 255, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="kpi-icon">
+                    {% if 'users' in kpi.icon %}👥
+                    {% elif 'won' in kpi.icon %}💰
+                    {% elif 'building' in kpi.icon %}🏢
+                    {% elif 'calendar' in kpi.icon %}📅
+                    {% else %}📊{% endif %}
+                </div>
+                <span class="kpi-trend trend-{{ kpi.trend_direction }}">
+                    {% if kpi.trend_direction == 'up' %}
+                        ↑ {{ kpi.trend_value }}%
+                    {% elif kpi.trend_direction == 'down' %}
+                        ↓ {{ kpi.trend_value }}%
+                    {% else %}
+                        → {{ kpi.trend_value }}%
+                    {% endif %}
+                </span>
             </div>
-            <div class="kpi-label">{{ kpi.title }}</div>
             <div class="kpi-value">{{ kpi.value }}</div>
-            <span class="kpi-trend trend-{{ kpi.trend_direction }}">
-                {% if kpi.trend_direction == 'up' %}
-                    <i class="fas fa-arrow-up"></i> +{{ kpi.trend_value }}%
-                {% elif kpi.trend_direction == 'down' %}
-                    <i class="fas fa-arrow-down"></i> -{{ kpi.trend_value }}%
-                {% else %}
-                    <i class="fas fa-minus"></i> {{ kpi.trend_value }}%
-                {% endif %}
-            </span>
+            <div class="kpi-label">{{ kpi.title }}</div>
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <span style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    {{ kpi.period }}
+                </span>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 10px; overflow: hidden; margin-top: 16px;">
+                <div style="height: 100%; background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%); width: {% if kpi.trend_direction == 'up' %}85%{% elif kpi.trend_direction == 'down' %}65%{% else %}75%{% endif %}; transition: width 1s ease;"></div>
+            </div>
         </div>
         {% endfor %}
     {% else %}
         <!-- 데이터가 없을 때 기본 표시 -->
-        <div class="kpi-card animate-slideInUp">
-            <div class="kpi-icon">👥</div>
-            <div class="kpi-label">전체 직원</div>
+        <div class="kpi-card animate-slideInUp"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(0, 212, 255, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="kpi-icon">👥</div>
+                <span class="kpi-trend trend-up">↑ 5.2%</span>
+            </div>
             <div class="kpi-value">1,509</div>
-            <span class="kpi-trend trend-up">
-                <i class="fas fa-arrow-up"></i> +5.2%
-            </span>
+            <div class="kpi-label">전체 직원</div>
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <span style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    전월 대비
+                </span>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 10px; overflow: hidden; margin-top: 16px;">
+                <div style="height: 100%; background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%); width: 85%; transition: width 1s ease;"></div>
+            </div>
         </div>
         
-        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.1s;">
-            <div class="kpi-icon">🎯</div>
-            <div class="kpi-label">리더 준비도</div>
-            <div class="kpi-value">78%</div>
-            <span class="kpi-trend trend-up">
-                <i class="fas fa-arrow-up"></i> +3.2%
-            </span>
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.1s; border-color: #ff6b00;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(255, 107, 0, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #ff6b00 0%, #ff8800 100%); box-shadow: 0 10px 30px rgba(255, 107, 0, 0.4);">🎯</div>
+                <span class="kpi-trend trend-up">↑ 3.2%</span>
+            </div>
+            <div class="kpi-value">78<span style="font-size: 40px;">%</span></div>
+            <div class="kpi-label" style="color: #ff6b00;">리더 준비도</div>
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <span style="background: rgba(255, 107, 0, 0.2); color: #ff6b00; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    전분기 대비
+                </span>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 10px; overflow: hidden; margin-top: 16px;">
+                <div style="height: 100%; background: linear-gradient(90deg, #ff6b00 0%, #ff8800 100%); width: 78%; transition: width 1s ease;"></div>
+            </div>
         </div>
         
-        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.2s;">
-            <div class="kpi-icon">🏆</div>
-            <div class="kpi-label">인증 완료율</div>
-            <div class="kpi-value">65%</div>
-            <span class="kpi-trend trend-down">
-                <i class="fas fa-arrow-down"></i> -2.1%
-            </span>
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.2s; border-color: #10b981;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(16, 185, 129, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);">🏆</div>
+                <span class="kpi-trend trend-down">↓ 2.1%</span>
+            </div>
+            <div class="kpi-value">65<span style="font-size: 40px;">%</span></div>
+            <div class="kpi-label" style="color: #10b981;">인증 완료율</div>
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    전월 대비
+                </span>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 10px; overflow: hidden; margin-top: 16px;">
+                <div style="height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); width: 65%; transition: width 1s ease;"></div>
+            </div>
         </div>
         
-        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.3s;">
-            <div class="kpi-icon">📈</div>
-            <div class="kpi-label">평균 성과</div>
-            <div class="kpi-value">4.2/5</div>
-            <span class="kpi-trend trend-stable">
-                <i class="fas fa-minus"></i> 0.0%
-            </span>
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.3s; border-color: #8b5cf6;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(139, 92, 246, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);">📈</div>
+                <span class="kpi-trend trend-stable">→ 0.0%</span>
+            </div>
+            <div class="kpi-value">4.2<span style="font-size: 40px;">/5</span></div>
+            <div class="kpi-label" style="color: #8b5cf6;">평균 성과</div>
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <span style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    변동 없음
+                </span>
+            </div>
+            <div style="font-size: 24px; color: #fbbf24; margin-top: 8px;">
+                ⭐⭐⭐⭐☆
+            </div>
         </div>
     {% endif %}
 </div>
 
 <!-- Department Performance -->
-<h2 style="color: #ffffff; margin-bottom: 20px; font-size: 24px;">부서별 성과 지표</h2>
+<h2 style="color: #ffffff; margin-bottom: 24px; font-size: 32px; font-weight: 800;">
+    <span style="color: #00d4ff;">📊</span> 부서별 성과 지표
+</h2>
 <div class="department-grid">
-    <div class="department-card animate-slideInLeft">
+    <div class="department-card animate-slideInLeft" style="background: linear-gradient(135deg, rgba(26, 31, 46, 0.9) 0%, rgba(26, 31, 46, 0.6) 100%); border: 2px solid rgba(0, 212, 255, 0.3);"
+         onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(0, 212, 255, 0.3)'"
+         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
         <div class="department-header">
-            <span class="department-name">IT개발본부</span>
-            <span class="department-score">85점</span>
+            <span class="department-name" style="font-size: 24px;">IT개발본부</span>
+            <div style="width: 80px; height: 80px; position: relative;">
+                <svg width="80" height="80" style="transform: rotate(-90deg);">
+                    <circle cx="40" cy="40" r="35" stroke="rgba(255, 255, 255, 0.1)" stroke-width="6" fill="none"/>
+                    <circle cx="40" cy="40" r="35" stroke="#00d4ff" stroke-width="6" fill="none"
+                            stroke-dasharray="85 100"
+                            stroke-linecap="round"/>
+                </svg>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: 800; color: #00d4ff;">
+                    85
+                </div>
+            </div>
         </div>
         <div class="metric-row">
-            <span class="metric-name">리더 인원</span>
-            <span class="metric-value">24명</span>
+            <span class="metric-name" style="font-size: 16px;">👥 리더 인원</span>
+            <span class="metric-value" style="font-size: 20px; color: #00d4ff;">24명</span>
         </div>
         <div class="metric-row">
-            <span class="metric-name">준비도</span>
-            <span class="metric-value">82%</span>
+            <span class="metric-name" style="font-size: 16px;">🎯 준비도</span>
+            <span class="metric-value" style="font-size: 20px; color: #10b981;">82%</span>
         </div>
         <div class="metric-row">
-            <span class="metric-name">교육 이수율</span>
-            <span class="metric-value">95%</span>
+            <span class="metric-name" style="font-size: 16px;">📚 교육 이수율</span>
+            <span class="metric-value" style="font-size: 20px; color: #ff6b00;">95%</span>
         </div>
         <div class="metric-row">
-            <span class="metric-name">후계자 pool</span>
-            <span class="metric-value">18명</span>
+            <span class="metric-name" style="font-size: 16px;">🌟 후계자 pool</span>
+            <span class="metric-value" style="font-size: 20px; color: #8b5cf6;">18명</span>
         </div>
-        <div class="progress-bar">
+        <div class="progress-bar" style="height: 12px; margin-top: 20px;">
             <div class="progress-fill" style="width: 85%;"></div>
         </div>
     </div>
