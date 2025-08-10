@@ -763,7 +763,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function sendMessage() {
+// Move sendMessage to global scope so onclick can access it
+window.sendMessage = function() {
     const input = document.getElementById('chat-input');
     const message = input.value.trim();
     
@@ -870,7 +871,7 @@ function getSmartCoachingResponse(message) {
     return '흥미로운 질문이네요! 더 구체적인 상황을 말씀해주시면 맞춤형 코칭 조언을 드릴 수 있습니다. 예를 들어, 언제, 어디서, 어떤 상황에서 이런 고민이 생겼는지 자세히 설명해주세요. 함께 해결책을 찾아보겠습니다! 💪';
 }
 
-function startCoaching(topic) {
+window.startCoaching = function(topic) {
     const topicMessages = {
         leadership: '🎯 리더십 코칭 세션을 시작합니다! 현재 팀 규모와 리더십 경험, 그리고 가장 도전적인 리더십 상황에 대해 말씀해주세요. 개인 맞춤형 리더십 플랜을 함께 수립해보겠습니다.',
         productivity: '⚡ 생산성 최적화 코칭을 시작합니다! 현재 하루 일과와 가장 시간을 많이 소비하는 업무, 그리고 방해받는 요소들에 대해 알려주세요. 당신만의 효율적인 업무 시스템을 만들어보겠습니다.',
@@ -950,8 +951,8 @@ document.getElementById('chat-input').addEventListener('keypress', function(e) {
 });
 
 // Add CSS keyframes for animations
-const style = document.createElement('style');
-style.textContent = `
+const animationStyles = document.createElement('style');
+animationStyles.textContent = `
     @keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.6; }
@@ -973,6 +974,6 @@ style.textContent = `
         }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(animationStyles);
 </script>
 {% endblock %}
