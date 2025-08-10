@@ -4,73 +4,31 @@
 {% block title %}AIRISS v4 - AI 기반 직원 성과역량 평가 시스템{% endblock %}
 
 
-{% block page_header %}{% endblock %}
-{% block content_title %}{% endblock %}
+{% block page_header %}AIRISS v4{% endblock %}
+{% block content_title %}AI HR Intelligence System{% endblock %}
 {% block page_subtitle %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* 메인 컨텐츠를 전체 화면으로 확장 */
-    .main-content {
-        padding: 0 !important;
-        max-width: 100% !important;
-    }
-    
-    .content-wrapper {
-        padding: 0 !important;
-    }
-    
-    /* 작은 정보 바 */
-    .info-bar {
-        position: fixed;
-        top: 60px;
-        left: 0;
-        right: 0;
-        height: 40px;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-        display: flex;
-        align-items: center;
-        padding: 0 20px;
-        z-index: 100;
-    }
-    
-    .info-bar span {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 12px;
-        margin-right: 20px;
-    }
-    
-    .info-bar a {
-        color: #00d4ff;
-        font-size: 12px;
-        text-decoration: none;
-        margin-right: 15px;
-        transition: color 0.3s;
-    }
-    
-    .info-bar a:hover {
-        color: #0099ff;
-    }
-    
     .airiss-container {
-        position: fixed;
-        top: 100px; /* 헤더 + 정보바 높이 */
-        left: 0;
-        right: 0;
-        bottom: 0;
+        position: relative;
         width: 100%;
-        height: calc(100vh - 100px);
-        background: #000;
+        height: calc(100vh - 250px);
+        min-height: 600px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        box-shadow: 0 12px 32px rgba(0, 212, 255, 0.2);
         overflow: hidden;
-        border: none;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        backdrop-filter: blur(10px);
+        margin-top: 20px;
     }
     
     .airiss-iframe {
         width: 100%;
         height: 100%;
         border: none;
+        border-radius: 20px;
     }
     
     .airiss-loading {
@@ -86,6 +44,32 @@
         padding: 40px;
         text-align: center;
         color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .quick-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .quick-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        color: #00d4ff;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-link:hover {
+        background: rgba(0, 212, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
     }
     
     .spinner {
@@ -106,18 +90,22 @@
 
 {% block content %}
 <div>
-    <!-- 최소한의 정보 바 -->
-    <div class="info-bar">
-        <span>AIRISS v4 MSA Service</span>
-        <a href="{{ airiss_v4_url }}" target="_blank" title="새 창에서 열기">
-            <i class="fas fa-external-link-alt"></i> 새 창
+    <!-- 간단한 빠른 링크 -->
+    <div class="quick-links">
+        <a href="{{ airiss_v4_url }}" target="_blank" class="quick-link">
+            <i class="fas fa-external-link-alt"></i>
+            <span>새 창에서 열기</span>
         </a>
-        <a href="{% url 'airiss:upload_integrated' %}" title="통합 업로드">
-            <i class="fas fa-upload"></i> 업로드
+        <a href="{% url 'airiss:upload_integrated' %}" class="quick-link">
+            <i class="fas fa-upload"></i>
+            <span>통합 업로드</span>
         </a>
+        <span style="margin-left: auto; color: rgba(255, 255, 255, 0.5); font-size: 12px; padding: 10px;">
+            MSA Service: {{ airiss_v4_url }}
+        </span>
     </div>
     
-    <!-- AIRISS v4 컨테이너 - 전체 화면 -->
+    <!-- AIRISS v4 컨테이너 -->
     <div class="airiss-container" id="airissContainer">
         <!-- 로딩 표시 -->
         <div class="airiss-loading" id="airissLoading">
