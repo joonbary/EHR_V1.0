@@ -249,6 +249,15 @@
 {% endblock %}
 
 {% block content %}
+<!-- Debug Info -->
+<div style="background: rgba(255, 0, 0, 0.2); padding: 10px; margin-bottom: 20px; border-radius: 10px;">
+    <p style="color: #ff6b00;">DEBUG: KPIs 데이터 = {{ kpis|length }} 개</p>
+    <p style="color: #ff6b00;">DEBUG: Chart 데이터 = {{ chart_data|default:"없음" }}</p>
+    {% for kpi in kpis %}
+        <p style="color: #00d4ff;">KPI {{ forloop.counter }}: {{ kpi.title }} = {{ kpi.value }}</p>
+    {% endfor %}
+</div>
+
 <!-- KPI Overview -->
 <div class="kpi-overview">
     {% if kpis %}

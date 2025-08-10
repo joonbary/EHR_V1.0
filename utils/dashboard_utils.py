@@ -39,10 +39,8 @@ class DashboardAggregator:
                 hire_date__gte=thirty_days_ago
             ).count()
             
-            # Recent resignations
-            resignations = employee_queryset.filter(
-                resignation_date__gte=thirty_days_ago
-            ).count()
+            # Recent resignations (resignation_date 필드가 없는 경우 0)
+            resignations = 0  # Employee 모델에 resignation_date가 없음
             
             return {
                 'total_employees': total,
