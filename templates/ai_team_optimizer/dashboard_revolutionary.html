@@ -129,41 +129,86 @@
 
 {% block content %}
 <div class="min-h-screen">
-    <!-- Hero Section -->
-    <div class="team-optimizer-hero">
+    <!-- 사용 가이드 Tip Box -->
+    <div style="background: linear-gradient(135deg, #00d4ff15 0%, #ff6b0015 100%); border: 2px solid #00d4ff; border-radius: 20px; padding: 20px; margin-bottom: 30px;">
+        <div style="display: flex; align-items: start; gap: 20px;">
+            <div style="font-size: 48px;">💡</div>
+            <div style="flex: 1;">
+                <h3 style="color: #00d4ff; font-size: 20px; font-weight: bold; margin-bottom: 10px;">
+                    AI Team Optimizer 사용 가이드
+                </h3>
+                <p style="color: #ffffff; font-size: 16px; line-height: 1.8; margin-bottom: 15px;">
+                    <strong>이런 경우에 사용하세요:</strong><br>
+                    ✅ 새 프로젝트 팀을 구성할 때<br>
+                    ✅ 현재 팀의 스킬 밸런스를 점검할 때<br>
+                    ✅ 프로젝트 요구사항에 맞는 인재를 찾을 때<br>
+                    ✅ 팀원 간 시너지를 극대화하고 싶을 때
+                </p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div style="background: rgba(0, 212, 255, 0.2); padding: 10px 20px; border-radius: 10px;">
+                        <strong style="color: #00d4ff;">Step 1:</strong>
+                        <span style="color: #ffffff; margin-left: 10px;">프로젝트 생성</span>
+                    </div>
+                    <div style="background: rgba(0, 212, 255, 0.2); padding: 10px 20px; border-radius: 10px;">
+                        <strong style="color: #00d4ff;">Step 2:</strong>
+                        <span style="color: #ffffff; margin-left: 10px;">스킬 요구사항 입력</span>
+                    </div>
+                    <div style="background: rgba(0, 212, 255, 0.2); padding: 10px 20px; border-radius: 10px;">
+                        <strong style="color: #00d4ff;">Step 3:</strong>
+                        <span style="color: #ffffff; margin-left: 10px;">AI 최적화 실행</span>
+                    </div>
+                    <div style="background: rgba(255, 107, 0, 0.2); padding: 10px 20px; border-radius: 10px;">
+                        <strong style="color: #ff6b00;">Step 4:</strong>
+                        <span style="color: #ffffff; margin-left: 10px;">팀 구성 검토 및 승인</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="this.parentElement.parentElement.style.display='none'" 
+                    style="background: none; border: none; color: #ffffff50; font-size: 24px; cursor: pointer;">
+                ×
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Section - 개선된 가독성 -->
+    <div class="team-optimizer-hero" style="background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%); border-radius: 24px; padding: 48px; margin-bottom: 32px; position: relative; overflow: hidden;">
         <div class="relative z-10">
-            <h1 class="text-4xl font-bold text-white mb-4">
-                AI 팀 최적화 시스템
+            <h1 style="font-size: 42px; font-weight: 800; color: #ffffff; margin-bottom: 16px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                🚀 AI 팀 최적화 시스템
             </h1>
-            <p class="text-xl text-gray-300 mb-8">
-                인공지능 기반 최적 팀 구성 및 스킬 매칭
+            <p style="font-size: 24px; color: #00d4ff; margin-bottom: 32px; font-weight: 500;">
+                머신러닝 기반 최적 팀 구성 및 인재 매칭 솔루션
             </p>
             
-            <!-- Quick Actions -->
+            <!-- Quick Actions - 더 눈에 띄는 버튼 -->
             <div class="flex gap-4">
-                <button class="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                <button style="padding: 16px 32px; background: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%); color: white; border-radius: 16px; font-size: 18px; font-weight: 700; box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4); transition: all 0.3s; cursor: pointer;"
+                        onmouseover="this.style.transform='translateY(-3px) scale(1.05)'"
+                        onmouseout="this.style.transform='translateY(0) scale(1)'">
                     <i class="fas fa-magic mr-2"></i>
-                    새 팀 최적화
+                    새 프로젝트 팀 구성
                 </button>
-                <button class="px-8 py-3 bg-gray-800 border border-cyan-500/30 text-cyan-400 rounded-xl font-semibold hover:bg-gray-700 transition-all">
+                <button style="padding: 16px 32px; background: transparent; border: 2px solid #00d4ff; color: #00d4ff; border-radius: 16px; font-size: 18px; font-weight: 700; transition: all 0.3s; cursor: pointer;"
+                        onmouseover="this.style.background='rgba(0, 212, 255, 0.1)'"
+                        onmouseout="this.style.background='transparent'">
                     <i class="fas fa-chart-line mr-2"></i>
-                    분석 대시보드
+                    성과 분석 보기
                 </button>
             </div>
         </div>
     </div>
     
-    <!-- Stats Grid -->
+    <!-- Stats Grid - 개선된 가독성 -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="optimizer-stat-card">
+        <div class="optimizer-stat-card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%); border: 2px solid rgba(0, 212, 255, 0.3); padding: 28px;">
             <div class="flex items-center justify-between mb-4">
-                <div class="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl">
-                    <i class="fas fa-project-diagram text-2xl text-cyan-400"></i>
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-project-diagram" style="font-size: 28px; color: white;"></i>
                 </div>
-                <span class="text-green-400 text-sm font-semibold">+12%</span>
+                <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 700;">+12%</span>
             </div>
-            <div class="text-3xl font-bold text-white mb-1">{{ stats.projects.total|default:0 }}</div>
-            <div class="text-gray-400 text-sm">전체 프로젝트</div>
+            <div style="font-size: 42px; font-weight: 800; color: #ffffff; margin-bottom: 8px;">{{ stats.projects.total|default:0 }}</div>
+            <div style="color: #00d4ff; font-size: 16px; font-weight: 600;">전체 프로젝트</div>
             <div class="mt-3 h-1 bg-gray-700 rounded-full overflow-hidden">
                 <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-600" style="width: {{ stats.projects.completion_rate|default:0 }}%"></div>
             </div>
@@ -214,12 +259,16 @@
     
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Recent Projects -->
+        <!-- Recent Projects - 개선된 디자인 -->
         <div class="lg:col-span-2">
-            <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+            <div style="background: rgba(26, 31, 46, 0.8); backdrop-filter: blur(20px); border-radius: 24px; border: 2px solid rgba(0, 212, 255, 0.2); padding: 32px;">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-white">최근 프로젝트</h2>
-                    <a href="#" class="text-cyan-400 hover:text-cyan-300 transition-colors">
+                    <h2 style="font-size: 28px; font-weight: 800; color: #ffffff;">
+                        <span style="color: #00d4ff;">📋</span> 최근 프로젝트
+                    </h2>
+                    <a href="#" style="color: #ff6b00; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 0.3s;"
+                       onmouseover="this.style.color='#ffaa00'" 
+                       onmouseout="this.style.color='#ff6b00'">
                         모두 보기 <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
@@ -332,6 +381,47 @@
                     </div>
                     {% endfor %}
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI 작동 원리 설명 섹션 -->
+    <div style="background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 107, 0, 0.05) 100%); border: 2px solid rgba(255, 107, 0, 0.3); border-radius: 24px; padding: 32px; margin-top: 40px;">
+        <h2 style="font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 24px;">
+            <span style="color: #ff6b00;">🤖</span> AI Team Optimizer 작동 원리
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px;">
+                <div style="color: #00d4ff; font-size: 20px; font-weight: 700; margin-bottom: 10px;">
+                    1️⃣ 데이터 수집
+                </div>
+                <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                    직원 프로필, 스킬셋, 과거 프로젝트 성과, 협업 이력 등 다양한 데이터를 수집하여 분석합니다.
+                </p>
+            </div>
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px;">
+                <div style="color: #00d4ff; font-size: 20px; font-weight: 700; margin-bottom: 10px;">
+                    2️⃣ AI 분석
+                </div>
+                <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                    머신러닝 알고리즘이 프로젝트 요구사항과 직원 역량을 매칭하여 최적의 조합을 찾습니다.
+                </p>
+            </div>
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px;">
+                <div style="color: #00d4ff; font-size: 20px; font-weight: 700; margin-bottom: 10px;">
+                    3️⃣ 시너지 계산
+                </div>
+                <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                    팀원 간 협업 경험, 성격 유형, 업무 스타일을 고려하여 팀 시너지 점수를 계산합니다.
+                </p>
+            </div>
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px;">
+                <div style="color: #ff6b00; font-size: 20px; font-weight: 700; margin-bottom: 10px;">
+                    4️⃣ 최적화 제안
+                </div>
+                <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                    예산, 일정, 리스크 등을 종합 고려하여 최종 팀 구성안을 제시합니다.
+                </p>
             </div>
         </div>
     </div>
