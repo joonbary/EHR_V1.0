@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('employees', '0013_remove_employee_dummy_ssn'),
-        ('evaluations', '0006_remove_growthlevel_consecutive_achievements_required_and_more'),
+        # ('evaluations', '0006_remove_growthlevel_consecutive_achievements_required_and_more'),  # 일시적으로 제거
     ]
 
     operations = [
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('employee', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='compensations', to='employees.employee', verbose_name='직원')),
-                ('evaluation', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='evaluations.comprehensiveevaluation', verbose_name='평가 정보')),
+                # ('evaluation', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='evaluations.comprehensiveevaluation', verbose_name='평가 정보')),  # 일시적으로 제거
             ],
             options={
                 'verbose_name': '직원 보상',
