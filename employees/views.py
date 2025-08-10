@@ -30,14 +30,9 @@ class EmployeeListView(ListView):
         # Optimize query with select_related and prefetch_related to avoid N+1 problem
         queryset = Employee.objects.select_related(
             'user',
-            'manager',
-            'job_role',
-            'job_role__job_type',
-            'job_role__job_type__category'
+            'manager'
         ).prefetch_related(
-            'subordinates',
-            'certifications',
-            'trainings'
+            'subordinates'
         )
         
         # 검색어 가져오기
