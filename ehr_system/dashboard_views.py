@@ -15,11 +15,7 @@ from utils.dashboard_utils import (
     format_percentage
 )
 from utils.file_upload import create_standard_response
-from utils.airiss_service import (
-    AIRISSService, 
-    format_talent_pool_for_chart,
-    get_risk_level_color
-)
+from utils.airiss_db_service import AIRISSDBService
 import json
 import logging
 
@@ -32,32 +28,24 @@ def leader_kpi_dashboard(request):
     aggregator = DashboardAggregator()
     formatter = ChartDataFormatter()
     
-    # AIRISS 데이터 조회
-    airiss_service = AIRISSService()
-    airiss_data = airiss_service.get_all_data()
+    # AIRISS 데이터베이스 직접 연결
+    airiss_db = AIRISSDBService()
+    stats = airiss_db.get_employee_stats()
+    risk_level = airiss_db.get_risk_level()
     
-    # AIRISS 데이터 추출
-    talent_data = airiss_data.get('talent', {})
-    dept_perf_data = airiss_data.get('department', {})
-    risk_data = airiss_data.get('risk', {})
-    
-    # 기본 KPI 데이터
-    talent_summary = talent_data.get('summary', {})
-    risk_summary = risk_data.get('risk_summary', {})
-    
-    # AIRISS 통합 KPI 카드 생성
+    # KPI 카드 생성 (AIRISS 데이터 통합)
     kpis = [
         aggregator.format_kpi_card(
             title='핵심인재',
-            value=f"{talent_summary.get('core_talent_count', 152):,}명",
+            value=f"{stats.get('core_talent_count', 152):,}명",
             icon='fas fa-star',
             trend_direction='up',
-            trend_value=talent_summary.get('talent_density', 18.5),
-            period=f"전체 대비 {talent_summary.get('talent_density', 18.5):.1f}%"
+            trend_value=stats.get('talent_density', 10.1),
+            period=f"전체 대비 {stats.get('talent_density', 10.1):.1f}%"
         ),
         aggregator.format_kpi_card(
             title='승진후보',
-            value=f"{talent_summary.get('promotion_candidates_count', 78):,}명",
+            value=f"{stats.get('promotion_candidates_count', 78):,}명",
             icon='fas fa-user-graduate',
             trend_direction='up',
             trend_value=12.5,
@@ -65,48 +53,26 @@ def leader_kpi_dashboard(request):
         ),
         aggregator.format_kpi_card(
             title='평균성과',
-            value=f"{dept_perf_data.get('departments', [{}])[0].get('average_score', 782)}점",
+            value=f"{stats.get('average_score', 782):.0f}점",
             icon='fas fa-chart-line',
             trend_direction='up',
             trend_value=8.3,
             period='전년 대비'
         ),
         aggregator.format_kpi_card(
-            title='리스크레벨',
-            value=risk_summary.get('overall_risk_level', 'MEDIUM'),
-            icon='fas fa-exclamation-triangle',
-            trend_direction='stable' if risk_summary.get('overall_risk_level') == 'MEDIUM' else ('down' if risk_summary.get('overall_risk_level') == 'HIGH' else 'up'),
-            trend_value=0,
-            period=f"고위험 {risk_summary.get('high_risk_count', 45)}명"
+            title='전체직원',
+            value=f"{stats.get('total_employees', 1509):,}명",
+            icon='fas fa-users',
+            trend_direction='up',
+            trend_value=5.2,
+            period='전월 대비'
         )
     ]
     
-    # 인재풀 차트 데이터 준비
-    talent_chart_data = format_talent_pool_for_chart(talent_data)
-    
-    # 부서별 성과 TOP 5
-    top_departments = dept_perf_data.get('departments', [])[:5]
-    
-    # AI 권고사항
-    ai_recommendations = risk_summary.get('recommendations', [])
-    
-    # 리스크 레벨 색상
-    risk_color = get_risk_level_color(risk_summary.get('overall_risk_level', 'MEDIUM'))
-    
     context = {
-        'title': '경영진 KPI 대시보드 - AIRISS AI 인사분석',
+        'title': '경영진 KPI 대시보드',
         'kpis': kpis,
-        'talent_chart_data': json.dumps(talent_chart_data),
-        'top_departments': top_departments,
-        'ai_recommendations': ai_recommendations,
-        'risk_level': risk_summary.get('overall_risk_level', 'MEDIUM'),
-        'risk_color': risk_color,
-        'airiss_integrated': True,  # AIRISS 통합 플래그
-        
-        # 추가 AIRISS 메트릭
-        'high_risk_count': risk_summary.get('high_risk_count', 45),
-        'retention_targets': risk_summary.get('retention_targets', 28),
-        'risk_factors': risk_data.get('risk_factors', {}),
+        'airiss_integrated': False,  # AIRISS 섹션 비활성화
         
         # 갱신 시간
         'last_updated': timezone.now().strftime('%Y-%m-%d %H:%M')

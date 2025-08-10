@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 class AIRISSService:
     """AIRISS AI 인사분석 시스템 API 클라이언트"""
     
-    # API Base URL (URL에 이중 슬래시가 있으므로 그대로 유지)
-    BASE_URL = "https://web-production-4066.up.railway.app//api/v1/airiss"
+    # API Base URL
+    BASE_URL = "https://web-production-4066.up.railway.app/api/v1/airiss"
     
     # 캐시 키와 타임아웃 설정
     CACHE_KEY_TALENT = "airiss_talent_analysis"
