@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 from employees.models import Employee
-from evaluations.models import ComprehensiveEvaluation
+# from evaluations.models import ComprehensiveEvaluation  # 일시적으로 주석 처리
 
 # 직종 선택지
 JOB_TYPE_CHOICES = [
@@ -203,14 +203,14 @@ class EmployeeCompensation(models.Model):
         verbose_name='총 보상 (원)'
     )
     
-    # 평가 정보 (참조용)
-    evaluation = models.ForeignKey(
-        ComprehensiveEvaluation,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='평가 정보'
-    )
+    # 평가 정보 (참조용) - 일시적으로 주석 처리
+    # evaluation = models.ForeignKey(
+    #     ComprehensiveEvaluation,
+    #     on_delete=models.SET_NULL,
+    #     null=True,
+    #     blank=True,
+    #     verbose_name='평가 정보'
+    # )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
