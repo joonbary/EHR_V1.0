@@ -46,7 +46,8 @@
       "Bash(del db.sqlite3)",
       "Bash(git restore:*)",
       "Bash(git fetch:*)",
-      "Bash(railway up:*)"
+      "Bash(railway up:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

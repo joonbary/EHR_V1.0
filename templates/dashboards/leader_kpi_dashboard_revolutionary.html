@@ -251,59 +251,67 @@
 {% block content %}
 <!-- KPI Overview -->
 <div class="kpi-overview">
-    <div class="kpi-card animate-slideInUp">
-        <div class="kpi-icon">👥</div>
-        <div class="kpi-label">전체 리더 인원</div>
-        <div class="kpi-value">152</div>
-        <span class="kpi-trend trend-up">
-            <i class="fas fa-arrow-up"></i> +5.6%
-        </span>
-    </div>
-    
-    <div class="kpi-card animate-slideInUp" style="animation-delay: 0.1s;">
-        <div class="kpi-icon">🎯</div>
-        <div class="kpi-label">리더 준비도</div>
-        <div class="kpi-value">78%</div>
-        <span class="kpi-trend trend-up">
-            <i class="fas fa-arrow-up"></i> +3.2%
-        </span>
-    </div>
-    
-    <div class="kpi-card animate-slideInUp" style="animation-delay: 0.2s;">
-        <div class="kpi-icon">🏆</div>
-        <div class="kpi-label">인증 완료율</div>
-        <div class="kpi-value">65%</div>
-        <span class="kpi-trend trend-down">
-            <i class="fas fa-arrow-down"></i> -2.1%
-        </span>
-    </div>
-    
-    <div class="kpi-card animate-slideInUp" style="animation-delay: 0.3s;">
-        <div class="kpi-icon">📈</div>
-        <div class="kpi-label">후계자 충원율</div>
-        <div class="kpi-value">82%</div>
-        <span class="kpi-trend trend-up">
-            <i class="fas fa-arrow-up"></i> +1.5%
-        </span>
-    </div>
-    
-    <div class="kpi-card animate-slideInUp" style="animation-delay: 0.4s;">
-        <div class="kpi-icon">⚡</div>
-        <div class="kpi-label">평균 성과 점수</div>
-        <div class="kpi-value">4.2</div>
-        <span class="kpi-trend trend-stable">
-            <i class="fas fa-minus"></i> 0.0%
-        </span>
-    </div>
-    
-    <div class="kpi-card animate-slideInUp" style="animation-delay: 0.5s;">
-        <div class="kpi-icon">🚀</div>
-        <div class="kpi-label">리더십 교육 이수율</div>
-        <div class="kpi-value">91%</div>
-        <span class="kpi-trend trend-up">
-            <i class="fas fa-arrow-up"></i> +7.3%
-        </span>
-    </div>
+    {% if kpis %}
+        {% for kpi in kpis %}
+        <div class="kpi-card animate-slideInUp" style="animation-delay: {{ forloop.counter0|floatformat:1 }}s;">
+            <div class="kpi-icon">
+                {% if 'users' in kpi.icon %}👥
+                {% elif 'won' in kpi.icon %}💰
+                {% elif 'building' in kpi.icon %}🏢
+                {% elif 'calendar' in kpi.icon %}📅
+                {% else %}📊{% endif %}
+            </div>
+            <div class="kpi-label">{{ kpi.title }}</div>
+            <div class="kpi-value">{{ kpi.value }}</div>
+            <span class="kpi-trend trend-{{ kpi.trend_direction }}">
+                {% if kpi.trend_direction == 'up' %}
+                    <i class="fas fa-arrow-up"></i> +{{ kpi.trend_value }}%
+                {% elif kpi.trend_direction == 'down' %}
+                    <i class="fas fa-arrow-down"></i> -{{ kpi.trend_value }}%
+                {% else %}
+                    <i class="fas fa-minus"></i> {{ kpi.trend_value }}%
+                {% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- 데이터가 없을 때 기본 표시 -->
+        <div class="kpi-card animate-slideInUp">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-label">전체 직원</div>
+            <div class="kpi-value">1,509</div>
+            <span class="kpi-trend trend-up">
+                <i class="fas fa-arrow-up"></i> +5.2%
+            </span>
+        </div>
+        
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.1s;">
+            <div class="kpi-icon">🎯</div>
+            <div class="kpi-label">리더 준비도</div>
+            <div class="kpi-value">78%</div>
+            <span class="kpi-trend trend-up">
+                <i class="fas fa-arrow-up"></i> +3.2%
+            </span>
+        </div>
+        
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.2s;">
+            <div class="kpi-icon">🏆</div>
+            <div class="kpi-label">인증 완료율</div>
+            <div class="kpi-value">65%</div>
+            <span class="kpi-trend trend-down">
+                <i class="fas fa-arrow-down"></i> -2.1%
+            </span>
+        </div>
+        
+        <div class="kpi-card animate-slideInUp" style="animation-delay: 0.3s;">
+            <div class="kpi-icon">📈</div>
+            <div class="kpi-label">평균 성과</div>
+            <div class="kpi-value">4.2/5</div>
+            <span class="kpi-trend trend-stable">
+                <i class="fas fa-minus"></i> 0.0%
+            </span>
+        </div>
+    {% endif %}
 </div>
 
 <!-- Department Performance -->
@@ -487,10 +495,50 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Chart data from backend
+    {% if chart_data %}
+    const chartData = {{ chart_data|safe }};
+    {% else %}
+    const chartData = null;
+    {% endif %}
+    
     // Performance Chart
     const ctx = document.getElementById('performanceChart');
     if (ctx) {
-        new Chart(ctx, {
+        // Use backend data if available, otherwise use default
+        const chartConfig = chartData ? {
+            type: chartData.type || 'bar',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        } : {
             type: 'line',
             data: {
                 labels: ['1월', '2월', '3월', '4월', '5월', '6월'],
@@ -538,7 +586,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-        });
+        };
+        
+        new Chart(ctx, chartConfig);
     }
     
     // Animate numbers
