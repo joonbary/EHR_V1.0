@@ -1,0 +1,416 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}직원 관리 센터 - OK Financial Group{% endblock %}
+
+{% block page_header %}Employee Management Hub{% endblock %}
+{% block content_title %}직원 관리 센터{% endblock %}
+{% block page_subtitle %}
+<p class="page-subtitle">
+    차세대 AI 기반 인사정보 관리 시스템
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Employee Management Revolutionary Styles */
+.employee-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.employee-card {
+    background: var(--theme-card, rgba(255, 255, 255, 0.03));
+    border: 1px solid var(--theme-border, rgba(0, 212, 255, 0.2));
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.employee-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--theme-primary, linear-gradient(135deg, #00d4ff 0%, #0099ff 100%));
+}
+
+.employee-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--theme-shadow, 0 12px 24px rgba(0, 212, 255, 0.2));
+}
+
+.employee-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--theme-primary, linear-gradient(135deg, #00d4ff 0%, #0099ff 100%));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 16px;
+}
+
+.employee-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--theme-text-primary, #ffffff);
+    margin-bottom: 8px;
+}
+
+.employee-position {
+    color: var(--theme-text-secondary, rgba(255, 255, 255, 0.8));
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.employee-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.employee-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--theme-text-secondary, rgba(255, 255, 255, 0.7));
+    font-size: 14px;
+}
+
+.employee-detail i {
+    color: var(--theme-primary, #00d4ff);
+    width: 16px;
+}
+
+.stats-section {
+    background: var(--theme-surface, rgba(26, 31, 46, 0.8));
+    border: 1px solid var(--theme-border, rgba(0, 212, 255, 0.2));
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--theme-primary, #00d4ff);
+    display: block;
+}
+
+.stat-label {
+    color: var(--theme-text-secondary, rgba(255, 255, 255, 0.8));
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--theme-primary, linear-gradient(135deg, #00d4ff 0%, #0099ff 100%));
+    color: #000;
+}
+
+.btn-secondary {
+    background: var(--theme-card, rgba(255, 255, 255, 0.1));
+    color: var(--theme-text-secondary, rgba(255, 255, 255, 0.8));
+    border: 1px solid var(--theme-border, rgba(255, 255, 255, 0.2));
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--theme-shadow, 0 4px 12px rgba(0, 212, 255, 0.3));
+}
+
+.no-data-message {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--theme-card, rgba(255, 255, 255, 0.03));
+    border: 2px dashed var(--theme-border, rgba(0, 212, 255, 0.3));
+    border-radius: 20px;
+    margin: 30px 0;
+}
+
+.no-data-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.no-data-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--theme-text-primary, #ffffff);
+    margin-bottom: 12px;
+}
+
+.no-data-description {
+    color: var(--theme-text-secondary, rgba(255, 255, 255, 0.7));
+    margin-bottom: 24px;
+}
+
+.upload-btn {
+    background: var(--theme-primary, linear-gradient(135deg, #00d4ff 0%, #0099ff 100%));
+    color: #000;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--theme-shadow, 0 6px 16px rgba(0, 212, 255, 0.4));
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 통계 섹션 -->
+<div class="stats-section">
+    <h2 style="color: var(--theme-text-primary, #ffffff); margin-bottom: 20px; font-size: 20px;">📊 직원 현황</h2>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number">{{ employees.count|default:"0" }}</span>
+            <div class="stat-label">총 직원 수</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">12</span>
+            <div class="stat-label">부서 수</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ employees.count|default:"0" }}</span>
+            <div class="stat-label">활성 계정</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">0</span>
+            <div class="stat-label">신규 입사</div>
+        </div>
+    </div>
+</div>
+
+{% if employees and employees.count > 0 %}
+    <!-- 직원 카드 그리드 -->
+    <div class="employee-grid">
+        {% for employee in employees %}
+        <div class="employee-card">
+            <div class="employee-avatar">
+                {{ employee.name|slice:":1" }}
+            </div>
+            <div class="employee-name">{{ employee.name }}</div>
+            <div class="employee-position">{{ employee.position|default:"직원" }}</div>
+            
+            <div class="employee-details">
+                <div class="employee-detail">
+                    <i class="fas fa-id-badge"></i>
+                    <span>{{ employee.employee_id|default:"미정" }}</span>
+                </div>
+                <div class="employee-detail">
+                    <i class="fas fa-building"></i>
+                    <span>{{ employee.department_name|default:"미지정" }}</span>
+                </div>
+                <div class="employee-detail">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ employee.email|default:"이메일 없음" }}</span>
+                </div>
+                <div class="employee-detail">
+                    <i class="fas fa-phone"></i>
+                    <span>{{ employee.phone_number|default:"연락처 없음" }}</span>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn-action btn-primary">
+                    <i class="fas fa-eye"></i> 상세보기
+                </a>
+                <a href="{% url 'employees:employee_update' employee.pk %}" class="btn-action btn-secondary">
+                    <i class="fas fa-edit"></i> 수정
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- 페이지네이션 -->
+    {% if is_paginated %}
+    <div style="text-align: center; margin-top: 40px;">
+        <div style="display: inline-flex; gap: 8px;">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="btn-action btn-secondary" style="padding: 8px 12px;">처음</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn-action btn-secondary" style="padding: 8px 12px;">이전</a>
+            {% endif %}
+            
+            <span style="padding: 8px 16px; color: var(--theme-text-primary, #ffffff);">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn-action btn-secondary" style="padding: 8px 12px;">다음</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn-action btn-secondary" style="padding: 8px 12px;">마지막</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+{% else %}
+    <!-- 데이터가 없을 때 메시지 -->
+    <div class="no-data-message">
+        <div class="no-data-icon">👥</div>
+        <h3 class="no-data-title">직원 데이터가 없습니다</h3>
+        <p class="no-data-description">
+            아직 등록된 직원이 없습니다. 첫 번째 직원을 등록하거나 Excel 파일로 일괄 업로드해보세요.
+        </p>
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'employees:employee_create' %}" class="upload-btn">
+                <i class="fas fa-user-plus"></i>
+                직원 등록
+            </a>
+            <a href="{% url 'employees:bulk_upload' %}" class="upload-btn">
+                <i class="fas fa-upload"></i>
+                Excel 업로드
+            </a>
+        </div>
+        
+        <!-- 샘플 직원 카드들 (데모용) -->
+        <div style="margin-top: 40px;">
+            <h4 style="color: var(--theme-text-secondary, rgba(255, 255, 255, 0.8)); margin-bottom: 20px;">
+                💡 샘플 직원 정보 (데모)
+            </h4>
+            <div class="employee-grid" style="opacity: 0.6;">
+                <!-- 샘플 직원 1 -->
+                <div class="employee-card">
+                    <div class="employee-avatar">김</div>
+                    <div class="employee-name">김철수</div>
+                    <div class="employee-position">시니어 개발자</div>
+                    <div class="employee-details">
+                        <div class="employee-detail">
+                            <i class="fas fa-id-badge"></i>
+                            <span>EMP001</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-building"></i>
+                            <span>IT개발팀</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-envelope"></i>
+                            <span>kim.cs@okgroup.co.kr</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-phone"></i>
+                            <span>010-1234-5678</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 샘플 직원 2 -->
+                <div class="employee-card">
+                    <div class="employee-avatar">이</div>
+                    <div class="employee-name">이영희</div>
+                    <div class="employee-position">HR 매니저</div>
+                    <div class="employee-details">
+                        <div class="employee-detail">
+                            <i class="fas fa-id-badge"></i>
+                            <span>EMP002</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-building"></i>
+                            <span>인사팀</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-envelope"></i>
+                            <span>lee.yh@okgroup.co.kr</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-phone"></i>
+                            <span>010-9876-5432</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 샘플 직원 3 -->
+                <div class="employee-card">
+                    <div class="employee-avatar">박</div>
+                    <div class="employee-name">박민수</div>
+                    <div class="employee-position">마케팅 전문가</div>
+                    <div class="employee-details">
+                        <div class="employee-detail">
+                            <i class="fas fa-id-badge"></i>
+                            <span>EMP003</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-building"></i>
+                            <span>마케팅팀</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-envelope"></i>
+                            <span>park.ms@okgroup.co.kr</span>
+                        </div>
+                        <div class="employee-detail">
+                            <i class="fas fa-phone"></i>
+                            <span>010-5555-7777</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Employee management functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth animations
+    const cards = document.querySelectorAll('.employee-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-slideInUp');
+    });
+});
+</script>
+{% endblock %}
