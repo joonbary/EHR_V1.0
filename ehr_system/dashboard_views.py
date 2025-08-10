@@ -85,7 +85,7 @@ def leader_kpi_dashboard(request):
         'chart_data': json.dumps(chart_data)
     }
     
-    return render(request, 'dashboards/leader_kpi.html', context)
+    return render(request, 'dashboards/leader_kpi_dashboard_revolutionary.html', context)
 
 
 def workforce_comp_dashboard(request):
