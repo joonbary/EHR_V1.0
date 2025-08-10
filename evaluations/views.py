@@ -223,7 +223,7 @@ def evaluation_dashboard(request):
         'comprehensive_eval': comprehensive_eval,
     }
     
-    return render(request, 'evaluations/dashboard_revolutionary.html', context)
+    return render(request, 'evaluations/dashboard_enhanced.html', context)
 
 
 def contribution_evaluation(request, employee_id):

@@ -1,0 +1,837 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}평가 대시보드 - 혁신적 HRM 시스템{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}">
+<!-- ApexCharts for modern data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<!-- AOS for scroll animations -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<style>
+    /* Enhanced Modern Design System */
+    .dashboard-container {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Animated Background Elements */
+    .bg-animation {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+    
+    .floating-orb {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0,212,255,0.3) 0%, transparent 70%);
+        animation: float 20s infinite ease-in-out;
+    }
+    
+    .orb-1 {
+        width: 400px;
+        height: 400px;
+        top: -200px;
+        left: -100px;
+        animation-delay: 0s;
+    }
+    
+    .orb-2 {
+        width: 300px;
+        height: 300px;
+        bottom: -150px;
+        right: -100px;
+        animation-delay: 5s;
+    }
+    
+    .orb-3 {
+        width: 500px;
+        height: 500px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation-delay: 10s;
+    }
+    
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0) translateX(0) rotate(0deg);
+            opacity: 0.3;
+        }
+        25% {
+            transform: translateY(-100px) translateX(50px) rotate(90deg);
+            opacity: 0.5;
+        }
+        50% {
+            transform: translateY(50px) translateX(-100px) rotate(180deg);
+            opacity: 0.3;
+        }
+        75% {
+            transform: translateY(-50px) translateX(100px) rotate(270deg);
+            opacity: 0.5;
+        }
+    }
+    
+    /* Glass Morphism Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(0, 212, 255, 0.8), 
+            transparent);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 
+            0 20px 40px rgba(0, 212, 255, 0.2),
+            0 0 60px rgba(0, 212, 255, 0.1) inset;
+    }
+    
+    /* Hero Section Enhanced */
+    .hero-section {
+        background: linear-gradient(135deg, 
+            rgba(0, 212, 255, 0.1) 0%, 
+            transparent 50%,
+            rgba(0, 153, 255, 0.1) 100%);
+        border-radius: 32px;
+        padding: 48px;
+        margin-bottom: 48px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 16px;
+        animation: glow 3s ease-in-out infinite;
+    }
+    
+    @keyframes glow {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.2) drop-shadow(0 0 20px rgba(0, 212, 255, 0.5)); }
+    }
+    
+    /* Progress Ring Enhanced */
+    .progress-container {
+        position: relative;
+        width: 250px;
+        height: 250px;
+    }
+    
+    .progress-ring-enhanced {
+        transform: rotate(-90deg);
+        width: 100%;
+        height: 100%;
+    }
+    
+    .progress-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.05);
+        stroke-width: 20;
+    }
+    
+    .progress-bar {
+        fill: none;
+        stroke: url(#gradient);
+        stroke-width: 20;
+        stroke-linecap: round;
+        stroke-dasharray: 691;
+        stroke-dashoffset: calc(691 - (691 * var(--progress) / 100));
+        transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+    }
+    
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    
+    .progress-value {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    /* Evaluation Cards Enhanced */
+    .eval-card {
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.05) 0%, 
+            rgba(255, 255, 255, 0.02) 100%);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .eval-card::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, 
+            #00d4ff, #0099ff, #00d4ff);
+        border-radius: 20px;
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s ease;
+    }
+    
+    .eval-card:hover::after {
+        opacity: 0.3;
+        animation: rotate 3s linear infinite;
+    }
+    
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .eval-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        border-color: rgba(0, 212, 255, 0.3);
+    }
+    
+    /* Status Indicators */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .status-completed {
+        background: linear-gradient(135deg, 
+            rgba(0, 255, 136, 0.2) 0%, 
+            rgba(0, 255, 136, 0.1) 100%);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+    
+    .status-in-progress {
+        background: linear-gradient(135deg, 
+            rgba(255, 193, 7, 0.2) 0%, 
+            rgba(255, 193, 7, 0.1) 100%);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    .status-pending {
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 100%);
+        color: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+    }
+    
+    /* Interactive Buttons */
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .action-btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+    }
+    
+    /* Chart Containers */
+    .chart-container {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Responsive Grid */
+    .evaluation-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-top: 32px;
+    }
+    
+    /* Loading Animation */
+    .skeleton-loader {
+        background: linear-gradient(90deg, 
+            rgba(255, 255, 255, 0.05) 25%, 
+            rgba(255, 255, 255, 0.1) 50%, 
+            rgba(255, 255, 255, 0.05) 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    
+    /* Tooltips */
+    .tooltip {
+        position: relative;
+    }
+    
+    .tooltip-content {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        margin-bottom: 8px;
+    }
+    
+    .tooltip:hover .tooltip-content {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <div class="hero-section" data-aos="fade-down">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div class="flex-1">
+                    <h1 class="hero-title">평가 대시보드</h1>
+                    <p class="text-xl text-gray-300 mb-4">
+                        {{ active_period.year }}년 {{ active_period.get_period_type_display }} 평가
+                    </p>
+                    
+                    <!-- Employee Info -->
+                    {% if employee %}
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="relative">
+                            <img src="https://ui-avatars.com/api/?name={{ employee.name }}&background=00d4ff&color=ffffff&size=64" 
+                                 alt="{{ employee.name }}" 
+                                 class="w-16 h-16 rounded-full border-2 border-cyan-400">
+                            <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-900"></span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">{{ employee.name }}</h3>
+                            <p class="text-gray-400">{{ employee.department }} · {{ employee.position }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Quick Stats -->
+                    <div class="flex flex-wrap gap-3">
+                        <div class="status-badge status-in-progress">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>D-<span id="d-day">30</span></span>
+                        </div>
+                        <div class="status-badge status-completed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>{{ total_progress }}% 완료</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Circle -->
+                <div class="progress-container" data-aos="zoom-in" data-aos-delay="200">
+                    <svg class="progress-ring-enhanced" viewBox="0 0 250 250">
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#0099ff;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="progress-bg" cx="125" cy="125" r="110"></circle>
+                        <circle class="progress-bar" cx="125" cy="125" r="110" 
+                                style="--progress: {{ total_progress }}"></circle>
+                    </svg>
+                    <div class="progress-text">
+                        <div class="progress-value">{{ total_progress }}%</div>
+                        <div class="text-sm text-gray-400">진행률</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Evaluation Steps Grid -->
+        <div class="evaluation-grid">
+            <!-- 기여도 평가 -->
+            <div class="eval-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="p-3 bg-cyan-500/20 rounded-xl">
+                        <i class="fas fa-tasks text-2xl text-cyan-400"></i>
+                    </div>
+                    {% if contribution_eval %}
+                        <span class="status-badge status-completed">
+                            <i class="fas fa-check"></i> 완료
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-clock"></i> 대기
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <h3 class="text-xl font-bold text-white mb-2">기여도 평가</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    업무 목표 달성 및 성과 측정
+                </p>
+                
+                {% if contribution_eval %}
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-gray-500">평가 점수</span>
+                        <span class="text-2xl font-bold text-cyan-400">
+                            {{ contribution_eval.total_score|floatformat:1 }}
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-cyan-500 to-cyan-400 h-2 rounded-full" 
+                             style="width: {{ contribution_eval.total_score|floatformat:0 }}%"></div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'evaluations:contribution_evaluation' employee.id %}" 
+                       class="action-btn w-full justify-center">
+                        <i class="fas fa-play"></i>
+                        평가 시작하기
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- 전문성 평가 -->
+            <div class="eval-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="p-3 bg-purple-500/20 rounded-xl">
+                        <i class="fas fa-brain text-2xl text-purple-400"></i>
+                    </div>
+                    {% if expertise_eval %}
+                        <span class="status-badge status-completed">
+                            <i class="fas fa-check"></i> 완료
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-clock"></i> 대기
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <h3 class="text-xl font-bold text-white mb-2">전문성 평가</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    역량 및 전문 지식 평가
+                </p>
+                
+                {% if expertise_eval %}
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-gray-500">평가 점수</span>
+                        <span class="text-2xl font-bold text-purple-400">
+                            {{ expertise_eval.total_score|floatformat:1 }}
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-400 h-2 rounded-full" 
+                             style="width: {{ expertise_eval.total_score|floatformat:0 }}%"></div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'evaluations:expertise_evaluation' employee.id %}" 
+                       class="action-btn w-full justify-center">
+                        <i class="fas fa-play"></i>
+                        평가 시작하기
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- 영향력 평가 -->
+            <div class="eval-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="p-3 bg-orange-500/20 rounded-xl">
+                        <i class="fas fa-users text-2xl text-orange-400"></i>
+                    </div>
+                    {% if impact_eval %}
+                        <span class="status-badge status-completed">
+                            <i class="fas fa-check"></i> 완료
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-clock"></i> 대기
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <h3 class="text-xl font-bold text-white mb-2">영향력 평가</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    조직 기여 및 리더십 평가
+                </p>
+                
+                {% if impact_eval %}
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-gray-500">평가 점수</span>
+                        <span class="text-2xl font-bold text-orange-400">
+                            {{ impact_eval.total_score|floatformat:1 }}
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-orange-500 to-orange-400 h-2 rounded-full" 
+                             style="width: {{ impact_eval.total_score|floatformat:0 }}%"></div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'evaluations:impact_evaluation' employee.id %}" 
+                       class="action-btn w-full justify-center">
+                        <i class="fas fa-play"></i>
+                        평가 시작하기
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- 종합 평가 -->
+            <div class="eval-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="p-3 bg-green-500/20 rounded-xl">
+                        <i class="fas fa-trophy text-2xl text-green-400"></i>
+                    </div>
+                    {% if comprehensive_eval %}
+                        <span class="status-badge status-completed">
+                            <i class="fas fa-check"></i> 완료
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-lock"></i> 잠금
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <h3 class="text-xl font-bold text-white mb-2">종합 평가</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    최종 평가 등급 산정
+                </p>
+                
+                {% if comprehensive_eval %}
+                    <div class="text-center py-4">
+                        <div class="text-4xl font-bold text-green-400">
+                            {{ comprehensive_eval.final_grade|default:"미정" }}
+                        </div>
+                        <div class="text-sm text-gray-500 mt-2">최종 등급</div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-gray-500">
+                        <i class="fas fa-lock text-3xl mb-2"></i>
+                        <p class="text-sm">3개 평가 완료 시 활성화</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Performance Charts Section -->
+        <div class="mt-12">
+            <h2 class="text-2xl font-bold text-white mb-6" data-aos="fade-right">
+                평가 분석 차트
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Radar Chart -->
+                <div class="glass-card" data-aos="fade-up" data-aos-delay="100">
+                    <h3 class="text-lg font-semibold text-white mb-4">역량 분석</h3>
+                    <div id="radarChart" style="height: 350px;"></div>
+                </div>
+                
+                <!-- Bar Chart -->
+                <div class="glass-card" data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="text-lg font-semibold text-white mb-4">평가 점수 비교</h3>
+                    <div id="barChart" style="height: 350px;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="mt-12 glass-card" data-aos="fade-up">
+            <h3 class="text-xl font-bold text-white mb-6">빠른 작업</h3>
+            
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="{% url 'evaluations:my_goals' %}" class="text-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <i class="fas fa-bullseye text-3xl text-cyan-400 mb-2"></i>
+                    <p class="text-sm text-gray-300">목표 관리</p>
+                </a>
+                
+                <a href="{% url 'evaluations:my_results' %}" class="text-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <i class="fas fa-chart-line text-3xl text-purple-400 mb-2"></i>
+                    <p class="text-sm text-gray-300">평가 이력</p>
+                </a>
+                
+                <a href="{% url 'evaluations:growth_level_dashboard' employee.id %}" class="text-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <i class="fas fa-graduation-cap text-3xl text-orange-400 mb-2"></i>
+                    <p class="text-sm text-gray-300">성장 레벨</p>
+                </a>
+                
+                <a href="{% url 'evaluations:analytics_dashboard' %}" class="text-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <i class="fas fa-analytics text-3xl text-green-400 mb-2"></i>
+                    <p class="text-sm text-gray-300">분석 리포트</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 50
+    });
+    
+    // Calculate D-Day
+    const endDate = new Date('{{ active_period.end_date|date:"Y-m-d" }}');
+    const today = new Date();
+    const diffTime = Math.abs(endDate - today);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    document.getElementById('d-day').textContent = diffDays;
+    
+    // Radar Chart Configuration
+    const radarOptions = {
+        series: [{
+            name: '현재 점수',
+            data: [
+                {{ contribution_eval.total_score|default:0 }},
+                {{ expertise_eval.total_score|default:0 }},
+                {{ impact_eval.total_score|default:0 }}
+            ]
+        }],
+        chart: {
+            height: 350,
+            type: 'radar',
+            toolbar: { show: false }
+        },
+        colors: ['#00d4ff'],
+        xaxis: {
+            categories: ['기여도', '전문성', '영향력']
+        },
+        yaxis: {
+            show: false,
+            max: 5
+        },
+        plotOptions: {
+            radar: {
+                polygons: {
+                    strokeColors: 'rgba(255, 255, 255, 0.1)',
+                    strokeWidth: 1,
+                    connectorColors: 'rgba(255, 255, 255, 0.1)',
+                    fill: {
+                        colors: ['transparent']
+                    }
+                }
+            }
+        },
+        markers: {
+            size: 4,
+            colors: ['#00d4ff'],
+            strokeColors: '#fff',
+            strokeWidth: 2
+        },
+        fill: {
+            opacity: 0.2
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['#00d4ff'],
+            dashArray: 0
+        },
+        theme: {
+            mode: 'dark'
+        }
+    };
+    
+    // Bar Chart Configuration
+    const barOptions = {
+        series: [{
+            name: '평가 점수',
+            data: [
+                {{ contribution_eval.total_score|default:0 }},
+                {{ expertise_eval.total_score|default:0 }},
+                {{ impact_eval.total_score|default:0 }}
+            ]
+        }],
+        chart: {
+            height: 350,
+            type: 'bar',
+            toolbar: { show: false }
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 10,
+                columnWidth: '50%',
+                distributed: true
+            }
+        },
+        colors: ['#00d4ff', '#9333ea', '#fb923c'],
+        dataLabels: {
+            enabled: true,
+            style: {
+                colors: ['#fff']
+            }
+        },
+        xaxis: {
+            categories: ['기여도', '전문성', '영향력'],
+            labels: {
+                style: {
+                    colors: ['#fff', '#fff', '#fff']
+                }
+            }
+        },
+        yaxis: {
+            max: 5,
+            labels: {
+                style: {
+                    colors: '#fff'
+                }
+            }
+        },
+        grid: {
+            borderColor: 'rgba(255, 255, 255, 0.1)'
+        },
+        theme: {
+            mode: 'dark'
+        }
+    };
+    
+    // Render Charts
+    if (document.querySelector("#radarChart")) {
+        const radarChart = new ApexCharts(document.querySelector("#radarChart"), radarOptions);
+        radarChart.render();
+    }
+    
+    if (document.querySelector("#barChart")) {
+        const barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);
+        barChart.render();
+    }
+    
+    // Add interactive hover effects
+    document.querySelectorAll('.eval-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Progress animation on scroll
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px'
+    };
+    
+    const progressObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const progressBar = entry.target.querySelector('.progress-bar');
+                if (progressBar) {
+                    progressBar.style.strokeDashoffset = 'calc(691 - (691 * {{ total_progress }} / 100))';
+                }
+            }
+        });
+    }, observerOptions);
+    
+    const progressContainer = document.querySelector('.progress-container');
+    if (progressContainer) {
+        progressObserver.observe(progressContainer);
+    }
+</script>
+{% endblock %}
