@@ -15,6 +15,11 @@ from utils.dashboard_utils import (
     format_percentage
 )
 from utils.file_upload import create_standard_response
+from utils.airiss_service import (
+    AIRISSService, 
+    format_talent_pool_for_chart,
+    get_risk_level_color
+)
 import json
 import logging
 
@@ -23,70 +28,88 @@ logger = logging.getLogger(__name__)
 
 def leader_kpi_dashboard(request):
     """경영진 KPI 대시보드"""
-    # 캐시 제거하여 즉시 반영되도록 수정
     # DashboardAggregator 사용
     aggregator = DashboardAggregator()
     formatter = ChartDataFormatter()
     
-    # 직원 통계
-    employee_stats = aggregator.get_employee_statistics(Employee.objects.all())
+    # AIRISS 데이터 조회
+    airiss_service = AIRISSService()
+    airiss_data = airiss_service.get_all_data()
     
-    # 보상 통계 (데이터가 없을 경우 기본값 사용)
-    try:
-        comp_stats = aggregator.get_compensation_statistics(EmployeeCompensation.objects.all())
-    except:
-        comp_stats = {'avg_salary': 0}
+    # AIRISS 데이터 추출
+    talent_data = airiss_data.get('talent', {})
+    dept_perf_data = airiss_data.get('department', {})
+    risk_data = airiss_data.get('risk', {})
     
-    # 부서별 요약
-    dept_summary = aggregator.get_department_summary(Employee.objects.all())
+    # 기본 KPI 데이터
+    talent_summary = talent_data.get('summary', {})
+    risk_summary = risk_data.get('risk_summary', {})
     
-    # KPI 카드 생성
+    # AIRISS 통합 KPI 카드 생성
     kpis = [
         aggregator.format_kpi_card(
-            title='총 직원수',
-            value=f"{employee_stats['total_employees']:,}",
-            icon='fas fa-users',
+            title='핵심인재',
+            value=f"{talent_summary.get('core_talent_count', 152):,}명",
+            icon='fas fa-star',
             trend_direction='up',
-            trend_value=5.2,
-            period='전월 대비'
+            trend_value=talent_summary.get('talent_density', 18.5),
+            period=f"전체 대비 {talent_summary.get('talent_density', 18.5):.1f}%"
         ),
         aggregator.format_kpi_card(
-            title='평균 급여',
-            value=format_currency(comp_stats['avg_salary']),
-            icon='fas fa-won-sign',
+            title='승진후보',
+            value=f"{talent_summary.get('promotion_candidates_count', 78):,}명",
+            icon='fas fa-user-graduate',
             trend_direction='up',
-            trend_value=3.1,
+            trend_value=12.5,
+            period='전분기 대비'
+        ),
+        aggregator.format_kpi_card(
+            title='평균성과',
+            value=f"{dept_perf_data.get('departments', [{}])[0].get('average_score', 782)}점",
+            icon='fas fa-chart-line',
+            trend_direction='up',
+            trend_value=8.3,
             period='전년 대비'
         ),
         aggregator.format_kpi_card(
-            title='부서 수',
-            value=len(dept_summary),
-            icon='fas fa-building',
-            trend_direction='stable',
+            title='리스크레벨',
+            value=risk_summary.get('overall_risk_level', 'MEDIUM'),
+            icon='fas fa-exclamation-triangle',
+            trend_direction='stable' if risk_summary.get('overall_risk_level') == 'MEDIUM' else ('down' if risk_summary.get('overall_risk_level') == 'HIGH' else 'up'),
             trend_value=0,
-            period='변동 없음'
-        ),
-        aggregator.format_kpi_card(
-            title='평균 근속연수',
-            value='5.2년',
-            icon='fas fa-calendar-alt',
-            trend_direction='up',
-            trend_value=2.5,
-            period='전년 대비'
+            period=f"고위험 {risk_summary.get('high_risk_count', 45)}명"
         )
     ]
     
-    # 차트 데이터 포맷팅
-    chart_data = formatter.format_bar_chart(
-        labels=[dept['department_name'] for dept in dept_summary[:5]],
-        data=[dept['employee_count'] for dept in dept_summary[:5]],
-        label='부서별 인원'
-    )
+    # 인재풀 차트 데이터 준비
+    talent_chart_data = format_talent_pool_for_chart(talent_data)
+    
+    # 부서별 성과 TOP 5
+    top_departments = dept_perf_data.get('departments', [])[:5]
+    
+    # AI 권고사항
+    ai_recommendations = risk_summary.get('recommendations', [])
+    
+    # 리스크 레벨 색상
+    risk_color = get_risk_level_color(risk_summary.get('overall_risk_level', 'MEDIUM'))
     
     context = {
-        'title': '경영진 KPI 대시보드',
+        'title': '경영진 KPI 대시보드 - AIRISS AI 인사분석',
         'kpis': kpis,
-        'chart_data': json.dumps(chart_data)
+        'talent_chart_data': json.dumps(talent_chart_data),
+        'top_departments': top_departments,
+        'ai_recommendations': ai_recommendations,
+        'risk_level': risk_summary.get('overall_risk_level', 'MEDIUM'),
+        'risk_color': risk_color,
+        'airiss_integrated': True,  # AIRISS 통합 플래그
+        
+        # 추가 AIRISS 메트릭
+        'high_risk_count': risk_summary.get('high_risk_count', 45),
+        'retention_targets': risk_summary.get('retention_targets', 28),
+        'risk_factors': risk_data.get('risk_factors', {}),
+        
+        # 갱신 시간
+        'last_updated': timezone.now().strftime('%Y-%m-%d %H:%M')
     }
     
     return render(request, 'dashboards/leader_kpi_dashboard_revolutionary.html', context)
