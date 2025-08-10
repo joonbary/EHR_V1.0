@@ -355,8 +355,9 @@ body {
 
 .page-subtitle {
     font-size: var(--font-size-lg);
-    color: var(--text-secondary);
-    font-weight: 300;
+    color: rgba(0, 212, 255, 0.8);
+    font-weight: 400;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
 }
 
 /* ===============================================
