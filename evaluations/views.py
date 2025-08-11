@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse, HttpResponse
-# from django.contrib.auth.decorators import login_required  # 로그인 기능은 나중에 구현
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.db import transaction, models
@@ -15,7 +14,6 @@ from .models import (
     CalibrationSession, CONTRIBUTION_SCORING_CHART, EXPERTISE_SCORING_CHART, 
     IMPACT_SCORING_CHART, GRADE_CHOICES
 )
-from django.utils import timezone
 
 
 def contribution_list(request):
@@ -1133,69 +1131,6 @@ def evaluation_statistics(request):
     return render(request, 'evaluations/evaluation_statistics.html', context)
 
 
-# 평가 목록 뷰들
-def contribution_list(request):
-    """기여도 평가 대상자 목록"""
-    employees = Employee.objects.filter(employment_status='재직').order_by('employee_id')
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    # 평가 완료 여부 확인
-    if active_period:
-        for emp in employees:
-            emp.is_evaluated = ContributionEvaluation.objects.filter(
-                employee=emp, 
-                evaluation_period=active_period
-            ).exists()
-    
-    context = {
-        'title': '기여도 평가',
-        'employees': employees,
-        'evaluation_url': '/evaluations/contribution/',
-    }
-    return render(request, 'evaluations/evaluation_list.html', context)
-
-
-def expertise_list(request):
-    """전문성 평가 대상자 목록"""
-    employees = Employee.objects.filter(employment_status='재직').order_by('employee_id')
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    # 평가 완료 여부 확인
-    if active_period:
-        for emp in employees:
-            emp.is_evaluated = ExpertiseEvaluation.objects.filter(
-                employee=emp,
-                evaluation_period=active_period
-            ).exists()
-    
-    context = {
-        'title': '전문성 평가',
-        'employees': employees,
-        'evaluation_url': '/evaluations/expertise/',
-    }
-    return render(request, 'evaluations/evaluation_list.html', context)
-
-
-def impact_list(request):
-    """영향력 평가 대상자 목록"""
-    employees = Employee.objects.filter(employment_status='재직').order_by('employee_id')
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    # 평가 완료 여부 확인
-    if active_period:
-        for emp in employees:
-            emp.is_evaluated = ImpactEvaluation.objects.filter(
-                employee=emp,
-                evaluation_period=active_period
-            ).exists()
-    
-    context = {
-        'title': '영향력 평가',
-        'employees': employees,
-        'evaluation_url': '/evaluations/impact/',
-    }
-    return render(request, 'evaluations/evaluation_list.html', context)
-
 
 # Task Check-in 관련 뷰
 @csrf_exempt
@@ -1853,14 +1788,9 @@ def contribution_employees(request):
     return render(request, 'evaluations/contribution_employees.html', context)
 
 
-def contribution_list(request):
-    """기여도 평가 대상자 목록 (기존 - 리다이렉트)"""
-    # 새로운 가이드 페이지로 리다이렉트
-    return redirect('evaluations:contribution_guide')
-
-
+# TODO: 추후 제거 예정 - 구버전 코드 (참조용)
 def contribution_list_old(request):
-    """기여도 평가 대상자 목록 (구버전)"""
+    """기여도 평가 대상자 목록 (구버전) - DEPRECATED"""
     from django.db.models import Prefetch, Count, Q
     
     active_period = EvaluationPeriod.objects.filter(is_active=True).first()
@@ -1923,106 +1853,3 @@ def contribution_list_old(request):
     }
     
     return render(request, 'evaluations/contribution_list.html', context)
-
-
-def expertise_list(request):
-    """전문성 평가 대상자 목록"""
-    from django.db.models import Prefetch
-    
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    if not active_period:
-        messages.error(request, "활성화된 평가 기간이 없습니다.")
-        return render(request, 'evaluations/expertise_list.html', {'employees': []})
-    
-    # 최적화된 쿼리
-    # 임시: 모든 직원 표시 (데이터 부족 문제)
-    employees = Employee.objects.all().select_related(
-        'user', 'manager'
-    ).prefetch_related(
-        Prefetch(
-            'expertise_evaluations',
-            queryset=ExpertiseEvaluation.objects.filter(evaluation_period=active_period),
-            to_attr='period_expertise'
-        )
-    ).order_by('department', 'name')
-    
-    employee_data = []
-    
-    for employee in employees:
-        # Prefetch된 데이터 사용
-        expertise_eval = employee.period_expertise[0] if employee.period_expertise else None
-        
-        # 상태 결정
-        if expertise_eval and expertise_eval.is_achieved:
-            status = 'completed'
-        elif expertise_eval:
-            status = 'in-progress'
-        else:
-            status = 'not-started'
-        
-        employee_data.append({
-            'employee': employee,
-            'expertise_eval': expertise_eval,
-            'total_score': expertise_eval.total_score if expertise_eval else None,
-            'status': status
-        })
-    
-    context = {
-        'active_period': active_period,
-        'employees': employee_data,
-    }
-    
-    return render(request, 'evaluations/expertise_list.html', context)
-
-
-def impact_list(request):
-    """영향력 평가 대상자 목록"""
-    from django.db.models import Prefetch
-    
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    if not active_period:
-        messages.error(request, "활성화된 평가 기간이 없습니다.")
-        return render(request, 'evaluations/impact_list.html', {'employees': []})
-    
-    # 최적화된 쿼리
-    # 임시: 모든 직원 표시 (데이터 부족 문제)
-    employees = Employee.objects.all().select_related(
-        'user', 'manager'
-    ).prefetch_related(
-        Prefetch(
-            'impact_evaluations',
-            queryset=ImpactEvaluation.objects.filter(evaluation_period=active_period),
-            to_attr='period_impact'
-        )
-    ).order_by('department', 'name')
-    
-    employee_data = []
-    
-    for employee in employees:
-        # Prefetch된 데이터 사용
-        impact_eval = employee.period_impact[0] if employee.period_impact else None
-        
-        # 상태 결정
-        if impact_eval and impact_eval.is_achieved:
-            status = 'completed'
-        elif impact_eval:
-            status = 'in-progress'
-        else:
-            status = 'not-started'
-        
-        employee_data.append({
-            'employee': employee,
-            'impact_eval': impact_eval,
-            'total_score': impact_eval.total_score if impact_eval else None,
-            'status': status
-        })
-    
-    context = {
-        'active_period': active_period,
-        'employees': employee_data,
-    }
-    
-    return render(request, 'evaluations/impact_list.html', context)
-
