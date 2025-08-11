@@ -636,124 +636,179 @@
             </div>
         </div>
         
-        <!-- Enhanced Quick Actions -->
-        <div class="mt-12" data-aos="fade-up">
-            <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-2">빠른 작업</h2>
-                    <p class="text-gray-400">자주 사용하는 기능에 빠르게 접근하세요</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-xs font-semibold">
-                        Quick Access
+        <!-- Premium Quick Actions Section -->
+        <div class="mt-16" data-aos="fade-up">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-white mb-4">
+                    <span class="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                        빠른 실행
                     </span>
-                </div>
+                </h2>
+                <p class="text-xl text-gray-300">자주 사용하는 기능을 한 번에</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- 목표 관리 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 목표 관리 - Large Card -->
                 <a href="{% url 'evaluations:my_goals' %}" 
-                   class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 border border-cyan-500/20 p-6 transition-all duration-300 hover:scale-105 hover:border-cyan-400/40 hover:shadow-xl hover:shadow-cyan-500/20">
-                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="mb-4 w-14 h-14 bg-cyan-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-bullseye text-2xl text-cyan-400"></i>
+                   class="group relative h-64 overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/25">
+                    <!-- Animated Background -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-600 to-blue-700 opacity-90"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <!-- Floating Elements -->
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-cyan-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <!-- Content -->
+                    <div class="relative h-full p-10 flex flex-col justify-between">
+                        <div>
+                            <div class="inline-flex p-4 bg-white/20 backdrop-blur rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-bullseye text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-3xl font-bold text-white mb-3">목표 관리</h3>
+                            <p class="text-lg text-white/90">
+                                개인 목표를 설정하고<br/>달성 현황을 추적하세요
+                            </p>
                         </div>
-                        <h4 class="text-lg font-semibold text-white mb-2">목표 관리</h4>
-                        <p class="text-sm text-gray-400 leading-relaxed">
-                            개인 목표 설정 및 달성률 관리
-                        </p>
-                        <div class="mt-4 flex items-center text-cyan-400 text-sm font-medium">
-                            <span>바로가기</span>
-                            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                        <div class="flex items-center justify-between">
+                            <span class="text-white/80 font-medium text-lg">바로가기</span>
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <i class="fas fa-arrow-right text-white text-lg group-hover:translate-x-1 transition-transform"></i>
+                            </div>
                         </div>
                     </div>
-                    <div class="absolute top-2 right-2">
-                        <span class="w-2 h-2 bg-green-400 rounded-full block animate-pulse"></span>
+                    
+                    <!-- Status Badge -->
+                    <div class="absolute top-6 right-6">
+                        <span class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur rounded-full">
+                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            <span class="text-white font-medium">활성</span>
+                        </span>
                     </div>
                 </a>
                 
-                <!-- 평가 이력 -->
+                <!-- 평가 이력 - Large Card -->
                 <a href="{% url 'evaluations:my_results' %}" 
-                   class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 p-6 transition-all duration-300 hover:scale-105 hover:border-purple-400/40 hover:shadow-xl hover:shadow-purple-500/20">
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="mb-4 w-14 h-14 bg-purple-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-chart-line text-2xl text-purple-400"></i>
+                   class="group relative h-64 overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/25">
+                    <!-- Animated Background -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-700 opacity-90"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <!-- Floating Elements -->
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-purple-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-pink-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <!-- Content -->
+                    <div class="relative h-full p-10 flex flex-col justify-between">
+                        <div>
+                            <div class="inline-flex p-4 bg-white/20 backdrop-blur rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-chart-line text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-3xl font-bold text-white mb-3">평가 이력</h3>
+                            <p class="text-lg text-white/90">
+                                과거 평가 결과와<br/>성장 트렌드를 확인하세요
+                            </p>
                         </div>
-                        <h4 class="text-lg font-semibold text-white mb-2">평가 이력</h4>
-                        <p class="text-sm text-gray-400 leading-relaxed">
-                            과거 평가 결과 및 성장 추이 확인
-                        </p>
-                        <div class="mt-4 flex items-center text-purple-400 text-sm font-medium">
-                            <span>바로가기</span>
-                            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                        <div class="flex items-center justify-between">
+                            <span class="text-white/80 font-medium text-lg">바로가기</span>
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <i class="fas fa-arrow-right text-white text-lg group-hover:translate-x-1 transition-transform"></i>
+                            </div>
                         </div>
                     </div>
-                    <div class="absolute -top-6 -right-6 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
                 </a>
                 
-                <!-- 성장 레벨 -->
+                <!-- 성장 레벨 - Large Card -->
                 <a href="{% url 'evaluations:growth_level_dashboard' employee.id %}" 
-                   class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/20 p-6 transition-all duration-300 hover:scale-105 hover:border-orange-400/40 hover:shadow-xl hover:shadow-orange-500/20">
-                    <div class="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="mb-4 w-14 h-14 bg-orange-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-graduation-cap text-2xl text-orange-400"></i>
+                   class="group relative h-64 overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-orange-500/25">
+                    <!-- Animated Background -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-orange-600 to-red-700 opacity-90"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-orange-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <!-- Floating Elements -->
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-orange-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-red-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <!-- Content -->
+                    <div class="relative h-full p-10 flex flex-col justify-between">
+                        <div>
+                            <div class="inline-flex p-4 bg-white/20 backdrop-blur rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-graduation-cap text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-3xl font-bold text-white mb-3">성장 레벨</h3>
+                            <p class="text-lg text-white/90">
+                                역량 성장 단계와<br/>인증 현황을 관리하세요
+                            </p>
                         </div>
-                        <h4 class="text-lg font-semibold text-white mb-2">성장 레벨</h4>
-                        <p class="text-sm text-gray-400 leading-relaxed">
-                            역량 성장 단계 및 인증 현황
-                        </p>
-                        <div class="mt-4 flex items-center text-orange-400 text-sm font-medium">
-                            <span>바로가기</span>
-                            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                        <div class="flex items-center justify-between">
+                            <span class="text-white/80 font-medium text-lg">바로가기</span>
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <i class="fas fa-arrow-right text-white text-lg group-hover:translate-x-1 transition-transform"></i>
+                            </div>
                         </div>
                     </div>
-                    <div class="absolute bottom-0 right-0 opacity-10">
-                        <i class="fas fa-trophy text-8xl text-orange-400 transform rotate-12"></i>
+                    
+                    <!-- Trophy Icon -->
+                    <div class="absolute bottom-6 right-6 opacity-20 group-hover:opacity-30 transition-opacity">
+                        <i class="fas fa-trophy text-6xl text-white"></i>
                     </div>
                 </a>
                 
-                <!-- 분석 리포트 -->
+                <!-- 분석 리포트 - Large Card -->
                 <a href="{% url 'evaluations:analytics_dashboard' %}" 
-                   class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 p-6 transition-all duration-300 hover:scale-105 hover:border-green-400/40 hover:shadow-xl hover:shadow-green-500/20">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="mb-4 w-14 h-14 bg-green-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-analytics text-2xl text-green-400"></i>
+                   class="group relative h-64 overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-green-500/25">
+                    <!-- Animated Background -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-600 to-teal-700 opacity-90"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <!-- Floating Elements -->
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-green-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-teal-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <!-- Content -->
+                    <div class="relative h-full p-10 flex flex-col justify-between">
+                        <div>
+                            <div class="inline-flex p-4 bg-white/20 backdrop-blur rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-analytics text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-3xl font-bold text-white mb-3">분석 리포트</h3>
+                            <p class="text-lg text-white/90">
+                                종합 평가 분석과<br/>인사이트를 확인하세요
+                            </p>
                         </div>
-                        <h4 class="text-lg font-semibold text-white mb-2">분석 리포트</h4>
-                        <p class="text-sm text-gray-400 leading-relaxed">
-                            종합 평가 분석 및 인사이트
-                        </p>
-                        <div class="mt-4 flex items-center text-green-400 text-sm font-medium">
-                            <span>바로가기</span>
-                            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                        <div class="flex items-center justify-between">
+                            <span class="text-white/80 font-medium text-lg">바로가기</span>
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                <i class="fas fa-arrow-right text-white text-lg group-hover:translate-x-1 transition-transform"></i>
+                            </div>
                         </div>
                     </div>
-                    <div class="absolute top-2 right-2">
-                        <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
-                            <i class="fas fa-chart-pie mr-1"></i> New
+                    
+                    <!-- New Badge -->
+                    <div class="absolute top-6 right-6">
+                        <span class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur rounded-full">
+                            <i class="fas fa-sparkles text-yellow-300"></i>
+                            <span class="text-white font-medium">NEW</span>
                         </span>
                     </div>
                 </a>
             </div>
             
-            <!-- Additional Quick Links -->
-            <div class="mt-8 p-6 bg-gradient-to-r from-cyan-500/5 to-purple-500/5 rounded-2xl border border-white/10">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-info-circle text-cyan-400"></i>
+            <!-- Help Section - Redesigned -->
+            <div class="mt-12 relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur border border-white/10 p-8">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
+                <div class="relative flex items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-headset text-3xl text-white"></i>
                         </div>
                         <div>
-                            <h4 class="text-white font-medium">도움이 필요하신가요?</h4>
-                            <p class="text-sm text-gray-400">평가 가이드 및 FAQ를 확인해보세요</p>
+                            <h3 class="text-2xl font-bold text-white mb-1">도움이 필요하신가요?</h3>
+                            <p class="text-lg text-gray-300">평가 가이드와 자주 묻는 질문을 확인해보세요</p>
                         </div>
                     </div>
-                    <button class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm font-medium">
-                        <i class="fas fa-book mr-2"></i>가이드 보기
+                    <button class="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-2xl transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+                        <i class="fas fa-book-open mr-3"></i>가이드 보기
                     </button>
                 </div>
             </div>
