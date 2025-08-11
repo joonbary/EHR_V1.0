@@ -1641,31 +1641,43 @@ def analytics_dashboard(request):
 
 def contribution_list(request):
     """기여도 평가 대상자 목록"""
+    from django.db.models import Prefetch, Count, Q
+    
     active_period = EvaluationPeriod.objects.filter(is_active=True).first()
     
     if not active_period:
         messages.error(request, "활성화된 평가 기간이 없습니다.")
         return render(request, 'evaluations/contribution_list.html', {'employees': []})
     
-    # 모든 직원에 대한 기여도 평가 현황 수집
-    employees = Employee.objects.filter(employment_status='재직').order_by('department', 'name')
+    # 최적화된 쿼리: select_related와 prefetch_related 사용
+    employees = Employee.objects.filter(
+        employment_status='재직'
+    ).select_related(
+        'user', 'manager', 'job_role'
+    ).prefetch_related(
+        Prefetch(
+            'contribution_evaluations',
+            queryset=ContributionEvaluation.objects.filter(evaluation_period=active_period),
+            to_attr='period_contributions'
+        ),
+        Prefetch(
+            'tasks',
+            queryset=Task.objects.filter(evaluation_period=active_period).annotate(
+                is_completed=Q(status='COMPLETED')
+            ),
+            to_attr='period_tasks'
+        )
+    ).order_by('department', 'name')
+    
     employee_data = []
     
     for employee in employees:
-        # 기여도 평가 조회
-        contribution_eval = ContributionEvaluation.objects.filter(
-            employee=employee,
-            evaluation_period=active_period
-        ).first()
+        # Prefetch된 데이터 사용
+        contribution_eval = employee.period_contributions[0] if employee.period_contributions else None
         
-        # Task 정보 수집
-        tasks = Task.objects.filter(
-            employee=employee,
-            evaluation_period=active_period
-        )
-        
-        total_tasks = tasks.count()
-        completed_tasks = tasks.filter(status='COMPLETED').count()
+        # Task 정보 (이미 로드됨)
+        total_tasks = len(employee.period_tasks)
+        completed_tasks = sum(1 for task in employee.period_tasks if hasattr(task, 'is_completed') and task.is_completed)
         task_completion_rate = round((completed_tasks / total_tasks * 100) if total_tasks > 0 else 0, 1)
         
         # 상태 결정
@@ -1696,22 +1708,32 @@ def contribution_list(request):
 
 def expertise_list(request):
     """전문성 평가 대상자 목록"""
+    from django.db.models import Prefetch
+    
     active_period = EvaluationPeriod.objects.filter(is_active=True).first()
     
     if not active_period:
         messages.error(request, "활성화된 평가 기간이 없습니다.")
         return render(request, 'evaluations/expertise_list.html', {'employees': []})
     
-    # 모든 직원에 대한 전문성 평가 현황 수집
-    employees = Employee.objects.filter(employment_status='재직').order_by('department', 'name')
+    # 최적화된 쿼리
+    employees = Employee.objects.filter(
+        employment_status='재직'
+    ).select_related(
+        'user', 'manager', 'job_role'
+    ).prefetch_related(
+        Prefetch(
+            'expertise_evaluations',
+            queryset=ExpertiseEvaluation.objects.filter(evaluation_period=active_period),
+            to_attr='period_expertise'
+        )
+    ).order_by('department', 'name')
+    
     employee_data = []
     
     for employee in employees:
-        # 전문성 평가 조회
-        expertise_eval = ExpertiseEvaluation.objects.filter(
-            employee=employee,
-            evaluation_period=active_period
-        ).first()
+        # Prefetch된 데이터 사용
+        expertise_eval = employee.period_expertise[0] if employee.period_expertise else None
         
         # 상태 결정
         if expertise_eval and expertise_eval.is_achieved:
@@ -1738,22 +1760,32 @@ def expertise_list(request):
 
 def impact_list(request):
     """영향력 평가 대상자 목록"""
+    from django.db.models import Prefetch
+    
     active_period = EvaluationPeriod.objects.filter(is_active=True).first()
     
     if not active_period:
         messages.error(request, "활성화된 평가 기간이 없습니다.")
         return render(request, 'evaluations/impact_list.html', {'employees': []})
     
-    # 모든 직원에 대한 영향력 평가 현황 수집
-    employees = Employee.objects.filter(employment_status='재직').order_by('department', 'name')
+    # 최적화된 쿼리
+    employees = Employee.objects.filter(
+        employment_status='재직'
+    ).select_related(
+        'user', 'manager', 'job_role'
+    ).prefetch_related(
+        Prefetch(
+            'impact_evaluations',
+            queryset=ImpactEvaluation.objects.filter(evaluation_period=active_period),
+            to_attr='period_impact'
+        )
+    ).order_by('department', 'name')
+    
     employee_data = []
     
     for employee in employees:
-        # 영향력 평가 조회
-        impact_eval = ImpactEvaluation.objects.filter(
-            employee=employee,
-            evaluation_period=active_period
-        ).first()
+        # Prefetch된 데이터 사용
+        impact_eval = employee.period_impact[0] if employee.period_impact else None
         
         # 상태 결정
         if impact_eval and impact_eval.is_achieved:
