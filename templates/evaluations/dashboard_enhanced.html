@@ -647,150 +647,148 @@
                 <p class="text-xl text-gray-300">자주 사용하는 기능을 한 번에</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- 목표 관리 - Large Card -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 목표 관리 - Minimalist Card -->
                 <a href="{% url 'evaluations:my_goals' %}" 
-                   class="group relative h-64 overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/25">
-                    <!-- Animated Background -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-600 to-blue-700 opacity-90"></div>
-                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                   class="group relative min-h-[320px] overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
                     
-                    <!-- Floating Elements -->
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-cyan-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <!-- Subtle Accent -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
                     
                     <!-- Content -->
-                    <div class="relative h-full p-10 flex flex-col justify-between">
-                        <div>
-                            <div class="inline-flex p-4 bg-white/20 backdrop-blur rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-                                <i class="fas fa-bullseye text-4xl text-white"></i>
+                    <div class="relative h-full p-8 flex flex-col">
+                        <!-- Icon -->
+                        <div class="mb-6">
+                            <div class="inline-flex p-4 bg-cyan-500/10 rounded-xl group-hover:bg-cyan-500/20 transition-colors">
+                                <i class="fas fa-bullseye text-3xl text-cyan-400"></i>
                             </div>
-                            <h3 class="text-3xl font-bold text-white mb-3">목표 관리</h3>
-                            <p class="text-lg text-white/90">
-                                개인 목표를 설정하고<br/>달성 현황을 추적하세요
+                        </div>
+                        
+                        <!-- Text Content -->
+                        <div class="flex-grow">
+                            <h3 class="text-2xl font-bold text-white mb-3">목표 관리</h3>
+                            <p class="text-base text-gray-400 leading-relaxed">
+                                개인 목표를 설정하고 달성 현황을 실시간으로 추적하세요
                             </p>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-white/80 font-medium text-lg">바로가기</span>
-                            <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <i class="fas fa-arrow-right text-white text-lg group-hover:translate-x-1 transition-transform"></i>
-                            </div>
+                        
+                        <!-- Footer -->
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-cyan-400 font-medium">바로가기</span>
+                            <i class="fas fa-arrow-right text-cyan-400 group-hover:translate-x-2 transition-transform"></i>
                         </div>
                     </div>
                     
-                    <!-- Status Badge -->
-                    <div class="absolute top-6 right-6">
-                        <span class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur rounded-full">
-                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                            <span class="text-white font-medium">활성</span>
-                        </span>
-                    </div>
+                    <!-- Hover Effect -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </a>
                 
-                <!-- 평가 이력 - Large Card -->
+                <!-- 평가 이력 - Minimalist Card -->
                 <a href="{% url 'evaluations:my_results' %}" 
-                   class="group relative h-64 overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/25">
-                    <!-- Animated Background -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-700 opacity-90"></div>
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                   class="group relative min-h-[320px] overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
                     
-                    <!-- Floating Elements -->
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-purple-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-pink-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <!-- Subtle Accent -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-purple-500"></div>
                     
                     <!-- Content -->
-                    <div class="relative h-full p-10 flex flex-col justify-between">
-                        <div>
-                            <div class="inline-flex p-4 bg-white/20 backdrop-blur rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-                                <i class="fas fa-chart-line text-4xl text-white"></i>
+                    <div class="relative h-full p-8 flex flex-col">
+                        <!-- Icon -->
+                        <div class="mb-6">
+                            <div class="inline-flex p-4 bg-violet-500/10 rounded-xl group-hover:bg-violet-500/20 transition-colors">
+                                <i class="fas fa-chart-line text-3xl text-violet-400"></i>
                             </div>
-                            <h3 class="text-3xl font-bold text-white mb-3">평가 이력</h3>
-                            <p class="text-lg text-white/90">
-                                과거 평가 결과와<br/>성장 트렌드를 확인하세요
+                        </div>
+                        
+                        <!-- Text Content -->
+                        <div class="flex-grow">
+                            <h3 class="text-2xl font-bold text-white mb-3">평가 이력</h3>
+                            <p class="text-base text-gray-400 leading-relaxed">
+                                과거 평가 결과와 성장 트렌드를 한눈에 확인하세요
                             </p>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-white/80 font-medium text-lg">바로가기</span>
-                            <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <i class="fas fa-arrow-right text-white text-lg group-hover:translate-x-1 transition-transform"></i>
-                            </div>
+                        
+                        <!-- Footer -->
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-violet-400 font-medium">바로가기</span>
+                            <i class="fas fa-arrow-right text-violet-400 group-hover:translate-x-2 transition-transform"></i>
                         </div>
                     </div>
+                    
+                    <!-- Hover Effect -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </a>
                 
-                <!-- 성장 레벨 - Large Card -->
+                <!-- 성장 레벨 - Minimalist Card -->
                 <a href="{% url 'evaluations:growth_level_dashboard' employee.id %}" 
-                   class="group relative h-64 overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-orange-500/25">
-                    <!-- Animated Background -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-orange-600 to-red-700 opacity-90"></div>
-                    <div class="absolute inset-0 bg-gradient-to-br from-orange-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                   class="group relative min-h-[320px] overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
                     
-                    <!-- Floating Elements -->
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-orange-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-red-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <!-- Subtle Accent -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
                     
                     <!-- Content -->
-                    <div class="relative h-full p-10 flex flex-col justify-between">
-                        <div>
-                            <div class="inline-flex p-4 bg-white/20 backdrop-blur rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-                                <i class="fas fa-graduation-cap text-4xl text-white"></i>
+                    <div class="relative h-full p-8 flex flex-col">
+                        <!-- Icon -->
+                        <div class="mb-6">
+                            <div class="inline-flex p-4 bg-amber-500/10 rounded-xl group-hover:bg-amber-500/20 transition-colors">
+                                <i class="fas fa-graduation-cap text-3xl text-amber-400"></i>
                             </div>
-                            <h3 class="text-3xl font-bold text-white mb-3">성장 레벨</h3>
-                            <p class="text-lg text-white/90">
-                                역량 성장 단계와<br/>인증 현황을 관리하세요
+                        </div>
+                        
+                        <!-- Text Content -->
+                        <div class="flex-grow">
+                            <h3 class="text-2xl font-bold text-white mb-3">성장 레벨</h3>
+                            <p class="text-base text-gray-400 leading-relaxed">
+                                역량 성장 단계와 인증 현황을 체계적으로 관리하세요
                             </p>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-white/80 font-medium text-lg">바로가기</span>
-                            <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <i class="fas fa-arrow-right text-white text-lg group-hover:translate-x-1 transition-transform"></i>
-                            </div>
+                        
+                        <!-- Footer -->
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-amber-400 font-medium">바로가기</span>
+                            <i class="fas fa-arrow-right text-amber-400 group-hover:translate-x-2 transition-transform"></i>
                         </div>
                     </div>
                     
-                    <!-- Trophy Icon -->
-                    <div class="absolute bottom-6 right-6 opacity-20 group-hover:opacity-30 transition-opacity">
-                        <i class="fas fa-trophy text-6xl text-white"></i>
-                    </div>
+                    <!-- Hover Effect -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </a>
                 
-                <!-- 분석 리포트 - Large Card -->
+                <!-- 분석 리포트 - Minimalist Card -->
                 <a href="{% url 'evaluations:analytics_dashboard' %}" 
-                   class="group relative h-64 overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-green-500/25">
-                    <!-- Animated Background -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-600 to-teal-700 opacity-90"></div>
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                   class="group relative min-h-[320px] overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
                     
-                    <!-- Floating Elements -->
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-green-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-teal-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <!-- Subtle Accent -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-500"></div>
                     
                     <!-- Content -->
-                    <div class="relative h-full p-10 flex flex-col justify-between">
-                        <div>
-                            <div class="inline-flex p-4 bg-white/20 backdrop-blur rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-                                <i class="fas fa-analytics text-4xl text-white"></i>
+                    <div class="relative h-full p-8 flex flex-col">
+                        <!-- Icon -->
+                        <div class="mb-6">
+                            <div class="inline-flex p-4 bg-emerald-500/10 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
+                                <i class="fas fa-analytics text-3xl text-emerald-400"></i>
                             </div>
-                            <h3 class="text-3xl font-bold text-white mb-3">분석 리포트</h3>
-                            <p class="text-lg text-white/90">
-                                종합 평가 분석과<br/>인사이트를 확인하세요
+                        </div>
+                        
+                        <!-- Text Content -->
+                        <div class="flex-grow">
+                            <h3 class="text-2xl font-bold text-white mb-3">분석 리포트</h3>
+                            <p class="text-base text-gray-400 leading-relaxed">
+                                종합 평가 분석과 인사이트를 데이터 기반으로 확인하세요
                             </p>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-white/80 font-medium text-lg">바로가기</span>
-                            <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <i class="fas fa-arrow-right text-white text-lg group-hover:translate-x-1 transition-transform"></i>
+                        
+                        <!-- Footer -->
+                        <div class="mt-6 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-emerald-400 font-medium">바로가기</span>
+                                <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full font-semibold">NEW</span>
                             </div>
+                            <i class="fas fa-arrow-right text-emerald-400 group-hover:translate-x-2 transition-transform"></i>
                         </div>
                     </div>
                     
-                    <!-- New Badge -->
-                    <div class="absolute top-6 right-6">
-                        <span class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur rounded-full">
-                            <i class="fas fa-sparkles text-yellow-300"></i>
-                            <span class="text-white font-medium">NEW</span>
-                        </span>
-                    </div>
+                    <!-- Hover Effect -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </a>
             </div>
             
