@@ -32,7 +32,7 @@ def contribution_list(request):
     employees = Employee.objects.filter(
         employment_status='재직'
     ).select_related(
-        'user', 'manager', 'job_role'
+        'user', 'manager'
     ).prefetch_related(
         Prefetch(
             'contribution_evaluations',
@@ -1653,7 +1653,7 @@ def contribution_list(request):
     employees = Employee.objects.filter(
         employment_status='재직'
     ).select_related(
-        'user', 'manager', 'job_role'
+        'user', 'manager'
     ).prefetch_related(
         Prefetch(
             'contribution_evaluations',
@@ -1720,7 +1720,7 @@ def expertise_list(request):
     employees = Employee.objects.filter(
         employment_status='재직'
     ).select_related(
-        'user', 'manager', 'job_role'
+        'user', 'manager'
     ).prefetch_related(
         Prefetch(
             'expertise_evaluations',
@@ -1772,7 +1772,7 @@ def impact_list(request):
     employees = Employee.objects.filter(
         employment_status='재직'
     ).select_related(
-        'user', 'manager', 'job_role'
+        'user', 'manager'
     ).prefetch_related(
         Prefetch(
             'impact_evaluations',
