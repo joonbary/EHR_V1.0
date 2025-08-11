@@ -84,88 +84,188 @@ def contribution_list(request):
     return render(request, 'evaluations/contribution_list_revolutionary.html', context)
 
 
-def expertise_list(request):
-    """전문성 평가 대상자 목록"""
+def expertise_guide(request):
+    """전문성 평가 가이드 페이지"""
     active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    if not active_period:
-        messages.warning(request, "활성화된 평가 기간이 없습니다.")
-        return redirect('evaluations:dashboard')
-    
-    # 평가 대상 직원들
-    employees = Employee.objects.filter(employment_status='재직').order_by('department', 'name')
-    
-    employee_data = []
-    for employee in employees:
-        # 전문성 평가 상태 확인
-        expertise_eval = ExpertiseEvaluation.objects.filter(
-            employee=employee,
-            evaluation_period=active_period
-        ).first()
-        
-        # 평가 상태
-        if expertise_eval and expertise_eval.is_achieved:
-            status = 'completed'
-        elif expertise_eval:
-            status = 'in-progress'
-        else:
-            status = 'not-started'
-        
-        employee_data.append({
-            'employee': employee,
-            'expertise_eval': expertise_eval,
-            'total_score': expertise_eval.total_score if expertise_eval else None,
-            'status': status
-        })
     
     context = {
         'active_period': active_period,
-        'employees': employee_data,
     }
     
-    return render(request, 'evaluations/expertise_list.html', context)
+    return render(request, 'evaluations/expertise_guide.html', context)
+
+
+def expertise_employees(request):
+    """전문성 평가 대상자 목록 (페이지네이션)"""
+    from django.core.paginator import Paginator
+    from django.db.models import Q, Prefetch
+    
+    try:
+        active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+        
+        if not active_period:
+            messages.error(request, "활성화된 평가 기간이 없습니다.")
+            return render(request, 'evaluations/expertise_employees.html', {
+                'page_obj': None,
+                'completed_count': 0,
+                'in_progress_count': 0,
+                'not_started_count': 0
+            })
+        
+        # 모든 직원 조회 (페이지네이션 적용)
+        employees = Employee.objects.select_related(
+            'user', 'manager'
+        ).prefetch_related(
+            Prefetch(
+                'expertise_evaluations',
+                queryset=ExpertiseEvaluation.objects.filter(
+                    evaluation_period=active_period
+                ),
+                to_attr='current_expertise_evaluations'
+            )
+        ).all()
+        
+        # 평가 데이터 가공
+        employees_data = []
+        for employee in employees:
+            expertise_data = {
+                'employee': employee,
+                'status': 'not-started',
+                'expertise_level': 0,
+                'achievement_status': '미평가'
+            }
+            
+            if hasattr(employee, 'current_expertise_evaluations') and employee.current_expertise_evaluations:
+                eval_data = employee.current_expertise_evaluations[0]
+                expertise_data['expertise_level'] = eval_data.total_score
+                expertise_data['achievement_status'] = '달성' if eval_data.is_achieved else '미달성'
+                expertise_data['status'] = 'completed' if eval_data.is_achieved else 'in-progress'
+            
+            employees_data.append(expertise_data)
+        
+        # 페이지네이션 (20명씩)
+        paginator = Paginator(employees_data, 20)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        # 상태별 카운트
+        completed_count = sum(1 for e in employees_data if e['status'] == 'completed')
+        in_progress_count = sum(1 for e in employees_data if e['status'] == 'in-progress')
+        not_started_count = sum(1 for e in employees_data if e['status'] == 'not-started')
+        
+        context = {
+            'page_obj': page_obj,
+            'active_period': active_period,
+            'completed_count': completed_count,
+            'in_progress_count': in_progress_count,
+            'not_started_count': not_started_count,
+        }
+        
+        return render(request, 'evaluations/expertise_employees.html', context)
+        
+    except Exception as e:
+        print(f"Error in expertise_employees: {e}")
+        import traceback
+        traceback.print_exc()
+        return render(request, 'evaluations/expertise_employees.html', {'page_obj': None})
+
+
+def expertise_list(request):
+    """전문성 평가 대상자 목록 (기존 - 리다이렉트)"""
+    # 새로운 가이드 페이지로 리다이렉트
+    return redirect('evaluations:expertise_guide')
+
+
+def impact_guide(request):
+    """영향력 평가 가이드 페이지"""
+    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+    
+    context = {
+        'active_period': active_period,
+    }
+    
+    return render(request, 'evaluations/impact_guide.html', context)
+
+
+def impact_employees(request):
+    """영향력 평가 대상자 목록 (페이지네이션)"""
+    from django.core.paginator import Paginator
+    from django.db.models import Q, Prefetch
+    
+    try:
+        active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+        
+        if not active_period:
+            messages.error(request, "활성화된 평가 기간이 없습니다.")
+            return render(request, 'evaluations/impact_employees.html', {
+                'page_obj': None,
+                'completed_count': 0,
+                'in_progress_count': 0,
+                'not_started_count': 0
+            })
+        
+        # 모든 직원 조회 (페이지네이션 적용)
+        employees = Employee.objects.select_related(
+            'user', 'manager'
+        ).prefetch_related(
+            Prefetch(
+                'impact_evaluations',
+                queryset=ImpactEvaluation.objects.filter(
+                    evaluation_period=active_period
+                ),
+                to_attr='current_impact_evaluations'
+            )
+        ).all()
+        
+        # 평가 데이터 가공
+        employees_data = []
+        for employee in employees:
+            impact_data = {
+                'employee': employee,
+                'status': 'not-started',
+                'impact_level': 0,
+                'achievement_status': '미평가'
+            }
+            
+            if hasattr(employee, 'current_impact_evaluations') and employee.current_impact_evaluations:
+                eval_data = employee.current_impact_evaluations[0]
+                impact_data['impact_level'] = eval_data.total_score
+                impact_data['achievement_status'] = '달성' if eval_data.is_achieved else '미달성'
+                impact_data['status'] = 'completed' if eval_data.is_achieved else 'in-progress'
+            
+            employees_data.append(impact_data)
+        
+        # 페이지네이션 (20명씩)
+        paginator = Paginator(employees_data, 20)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        # 상태별 카운트
+        completed_count = sum(1 for e in employees_data if e['status'] == 'completed')
+        in_progress_count = sum(1 for e in employees_data if e['status'] == 'in-progress')
+        not_started_count = sum(1 for e in employees_data if e['status'] == 'not-started')
+        
+        context = {
+            'page_obj': page_obj,
+            'active_period': active_period,
+            'completed_count': completed_count,
+            'in_progress_count': in_progress_count,
+            'not_started_count': not_started_count,
+        }
+        
+        return render(request, 'evaluations/impact_employees.html', context)
+        
+    except Exception as e:
+        print(f"Error in impact_employees: {e}")
+        import traceback
+        traceback.print_exc()
+        return render(request, 'evaluations/impact_employees.html', {'page_obj': None})
 
 
 def impact_list(request):
-    """영향력 평가 대상자 목록"""
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    if not active_period:
-        messages.warning(request, "활성화된 평가 기간이 없습니다.")
-        return redirect('evaluations:dashboard')
-    
-    # 평가 대상 직원들
-    employees = Employee.objects.filter(employment_status='재직').order_by('department', 'name')
-    
-    employee_data = []
-    for employee in employees:
-        # 영향력 평가 상태 확인
-        impact_eval = ImpactEvaluation.objects.filter(
-            employee=employee,
-            evaluation_period=active_period
-        ).first()
-        
-        # 평가 상태
-        if impact_eval and impact_eval.is_achieved:
-            status = 'completed'
-        elif impact_eval:
-            status = 'in-progress'
-        else:
-            status = 'not-started'
-        
-        employee_data.append({
-            'employee': employee,
-            'impact_eval': impact_eval,
-            'total_score': impact_eval.total_score if impact_eval else None,
-            'status': status
-        })
-    
-    context = {
-        'active_period': active_period,
-        'employees': employee_data,
-    }
-    
-    return render(request, 'evaluations/impact_list.html', context)
+    """영향력 평가 대상자 목록 (기존 - 리다이렉트)"""
+    # 새로운 가이드 페이지로 리다이렉트
+    return redirect('evaluations:impact_guide')
 
 
 def evaluation_dashboard(request):
@@ -1640,8 +1740,127 @@ def analytics_dashboard(request):
         return redirect('evaluations:dashboard')
 
 
+def contribution_guide(request):
+    """기여도 평가 가이드 페이지"""
+    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+    
+    context = {
+        'active_period': active_period,
+    }
+    
+    return render(request, 'evaluations/contribution_guide.html', context)
+
+
+def contribution_employees(request):
+    """기여도 평가 대상자 목록 (페이지네이션)"""
+    from django.core.paginator import Paginator
+    from django.db.models import Q, Prefetch, Count
+    
+    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+    
+    if not active_period:
+        messages.error(request, "활성화된 평가 기간이 없습니다.")
+        return render(request, 'evaluations/contribution_employees.html', {
+            'page_obj': [],
+            'completed_count': 0,
+            'in_progress_count': 0,
+            'not_started_count': 0
+        })
+    
+    # 검색 및 필터링
+    search_query = request.GET.get('search', '')
+    department_filter = request.GET.get('department', '')
+    status_filter = request.GET.get('status', '')
+    
+    # 기본 쿼리셋 (최적화)
+    employees = Employee.objects.all().select_related(
+        'user', 'manager'
+    ).prefetch_related(
+        Prefetch(
+            'contribution_evaluations',
+            queryset=ContributionEvaluation.objects.filter(evaluation_period=active_period),
+            to_attr='period_contributions'
+        ),
+        Prefetch(
+            'tasks',
+            queryset=Task.objects.filter(evaluation_period=active_period),
+            to_attr='period_tasks'
+        )
+    )
+    
+    # 검색 필터 적용
+    if search_query:
+        employees = employees.filter(
+            Q(name__icontains=search_query) | 
+            Q(no__icontains=search_query)
+        )
+    
+    if department_filter:
+        employees = employees.filter(department=department_filter)
+    
+    employees = employees.order_by('department', 'name')
+    
+    # 데이터 처리
+    employee_data = []
+    completed_count = 0
+    in_progress_count = 0
+    not_started_count = 0
+    
+    for employee in employees:
+        contribution_eval = employee.period_contributions[0] if employee.period_contributions else None
+        total_tasks = len(employee.period_tasks)
+        completed_tasks = sum(1 for task in employee.period_tasks if hasattr(task, 'status') and task.status == 'COMPLETED')
+        task_completion_rate = round((completed_tasks / total_tasks * 100) if total_tasks > 0 else 0, 1)
+        
+        # 상태 결정
+        if contribution_eval and contribution_eval.is_achieved:
+            status = 'completed'
+            completed_count += 1
+        elif contribution_eval or total_tasks > 0:
+            status = 'in-progress'
+            in_progress_count += 1
+        else:
+            status = 'not-started'
+            not_started_count += 1
+        
+        # 상태 필터 적용
+        if status_filter and status != status_filter:
+            continue
+            
+        employee_data.append({
+            'employee': employee,
+            'contribution_eval': contribution_eval,
+            'contribution_score': contribution_eval.contribution_score if contribution_eval else None,
+            'total_tasks': total_tasks,
+            'completed_tasks': completed_tasks,
+            'task_completion_rate': task_completion_rate,
+            'status': status
+        })
+    
+    # 페이지네이션 (20명씩)
+    paginator = Paginator(employee_data, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'active_period': active_period,
+        'page_obj': page_obj,
+        'completed_count': completed_count,
+        'in_progress_count': in_progress_count,
+        'not_started_count': not_started_count,
+    }
+    
+    return render(request, 'evaluations/contribution_employees.html', context)
+
+
 def contribution_list(request):
-    """기여도 평가 대상자 목록"""
+    """기여도 평가 대상자 목록 (기존 - 리다이렉트)"""
+    # 새로운 가이드 페이지로 리다이렉트
+    return redirect('evaluations:contribution_guide')
+
+
+def contribution_list_old(request):
+    """기여도 평가 대상자 목록 (구버전)"""
     from django.db.models import Prefetch, Count, Q
     
     active_period = EvaluationPeriod.objects.filter(is_active=True).first()

@@ -1,0 +1,374 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 대상자 - OK Financial Group{% endblock %}
+
+{% block page_header %}기여도 평가 센터{% endblock %}
+{% block content_title %}평가 대상자 목록{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    {{ active_period.year }}년 {{ active_period.get_period_type_display }} 기여도 평가 대상자
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}?v=3">
+<style>
+    .employee-table {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 24px;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .table th {
+        background: rgba(0, 212, 255, 0.1);
+        padding: 14px;
+        text-align: left;
+        border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+        color: #00d4ff;
+        font-weight: 600;
+    }
+    
+    .table td {
+        padding: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(0, 212, 255, 0.05);
+        cursor: pointer;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .status-completed {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+    
+    .status-in-progress {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+    
+    .status-not-started {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 32px;
+    }
+    
+    .page-link {
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .page-link:hover {
+        background: rgba(0, 212, 255, 0.2);
+        border-color: rgba(0, 212, 255, 0.4);
+    }
+    
+    .page-link.active {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        border-color: #00d4ff;
+    }
+    
+    .page-link.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .search-filter {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .search-input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 10px 16px;
+        color: white;
+        font-size: 0.9rem;
+    }
+    
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .filter-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 10px 16px;
+        color: white;
+        font-size: 0.9rem;
+        min-width: 150px;
+    }
+    
+    .btn-evaluate {
+        padding: 6px 16px;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-evaluate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+    }
+    
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .summary-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .summary-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #00d4ff;
+    }
+    
+    .summary-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.875rem;
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- 요약 카드 -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <div class="summary-value">{{ page_obj.paginator.count }}</div>
+            <div class="summary-label">총 대상자</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value">{{ completed_count }}</div>
+            <div class="summary-label">평가 완료</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value">{{ in_progress_count }}</div>
+            <div class="summary-label">진행 중</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value">{{ not_started_count }}</div>
+            <div class="summary-label">미시작</div>
+        </div>
+    </div>
+
+    <!-- 검색 및 필터 -->
+    <div class="search-filter">
+        <input type="text" class="search-input" placeholder="이름 또는 사번으로 검색..." id="searchInput">
+        <select class="filter-select" id="departmentFilter">
+            <option value="">전체 부서</option>
+            <option value="IT">IT부서</option>
+            <option value="HR">인사부서</option>
+            <option value="FINANCE">재무부서</option>
+            <option value="MARKETING">마케팅부서</option>
+        </select>
+        <select class="filter-select" id="statusFilter">
+            <option value="">전체 상태</option>
+            <option value="completed">완료</option>
+            <option value="in-progress">진행중</option>
+            <option value="not-started">미시작</option>
+        </select>
+    </div>
+
+    <!-- 직원 테이블 -->
+    <div class="employee-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th width="10%">사번</th>
+                    <th width="15%">이름</th>
+                    <th width="15%">부서</th>
+                    <th width="15%">직급</th>
+                    <th width="10%">과제 수</th>
+                    <th width="10%">완료율</th>
+                    <th width="10%">상태</th>
+                    <th width="15%">작업</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee_data in page_obj %}
+                <tr>
+                    <td>{{ employee_data.employee.no|default:"N/A" }}</td>
+                    <td>
+                        <strong>{{ employee_data.employee.name }}</strong>
+                    </td>
+                    <td>{{ employee_data.employee.get_department_display|default:"미지정" }}</td>
+                    <td>{{ employee_data.employee.get_position_display|default:"미지정" }}</td>
+                    <td>{{ employee_data.total_tasks }}</td>
+                    <td>
+                        <div class="progress" style="height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                            <div class="progress-bar" style="width: {{ employee_data.task_completion_rate }}%; background: linear-gradient(90deg, #00d4ff, #0099cc); height: 100%; border-radius: 10px;">
+                                <span style="padding: 0 8px;">{{ employee_data.task_completion_rate }}%</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ employee_data.status }}">
+                            {% if employee_data.status == 'completed' %}
+                                <i class="fas fa-check"></i> 완료
+                            {% elif employee_data.status == 'in-progress' %}
+                                <i class="fas fa-clock"></i> 진행중
+                            {% else %}
+                                <i class="fas fa-play"></i> 미시작
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'evaluations:contribution_evaluation' employee_data.employee.id %}" 
+                           class="btn-evaluate">
+                            <i class="fas fa-edit"></i>
+                            평가하기
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-inbox text-4xl text-gray-500 mb-3"></i>
+                        <p class="text-gray-400">평가 대상자가 없습니다.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="page-link">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="page-link">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled">
+                <i class="fas fa-angle-double-left"></i>
+            </span>
+            <span class="page-link disabled">
+                <i class="fas fa-angle-left"></i>
+            </span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="page-link active">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="page-link">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled">
+                <i class="fas fa-angle-right"></i>
+            </span>
+            <span class="page-link disabled">
+                <i class="fas fa-angle-double-right"></i>
+            </span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- 뒤로가기 버튼 -->
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="{% url 'evaluations:contribution_guide' %}" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; text-decoration: none;">
+            <i class="fas fa-arrow-left"></i>
+            평가 가이드로 돌아가기
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 검색 및 필터 기능
+    document.getElementById('searchInput').addEventListener('input', filterEmployees);
+    document.getElementById('departmentFilter').addEventListener('change', filterEmployees);
+    document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+    
+    function filterEmployees() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const departmentValue = document.getElementById('departmentFilter').value;
+        const statusValue = document.getElementById('statusFilter').value;
+        
+        // Ajax로 필터링된 데이터 요청
+        const params = new URLSearchParams({
+            search: searchValue,
+            department: departmentValue,
+            status: statusValue,
+            page: 1
+        });
+        
+        window.location.href = '?' + params.toString();
+    }
+</script>
+{% endblock %}

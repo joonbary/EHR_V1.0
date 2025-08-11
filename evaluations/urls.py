@@ -11,7 +11,9 @@ urlpatterns = [
     
     # 3대 평가 관리 (기여도/전문성/영향력)
     path('contribution/', include([
-        path('', views.contribution_list, name='contribution_list'),
+        path('', views.contribution_list, name='contribution_list'),  # 리다이렉트
+        path('guide/', views.contribution_guide, name='contribution_guide'),
+        path('employees/', views.contribution_employees, name='contribution_employees'),
         path('<int:employee_id>/', views.contribution_evaluation, name='contribution_evaluation'),
         path('tasks/', under_construction, name='contribution_tasks'),
         path('checkin/<int:task_id>/', views.task_checkin, name='task_checkin'),
@@ -21,14 +23,18 @@ urlpatterns = [
     ])),
     
     path('expertise/', include([
-        path('', views.expertise_list, name='expertise_list'),
+        path('', views.expertise_list, name='expertise_list'),  # 리다이렉트
+        path('guide/', views.expertise_guide, name='expertise_guide'),
+        path('employees/', views.expertise_employees, name='expertise_employees'),
         path('<int:employee_id>/', views.expertise_evaluation, name='expertise_evaluation'),
         path('requirements/', under_construction, name='expertise_requirements'),
         path('levels/', under_construction, name='expertise_levels'),
     ])),
     
     path('impact/', include([
-        path('', views.impact_list, name='impact_list'),
+        path('', views.impact_list, name='impact_list'),  # 리다이렉트
+        path('guide/', views.impact_guide, name='impact_guide'),
+        path('employees/', views.impact_employees, name='impact_employees'),
         path('<int:employee_id>/', views.impact_evaluation, name='impact_evaluation'),
         path('values/', under_construction, name='impact_values'),
         path('leadership/', under_construction, name='impact_leadership'),

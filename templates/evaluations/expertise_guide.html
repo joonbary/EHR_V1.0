@@ -1,0 +1,389 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}전문성 평가 가이드 - OK Financial Group{% endblock %}
+
+{% block page_header %}전문성 평가 센터{% endblock %}
+{% block content_title %}전문성 평가 가이드{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    직무 수행에 필요한 전문 지식과 기술을 체계적으로 평가하는 시스템입니다
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}?v=3">
+<style>
+    .guide-section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+    
+    .criteria-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .criteria-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .criteria-card:hover {
+        transform: translateY(-5px);
+        background: rgba(0, 212, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.4);
+    }
+    
+    .process-flow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 30px 0;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+    }
+    
+    .process-step {
+        flex: 1;
+        text-align: center;
+        padding: 20px;
+        position: relative;
+    }
+    
+    .process-step::after {
+        content: '→';
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        color: #00d4ff;
+    }
+    
+    .process-step:last-child::after {
+        display: none;
+    }
+    
+    .expertise-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    .expertise-table th {
+        background: rgba(0, 212, 255, 0.1);
+        padding: 12px;
+        text-align: left;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        color: #00d4ff;
+    }
+    
+    .expertise-table td {
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .checklist-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin: 8px 0;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        border-left: 3px solid #00d4ff;
+    }
+    
+    .checklist-icon {
+        font-size: 20px;
+        margin-right: 12px;
+        color: #00d4ff;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 40px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+    }
+    
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- 평가 개요 -->
+    <div class="guide-section" data-aos="fade-up">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-info-circle text-cyan-400 mr-2"></i>
+            전문성 평가 개요
+        </h2>
+        <p class="text-gray-300 mb-4">
+            전문성 평가는 직무 수행에 필요한 전문 지식, 기술, 역량을 평가하는 핵심 평가 축입니다.
+            10개의 체크리스트 항목을 통해 창의적 문제해결, 기술 혁신, 프로세스 개선, 지식 공유 등을 종합적으로 평가합니다.
+        </p>
+        
+        <!-- 평가 기간 정보 -->
+        {% if active_period %}
+        <div class="alert alert-info" style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); padding: 16px; border-radius: 12px; margin-top: 20px;">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            <strong>현재 평가 기간:</strong> {{ active_period.year }}년 {{ active_period.get_period_type_display }}
+            ({{ active_period.start_date|date:"Y.m.d" }} ~ {{ active_period.end_date|date:"Y.m.d" }})
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 평가 프로세스 -->
+    <div class="guide-section" data-aos="fade-up" data-aos-delay="100">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-project-diagram text-cyan-400 mr-2"></i>
+            평가 프로세스
+        </h2>
+        <div class="process-flow">
+            <div class="process-step">
+                <div class="text-4xl mb-2">📝</div>
+                <h4 class="text-lg font-semibold text-white">1. 자가진단</h4>
+                <p class="text-sm text-gray-400 mt-2">체크리스트 자가평가</p>
+            </div>
+            <div class="process-step">
+                <div class="text-4xl mb-2">🔍</div>
+                <h4 class="text-lg font-semibold text-white">2. 근거제출</h4>
+                <p class="text-sm text-gray-400 mt-2">실적 및 사례 제출</p>
+            </div>
+            <div class="process-step">
+                <div class="text-4xl mb-2">👥</div>
+                <h4 class="text-lg font-semibold text-white">3. 리더평가</h4>
+                <p class="text-sm text-gray-400 mt-2">관리자 검증 평가</p>
+            </div>
+            <div class="process-step">
+                <div class="text-4xl mb-2">✅</div>
+                <h4 class="text-lg font-semibold text-white">4. 확정</h4>
+                <p class="text-sm text-gray-400 mt-2">최종 점수 확정</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10대 체크리스트 -->
+    <div class="guide-section" data-aos="fade-up" data-aos-delay="200">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-check-circle text-cyan-400 mr-2"></i>
+            전문성 10대 체크리스트
+        </h2>
+        
+        <div class="criteria-grid">
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">혁신 역량</h3>
+                <div class="checklist-item">
+                    <span class="checklist-icon">💡</span>
+                    <span class="text-gray-300"><strong>창의적 문제해결</strong> - 새로운 관점의 솔루션 제시</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-icon">🚀</span>
+                    <span class="text-gray-300"><strong>기술 혁신</strong> - 신기술 도입 및 활용</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-icon">⚙️</span>
+                    <span class="text-gray-300"><strong>프로세스 개선</strong> - 업무 효율화 기여</span>
+                </div>
+            </div>
+            
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">협업 역량</h3>
+                <div class="checklist-item">
+                    <span class="checklist-icon">📚</span>
+                    <span class="text-gray-300"><strong>지식 공유</strong> - 노하우 문서화 및 전파</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-icon">👨‍🏫</span>
+                    <span class="text-gray-300"><strong>멘토링</strong> - 후배 육성 및 지도</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-icon">🤝</span>
+                    <span class="text-gray-300"><strong>부서간 협업</strong> - Cross-functional 기여</span>
+                </div>
+            </div>
+            
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">전략적 사고</h3>
+                <div class="checklist-item">
+                    <span class="checklist-icon">🎯</span>
+                    <span class="text-gray-300"><strong>전략적 사고</strong> - 장기적 관점 제시</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-icon">💼</span>
+                    <span class="text-gray-300"><strong>비즈니스 통찰</strong> - 사업 이해도</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-icon">📊</span>
+                    <span class="text-gray-300"><strong>산업 트렌드</strong> - 시장 동향 파악</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-icon">📈</span>
+                    <span class="text-gray-300"><strong>지속적 학습</strong> - 자기계발 노력</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 평가 기준표 -->
+    <div class="guide-section" data-aos="fade-up" data-aos-delay="300">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-calculator text-cyan-400 mr-2"></i>
+            전문성 평가 점수표
+        </h2>
+        
+        <table class="expertise-table">
+            <thead>
+                <tr>
+                    <th>평가 항목</th>
+                    <th>미흡 (1점)</th>
+                    <th>보통 (2점)</th>
+                    <th>우수 (3점)</th>
+                    <th>탁월 (4점)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>창의적 문제해결</strong></td>
+                    <td class="text-center">기존 방식 답습</td>
+                    <td class="text-center">일부 개선 시도</td>
+                    <td class="text-center">창의적 해결책 제시</td>
+                    <td class="text-center">혁신적 돌파구 창출</td>
+                </tr>
+                <tr>
+                    <td><strong>지식 공유</strong></td>
+                    <td class="text-center">소극적 공유</td>
+                    <td class="text-center">요청시 공유</td>
+                    <td class="text-center">적극적 공유</td>
+                    <td class="text-center">체계적 지식경영</td>
+                </tr>
+                <tr>
+                    <td><strong>전략적 사고</strong></td>
+                    <td class="text-center">단기적 시각</td>
+                    <td class="text-center">중기적 관점</td>
+                    <td class="text-center">장기적 통찰</td>
+                    <td class="text-center">비전 제시 및 실행</td>
+                </tr>
+                <tr>
+                    <td><strong>전문 지식</strong></td>
+                    <td class="text-center">기초 수준</td>
+                    <td class="text-center">평균 수준</td>
+                    <td class="text-center">전문가 수준</td>
+                    <td class="text-center">업계 최고 수준</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 평가 초점별 가중치 -->
+    <div class="guide-section" data-aos="fade-up" data-aos-delay="400">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-balance-scale text-cyan-400 mr-2"></i>
+            전문성 초점별 가중치
+        </h2>
+        
+        <div class="criteria-grid">
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">🎯 기술 중심</h3>
+                <ul class="space-y-2">
+                    <li class="text-gray-300">• 기술 혁신: <strong>40%</strong></li>
+                    <li class="text-gray-300">• 창의적 문제해결: <strong>30%</strong></li>
+                    <li class="text-gray-300">• 프로세스 개선: <strong>20%</strong></li>
+                    <li class="text-gray-300">• 기타: <strong>10%</strong></li>
+                </ul>
+            </div>
+            
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">⚖️ 균형 발전</h3>
+                <ul class="space-y-2">
+                    <li class="text-gray-300">• 모든 항목: <strong>각 10%</strong></li>
+                    <li class="text-gray-300">• 종합적 역량 평가</li>
+                    <li class="text-gray-300">• 다방면 성장 추구</li>
+                    <li class="text-gray-300">• T자형 인재 육성</li>
+                </ul>
+            </div>
+            
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">🤝 협업 중심</h3>
+                <ul class="space-y-2">
+                    <li class="text-gray-300">• 지식 공유: <strong>30%</strong></li>
+                    <li class="text-gray-300">• 멘토링: <strong>30%</strong></li>
+                    <li class="text-gray-300">• 부서간 협업: <strong>25%</strong></li>
+                    <li class="text-gray-300">• 기타: <strong>15%</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 액션 버튼 -->
+    <div class="action-buttons" data-aos="fade-up" data-aos-delay="500">
+        <a href="{% url 'evaluations:expertise_employees' %}" class="btn-primary">
+            <i class="fas fa-users"></i>
+            평가 대상자 조회
+        </a>
+        <a href="{% url 'evaluations:dashboard' %}" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            대시보드로 돌아가기
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 50
+    });
+</script>
+{% endblock %}
