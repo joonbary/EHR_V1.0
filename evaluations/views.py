@@ -1505,7 +1505,8 @@ def comprehensive_list(request):
         return render(request, 'evaluations/comprehensive_list.html', {'employees': []})
     
     # 모든 직원에 대한 평가 현황 수집
-    employees = Employee.objects.filter(employment_status='재직').order_by('department', 'name')
+    # 임시: 모든 직원 표시 (데이터 부족 문제)
+    employees = Employee.objects.all().order_by('department', 'name')
     employee_data = []
     
     for employee in employees:
@@ -1650,9 +1651,8 @@ def contribution_list(request):
         return render(request, 'evaluations/contribution_list.html', {'employees': []})
     
     # 최적화된 쿼리: select_related와 prefetch_related 사용
-    employees = Employee.objects.filter(
-        employment_status='재직'
-    ).select_related(
+    # 임시: 모든 직원 표시 (데이터 부족 문제)
+    employees = Employee.objects.all().select_related(
         'user', 'manager'
     ).prefetch_related(
         Prefetch(
@@ -1717,9 +1717,8 @@ def expertise_list(request):
         return render(request, 'evaluations/expertise_list.html', {'employees': []})
     
     # 최적화된 쿼리
-    employees = Employee.objects.filter(
-        employment_status='재직'
-    ).select_related(
+    # 임시: 모든 직원 표시 (데이터 부족 문제)
+    employees = Employee.objects.all().select_related(
         'user', 'manager'
     ).prefetch_related(
         Prefetch(
@@ -1769,9 +1768,8 @@ def impact_list(request):
         return render(request, 'evaluations/impact_list.html', {'employees': []})
     
     # 최적화된 쿼리
-    employees = Employee.objects.filter(
-        employment_status='재직'
-    ).select_related(
+    # 임시: 모든 직원 표시 (데이터 부족 문제)
+    employees = Employee.objects.all().select_related(
         'user', 'manager'
     ).prefetch_related(
         Prefetch(
