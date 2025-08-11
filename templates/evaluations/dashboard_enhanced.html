@@ -452,7 +452,7 @@
         <!-- Evaluation Steps Grid -->
         <div class="evaluation-grid">
             <!-- 기여도 평가 -->
-            <div class="eval-card" data-aos="fade-up" data-aos-delay="100">
+            <a href="{% url 'evaluations:contribution_list' %}" class="eval-card block" data-aos="fade-up" data-aos-delay="100">
                 <div class="flex items-start justify-between mb-4">
                     <div class="p-3 bg-cyan-500/20 rounded-xl">
                         <i class="fas fa-tasks text-2xl text-cyan-400"></i>
@@ -491,10 +491,10 @@
                         평가 시작하기
                     </a>
                 {% endif %}
-            </div>
+            </a>
             
             <!-- 전문성 평가 -->
-            <div class="eval-card" data-aos="fade-up" data-aos-delay="200">
+            <a href="{% url 'evaluations:expertise_list' %}" class="eval-card block" data-aos="fade-up" data-aos-delay="200">
                 <div class="flex items-start justify-between mb-4">
                     <div class="p-3 bg-purple-500/20 rounded-xl">
                         <i class="fas fa-brain text-2xl text-purple-400"></i>
@@ -533,10 +533,10 @@
                         평가 시작하기
                     </a>
                 {% endif %}
-            </div>
+            </a>
             
             <!-- 영향력 평가 -->
-            <div class="eval-card" data-aos="fade-up" data-aos-delay="300">
+            <a href="{% url 'evaluations:impact_list' %}" class="eval-card block" data-aos="fade-up" data-aos-delay="300">
                 <div class="flex items-start justify-between mb-4">
                     <div class="p-3 bg-orange-500/20 rounded-xl">
                         <i class="fas fa-users text-2xl text-orange-400"></i>
@@ -575,10 +575,10 @@
                         평가 시작하기
                     </a>
                 {% endif %}
-            </div>
+            </a>
             
             <!-- 종합 평가 -->
-            <div class="eval-card" data-aos="fade-up" data-aos-delay="400">
+            <a href="{% url 'evaluations:comprehensive_list' %}" class="eval-card block" data-aos="fade-up" data-aos-delay="400">
                 <div class="flex items-start justify-between mb-4">
                     <div class="p-3 bg-green-500/20 rounded-xl">
                         <i class="fas fa-trophy text-2xl text-green-400"></i>
@@ -612,7 +612,7 @@
                         <p class="text-sm">3개 평가 완료 시 활성화</p>
                     </div>
                 {% endif %}
-            </div>
+            </a>
         </div>
         
         <!-- Performance Charts Section -->

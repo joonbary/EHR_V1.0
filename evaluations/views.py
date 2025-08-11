@@ -123,7 +123,7 @@ def expertise_list(request):
         'employees': employee_data,
     }
     
-    return render(request, 'evaluations/expertise_list.html', context)
+    return render(request, 'evaluations/expertise_list_revolutionary.html', context)
 
 
 def impact_list(request):
@@ -165,7 +165,7 @@ def impact_list(request):
         'employees': employee_data,
     }
     
-    return render(request, 'evaluations/impact_list.html', context)
+    return render(request, 'evaluations/impact_list_revolutionary.html', context)
 
 
 def evaluation_dashboard(request):
@@ -1579,7 +1579,7 @@ def comprehensive_list(request):
         'completion_rate': completion_rate,
     }
     
-    return render(request, 'evaluations/comprehensive_list.html', context)
+    return render(request, 'evaluations/comprehensive_list_revolutionary.html', context)
 
 
 def analytics_dashboard(request):
@@ -1733,7 +1733,7 @@ def expertise_list(request):
         'employees': employee_data,
     }
     
-    return render(request, 'evaluations/expertise_list.html', context)
+    return render(request, 'evaluations/expertise_list_revolutionary.html', context)
 
 
 def impact_list(request):
@@ -1775,5 +1775,5 @@ def impact_list(request):
         'employees': employee_data,
     }
     
-    return render(request, 'evaluations/impact_list.html', context)
+    return render(request, 'evaluations/impact_list_revolutionary.html', context)
 

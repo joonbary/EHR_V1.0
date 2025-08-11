@@ -1,294 +1,823 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}종합평가 대상자 목록{% endblock %}
+{% block title %}종합평가 대상자 - 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}종합평가 센터{% endblock %}
+{% block content_title %}종합평가 대상자{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    3축 평가 결과를 종합하여 AI 기반 최종 등급 산정과 맞춤형 성장 방향을 제시합니다
+</p>
+{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}?v=3">
+<!-- AOS for scroll animations -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
 <style>
-    /* 평가 카드 스타일 */
-    .evaluation-card {
-        transition: all 0.3s;
-        border: 2px solid transparent;
-    }
-    
-    .evaluation-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        border-color: #ff6b00;
-    }
-    
-    .evaluation-card.completed {
-        border-color: #10b981;
-        background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
-    }
-    
-    .evaluation-card.in-progress {
-        border-color: #f59e0b;
-        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    }
-    
-    .evaluation-card.not-started {
-        border-color: #6b7280;
-        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-    }
-    
-    /* 진행률 바 */
-    .progress-bar {
-        height: 8px;
-        background-color: #e5e7eb;
-        border-radius: 4px;
+    /* Enhanced Modern Design System */
+    .dashboard-container {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        min-height: 100vh;
+        position: relative;
         overflow: hidden;
     }
     
-    .progress-fill {
+    /* Animated Background Elements */
+    .bg-animation {
+        position: absolute;
+        width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%);
-        transition: width 0.3s ease;
+        overflow: hidden;
+        z-index: 0;
     }
     
-    /* 등급 뱃지 */
+    .floating-orb {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 70%);
+        animation: float 30s infinite ease-in-out;
+    }
+    
+    .orb-1 {
+        width: 400px;
+        height: 400px;
+        top: -200px;
+        left: -150px;
+        animation-delay: 0s;
+    }
+    
+    .orb-2 {
+        width: 500px;
+        height: 500px;
+        bottom: -250px;
+        right: -200px;
+        animation-delay: 10s;
+    }
+    
+    .orb-3 {
+        width: 320px;
+        height: 320px;
+        top: 30%;
+        left: 80%;
+        transform: translate(-50%, -50%);
+        animation-delay: 5s;
+        background: radial-gradient(circle, rgba(34,197,94,0.25) 0%, transparent 70%);
+    }
+    
+    .orb-4 {
+        width: 250px;
+        height: 250px;
+        top: 65%;
+        left: 10%;
+        animation-delay: 15s;
+        background: radial-gradient(circle, rgba(21,128,61,0.2) 0%, transparent 70%);
+    }
+    
+    .orb-5 {
+        width: 180px;
+        height: 180px;
+        top: 15%;
+        left: 60%;
+        animation-delay: 20s;
+        background: radial-gradient(circle, rgba(22,163,74,0.15) 0%, transparent 70%);
+    }
+    
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0) translateX(0) rotate(0deg);
+            opacity: 0.3;
+        }
+        25% {
+            transform: translateY(-100px) translateX(50px) rotate(90deg);
+            opacity: 0.7;
+        }
+        50% {
+            transform: translateY(60px) translateX(-100px) rotate(180deg);
+            opacity: 0.3;
+        }
+        75% {
+            transform: translateY(-60px) translateX(100px) rotate(270deg);
+            opacity: 0.7;
+        }
+    }
+    
+    /* Glass Morphism Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(16, 185, 129, 0.8), 
+            transparent);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(16, 185, 129, 0.3);
+        box-shadow: 
+            0 20px 40px rgba(16, 185, 129, 0.2),
+            0 0 60px rgba(16, 185, 129, 0.1) inset;
+    }
+    
+    /* Employee Cards Enhanced */
+    .employee-card {
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.05) 0%, 
+            rgba(255, 255, 255, 0.02) 100%);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .employee-card::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, 
+            #10b981, #22c55e, #10b981);
+        border-radius: 20px;
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s ease;
+    }
+    
+    .employee-card:hover::after {
+        opacity: 0.3;
+        animation: rotate 3s linear infinite;
+    }
+    
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .employee-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+    
+    /* Status Indicators */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .status-completed {
+        background: linear-gradient(135deg, 
+            rgba(0, 255, 136, 0.2) 0%, 
+            rgba(0, 255, 136, 0.1) 100%);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+    
+    .status-in-progress {
+        background: linear-gradient(135deg, 
+            rgba(255, 193, 7, 0.2) 0%, 
+            rgba(255, 193, 7, 0.1) 100%);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    .status-not-started {
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 100%);
+        color: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+    }
+    
+    /* Interactive Buttons */
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .action-btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Grade Badges Enhanced */
     .grade-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: white;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .grade-badge::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, currentColor, transparent, currentColor);
+        animation: rotate 3s linear infinite;
+        opacity: 0.3;
+    }
+    
+    .grade-s { 
+        background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        color: #8b5cf6;
+    }
+    .grade-a { 
+        background: linear-gradient(135deg, #10b981, #34d399);
+        color: #10b981;
+    }
+    .grade-b { 
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        color: #3b82f6;
+    }
+    .grade-c { 
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        color: #f59e0b;
+    }
+    .grade-d { 
+        background: linear-gradient(135deg, #ef4444, #f87171);
+        color: #ef4444;
+    }
+    
+    /* Progress Indicators */
+    .progress-ring {
+        width: 80px;
+        height: 80px;
+        transform: rotate(-90deg);
+    }
+    
+    .progress-ring-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.1);
+        stroke-width: 6;
+    }
+    
+    .progress-ring-progress {
+        fill: none;
+        stroke: url(#progressGradient);
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-dasharray: 220;
+        stroke-dashoffset: calc(220 - (220 * var(--progress) / 100));
+        transition: stroke-dashoffset 1s ease;
+    }
+    
+    /* Evaluation Axis Indicators */
+    .eval-axis {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .eval-axis.completed {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #10b981;
+    }
+    
+    .eval-axis.not-completed {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Filter Section */
+    .filter-section {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 32px;
+    }
+    
+    .filter-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: white;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: rgba(16, 185, 129, 0.5);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    .filter-select option {
+        background: #1a1f2e;
         color: white;
     }
     
-    .grade-s { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
-    .grade-a { background: linear-gradient(135deg, #10b981, #34d399); }
-    .grade-b { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
-    .grade-c { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-    .grade-d { background: linear-gradient(135deg, #ef4444, #f87171); }
+    /* Stats Cards */
+    .stat-card {
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.08) 0%, 
+            rgba(255, 255, 255, 0.03) 100%);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+        margin-top: 4px;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+    
+    /* Responsive Grid */
+    .employee-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 24px;
+        margin-top: 32px;
+    }
+    
+    /* Calibration Button */
+    .calibration-btn {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .calibration-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        color: white;
+        text-decoration: none;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-    <!-- 헤더 -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">종합평가 대상자</h1>
-                <p class="text-gray-600 mt-2">{{ active_period }} 평가 기간</p>
+<div class="dashboard-container">
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+        <div class="floating-orb orb-4"></div>
+        <div class="floating-orb orb-5"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Header Actions -->
+        <div class="flex justify-between items-center mb-8" data-aos="fade-down">
+            <div class="text-right">
+                <p class="text-gray-400 text-sm mb-2">{{ active_period }} 평가 기간</p>
             </div>
-            <div class="flex space-x-3">
-                <a href="{% url 'evaluations:create_calibration_session' %}" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
-                    <i data-lucide="users" class="w-5 h-5 inline mr-2"></i>
+            <div class="flex gap-3">
+                <a href="{% url 'evaluations:create_calibration_session' %}" class="calibration-btn">
+                    <i class="fas fa-users"></i>
                     Calibration 세션 생성
                 </a>
-                <a href="{% url 'evaluations:dashboard' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
-                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
-                    돌아가기
+                <a href="{% url 'evaluations:dashboard' %}" class="action-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    대시보드로
                 </a>
             </div>
         </div>
-    </div>
 
-    <!-- 통계 요약 -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+        <!-- Statistics Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));">
+                    <i class="fas fa-users text-green-400"></i>
                 </div>
-                <div class="ml-4">
-                    <div class="text-2xl font-bold text-gray-900">{{ total_employees }}</div>
-                    <div class="text-sm text-gray-600">총 대상자</div>
-                </div>
+                <div class="stat-value">{{ total_employees|default:0 }}</div>
+                <div class="stat-label">총 대상자</div>
             </div>
-        </div>
-        
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
-                </div>
-                <div class="ml-4">
-                    <div class="text-2xl font-bold text-gray-900">{{ completed_count }}</div>
-                    <div class="text-sm text-gray-600">평가 완료</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
-                </div>
-                <div class="ml-4">
-                    <div class="text-2xl font-bold text-gray-900">{{ in_progress_count }}</div>
-                    <div class="text-sm text-gray-600">진행 중</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
-                    <i data-lucide="percent" class="w-6 h-6 text-primary"></i>
-                </div>
-                <div class="ml-4">
-                    <div class="text-2xl font-bold text-gray-900">{{ completion_rate }}%</div>
-                    <div class="text-sm text-gray-600">완료율</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 대상자 목록 -->
-    <div class="bg-white rounded-2xl shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-semibold">평가 대상자</h2>
             
-            <div class="flex space-x-2">
-                <select id="departmentFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                    <option value="">전체 부서</option>
-                    <option value="IT">IT</option>
-                    <option value="HR">인사</option>
-                    <option value="FINANCE">재무</option>
-                    <option value="MARKETING">마케팅</option>
-                    <option value="SALES">영업</option>
-                    <option value="OPERATIONS">운영</option>
-                </select>
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.1));">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                </div>
+                <div class="stat-value" id="completed-count">{{ completed_count|default:0 }}</div>
+                <div class="stat-label">평가 완료</div>
+            </div>
+            
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.1));">
+                    <i class="fas fa-clock text-yellow-400"></i>
+                </div>
+                <div class="stat-value" id="in-progress-count">{{ in_progress_count|default:0 }}</div>
+                <div class="stat-label">진행 중</div>
+            </div>
+            
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));">
+                    <i class="fas fa-percent text-green-400"></i>
+                </div>
+                <div class="stat-value">{{ completion_rate|default:0 }}%</div>
+                <div class="stat-label">완료율</div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section" data-aos="fade-down">
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-2">종합평가 필터</h3>
+                    <p class="text-gray-400 text-sm">부서별, 상태별 종합 평가 대상자를 필터링하여 체계적으로 관리하세요</p>
+                </div>
                 
-                <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                    <option value="">전체 상태</option>
-                    <option value="completed">완료</option>
-                    <option value="in-progress">진행중</option>
-                    <option value="not-started">미시작</option>
-                </select>
+                <div class="flex gap-3">
+                    <select id="departmentFilter" class="filter-select">
+                        <option value="">전체 부서</option>
+                        <option value="IT">IT부서</option>
+                        <option value="HR">인사부서</option>
+                        <option value="FINANCE">재무부서</option>
+                        <option value="MARKETING">마케팅부서</option>
+                        <option value="SALES">영업부서</option>
+                        <option value="OPERATIONS">운영부서</option>
+                    </select>
+                    
+                    <select id="gradeFilter" class="filter-select">
+                        <option value="">전체 등급</option>
+                        <option value="S">S등급</option>
+                        <option value="A">A등급</option>
+                        <option value="B">B등급</option>
+                        <option value="C">C등급</option>
+                        <option value="D">D등급</option>
+                    </select>
+                    
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">전체 상태</option>
+                        <option value="completed">완료</option>
+                        <option value="in-progress">진행중</option>
+                        <option value="not-started">미시작</option>
+                    </select>
+                </div>
             </div>
         </div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Employee Grid -->
+        <div class="employee-grid">
             {% for employee_data in employees %}
-            <div class="evaluation-card bg-gray-50 rounded-xl p-6 
-                    {% if employee_data.status == 'completed' %}completed
-                    {% elif employee_data.status == 'in-progress' %}in-progress
-                    {% else %}not-started{% endif %}"
+            <div class="employee-card" 
                  data-department="{{ employee_data.employee.department }}"
-                 data-status="{{ employee_data.status }}">
+                 data-grade="{{ employee_data.comprehensive.final_grade|default:'' }}"
+                 data-status="{{ employee_data.status }}"
+                 data-aos="fade-up" 
+                 data-aos-delay="{{ forloop.counter|add:100 }}">
                 
-                <!-- 직원 정보 -->
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center">
-                            <span class="text-lg font-semibold text-primary">
-                                {{ employee_data.employee.name|first }}
-                            </span>
+                <!-- Card Header -->
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <img src="https://ui-avatars.com/api/?name={{ employee_data.employee.name }}&background=10b981&color=ffffff&size=56" 
+                                 alt="{{ employee_data.employee.name }}" 
+                                 class="w-14 h-14 rounded-full border-2 border-green-400">
+                            <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-900"></span>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900">{{ employee_data.employee.name }}</h3>
-                            <p class="text-sm text-gray-600">{{ employee_data.employee.get_department_display }} · {{ employee_data.employee.get_position_display }}</p>
+                            <h3 class="text-lg font-bold text-white">{{ employee_data.employee.name }}</h3>
+                            <p class="text-gray-400 text-sm">{{ employee_data.employee.get_department_display }} · {{ employee_data.employee.get_position_display }}</p>
                         </div>
                     </div>
                     
-                    {% if employee_data.comprehensive.final_grade %}
-                    <div class="grade-badge grade-{{ employee_data.comprehensive.final_grade|lower }}">
-                        {{ employee_data.comprehensive.final_grade }}
-                    </div>
-                    {% endif %}
-                </div>
-                
-                <!-- 평가 진행 상황 -->
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-gray-700">평가 진행률</span>
-                        <span class="text-sm text-gray-600">{{ employee_data.progress }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: {{ employee_data.progress }}%"></div>
+                    <div class="flex flex-col items-center gap-2">
+                        {% if employee_data.comprehensive.final_grade %}
+                        <div class="grade-badge grade-{{ employee_data.comprehensive.final_grade|lower }}">
+                            {{ employee_data.comprehensive.final_grade }}
+                        </div>
+                        {% else %}
+                        <div class="progress-ring">
+                            <svg viewBox="0 0 80 80">
+                                <defs>
+                                    <linearGradient id="progressGradient">
+                                        <stop offset="0%" style="stop-color:#10b981"/>
+                                        <stop offset="100%" style="stop-color:#34d399"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="progress-ring-bg" cx="40" cy="40" r="35"></circle>
+                                <circle class="progress-ring-progress" cx="40" cy="40" r="35" 
+                                        style="--progress: {{ employee_data.progress|default:0 }}"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-green-400">{{ employee_data.progress|default:0 }}%</span>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 
                 <!-- 3대 평가축 현황 -->
-                <div class="grid grid-cols-3 gap-2 mb-4">
-                    <div class="text-center p-2 bg-white rounded">
-                        <div class="text-sm font-medium 
-                                {% if employee_data.contribution_completed %}text-green-600
-                                {% else %}text-gray-400{% endif %}">
-                            <i data-lucide="target" class="w-4 h-4 mx-auto mb-1"></i>
-                        </div>
-                        <div class="text-xs text-gray-600">기여도</div>
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    <div class="eval-axis {% if employee_data.contribution_completed %}completed{% else %}not-completed{% endif %}">
+                        <i class="fas fa-bullseye"></i>
+                        <span class="text-xs">기여도</span>
                     </div>
-                    <div class="text-center p-2 bg-white rounded">
-                        <div class="text-sm font-medium 
-                                {% if employee_data.expertise_completed %}text-green-600
-                                {% else %}text-gray-400{% endif %}">
-                            <i data-lucide="brain" class="w-4 h-4 mx-auto mb-1"></i>
-                        </div>
-                        <div class="text-xs text-gray-600">전문성</div>
+                    <div class="eval-axis {% if employee_data.expertise_completed %}completed{% else %}not-completed{% endif %}">
+                        <i class="fas fa-brain"></i>
+                        <span class="text-xs">전문성</span>
                     </div>
-                    <div class="text-center p-2 bg-white rounded">
-                        <div class="text-sm font-medium 
-                                {% if employee_data.impact_completed %}text-green-600
-                                {% else %}text-gray-400{% endif %}">
-                            <i data-lucide="users" class="w-4 h-4 mx-auto mb-1"></i>
-                        </div>
-                        <div class="text-xs text-gray-600">영향력</div>
+                    <div class="eval-axis {% if employee_data.impact_completed %}completed{% else %}not-completed{% endif %}">
+                        <i class="fas fa-users"></i>
+                        <span class="text-xs">영향력</span>
                     </div>
                 </div>
                 
-                <!-- 상태 및 액션 -->
-                <div class="flex justify-between items-center">
-                    <span class="px-3 py-1 rounded-full text-sm font-medium
-                        {% if employee_data.status == 'completed' %}bg-green-100 text-green-800
-                        {% elif employee_data.status == 'in-progress' %}bg-yellow-100 text-yellow-800
-                        {% else %}bg-gray-100 text-gray-800{% endif %}">
-                        {% if employee_data.status == 'completed' %}완료
-                        {% elif employee_data.status == 'in-progress' %}진행중
-                        {% else %}미시작{% endif %}
+                <!-- Overall Score Display -->
+                {% if employee_data.overall_score %}
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm text-gray-400 mb-2">
+                        <span>종합 점수</span>
+                        <span>{{ employee_data.overall_score|floatformat:1 }}/5.0</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-1000" 
+                             style="width: {{ employee_data.overall_score|floatformat:0|default:0 }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Status and Action -->
+                <div class="flex justify-between items-center mt-6">
+                    <span class="status-badge status-{{ employee_data.status }}">
+                        {% if employee_data.status == 'completed' %}
+                            <i class="fas fa-trophy"></i> 완료
+                        {% elif employee_data.status == 'in-progress' %}
+                            <i class="fas fa-clock"></i> 진행중
+                        {% else %}
+                            <i class="fas fa-lock"></i> 대기
+                        {% endif %}
                     </span>
                     
                     <a href="{% url 'evaluations:comprehensive_evaluation' employee_data.employee.id %}" 
-                       class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors text-sm">
-                        평가하기
+                       class="action-btn">
+                        <i class="fas fa-star"></i>
+                        종합평가
                     </a>
                 </div>
             </div>
             {% empty %}
-            <div class="col-span-3 text-center py-12">
-                <i data-lucide="users" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
-                <p class="text-gray-500">평가 대상자가 없습니다.</p>
+            <div class="col-span-full">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🏆</div>
+                    <h3 class="text-xl font-semibold text-white mb-2">종합평가 대상자가 없습니다</h3>
+                    <p class="text-gray-400">현재 활성 평가 기간에 대한 종합 평가 대상자가 없습니다.</p>
+                </div>
             </div>
             {% endfor %}
+        </div>
+        
+        <!-- Grade Distribution Section -->
+        <div class="mt-16" data-aos="fade-up">
+            <div class="glass-card">
+                <h3 class="text-2xl font-bold text-white mb-6">등급 분포 현황</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="text-center">
+                        <div class="grade-badge grade-s mx-auto mb-2">S</div>
+                        <div class="text-2xl font-bold text-purple-400">5</div>
+                        <div class="text-sm text-gray-400">최우수</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="grade-badge grade-a mx-auto mb-2">A</div>
+                        <div class="text-2xl font-bold text-green-400">12</div>
+                        <div class="text-sm text-gray-400">우수</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="grade-badge grade-b mx-auto mb-2">B</div>
+                        <div class="text-2xl font-bold text-blue-400">18</div>
+                        <div class="text-sm text-gray-400">양호</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="grade-badge grade-c mx-auto mb-2">C</div>
+                        <div class="text-2xl font-bold text-yellow-400">8</div>
+                        <div class="text-sm text-gray-400">보통</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="grade-badge grade-d mx-auto mb-2">D</div>
+                        <div class="text-2xl font-bold text-red-400">2</div>
+                        <div class="text-sm text-gray-400">개선</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Final Summary Section -->
+        <div class="mt-8" data-aos="fade-up" data-aos-delay="200">
+            <div class="glass-card">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-medal text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-1">종합 평가 완료</h3>
+                            <p class="text-lg text-gray-300">AI 기반 종합 성과 평가를 통해 직원의 성장 방향을 제시합니다</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-bold text-green-400">{{ completion_rate|default:0 }}%</div>
+                        <div class="text-sm text-gray-400">완료율</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
-// 필터링 기능
-document.getElementById('departmentFilter').addEventListener('change', filterEmployees);
-document.getElementById('statusFilter').addEventListener('change', filterEmployees);
-
-function filterEmployees() {
-    const departmentFilter = document.getElementById('departmentFilter').value;
-    const statusFilter = document.getElementById('statusFilter').value;
-    const cards = document.querySelectorAll('.evaluation-card');
-    
-    cards.forEach(card => {
-        const department = card.dataset.department;
-        const status = card.dataset.status;
-        
-        const departmentMatch = !departmentFilter || department === departmentFilter;
-        const statusMatch = !statusFilter || status === statusFilter;
-        
-        if (departmentMatch && statusMatch) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 50
     });
-}
-
-// 페이지 로드시 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    lucide.createIcons();
-});
+    
+    // Filter functionality
+    function filterEmployees() {
+        const departmentFilter = document.getElementById('departmentFilter').value;
+        const gradeFilter = document.getElementById('gradeFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const cards = document.querySelectorAll('.employee-card');
+        
+        cards.forEach(card => {
+            const department = card.dataset.department;
+            const grade = card.dataset.grade;
+            const status = card.dataset.status;
+            
+            const departmentMatch = !departmentFilter || department === departmentFilter;
+            const gradeMatch = !gradeFilter || grade === gradeFilter;
+            const statusMatch = !statusFilter || status === statusFilter;
+            
+            if (departmentMatch && gradeMatch && statusMatch) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Event listeners
+    document.getElementById('departmentFilter').addEventListener('change', filterEmployees);
+    document.getElementById('gradeFilter').addEventListener('change', filterEmployees);
+    document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add stagger animation for cards
+        const cards = document.querySelectorAll('.employee-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+        
+        // Add hover effects
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Animate progress rings
+        setTimeout(() => {
+            const progressRings = document.querySelectorAll('.progress-ring-progress');
+            progressRings.forEach(ring => {
+                ring.style.strokeDashoffset = 'calc(220 - (220 * ' + ring.style.getPropertyValue('--progress').replace('%', '') + ' / 100))';
+            });
+        }, 500);
+    });
 </script>
 {% endblock %}
