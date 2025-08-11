@@ -55,9 +55,7 @@
                     <i class="fas fa-check-double"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value">
-                        {{ employees|dictsort:"status"|first.status|default:"0" }}
-                    </div>
+                    <div class="stat-value" id="completed-count">0</div>
                     <div class="stat-label">완료</div>
                 </div>
             </div>
@@ -68,9 +66,7 @@
                     <i class="fas fa-spinner"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value">
-                        {{ employees|dictsort:"status"|last.status|default:"0" }}
-                    </div>
+                    <div class="stat-value" id="in-progress-count">0</div>
                     <div class="stat-label">진행중</div>
                 </div>
             </div>
@@ -81,9 +77,7 @@
                     <i class="fas fa-hourglass-half"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value">
-                        {{ employees|length }}
-                    </div>
+                    <div class="stat-value" id="not-started-count">0</div>
                     <div class="stat-label">미시작</div>
                 </div>
             </div>
@@ -227,4 +221,34 @@
     background: rgba(0, 212, 255, 0.05);
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 통계 계산
+    let completedCount = 0;
+    let inProgressCount = 0;
+    let notStartedCount = 0;
+    
+    // 테이블에서 데이터 추출
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(function(row) {
+        const statusBadge = row.querySelector('span.badge');
+        if (statusBadge) {
+            const statusText = statusBadge.textContent.trim();
+            if (statusText.includes('완료')) {
+                completedCount++;
+            } else if (statusText.includes('진행중')) {
+                inProgressCount++;
+            } else {
+                notStartedCount++;
+            }
+        }
+    });
+    
+    // DOM 업데이트
+    document.getElementById('completed-count').textContent = completedCount;
+    document.getElementById('in-progress-count').textContent = inProgressCount;
+    document.getElementById('not-started-count').textContent = notStartedCount;
+});
+</script>
 {% endblock %}
