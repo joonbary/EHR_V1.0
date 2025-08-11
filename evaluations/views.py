@@ -1669,7 +1669,7 @@ def contribution_list(request):
         task_completion_rate = round((completed_tasks / total_tasks * 100) if total_tasks > 0 else 0, 1)
         
         # 상태 결정
-        if contribution_eval and contribution_eval.status == 'COMPLETED':
+        if contribution_eval and contribution_eval.is_achieved:
             status = 'completed'
         elif contribution_eval or total_tasks > 0:
             status = 'in-progress'
@@ -1679,7 +1679,7 @@ def contribution_list(request):
         employee_data.append({
             'employee': employee,
             'contribution_eval': contribution_eval,
-            'contribution_score': contribution_eval.total_score if contribution_eval else None,
+            'contribution_score': contribution_eval.contribution_score if contribution_eval else None,
             'total_tasks': total_tasks,
             'completed_tasks': completed_tasks,
             'task_completion_rate': task_completion_rate,
