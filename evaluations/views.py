@@ -1714,7 +1714,7 @@ def expertise_list(request):
         ).first()
         
         # 상태 결정
-        if expertise_eval and expertise_eval.status == 'COMPLETED':
+        if expertise_eval and expertise_eval.is_achieved:
             status = 'completed'
         elif expertise_eval:
             status = 'in-progress'
@@ -1756,7 +1756,7 @@ def impact_list(request):
         ).first()
         
         # 상태 결정
-        if impact_eval and impact_eval.status == 'COMPLETED':
+        if impact_eval and impact_eval.is_achieved:
             status = 'completed'
         elif impact_eval:
             status = 'in-progress'
