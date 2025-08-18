@@ -49,16 +49,43 @@ from notifications.models import Notification
 def generate_ai_feedback(request):
     """AI 피드백 생성 API"""
     
-    evaluation_type = request.data.get('type')  # contribution, expertise, impact
-    evaluation_id = request.data.get('evaluation_id')
-    
-    if not evaluation_type or not evaluation_id:
-        return Response(
-            {'error': '평가 타입과 ID가 필요합니다.'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
     try:
+        evaluation_type = request.data.get('type')  # contribution, expertise, impact
+        evaluation_id = request.data.get('evaluation_id')
+        
+        logger.info(f"AI feedback requested - type: {evaluation_type}, id: {evaluation_id}")
+        
+        if not evaluation_type:
+            return Response(
+                {'error': '평가 타입이 필요합니다.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+        # evaluation_id가 null인 경우 처리
+        if evaluation_id == 'null' or evaluation_id is None:
+            # 기본 피드백 반환
+            default_feedback = f"""[AI 피드백 - 신규 평가]
+            
+평가 유형: {evaluation_type}
+
+이 평가는 아직 저장되지 않은 상태입니다.
+평가를 먼저 저장한 후 AI 피드백을 생성해주세요.
+
+평가 작성 가이드:
+1. 구체적인 업무 성과와 기여도를 기록하세요
+2. 측정 가능한 목표와 실적을 입력하세요
+3. 건설적인 피드백과 개선 방향을 제시하세요
+
+※ 평가 저장 후 더 정확한 AI 피드백을 받으실 수 있습니다."""
+            
+            return Response({
+                'feedback': default_feedback,
+                'validation_score': 100,
+                'type': evaluation_type,
+                'employee': '신규 평가'
+            })
+    
+        # 정상적인 평가 처리
         # 평가 데이터 조회
         if evaluation_type == 'contribution':
             evaluation = ContributionEvaluation.objects.get(id=evaluation_id)
@@ -148,10 +175,40 @@ def generate_ai_feedback(request):
         })
         
     except Exception as e:
-        return Response(
-            {'error': f'피드백 생성 중 오류가 발생했습니다: {str(e)}'},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        logger.error(f"AI feedback generation error: {str(e)}", exc_info=True)
+        
+        # 에러 발생 시 기본 피드백 제공
+        fallback_feedback = f"""[AI 피드백 생성 오류]
+
+평가 유형: {evaluation_type}
+
+현재 AI 피드백 서비스를 사용할 수 없습니다.
+다음과 같은 점을 고려하여 수동으로 피드백을 작성해주세요:
+
+1. 우수한 점:
+   - 업무 성과와 달성률
+   - 팀 기여도와 협업 능력
+   - 전문성과 문제 해결 능력
+
+2. 개선이 필요한 점:
+   - 목표 달성을 위한 개선 사항
+   - 역량 개발이 필요한 영역
+   - 커뮤니케이션 및 협업 개선점
+
+3. 향후 발전 방향:
+   - 성장 잠재력과 기회
+   - 경력 개발 제안
+   - 교육 및 훈련 권장 사항
+
+오류 정보: {str(e)[:100]}..."""
+        
+        return Response({
+            'feedback': fallback_feedback,
+            'validation_score': 0,
+            'type': evaluation_type,
+            'employee': '오류',
+            'error': str(e)
+        }, status=status.HTTP_200_OK)  # 200으로 반환하여 UI에서 처리 가능하도록
 
 
 @api_view(['GET'])
