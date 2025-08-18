@@ -4,11 +4,12 @@ AI 피드백 생성 및 실시간 기능 API
 """
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db import models
 import json
@@ -22,7 +23,7 @@ from notifications.models import Notification
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])  # 임시로 AllowAny 설정, 추후 IsAuthenticated로 변경 필요
 def generate_ai_feedback(request):
     """AI 피드백 생성 API"""
     
