@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}고급 조직도 관리{% endblock %}
+
+{% block extra_css %}
+<style>
+    .org-chart-container {
+        height: calc(100vh - 120px);
+        background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        flex-direction: column;
+    }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #FF6B00;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .feature-badge {
+        background: linear-gradient(135deg, #FF6B00, #FFAA00);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    
+    .info-card {
+        background: rgba(255, 107, 0, 0.05);
+        border: 1px solid rgba(255, 107, 0, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .feature-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #FF6B00, #FFAA00);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+    }
+    
+    .setup-steps {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .step {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .step:last-child {
+        border-bottom: none;
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        background: #FF6B00;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <i data-lucide="git-branch" class="w-8 h-8 text-orange-600 mr-3"></i>
+                    고급 조직도 관리
+                    <span class="feature-badge">NEW</span>
+                </h1>
+                <p class="mt-2 text-gray-600">
+                    드래그 앤 드롭, What-if 분석, 시나리오 관리가 가능한 인터랙티브 조직도 시스템
+                </p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="location.href='{% url 'employees:organization_chart' %}'" 
+                        class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                    기본 조직도
+                </button>
+                <button onclick="openReactApp()" 
+                        class="px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg hover:shadow-lg transition-all">
+                    <i data-lucide="external-link" class="w-4 h-4 inline mr-2"></i>
+                    React 앱에서 열기
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 기능 소개 -->
+    <div class="info-card">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+            <i data-lucide="sparkles" class="w-5 h-5 text-orange-600 mr-2"></i>
+            주요 기능
+        </h3>
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="move" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="font-medium">드래그 앤 드롭</div>
+                    <div class="text-sm text-gray-600">조직 구조를 직관적으로 재편성</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="camera" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="font-medium">스냅샷 비교</div>
+                    <div class="text-sm text-gray-600">A/B 비교로 변경사항 분석</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="play" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="font-medium">What-if 분석</div>
+                    <div class="text-sm text-gray-600">가상 시나리오로 효과 미리보기</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="grid-3x3" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="font-medium">매트릭스 뷰</div>
+                    <div class="text-sm text-gray-600">기능×리더 크로스 분석</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="file-spreadsheet" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="font-medium">엑셀 연동</div>
+                    <div class="text-sm text-gray-600">대량 데이터 임포트/익스포트</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="save" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="font-medium">시나리오 관리</div>
+                    <div class="text-sm text-gray-600">조직 개편안 저장 및 관리</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 설정 안내 -->
+    <div class="setup-steps">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <i data-lucide="settings" class="w-5 h-5 text-orange-600 mr-2"></i>
+            사용하기 전 설정
+        </h3>
+        <div class="step">
+            <div class="step-number">1</div>
+            <div>
+                <div class="font-medium">마이그레이션 실행</div>
+                <div class="text-sm text-gray-600">
+                    <code class="bg-gray-100 px-2 py-1 rounded">python manage.py migrate organization</code>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div>
+                <div class="font-medium">프론트엔드 패키지 설치</div>
+                <div class="text-sm text-gray-600">
+                    <code class="bg-gray-100 px-2 py-1 rounded">cd frontend && npm install reactflow @dnd-kit/core @dnd-kit/sortable</code>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div>
+                <div class="font-medium">Redis 설정 (선택사항)</div>
+                <div class="text-sm text-gray-600">
+                    성능 향상을 위한 캐싱 설정
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">4</div>
+            <div>
+                <div class="font-medium">조직 데이터 입력</div>
+                <div class="text-sm text-gray-600">
+                    Django Admin 또는 엑셀 업로드로 조직 데이터 입력
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 조직도 컨테이너 -->
+    <div class="org-chart-container mt-8">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p class="mt-4 text-gray-600">React 앱을 로드하는 중...</p>
+            <p class="text-sm text-gray-500 mt-2">
+                위의 "React 앱에서 열기" 버튼을 클릭하여 전체 기능을 이용하세요.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lucide icons 초기화
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    // React 앱 열기 함수
+    function openReactApp() {
+        // React 개발 서버가 실행 중인지 확인
+        const reactUrl = 'http://localhost:3000/organization/chart';
+        
+        // 새 탭에서 React 앱 열기
+        const newWindow = window.open(reactUrl, '_blank');
+        
+        // 만약 React 서버가 실행 중이 아니라면 안내 메시지 표시
+        setTimeout(() => {
+            if (newWindow.closed) {
+                alert('React 개발 서버가 실행 중이지 않습니다.\n\n다음 명령을 실행해주세요:\ncd frontend && npm start');
+            }
+        }, 1000);
+    }
+    
+    // 페이지 로드 시 React 앱 가용성 확인
+    document.addEventListener('DOMContentLoaded', function() {
+        // React 앱이 사용 가능한지 확인
+        fetch('http://localhost:3000/organization/chart', { mode: 'no-cors' })
+            .then(() => {
+                // React 앱이 실행 중이면 자동으로 리다이렉트하는 옵션 제공
+                const container = document.querySelector('.org-chart-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="loading-spinner">
+                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                                <strong class="font-bold">React 앱이 실행 중입니다!</strong>
+                                <span class="block sm:inline"> 전체 기능을 사용하려면 React 앱에서 열어주세요.</span>
+                                <button onclick="openReactApp()" class="mt-3 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                    React 앱에서 열기
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            })
+            .catch(() => {
+                // React 앱이 실행 중이 아니면 안내 메시지만 표시
+                console.log('React 개발 서버가 실행 중이지 않습니다.');
+            });
+    });
+</script>
+{% endblock %}

@@ -180,33 +180,30 @@ def position_detail(request, position_id):
 
 
 def organization_chart(request):
-    """조직도"""
-    # 현재 활성 조직도
-    current_chart = OrganizationChart.objects.filter(is_active=True).first()
+    """고급 조직도 (React 기반)"""
+    from .models_enhanced import OrgUnit, OrgScenario
     
-    # 부서 계층 구조
-    departments = Department.objects.filter(is_active=True).select_related('manager')
+    # 기본 통계 정보
+    total_units = OrgUnit.objects.count()
+    total_scenarios = OrgScenario.objects.count()
     
-    # D3.js를 위한 JSON 데이터 생성
-    def build_org_data(dept):
-        return {
-            'id': str(dept.id),
-            'name': dept.name,
-            'code': dept.code,
-            'type': dept.department_type,
-            'manager': dept.manager.name if dept.manager else '',
-            'employee_count': dept.get_employee_count(),
-            'children': [build_org_data(child) for child in dept.children.filter(is_active=True)]
-        }
+    # 회사별 조직 수
+    company_stats = {}
+    for company in ['OK저축은행', 'OK캐피탈', 'OK금융그룹']:
+        company_stats[company] = OrgUnit.objects.filter(company=company).count()
     
-    # 최상위 부서들부터 시작
-    root_departments = departments.filter(parent=None)
-    org_data = [build_org_data(dept) for dept in root_departments]
+    # 최근 시나리오
+    recent_scenarios = OrgScenario.objects.order_by('-created_at')[:5]
     
     context = {
-        'current_chart': current_chart,
-        'org_data': json.dumps(org_data),
-        'total_departments': departments.count(),
+        'total_units': total_units,
+        'total_scenarios': total_scenarios,
+        'company_stats': company_stats,
+        'recent_scenarios': recent_scenarios,
+        
+        # 기존 호환성을 위한 데이터
+        'current_chart': OrganizationChart.objects.filter(is_active=True).first(),
+        'total_departments': Department.objects.filter(is_active=True).count(),
         'total_employees': Employee.objects.filter(employment_status='재직').count(),
     }
     

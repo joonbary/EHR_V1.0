@@ -391,7 +391,13 @@
                                     <i data-lucide="chevron-down" class="w-4 h-4 menu-chevron {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}text-white{% else %}text-gray-500{% endif %}"></i>
                                 </button>
                                 <div id="organization-submenu" class="submenu {% if 'organization' in request.resolver_match.url_name or 'job_profiles' in request.resolver_match.namespace %}open{% endif %} ml-14 mt-1">
-                                    <a href="{% url 'employees:organization_chart' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">조직도</a>
+                                    <a href="{% url 'organization:organization_chart' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
+                                        <div class="flex items-center space-x-2">
+                                            <span>고급 조직도</span>
+                                            <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">NEW</span>
+                                        </div>
+                                    </a>
+                                    <a href="{% url 'employees:organization_chart' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">기본 조직도</a>
                                     <a href="{% url 'organization:department_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">부서 관리</a>
                                     <a href="{% url 'organization:position_list' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직위 관리</a>
                                     <a href="{% url 'job_profiles:hierarchy' %}" class="block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">직무 체계도</a>
