@@ -1,0 +1,594 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 - {{ employee.name }} | OK Financial Group{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 기여도 평가 전용 스타일 - EHR 시스템 테마 통일 */
+    .evaluation-hero {
+        background: var(--bg-main-gradient);
+        border: 1px solid var(--border-feature);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .evaluation-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: var(--primary-gradient);
+        opacity: 0.05;
+        animation: rotate 20s linear infinite;
+        z-index: 0;
+    }
+    
+    .evaluation-hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .evaluation-title {
+        font-size: 2.5rem;
+        background: var(--text-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        text-shadow: var(--shadow-text);
+        margin-bottom: 0.5rem;
+    }
+    
+    .evaluation-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .employee-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .employee-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        box-shadow: var(--shadow-glow);
+    }
+    
+    .employee-details h3 {
+        color: var(--text-primary);
+        margin: 0;
+        font-size: 1.3rem;
+    }
+    
+    .employee-details p {
+        color: var(--text-muted);
+        margin: 0;
+    }
+    
+    .current-score {
+        background: var(--bg-card);
+        border: 1px solid var(--border-feature);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-card);
+    }
+    
+    .score-value {
+        font-size: 3rem;
+        font-weight: 700;
+        background: var(--text-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: var(--shadow-text);
+    }
+    
+    .score-label {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .evaluation-section {
+        background: var(--bg-card);
+        border: 1px solid var(--border-default);
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        box-shadow: var(--shadow-card);
+        transition: all 0.3s ease;
+    }
+    
+    .evaluation-section:hover {
+        border-color: var(--border-feature);
+        box-shadow: var(--shadow-feature);
+        transform: translateY(-2px);
+    }
+    
+    .section-header {
+        background: var(--bg-airiss);
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-default);
+    }
+    
+    .section-title {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-icon {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+    }
+    
+    .section-body {
+        padding: 1.5rem;
+    }
+    
+    .task-item {
+        background: var(--bg-card-hover);
+        border: 1px solid var(--border-default);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .task-item:hover {
+        border-color: var(--border-feature);
+        background: var(--bg-feature);
+        transform: translateX(5px);
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.9rem;
+    }
+    
+    .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-default);
+        border-radius: 8px;
+        color: var(--text-primary);
+        padding: 0.75rem;
+        width: 100%;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-light);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .form-control::placeholder {
+        color: var(--text-subtle);
+    }
+    
+    .btn-primary-ai {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        box-shadow: var(--shadow-card);
+    }
+    
+    .btn-primary-ai:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-feature);
+        filter: brightness(1.1);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-secondary-ai {
+        background: var(--bg-card);
+        color: var(--text-primary);
+        border: 1px solid var(--border-default);
+        padding: 0.875rem 2rem;
+        border-radius: 10px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .btn-secondary-ai:hover {
+        border-color: var(--border-feature);
+        background: var(--bg-card-hover);
+        color: var(--text-primary);
+        text-decoration: none;
+    }
+    
+    .scoring-guide {
+        background: var(--bg-feature);
+        border: 1px solid var(--border-feature);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert-ai-info {
+        background: var(--bg-feature);
+        border: 1px solid var(--border-feature);
+        color: var(--text-secondary);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .scoring-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        background: var(--bg-card-hover);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .scoring-table th {
+        background: var(--bg-airiss);
+        color: var(--text-primary);
+        padding: 0.75rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-default);
+        text-align: center;
+    }
+    
+    .scoring-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-default);
+        text-align: center;
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
+    }
+    
+    .scoring-table td:hover {
+        background: var(--bg-feature);
+    }
+    
+    .score-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        display: inline-block;
+    }
+    
+    .score-4 { 
+        background: linear-gradient(135deg, #00ff88, #00cc6a);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+    }
+    
+    .score-3 { 
+        background: linear-gradient(135deg, #ffbb33, #ff9900);
+        color: white;
+        box-shadow: 0 2px 8px rgba(255, 187, 51, 0.3);
+    }
+    
+    .score-2 { 
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+    }
+    
+    .score-1 { 
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        color: white;
+        box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+    }
+    
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .action-buttons {
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: var(--bg-card);
+        border-radius: 15px;
+        border: 1px solid var(--border-default);
+    }
+    
+    @media (max-width: 768px) {
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+        
+        .evaluation-title {
+            font-size: 2rem;
+        }
+        
+        .employee-info {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Breadcrumb -->
+    <nav class="mb-4" style="color: var(--text-muted);">
+        <a href="{% url 'evaluations:dashboard' %}" style="color: var(--text-muted); text-decoration: none;">평가관리</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'evaluations:contribution_employees' %}" style="color: var(--text-muted); text-decoration: none;">기여도 평가</a>
+        <span class="mx-2">/</span>
+        <span style="color: var(--primary-color);">{{ employee.name }}</span>
+    </nav>
+
+    <!-- Evaluation Hero Section -->
+    <div class="evaluation-hero">
+        <div class="evaluation-hero-content">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="evaluation-title">🎯 기여도 평가</h1>
+                    <p class="evaluation-subtitle">Task 기반 성과 평가 시스템</p>
+                    
+                    <div class="employee-info">
+                        <div class="employee-avatar">
+                            {{ employee.name|slice:":1" }}
+                        </div>
+                        <div class="employee-details">
+                            <h3>{{ employee.name }} ({{ employee.employee_id }})</h3>
+                            <p>{{ employee.department }} {{ employee.position }}</p>
+                            {% if active_period %}
+                            <p style="color: var(--primary-color);">📅 {{ active_period.year }}년 {{ active_period.get_period_type_display }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if evaluation.total_score %}
+                <div class="current-score">
+                    <div class="score-value">{{ evaluation.total_score|floatformat:1 }}</div>
+                    <div class="score-label">현재 점수</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- 평가 기준표 -->
+        <div class="evaluation-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span class="section-icon">📊</span>
+                    평가 기준표
+                </h3>
+            </div>
+            <div class="section-body">
+                <div class="alert-ai-info">
+                    <i class="fas fa-info-circle me-2" style="color: var(--primary-color);"></i>
+                    <strong>기여범위별 점수 체계</strong> - 업무의 기여범위와 방법에 따라 점수가 자동 계산됩니다.
+                </div>
+                
+                <table class="scoring-table">
+                    <thead>
+                        <tr>
+                            <th>기여범위</th>
+                            <th>총괄</th>
+                            <th>리딩</th>
+                            <th>실무</th>
+                            <th>지원</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>전략적</strong></td>
+                            <td><span class="score-badge score-4">4.0</span></td>
+                            <td><span class="score-badge score-4">4.0</span></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>상호적</strong></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>개별적</strong></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 업무 목록 -->
+        <div class="evaluation-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span class="section-icon">📋</span>
+                    업무 목록 & 평가
+                </h3>
+            </div>
+            <div class="section-body">
+                {% if tasks %}
+                    {% for task in tasks %}
+                    <div class="task-item">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 style="color: var(--primary-color); margin: 0;">
+                                <i class="fas fa-tasks me-2"></i>업무 #{{ forloop.counter }}
+                            </h5>
+                            {% if task.contribution_score %}
+                            <span class="score-badge score-3">{{ task.contribution_score|floatformat:1 }}점</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-edit me-1"></i>업무명
+                                </label>
+                                <input type="text" name="task_{{ task.id }}_title" value="{{ task.title }}" 
+                                       class="form-control" placeholder="업무명을 입력하세요">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-weight-hanging me-1"></i>가중치 (%)
+                                </label>
+                                <input type="number" name="task_{{ task.id }}_weight" value="{{ task.weight }}" 
+                                       min="0" max="100" class="form-control" placeholder="0~100">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-file-text me-1"></i>업무 설명
+                            </label>
+                            <textarea name="task_{{ task.id }}_description" class="form-control" rows="2" 
+                                      placeholder="업무 내용을 자세히 설명하세요">{{ task.description }}</textarea>
+                        </div>
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-cog me-1"></i>기여 방법
+                                </label>
+                                <select name="task_{{ task.id }}_method" class="form-control">
+                                    <option value="총괄" {% if task.contribution_method == '총괄' %}selected{% endif %}>총괄</option>
+                                    <option value="리딩" {% if task.contribution_method == '리딩' %}selected{% endif %}>리딩</option>
+                                    <option value="실무" {% if task.contribution_method == '실무' %}selected{% endif %}>실무</option>
+                                    <option value="지원" {% if task.contribution_method == '지원' %}selected{% endif %}>지원</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-expand-arrows-alt me-1"></i>기여 범위
+                                </label>
+                                <select name="task_{{ task.id }}_scope" class="form-control">
+                                    <option value="전략적" {% if task.contribution_scope == '전략적' %}selected{% endif %}>전략적</option>
+                                    <option value="상호적" {% if task.contribution_scope == '상호적' %}selected{% endif %}>상호적</option>
+                                    <option value="개별적" {% if task.contribution_scope == '개별적' %}selected{% endif %}>개별적</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-target me-1"></i>목표값
+                                </label>
+                                <input type="number" name="task_{{ task.id }}_target" value="{{ task.target_value }}" 
+                                       step="0.01" class="form-control" placeholder="목표값">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-check-circle me-1"></i>실제값
+                                </label>
+                                <input type="number" name="task_{{ task.id }}_actual" value="{{ task.actual_value }}" 
+                                       step="0.01" class="form-control" placeholder="실제값">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-ruler me-1"></i>측정 단위
+                            </label>
+                            <input type="text" name="task_{{ task.id }}_unit" value="{{ task.target_unit }}" 
+                                   class="form-control" placeholder="예: 건, %, 원, 시간, 개">
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert-ai-info">
+                        <i class="fas fa-info-circle me-2" style="color: var(--primary-color);"></i>
+                        등록된 업무가 없습니다. 업무를 추가하여 평가를 시작하세요.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 종합 의견 -->
+        <div class="evaluation-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span class="section-icon">💭</span>
+                    종합 평가 의견
+                </h3>
+            </div>
+            <div class="section-body">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-comment-dots me-1"></i>평가자 의견
+                    </label>
+                    <textarea name="comments" class="form-control" rows="4" 
+                              placeholder="평가에 대한 종합적인 의견과 피드백을 작성하세요">{{ evaluation.comments }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="action-buttons">
+            <button type="submit" class="btn-primary-ai me-3">
+                <i class="fas fa-save me-2"></i>평가 저장
+            </button>
+            <a href="{% url 'evaluations:contribution_employees' %}" class="btn-secondary-ai">
+                <i class="fas fa-arrow-left me-2"></i>목록으로
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -392,7 +392,7 @@ def contribution_evaluation(request, employee_id):
         'scoring_info': scoring_info,
     }
     
-    return render(request, 'evaluations/contribution_evaluation_simple.html', context)
+    return render(request, 'evaluations/contribution_evaluation_revolutionary.html', context)
 
 
 def expertise_evaluation(request, employee_id):
