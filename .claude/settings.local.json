@@ -47,7 +47,13 @@
       "Bash(git restore:*)",
       "Bash(git fetch:*)",
       "Bash(railway up:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(python manage.py makemigrations:*)",
+      "Bash(python:*)",
+      "Bash(for dir in ai_*)",
+      "Bash(done)"
     ],
     "deny": []
   }
