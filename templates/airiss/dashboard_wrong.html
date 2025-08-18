@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AIRISS - OK금융그룹 e-HR System{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 페이지 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center float-animation">
+                    <i data-lucide="brain" class="w-6 h-6 text-pink-600"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">AIRISS</h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">AI 기반 HR 분석 및 인사이트 시스템</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span>AI 설정</span>
+                </button>
+                <button class="px-4 py-2 gradient-bg text-white rounded-xl hover:shadow-lg transition-all flex items-center space-x-2">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>새 분석 시작</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 인사이트 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- 이탈 위험도 -->
+        <div class="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">이탈 위험 직원</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">23명</p>
+                    <p class="text-sm text-red-600 mt-2 flex items-center">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 mr-1"></i>
+                        즉시 조치 필요
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="user-minus" class="w-6 h-6 text-red-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 성과 예측 -->
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">고성과자 예측</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">87명</p>
+                    <p class="text-sm text-green-600 mt-2 flex items-center">
+                        <i data-lucide="trending-up" class="w-4 h-4 mr-1"></i>
+                        상위 15% 예상
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="star" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 팀 효율성 -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">팀 효율성 점수</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">82.5</p>
+                    <p class="text-sm text-blue-600 mt-2 flex items-center">
+                        <i data-lucide="bar-chart" class="w-4 h-4 mr-1"></i>
+                        +5.2 향상
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI 정확도 -->
+        <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">AI 예측 정확도</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">94.7%</p>
+                    <p class="text-sm text-purple-600 mt-2 flex items-center">
+                        <i data-lucide="zap" class="w-4 h-4 mr-1"></i>
+                        업계 최고 수준
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="cpu" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 분석 메뉴 -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <a href="{% url 'airiss:analytics' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-gradient-to-br from-pink-100 to-purple-100 group-hover:from-pink-200 group-hover:to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all">
+                <i data-lucide="pie-chart" class="w-8 h-8 text-purple-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">인재 분석</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">역량 및 잠재력 분석</p>
+        </a>
+
+        <a href="{% url 'airiss:insights' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-100 group-hover:from-blue-200 group-hover:to-cyan-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all">
+                <i data-lucide="zap" class="w-8 h-8 text-blue-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">예측 인사이트</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">미래 트렌드 예측</p>
+        </a>
+
+        <a href="{% url 'airiss:predictions' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 group-hover:from-green-200 group-hover:to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all">
+                <i data-lucide="sparkles" class="w-8 h-8 text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">AI 추천</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">맞춤형 HR 추천</p>
+        </a>
+
+        <a href="#" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 group-hover:from-orange-200 group-hover:to-red-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all">
+                <i data-lucide="shield-alert" class="w-8 h-8 text-orange-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">리스크 관리</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">HR 리스크 예방</p>
+        </a>
+    </div>
+
+    <!-- 실시간 AI 인사이트 -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-8">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <i data-lucide="activity" class="w-5 h-5 mr-2 text-pink-600"></i>
+                    실시간 AI 인사이트
+                </h2>
+                <span class="text-sm text-gray-500">마지막 업데이트: 2분 전</span>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <!-- 인사이트 아이템 1 -->
+                <div class="flex items-start space-x-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-gray-900 dark:text-white mb-1">높은 이탈 위험 감지</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">IT개발팀 시니어 개발자 3명이 최근 3개월간 성과 및 참여도가 급격히 하락했습니다. 즉시 1:1 면담을 권장합니다.</p>
+                        <div class="flex items-center space-x-4 mt-3">
+                            <button class="text-sm text-red-600 hover:text-red-700 font-medium">상세 분석 보기</button>
+                            <button class="text-sm text-gray-600 hover:text-gray-700">대응 방안 추천</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 인사이트 아이템 2 -->
+                <div class="flex items-start space-x-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-gray-900 dark:text-white mb-1">팀 성과 향상 예측</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">마케팅팀의 최근 협업 패턴 분석 결과, 다음 분기 성과가 15% 향상될 것으로 예측됩니다. 현재 워크플로우 유지를 권장합니다.</p>
+                        <div class="flex items-center space-x-4 mt-3">
+                            <button class="text-sm text-green-600 hover:text-green-700 font-medium">성공 요인 분석</button>
+                            <button class="text-sm text-gray-600 hover:text-gray-700">벤치마킹 가이드</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 인사이트 아이템 3 -->
+                <div class="flex items-start space-x-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="users-2" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-gray-900 dark:text-white mb-1">최적 팀 구성 제안</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">신규 프로젝트 TF팀 구성을 위한 AI 분석 완료. 스킬셋과 성향 분석을 통해 최적의 5명을 추천합니다.</p>
+                        <div class="flex items-center space-x-4 mt-3">
+                            <button class="text-sm text-blue-600 hover:text-blue-700 font-medium">추천 명단 확인</button>
+                            <button class="text-sm text-gray-600 hover:text-gray-700">시뮬레이션 실행</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 모델 성능 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 예측 정확도 차트 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">AI 모델 예측 정확도</h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">이탈 예측</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">95.2%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" style="width: 95.2%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">성과 예측</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">92.8%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 92.8%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">팀 매칭</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">89.5%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style="width: 89.5%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">경력 개발 추천</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">87.3%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full" style="width: 87.3%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 학습 데이터 현황 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">AI 학습 데이터 현황</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">2.5M</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">총 데이터 포인트</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">48</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">학습 모델 수</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">실시간</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">업데이트 주기</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">99.9%</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">시스템 가용성</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

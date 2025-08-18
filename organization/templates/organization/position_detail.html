@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ position.name }} - 직위 상세{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 24px;
+    }
+    .employee-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+    .employee-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 16px;
+        transition: all 0.3s ease;
+    }
+    .employee-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    .permission-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <nav class="text-sm text-gray-400 mb-4">
+            <a href="{% url 'organization:dashboard' %}" class="hover:text-white">조직관리</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'organization:position_list' %}" class="hover:text-white">직위 관리</a>
+            <span class="mx-2">/</span>
+            <span class="text-white">{{ position.name }}</span>
+        </nav>
+        
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">{{ position.name }}</h1>
+                <p class="text-gray-300">{{ position.code }} • {{ position.get_position_type_display }}</p>
+            </div>
+            <button class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors">
+                <i class="fas fa-edit mr-2"></i>수정
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 직위 정보 -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- 기본 정보 -->
+            <div class="info-section">
+                <h3 class="text-lg font-semibold text-white mb-4">기본 정보</h3>
+                <dl class="space-y-3">
+                    <div>
+                        <dt class="text-sm text-gray-400">직위 순위</dt>
+                        <dd class="text-white font-medium">Rank {{ position.rank }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-400">성장레벨 범위</dt>
+                        <dd class="text-white font-medium">
+                            Level {{ position.growth_level_min }} - {{ position.growth_level_max }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-400">현재 인원</dt>
+                        <dd class="text-2xl font-bold text-white">{{ employee_count }}명</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- 권한 정보 -->
+            <div class="info-section">
+                <h3 class="text-lg font-semibold text-white mb-4">권한</h3>
+                <div class="space-y-3">
+                    <div class="permission-badge">
+                        {% if position.is_manager %}
+                        <i class="fas fa-check-circle text-green-400"></i>
+                        <span class="text-white">관리자 권한</span>
+                        {% else %}
+                        <i class="fas fa-times-circle text-gray-500"></i>
+                        <span class="text-gray-400">관리자 권한 없음</span>
+                        {% endif %}
+                    </div>
+                    <div class="permission-badge">
+                        {% if position.can_approve %}
+                        <i class="fas fa-check-circle text-green-400"></i>
+                        <span class="text-white">결재 권한</span>
+                        {% else %}
+                        <i class="fas fa-times-circle text-gray-500"></i>
+                        <span class="text-gray-400">결재 권한 없음</span>
+                        {% endif %}
+                    </div>
+                    <div class="permission-badge">
+                        {% if position.can_evaluate %}
+                        <i class="fas fa-check-circle text-green-400"></i>
+                        <span class="text-white">평가 권한</span>
+                        {% else %}
+                        <i class="fas fa-times-circle text-gray-500"></i>
+                        <span class="text-gray-400">평가 권한 없음</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설명 -->
+            {% if position.description %}
+            <div class="info-section">
+                <h3 class="text-lg font-semibold text-white mb-4">직위 설명</h3>
+                <p class="text-gray-300">{{ position.description|linebreaks }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 직원 목록 -->
+        <div class="lg:col-span-2">
+            <div class="mb-6 flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-white">
+                    {{ position.name }} 직원 목록
+                </h3>
+                <div class="flex gap-2">
+                    <select class="bg-gray-700 text-white px-4 py-2 rounded-lg">
+                        <option>성장레벨순</option>
+                        <option>이름순</option>
+                        <option>입사일순</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="employee-grid">
+                {% for employee in employees %}
+                <div class="employee-card">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="font-semibold text-white text-lg">{{ employee.name }}</h4>
+                            <p class="text-sm text-gray-400">{{ employee.department }}</p>
+                        </div>
+                        <span class="px-2 py-1 bg-purple-500 bg-opacity-20 text-purple-400 text-xs rounded">
+                            Lv.{{ employee.growth_level }}
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">입사일</span>
+                            <span class="text-gray-300">{{ employee.hire_date|date:"Y.m.d" }}</span>
+                        </div>
+                        {% if employee.manager %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">관리자</span>
+                            <span class="text-gray-300">{{ employee.manager.name }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <a href="{% url 'employees:employee_detail' employee.id %}" class="text-blue-400 hover:text-blue-300 text-sm">
+                            프로필 보기 <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-12">
+                    <p class="text-gray-400">해당 직위의 직원이 없습니다.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- 주요 책임 -->
+            {% if position.responsibilities %}
+            <div class="mt-8 info-section">
+                <h3 class="text-lg font-semibold text-white mb-4">주요 책임</h3>
+                <div class="text-gray-300 space-y-2">
+                    {{ position.responsibilities|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 자격 요건 -->
+            {% if position.requirements %}
+            <div class="mt-6 info-section">
+                <h3 class="text-lg font-semibold text-white mb-4">자격 요건</h3>
+                <div class="text-gray-300 space-y-2">
+                    {{ position.requirements|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

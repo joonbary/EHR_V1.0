@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .report-card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+        cursor: pointer;
+    }
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .report-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    .filter-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>리포트 센터</h2>
+    
+    <!-- 주요 리포트 -->
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <div class="card report-card" onclick="showReportModal('employee_list')">
+                <div class="card-body text-center">
+                    <i class="fas fa-users report-icon text-primary"></i>
+                    <h5>직원 명부</h5>
+                    <p class="text-muted">전체 직원 목록 및 정보</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card report-card" onclick="showReportModal('evaluation_summary')">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line report-icon text-success"></i>
+                    <h5>평가 결과 요약</h5>
+                    <p class="text-muted">연도별 평가 결과 분석</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card report-card" onclick="showReportModal('compensation_analysis')">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave report-icon text-warning"></i>
+                    <h5>보상 분석</h5>
+                    <p class="text-muted">부서별/레벨별 보상 현황</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card report-card" onclick="showReportModal('promotion_candidates')">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-graduate report-icon text-info"></i>
+                    <h5>승진 대상자</h5>
+                    <p class="text-muted">승진 요건 충족 직원</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card report-card" onclick="showReportModal('department_statistics')">
+                <div class="card-body text-center">
+                    <i class="fas fa-building report-icon text-danger"></i>
+                    <h5>부서별 통계</h5>
+                    <p class="text-muted">부서별 인원 및 현황</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card report-card" onclick="showReportModal('annual_report')">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt report-icon text-purple"></i>
+                    <h5>연간 HR 리포트</h5>
+                    <p class="text-muted">종합 HR 현황 보고서</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 최근 생성 리포트 -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>최근 생성된 리포트</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>리포트명</th>
+                        <th>생성자</th>
+                        <th>생성일시</th>
+                        <th>레코드수</th>
+                        <th>형식</th>
+                        <th>다운로드</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in recent_reports %}
+                    <tr>
+                        <td>{{ report.template.name }}</td>
+                        <td>{{ report.generated_by.username }}</td>
+                        <td>{{ report.generated_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ report.record_count }}</td>
+                        <td>
+                            <span class="badge badge-secondary">{{ report.file_format|upper }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ report.file_path.url }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 리포트 생성 모달 -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">리포트 생성</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm">
+                    <div id="filterOptions"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="generateReport()">
+                    <i class="fas fa-file-excel"></i> Excel 생성
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentReportType = '';
+
+function showReportModal(reportType) {
+    currentReportType = reportType;
+    const modal = $('#reportModal');
+    const filterOptions = $('#filterOptions');
+    
+    // 리포트별 필터 옵션 설정
+    let filters = '';
+    
+    switch(reportType) {
+        case 'employee_list':
+            filters = `
+                <div class="form-group">
+                    <label>부서</label>
+                    <select class="form-control" name="department">
+                        <option value="">전체</option>
+                        <option value="인사팀">인사팀</option>
+                        <option value="IT개발팀">IT개발팀</option>
+                        <option value="기업영업1팀">기업영업1팀</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>직책</label>
+                    <select class="form-control" name="position">
+                        <option value="">전체</option>
+                        <option value="사원">사원</option>
+                        <option value="대리">대리</option>
+                        <option value="과장">과장</option>
+                        <option value="팀장">팀장</option>
+                    </select>
+                </div>
+            `;
+            break;
+            
+        case 'evaluation_summary':
+            filters = `
+                <div class="form-group">
+                    <label>평가년도</label>
+                    <select class="form-control" name="year">
+                        <option value="2024">2024년</option>
+                        <option value="2023">2023년</option>
+                        <option value="2022">2022년</option>
+                    </select>
+                </div>
+            `;
+            break;
+    }
+    
+    filterOptions.html(filters);
+    modal.modal('show');
+}
+
+function generateReport() {
+    const formData = $('#reportForm').serialize();
+    let url = '';
+    
+    switch(currentReportType) {
+        case 'employee_list':
+            url = '{% url "reports:employee_list_report" %}';
+            break;
+        case 'evaluation_summary':
+            url = '{% url "reports:evaluation_summary_report" %}';
+            break;
+        case 'compensation_analysis':
+            url = '{% url "reports:compensation_analysis_report" %}';
+            break;
+        case 'promotion_candidates':
+            url = '{% url "reports:promotion_candidates_report" %}';
+            break;
+        case 'department_statistics':
+            url = '{% url "reports:department_statistics_report" %}';
+            break;
+    }
+    
+    if (url) {
+        window.location.href = url + '?' + formData;
+        $('#reportModal').modal('hide');
+    }
+}
+</script>
+{% endblock %} 

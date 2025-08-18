@@ -1,0 +1,483 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}직무기술서 조회{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 로딩 인디케이터 */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* 검색 하이라이트 */
+    .highlight {
+        background-color: #ffeb3b;
+        font-weight: bold;
+    }
+    
+    /* 북마크 버튼 */
+    .bookmark-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .bookmark-btn:hover {
+        background: #f8f9fa;
+    }
+    
+    .bookmark-btn.active {
+        background: #ffc107;
+        border-color: #ffc107;
+    }
+    
+    /* 정렬 버튼 */
+    .sort-btn {
+        border: 1px solid #dee2e6;
+        background: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .sort-btn:hover {
+        background: #f8f9fa;
+    }
+    
+    .sort-btn.active {
+        background: #0d6efd;
+        color: white;
+    }
+    
+    /* 모바일 반응형 */
+    @media (max-width: 768px) {
+        .job-profile-card {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-section {
+            margin-bottom: 1rem;
+        }
+        
+        .sort-section {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+    
+    /* 최근 본 직무 섹션 */
+    .recent-views-section {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    
+    .recent-view-item {
+        display: inline-block;
+        padding: 5px 10px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        text-decoration: none;
+        color: #495057;
+        transition: all 0.3s;
+    }
+    
+    .recent-view-item:hover {
+        background: #0d6efd;
+        color: white;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 로딩 오버레이 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>직무기술서 조회</h1>
+            <p class="text-muted">OK금융그룹의 직무별 상세 기술서를 확인하실 수 있습니다.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <!-- 다운로드 버튼 -->
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="downloadDropdown" data-bs-toggle="dropdown">
+                    <i class="bi bi-download"></i> 다운로드
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="downloadDropdown">
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="downloadData('excel')">
+                            <i class="bi bi-file-earmark-excel"></i> Excel 다운로드
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="downloadData('csv')">
+                            <i class="bi bi-file-earmark-csv"></i> CSV 다운로드
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 최근 본 직무 (신규) -->
+    {% if recent_views %}
+    <div class="recent-views-section">
+        <h6 class="mb-2">최근 본 직무기술서</h6>
+        <div>
+            {% for view in recent_views %}
+            <a href="{% url 'job_profiles:detail' view.job_profile.id %}" class="recent-view-item">
+                {{ view.job_profile.job_role.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- 검색 필터 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" id="searchForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">직군</label>
+                        <select name="category" id="category" class="form-select">
+                            <option value="">전체 직군</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="job_type" class="form-label">직종</label>
+                        <select name="job_type" id="job_type" class="form-select">
+                            <option value="">전체 직종</option>
+                            {% for job_type in job_types %}
+                            <option value="{{ job_type.id }}" {% if selected_job_type == job_type.id|stringformat:"s" %}selected{% endif %}>
+                                {{ job_type.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label for="q" class="form-label">검색어</label>
+                        <input type="text" name="q" id="q" class="form-control" 
+                               placeholder="직무명, 역할, 자격요건으로 검색" 
+                               value="{{ search_query }}">
+                    </div>
+                    
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="bi bi-search"></i> 검색
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
+                            <i class="bi bi-arrow-clockwise"></i> 초기화
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 정렬 옵션 (신규) -->
+                <input type="hidden" name="sort" id="sortField" value="{{ sort_by }}">
+                <input type="hidden" name="order" id="sortOrder" value="{{ order }}">
+            </form>
+        </div>
+    </div>
+    
+    <!-- 검색 결과 및 정렬 -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <!-- 검색 결과 수 표시 (신규) -->
+            <h5 class="mb-0">
+                {% if search_query or selected_category or selected_job_type %}
+                    검색 결과: <span class="text-primary">{{ total_count }}</span>건
+                {% else %}
+                    전체: <span class="text-primary">{{ total_count }}</span>건
+                {% endif %}
+            </h5>
+        </div>
+        
+        <!-- 정렬 버튼 (신규) -->
+        <div class="d-flex gap-2 sort-section">
+            <button class="sort-btn {% if sort_by == 'name' %}active{% endif %}" 
+                    onclick="sortBy('name')">
+                직무명 
+                {% if sort_by == 'name' %}
+                    <i class="bi bi-arrow-{% if order == 'asc' %}up{% else %}down{% endif %}"></i>
+                {% endif %}
+            </button>
+            <button class="sort-btn {% if sort_by == 'created_at' %}active{% endif %}" 
+                    onclick="sortBy('created_at')">
+                생성일 
+                {% if sort_by == 'created_at' %}
+                    <i class="bi bi-arrow-{% if order == 'asc' %}up{% else %}down{% endif %}"></i>
+                {% endif %}
+            </button>
+            <button class="sort-btn {% if sort_by == 'updated_at' %}active{% endif %}" 
+                    onclick="sortBy('updated_at')">
+                수정일 
+                {% if sort_by == 'updated_at' %}
+                    <i class="bi bi-arrow-{% if order == 'asc' %}up{% else %}down{% endif %}"></i>
+                {% endif %}
+            </button>
+        </div>
+    </div>
+    
+    <!-- 직무기술서 목록 -->
+    <div class="row">
+        {% for profile in page_obj %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 job-profile-card position-relative">
+                <!-- 북마크 버튼 (신규) -->
+                <button class="bookmark-btn {% if profile.id in bookmarked_ids %}active{% endif %}" 
+                        onclick="toggleBookmark('{{ profile.id }}', this)"
+                        title="북마크">
+                    <i class="bi bi-star{% if profile.id in bookmarked_ids %}-fill{% endif %}"></i>
+                </button>
+                
+                <div class="card-header bg-light">
+                    <small class="text-muted">
+                        {{ profile.job_role.job_type.category.name }} > {{ profile.job_role.job_type.name }}
+                    </small>
+                    <h5 class="mb-0 mt-1 job-title" data-original="{{ profile.job_role.name }}">
+                        {{ profile.job_role.name }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-truncate-3 job-content" data-original="{{ profile.role_responsibility|truncatewords:30 }}">
+                        {{ profile.role_responsibility|truncatewords:30 }}
+                    </p>
+                    <div class="mb-3">
+                        <span class="badge bg-info">기본 스킬: {{ profile.basic_skills|length }}개</span>
+                        <span class="badge bg-success">응용 스킬: {{ profile.applied_skills|length }}개</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'job_profiles:detail' profile.id %}" class="btn btn-sm btn-primary w-100">
+                        상세보기
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> 검색 결과가 없습니다.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- 페이지네이션 -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{{ request.GET.urlencode }}&page=1">처음</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}">이전</a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}">다음</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ page_obj.paginator.num_pages }}">마지막</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<script>
+// 로딩 표시
+function showLoading() {
+    document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+// 정렬 기능
+function sortBy(field) {
+    const currentSort = document.getElementById('sortField').value;
+    const currentOrder = document.getElementById('sortOrder').value;
+    
+    document.getElementById('sortField').value = field;
+    
+    // 같은 필드를 다시 클릭하면 정렬 순서 변경
+    if (currentSort === field) {
+        document.getElementById('sortOrder').value = currentOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        document.getElementById('sortOrder').value = 'asc';
+    }
+    
+    document.getElementById('searchForm').submit();
+}
+
+// 필터 초기화
+function resetFilters() {
+    document.getElementById('category').value = '';
+    document.getElementById('job_type').value = '';
+    document.getElementById('q').value = '';
+    document.getElementById('sortField').value = 'name';
+    document.getElementById('sortOrder').value = 'asc';
+    document.getElementById('searchForm').submit();
+}
+
+// 다운로드 기능
+function downloadData(format) {
+    showLoading();
+    const params = new URLSearchParams(window.location.search);
+    params.set('format', format);
+    
+    window.location.href = '{% url "job_profiles:download" %}?' + params.toString();
+    
+    setTimeout(hideLoading, 2000);
+}
+
+// 북마크 토글
+async function toggleBookmark(profileId, button) {
+    try {
+        const response = await fetch(`/job-profiles/bookmark/${profileId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const icon = button.querySelector('i');
+            if (data.bookmarked) {
+                button.classList.add('active');
+                icon.classList.remove('bi-star');
+                icon.classList.add('bi-star-fill');
+            } else {
+                button.classList.remove('active');
+                icon.classList.remove('bi-star-fill');
+                icon.classList.add('bi-star');
+            }
+            
+            // 메시지 표시 (선택사항)
+            // alert(data.message);
+        }
+    } catch (error) {
+        console.error('북마크 토글 실패:', error);
+    }
+}
+
+// 검색어 하이라이트 (페이지 로드 시)
+document.addEventListener('DOMContentLoaded', function() {
+    const searchQuery = '{{ search_query }}';
+    if (searchQuery) {
+        highlightSearchTerms(searchQuery);
+    }
+});
+
+// 검색어 하이라이트 함수
+function highlightSearchTerms(query) {
+    const terms = query.toLowerCase().split(' ');
+    
+    document.querySelectorAll('.job-title, .job-content').forEach(element => {
+        let text = element.dataset.original || element.textContent;
+        let highlightedText = text;
+        
+        terms.forEach(term => {
+            if (term) {
+                const regex = new RegExp(`(${term})`, 'gi');
+                highlightedText = highlightedText.replace(regex, '<span class="highlight">$1</span>');
+            }
+        });
+        
+        element.innerHTML = highlightedText;
+    });
+}
+
+// 직군 선택 시 직종 목록 업데이트
+document.getElementById('category').addEventListener('change', function() {
+    const categoryId = this.value;
+    const jobTypeSelect = document.getElementById('job_type');
+    
+    if (categoryId) {
+        fetch(`/job-profiles/api/job-types/${categoryId}/`)
+            .then(response => response.json())
+            .then(data => {
+                jobTypeSelect.innerHTML = '<option value="">전체 직종</option>';
+                data.job_types.forEach(jobType => {
+                    const option = new Option(jobType.name, jobType.id);
+                    jobTypeSelect.add(option);
+                });
+            });
+    } else {
+        jobTypeSelect.innerHTML = '<option value="">전체 직종</option>';
+    }
+});
+</script>
+{% endblock %}

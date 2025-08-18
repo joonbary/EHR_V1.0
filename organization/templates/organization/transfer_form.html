@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}인사이동 등록{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .form-group label {
+        color: #e5e7eb;
+        font-weight: 500;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.08);
+    }
+    .form-control option {
+        background: #1f2937;
+        color: white;
+    }
+    .employee-preview {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 8px;
+        padding: 16px;
+        display: none;
+    }
+    .vs-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 1.5rem;
+        margin: 0 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <nav class="text-sm text-gray-400 mb-4">
+            <a href="{% url 'organization:dashboard' %}" class="hover:text-white">조직관리</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'organization:transfer_list' %}" class="hover:text-white">인사이동 관리</a>
+            <span class="mx-2">/</span>
+            <span class="text-white">인사이동 등록</span>
+        </nav>
+        
+        <h1 class="text-3xl font-bold text-white mb-2">인사이동 등록</h1>
+        <p class="text-gray-300">직원의 인사이동 내역을 등록합니다</p>
+    </div>
+
+    <form method="post" action="{% url 'organization:transfer_create' %}">
+        {% csrf_token %}
+        
+        <!-- 기본 정보 -->
+        <div class="form-section">
+            <h3 class="text-xl font-semibold text-white mb-4">기본 정보</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="form-group">
+                    <label for="employee_id">직원 선택 <span class="text-red-400">*</span></label>
+                    <select id="employee_id" name="employee_id" class="form-control" required onchange="loadEmployeeInfo()">
+                        <option value="">직원을 선택하세요</option>
+                        {% for employee in employees %}
+                        <option value="{{ employee.id }}" data-dept="{{ employee.department }}" 
+                                data-position="{{ employee.new_position }}" data-level="{{ employee.growth_level }}">
+                            {{ employee.name }} ({{ employee.department }} - {{ employee.new_position }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="transfer_type">이동 유형 <span class="text-red-400">*</span></label>
+                    <select id="transfer_type" name="transfer_type" class="form-control" required>
+                        <option value="">선택하세요</option>
+                        {% for value, label in transfer_types %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="transfer_date">이동일 <span class="text-red-400">*</span></label>
+                    <input type="date" id="transfer_date" name="transfer_date" class="form-control" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- 직원 현재 정보 -->
+        <div id="employee_preview" class="employee-preview">
+            <h4 class="text-lg font-semibold text-white mb-3">현재 직원 정보</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-400">현재 부서:</span>
+                    <p id="current_dept" class="text-white font-medium"></p>
+                </div>
+                <div>
+                    <span class="text-gray-400">현재 직위:</span>
+                    <p id="current_position" class="text-white font-medium"></p>
+                </div>
+                <div>
+                    <span class="text-gray-400">현재 성장레벨:</span>
+                    <p id="current_level" class="text-white font-medium"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 이동 정보 -->
+        <div class="form-section">
+            <h3 class="text-xl font-semibold text-white mb-4">이동 정보</h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 이전 정보 -->
+                <div>
+                    <h4 class="text-lg text-gray-300 mb-4">이전 정보</h4>
+                    <div class="space-y-4">
+                        <div class="form-group">
+                            <label for="old_department_id">이전 부서</label>
+                            <select id="old_department_id" name="old_department_id" class="form-control">
+                                <option value="">선택하세요</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="old_position">이전 직위</label>
+                            <input type="text" id="old_position" name="old_position" class="form-control" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="old_growth_level">이전 성장레벨</label>
+                            <input type="number" id="old_growth_level" name="old_growth_level" class="form-control" min="1" max="6" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vs-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <!-- 새 정보 -->
+                <div>
+                    <h4 class="text-lg text-gray-300 mb-4">새로운 정보 <span class="text-red-400">*</span></h4>
+                    <div class="space-y-4">
+                        <div class="form-group">
+                            <label for="new_department_id">새 부서 <span class="text-red-400">*</span></label>
+                            <select id="new_department_id" name="new_department_id" class="form-control" required>
+                                <option value="">선택하세요</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="new_position">새 직위 <span class="text-red-400">*</span></label>
+                            <select id="new_position" name="new_position" class="form-control" required>
+                                <option value="">선택하세요</option>
+                                {% for position in positions %}
+                                <option value="{{ position.name }}">{{ position.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="new_growth_level">새 성장레벨 <span class="text-red-400">*</span></label>
+                            <input type="number" id="new_growth_level" name="new_growth_level" class="form-control" min="1" max="6" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상세 정보 -->
+        <div class="form-section">
+            <h3 class="text-xl font-semibold text-white mb-4">상세 정보</h3>
+            
+            <div class="space-y-4">
+                <div class="form-group">
+                    <label for="reason">이동 사유 <span class="text-red-400">*</span></label>
+                    <textarea id="reason" name="reason" class="form-control" rows="4" required 
+                              placeholder="인사이동의 구체적인 사유를 작성해주세요"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="remarks">비고</label>
+                    <textarea id="remarks" name="remarks" class="form-control" rows="3" 
+                              placeholder="추가 전달사항이나 참고사항을 작성해주세요"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="flex justify-end gap-4">
+            <a href="{% url 'organization:transfer_list' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors">
+                취소
+            </a>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
+                <i class="fas fa-save mr-2"></i>인사이동 등록
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function loadEmployeeInfo() {
+    const select = document.getElementById('employee_id');
+    const option = select.options[select.selectedIndex];
+    
+    if (option.value) {
+        // 현재 정보 표시
+        document.getElementById('current_dept').textContent = option.dataset.dept;
+        document.getElementById('current_position').textContent = option.dataset.position;
+        document.getElementById('current_level').textContent = 'Lv.' + option.dataset.level;
+        
+        // 이전 정보 자동 입력
+        document.getElementById('old_position').value = option.dataset.position;
+        document.getElementById('old_growth_level').value = option.dataset.level;
+        
+        // 부서 자동 선택 (부서 코드 기반)
+        const deptSelect = document.getElementById('old_department_id');
+        for (let i = 0; i < deptSelect.options.length; i++) {
+            if (deptSelect.options[i].text.includes(option.dataset.dept)) {
+                deptSelect.selectedIndex = i;
+                break;
+            }
+        }
+        
+        // 미리보기 표시
+        document.getElementById('employee_preview').style.display = 'block';
+    } else {
+        // 미리보기 숨김
+        document.getElementById('employee_preview').style.display = 'none';
+        
+        // 이전 정보 초기화
+        document.getElementById('old_position').value = '';
+        document.getElementById('old_growth_level').value = '';
+        document.getElementById('old_department_id').selectedIndex = 0;
+    }
+}
+
+// 오늘 날짜를 기본값으로 설정
+document.getElementById('transfer_date').valueAsDate = new Date();
+</script>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}OK AIRISS v5.0 - AI-Powered HR Result & Intelligence Scoring System{% endblock %}
+
+
+{% block page_header %}OK AIRISS v5.0{% endblock %}
+{% block content_title %}AI-Powered HR Result & Intelligence Scoring System{% endblock %}
+{% block page_subtitle %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .airiss-container {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 250px);
+        min-height: 600px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        box-shadow: 0 12px 32px rgba(0, 212, 255, 0.2);
+        overflow: hidden;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        backdrop-filter: blur(10px);
+        margin-top: 20px;
+    }
+    
+    .airiss-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 20px;
+    }
+    
+    .airiss-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #ffffff;
+    }
+    
+    .airiss-error {
+        padding: 40px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .quick-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .quick-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        color: #00d4ff;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-link:hover {
+        background: rgba(0, 212, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    }
+    
+    .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top: 4px solid #00d4ff;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <!-- 간단한 빠른 링크 -->
+    <div class="quick-links">
+        <a href="{{ airiss_v4_url }}" target="_blank" class="quick-link">
+            <i class="fas fa-external-link-alt"></i>
+            <span>새 창에서 열기</span>
+        </a>
+        <a href="{% url 'airiss:upload_integrated' %}" class="quick-link">
+            <i class="fas fa-upload"></i>
+            <span>통합 업로드</span>
+        </a>
+        <span style="margin-left: auto; color: rgba(255, 255, 255, 0.5); font-size: 12px; padding: 10px;">
+            MSA Service: {{ airiss_v4_url }}
+        </span>
+    </div>
+    
+    <!-- AIRISS v4 컨테이너 -->
+    <div class="airiss-container" id="airissContainer">
+        <!-- 로딩 표시 -->
+        <div class="airiss-loading" id="airissLoading">
+            <div class="spinner"></div>
+            <p>AIRISS v4 로드 중...</p>
+        </div>
+        
+        <!-- iframe -->
+        <iframe 
+            id="airissFrame"
+            src="{{ airiss_v4_url }}" 
+            class="airiss-iframe"
+            title="AIRISS v4"
+            onload="handleIframeLoad()"
+            onerror="handleIframeError()"
+            style="display: none;"
+        ></iframe>
+        
+        <!-- 에러 메시지 (숨김 상태) -->
+        <div class="airiss-error" id="airissError" style="display: none;">
+            <h3 style="font-size: 24px; margin-bottom: 16px;">⚠️ MSA 서비스 연결 실패</h3>
+            <p style="margin-bottom: 20px;">AIRISS v4 MSA 서비스에 연결할 수 없습니다.</p>
+            <p>다음 사항을 확인해주세요:</p>
+            <ul style="text-align: left; display: inline-block; margin: 20px 0;">
+                <li>AIRISS v4 서비스 상태 확인</li>
+                <li>네트워크 연결 상태 확인</li>
+                <li>브라우저 보안 설정 확인</li>
+            </ul>
+            <br>
+            <button style="background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); color: #000; padding: 12px 24px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;" onclick="retryConnection()">
+                <i class="fas fa-redo"></i> 다시 연결
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- AIRISS Bridge Configuration -->
+<script>
+    // Set global AIRISS service URL
+    window.AIRISS_SERVICE_URL = '{{ airiss_v4_url }}';
+    window.AIRISS_PROXY_URL = '{{ request.build_absolute_uri }}'.replace(/\/[^\/]*$/, '') + '/airiss/api/upload-proxy/';
+</script>
+
+<!-- AIRISS iframe Bridge - 부모 창에서 실행 -->
+<script src="{% static 'js/airiss_iframe_bridge.js' %}?v=2.0.0"></script>
+
+<script>
+    let loadTimeout;
+    
+    function handleIframeLoad() {
+        // 로딩 완료
+        clearTimeout(loadTimeout);
+        document.getElementById('airissLoading').style.display = 'none';
+        document.getElementById('airissFrame').style.display = 'block';
+        document.getElementById('airissError').style.display = 'none';
+        
+        console.log('AIRISS v4 로드 완료');
+        
+        // iframe에 injector 스크립트 주입 시도
+        try {
+            const iframe = document.getElementById('airissFrame');
+            if (iframe && iframe.contentWindow) {
+                // 설정 메시지 전송
+                setTimeout(() => {
+                    iframe.contentWindow.postMessage({
+                        type: 'AIRISS_CONFIG',
+                        apiBaseUrl: window.AIRISS_PROXY_URL,
+                        proxyUrl: window.AIRISS_PROXY_URL
+                    }, '{{ airiss_v4_url }}');
+                    console.log('AIRISS 설정 메시지 전송됨');
+                }, 1000);
+            }
+        } catch(e) {
+            console.log('iframe 접근 불가 (cross-origin):', e);
+        }
+    }
+    
+    function handleIframeError() {
+        // 에러 발생
+        clearTimeout(loadTimeout);
+        document.getElementById('airissLoading').style.display = 'none';
+        document.getElementById('airissFrame').style.display = 'none';
+        document.getElementById('airissError').style.display = 'block';
+        
+        console.error('AIRISS v4 로드 실패');
+    }
+    
+    function retryConnection() {
+        // 재시도
+        document.getElementById('airissError').style.display = 'none';
+        document.getElementById('airissLoading').style.display = 'block';
+        document.getElementById('airissFrame').src = document.getElementById('airissFrame').src;
+        
+        // 타임아웃 설정
+        loadTimeout = setTimeout(function() {
+            handleIframeError();
+        }, 10000); // 10초 타임아웃
+    }
+    
+    // 페이지 로드 시 타임아웃 설정
+    window.addEventListener('load', function() {
+        console.log('AIRISS v4 URL:', '{{ airiss_v4_url }}');
+        
+        loadTimeout = setTimeout(function() {
+            // iframe이 아직 로드되지 않았다면 에러 처리
+            if (document.getElementById('airissLoading').style.display !== 'none') {
+                console.error('AIRISS v4 로드 타임아웃');
+                handleIframeError();
+            }
+        }, 10000); // 10초 타임아웃
+    });
+    
+    // iframe 간 통신 (옵션)
+    window.addEventListener('message', function(event) {
+        // AIRISS v4에서 보낸 메시지 처리
+        if (event.origin === '{{ airiss_v4_url }}') {
+            console.log('AIRISS v4 메시지:', event.data);
+            
+            // 필요한 경우 메시지 처리 로직 추가
+            // 예: 로그인 정보 동기화, 데이터 공유 등
+        }
+    });
+</script>
+{% endblock %}

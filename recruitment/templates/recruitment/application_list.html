@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}지원서 목록{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-gray-800">지원서 목록</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">홈</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'recruitment:dashboard' %}">채용관리</a></li>
+                    <li class="breadcrumb-item active">지원서 목록</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">필터</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="form-inline">
+                <div class="form-group mr-3">
+                    <label for="status" class="mr-2">상태:</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">전체</option>
+                        <option value="submitted" {% if request.GET.status == 'submitted' %}selected{% endif %}>접수</option>
+                        <option value="reviewing" {% if request.GET.status == 'reviewing' %}selected{% endif %}>검토중</option>
+                        <option value="interview_scheduled" {% if request.GET.status == 'interview_scheduled' %}selected{% endif %}>면접예정</option>
+                        <option value="interviewed" {% if request.GET.status == 'interviewed' %}selected{% endif %}>면접완료</option>
+                        <option value="offer_made" {% if request.GET.status == 'offer_made' %}selected{% endif %}>합격</option>
+                        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>불합격</option>
+                        <option value="withdrawn" {% if request.GET.status == 'withdrawn' %}selected{% endif %}>지원취소</option>
+                    </select>
+                </div>
+                <div class="form-group mr-3">
+                    <label for="job_posting" class="mr-2">채용공고:</label>
+                    <select name="job_posting" id="job_posting" class="form-control">
+                        <option value="">전체</option>
+                        {% for posting in job_postings %}
+                        <option value="{{ posting.pk }}" {% if request.GET.job_posting == posting.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ posting.title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mr-3">
+                    <label for="stage" class="mr-2">채용단계:</label>
+                    <select name="stage" id="stage" class="form-control">
+                        <option value="">전체</option>
+                        {% for stage in stages %}
+                        <option value="{{ stage.pk }}" {% if request.GET.stage == stage.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ stage.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">검색</button>
+                <a href="{% url 'recruitment:application_list' %}" class="btn btn-secondary ml-2">초기화</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">지원서</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>지원자</th>
+                            <th>채용공고</th>
+                            <th>부서</th>
+                            <th>지원일</th>
+                            <th>현재 단계</th>
+                            <th>상태</th>
+                            <th>담당자</th>
+                            <th>평가점수</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'recruitment:application_detail' application.pk %}">
+                                    {{ application.applicant.full_name }}
+                                </a>
+                            </td>
+                            <td>{{ application.job_posting.title }}</td>
+                            <td>{{ application.job_posting.get_department_display }}</td>
+                            <td>{{ application.applied_date|date:"Y-m-d" }}</td>
+                            <td>
+                                {% if application.current_stage %}
+                                    <span class="badge badge-info">{{ application.current_stage.name }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-{% if application.status == 'offer_made' %}success{% elif application.status == 'rejected' or application.status == 'withdrawn' %}danger{% elif application.status == 'interview_scheduled' %}warning{% else %}secondary{% endif %}">
+                                    {{ application.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if application.assigned_to %}
+                                    {{ application.assigned_to.get_full_name|default:application.assigned_to.username }}
+                                {% else %}
+                                    <span class="text-muted">미배정</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if application.overall_rating %}
+                                    <div class="text-center">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= application.overall_rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">미평가</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'recruitment:application_detail' application.pk %}" 
+                                       class="btn btn-sm btn-info" title="상세보기">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'recruitment:application_evaluate' application.pk %}" 
+                                       class="btn btn-sm btn-warning" title="평가">
+                                        <i class="fas fa-clipboard-check"></i>
+                                    </a>
+                                    {% if application.status not in 'interview_scheduled,interviewed' %}
+                                    <a href="{% url 'recruitment:interview_schedule_create' application.pk %}" 
+                                       class="btn btn-sm btn-success" title="면접 일정">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">등록된 지원서가 없습니다.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#dataTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Korean.json"
+        },
+        "order": [[ 3, "desc" ]] // 지원일 기준 내림차순 정렬
+    });
+});
+</script>
+{% endblock %}

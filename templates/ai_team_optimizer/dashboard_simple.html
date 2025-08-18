@@ -1,0 +1,633 @@
+{% extends 'ai_base.html' %}
+{% load static %}
+
+{% block title %}팀 조합 최적화 - AI Quick Win{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: calc(100vh - 60px);
+    }
+    
+    /* 헤더 섹션 */
+    .header-section {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        opacity: 0.1;
+    }
+    
+    .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+    
+    .header-subtitle {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    /* 통계 카드 */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 28px;
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+        border-color: #667eea;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        font-size: 24px;
+    }
+    
+    .stat-icon-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stat-icon-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .stat-icon-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .stat-icon-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin-bottom: 8px;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-trend {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .trend-up { color: #43e97b; }
+    .trend-down { color: #f5576c; }
+    
+    /* 기능 카드 */
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+    
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-top: 32px;
+    }
+    
+    .feature-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .feature-item:hover::before {
+        opacity: 0.1;
+    }
+    
+    .feature-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+    }
+    
+    .feature-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 12px;
+    }
+    
+    .feature-desc {
+        color: #6c757d;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    /* 액션 버튼 */
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        margin-top: 32px;
+    }
+    
+    .btn-action {
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary-action {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-primary-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary-action {
+        background: #f8f9fa;
+        color: #495057;
+        border: 2px solid #e9ecef;
+    }
+    
+    .btn-secondary-action:hover {
+        background: #e9ecef;
+        border-color: #dee2e6;
+    }
+    
+    /* 프로젝트 리스트 */
+    .project-list {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 24px;
+        opacity: 0.3;
+    }
+    
+    .empty-title {
+        font-size: 1.25rem;
+        color: #6c757d;
+        margin-bottom: 12px;
+    }
+    
+    .empty-desc {
+        color: #adb5bd;
+        font-size: 0.95rem;
+    }
+    
+    /* 애니메이션 */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    /* 반응형 */
+    @media (max-width: 768px) {
+        .header-title {
+            font-size: 2rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- 헤더 섹션 -->
+    <div class="header-section">
+        <h1 class="header-title">AI 팀 조합 최적화</h1>
+        <p class="header-subtitle">인공지능이 분석하는 최적의 팀 구성으로 프로젝트 성공률을 높이세요</p>
+        
+        <div class="action-buttons">
+            <button class="btn-action btn-primary-action" onclick="startOptimization()">
+                <i data-lucide="sparkles" style="width: 20px; height: 20px;"></i>
+                팀 최적화 시작
+            </button>
+            <button class="btn-action btn-secondary-action" onclick="viewAnalytics()">
+                <i data-lucide="pie-chart" style="width: 20px; height: 20px;"></i>
+                분석 리포트
+            </button>
+        </div>
+    </div>
+
+    <!-- 통계 카드 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-1">
+                <i data-lucide="folder" style="width: 28px; height: 28px; color: white;"></i>
+            </div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">진행중인 프로젝트</div>
+            <div class="stat-trend trend-up">
+                <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                +15%
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-2">
+                <i data-lucide="users" style="width: 28px; height: 28px; color: white;"></i>
+            </div>
+            <div class="stat-value">8</div>
+            <div class="stat-label">활성 팀</div>
+            <div class="stat-trend trend-up">
+                <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                +3
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-3">
+                <i data-lucide="award" style="width: 28px; height: 28px; color: white;"></i>
+            </div>
+            <div class="stat-value">8.5</div>
+            <div class="stat-label">평균 매칭 점수</div>
+            <div class="stat-trend trend-up">
+                <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                +0.8
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-4">
+                <i data-lucide="check-circle" style="width: 28px; height: 28px; color: white;"></i>
+            </div>
+            <div class="stat-value">92%</div>
+            <div class="stat-label">프로젝트 성공률</div>
+            <div class="stat-trend trend-up">
+                <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                +5%
+            </div>
+        </div>
+    </div>
+
+    <!-- 주요 기능 -->
+    <div class="feature-card">
+        <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 8px;">핵심 기능</h3>
+        <p style="color: #6c757d; margin-bottom: 0;">AI가 제공하는 강력한 팀 최적화 도구</p>
+        
+        <div class="feature-grid">
+            <div class="feature-item" onclick="navigateToFeature('optimize')">
+                <div class="feature-icon">
+                    <i data-lucide="cpu" style="width: 32px; height: 32px; color: white;"></i>
+                </div>
+                <h5 class="feature-title">AI 팀 구성 최적화</h5>
+                <p class="feature-desc">머신러닝 알고리즘으로 프로젝트에 최적화된 팀 구성을 자동으로 제안합니다</p>
+            </div>
+            
+            <div class="feature-item" onclick="navigateToFeature('skill-match')">
+                <div class="feature-icon">
+                    <i data-lucide="git-branch" style="width: 32px; height: 32px; color: white;"></i>
+                </div>
+                <h5 class="feature-title">스킬 매칭 분석</h5>
+                <p class="feature-desc">프로젝트 요구사항과 팀원들의 스킬셋을 정밀 분석하여 최적 배치를 제안합니다</p>
+            </div>
+            
+            <div class="feature-item" onclick="navigateToFeature('performance')">
+                <div class="feature-icon">
+                    <i data-lucide="bar-chart-3" style="width: 32px; height: 32px; color: white;"></i>
+                </div>
+                <h5 class="feature-title">성과 예측 모델</h5>
+                <p class="feature-desc">과거 데이터를 기반으로 팀 구성별 예상 성과를 시뮬레이션합니다</p>
+            </div>
+            
+            <div class="feature-item" onclick="navigateToFeature('collaboration')">
+                <div class="feature-icon">
+                    <i data-lucide="users-2" style="width: 32px; height: 32px; color: white;"></i>
+                </div>
+                <h5 class="feature-title">협업 시너지 분석</h5>
+                <p class="feature-desc">팀원 간 협업 패턴을 분석하여 시너지 효과를 극대화합니다</p>
+            </div>
+            
+            <div class="feature-item" onclick="navigateToFeature('workload')">
+                <div class="feature-icon">
+                    <i data-lucide="gauge" style="width: 32px; height: 32px; color: white;"></i>
+                </div>
+                <h5 class="feature-title">워크로드 밸런싱</h5>
+                <p class="feature-desc">팀원별 업무 부하를 균등하게 분배하여 효율성을 높입니다</p>
+            </div>
+            
+            <div class="feature-item" onclick="navigateToFeature('insights')">
+                <div class="feature-icon">
+                    <i data-lucide="lightbulb" style="width: 32px; height: 32px; color: white;"></i>
+                </div>
+                <h5 class="feature-title">AI 인사이트</h5>
+                <p class="feature-desc">팀 구성과 프로젝트 진행에 대한 실시간 AI 추천을 제공합니다</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 최근 활동 -->
+    <div class="project-list">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 8px;">최근 프로젝트</h3>
+                <p style="color: #6c757d; margin: 0;">AI 최적화가 진행된 프로젝트 목록</p>
+            </div>
+            <button class="btn-action btn-secondary-action" onclick="viewAllProjects()">
+                전체 보기
+                <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+            </button>
+        </div>
+        
+        <div class="empty-state">
+            <div class="empty-icon pulse">
+                <i data-lucide="folder-plus" style="width: 80px; height: 80px; color: #dee2e6;"></i>
+            </div>
+            <h5 class="empty-title">프로젝트를 시작해보세요</h5>
+            <p class="empty-desc">AI 팀 최적화로 프로젝트 성공률을 높일 수 있습니다</p>
+            <button class="btn-action btn-primary-action mt-3" onclick="createNewProject()">
+                <i data-lucide="plus" style="width: 20px; height: 20px;"></i>
+                새 프로젝트 생성
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lucide 아이콘 초기화
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    // 팀 최적화 시작
+    function startOptimization() {
+        Swal.fire({
+            title: '팀 최적화 시작',
+            text: '프로젝트를 선택하고 최적화 옵션을 설정하세요',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: '시작하기',
+            cancelButtonText: '취소',
+            confirmButtonColor: '#667eea'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // 프로그레스 표시
+                Swal.fire({
+                    title: 'AI 분석 중...',
+                    html: '최적의 팀 구성을 분석하고 있습니다<br><div class="progress mt-3"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div></div>',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    timer: 2000
+                }).then(() => {
+                    Swal.fire({
+                        title: '최적화 완료!',
+                        html: '<strong>추천 팀 구성:</strong><br>개발자 3명, 디자이너 1명, PM 1명<br><strong>예상 성공률:</strong> 92%',
+                        icon: 'success',
+                        confirmButtonColor: '#667eea'
+                    });
+                });
+            }
+        });
+    }
+    
+    // 분석 리포트 보기
+    function viewAnalytics() {
+        Swal.fire({
+            title: '분석 리포트',
+            html: `
+                <div class="text-start">
+                    <h6>팀 성과 분석</h6>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-success" style="width: 85%">85%</div>
+                    </div>
+                    <h6>스킬 매칭도</h6>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-info" style="width: 78%">78%</div>
+                    </div>
+                    <h6>협업 시너지</h6>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-warning" style="width: 92%">92%</div>
+                    </div>
+                </div>
+            `,
+            width: 600,
+            confirmButtonColor: '#667eea'
+        });
+    }
+    
+    // 기능 네비게이션
+    function navigateToFeature(feature) {
+        const features = {
+            'optimize': '팀 구성 최적화 기능을 실행합니다',
+            'skill-match': '스킬 매칭 분석을 시작합니다',
+            'performance': '성과 예측 모델을 확인합니다',
+            'collaboration': '협업 시너지 분석을 시작합니다',
+            'workload': '워크로드 밸런싱을 조정합니다',
+            'insights': 'AI 인사이트를 확인합니다'
+        };
+        
+        Swal.fire({
+            title: feature.charAt(0).toUpperCase() + feature.slice(1).replace('-', ' '),
+            text: features[feature],
+            icon: 'info',
+            confirmButtonColor: '#667eea'
+        });
+    }
+    
+    // 새 프로젝트 생성
+    function createNewProject() {
+        Swal.fire({
+            title: '새 프로젝트 생성',
+            html: `
+                <input type="text" id="project-name" class="swal2-input" placeholder="프로젝트 이름">
+                <textarea id="project-desc" class="swal2-textarea" placeholder="프로젝트 설명"></textarea>
+                <select id="project-priority" class="swal2-select">
+                    <option value="">우선순위 선택</option>
+                    <option value="high">높음</option>
+                    <option value="medium">중간</option>
+                    <option value="low">낮음</option>
+                </select>
+            `,
+            showCancelButton: true,
+            confirmButtonText: '생성',
+            cancelButtonText: '취소',
+            confirmButtonColor: '#667eea',
+            preConfirm: () => {
+                const name = document.getElementById('project-name').value;
+                const desc = document.getElementById('project-desc').value;
+                const priority = document.getElementById('project-priority').value;
+                
+                if (!name || !desc || !priority) {
+                    Swal.showValidationMessage('모든 필드를 입력해주세요');
+                    return false;
+                }
+                
+                return { name, desc, priority };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: '프로젝트 생성 완료!',
+                    text: `"${result.value.name}" 프로젝트가 생성되었습니다`,
+                    icon: 'success',
+                    confirmButtonColor: '#667eea'
+                });
+            }
+        });
+    }
+    
+    // 전체 프로젝트 보기
+    function viewAllProjects() {
+        window.location.href = '/ai-team-optimizer/projects/';
+    }
+    
+    // 페이지 로드 시 애니메이션
+    document.addEventListener('DOMContentLoaded', function() {
+        // 통계 카드 애니메이션
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+        
+        // 기능 아이템 애니메이션
+        const featureItems = document.querySelectorAll('.feature-item');
+        featureItems.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                item.style.transition = 'all 0.5s ease';
+                item.style.opacity = '1';
+                item.style.transform = 'scale(1)';
+            }, 500 + index * 100);
+        });
+    });
+    
+    // SweetAlert2 로드 확인
+    if (typeof Swal === 'undefined') {
+        // SweetAlert2가 없으면 기본 alert 사용
+        window.Swal = {
+            fire: function(options) {
+                if (typeof options === 'string') {
+                    alert(options);
+                } else {
+                    alert(options.title + '\n' + (options.text || options.html || ''));
+                }
+                return Promise.resolve({ isConfirmed: true });
+            }
+        };
+    }
+</script>
+{% endblock %}

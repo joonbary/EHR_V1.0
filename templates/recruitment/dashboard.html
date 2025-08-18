@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}채용관리 - OK금융그룹 e-HR System{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 페이지 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="user-check" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">채용관리</h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">채용공고, 지원자, 면접 관리</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>보고서 다운로드</span>
+                </button>
+                <button class="px-4 py-2 gradient-bg text-white rounded-xl hover:shadow-lg transition-all flex items-center space-x-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>새 채용공고</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주요 지표 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- 진행중인 채용 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">진행중인 채용</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">12</p>
+                    <p class="text-sm text-green-600 mt-2 flex items-center">
+                        <i data-lucide="trending-up" class="w-4 h-4 mr-1"></i>
+                        +20% 지난달 대비
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="briefcase" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 총 지원자 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">총 지원자</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">348</p>
+                    <p class="text-sm text-blue-600 mt-2 flex items-center">
+                        <i data-lucide="users" class="w-4 h-4 mr-1"></i>
+                        이번 달 신규
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="users-2" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 예정된 면접 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">예정된 면접</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">28</p>
+                    <p class="text-sm text-orange-600 mt-2 flex items-center">
+                        <i data-lucide="calendar" class="w-4 h-4 mr-1"></i>
+                        이번 주
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="calendar-check" class="w-6 h-6 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 채용 완료율 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">채용 완료율</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">78%</p>
+                    <p class="text-sm text-green-600 mt-2 flex items-center">
+                        <i data-lucide="check-circle" class="w-4 h-4 mr-1"></i>
+                        목표 대비 우수
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="award" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 빠른 메뉴 -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <a href="{% url 'recruitment:job_posting_list' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-purple-100 group-hover:bg-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors">
+                <i data-lucide="file-text" class="w-8 h-8 text-purple-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">채용 공고</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">채용 공고 작성 및 관리</p>
+        </a>
+
+        <a href="{% url 'recruitment:application_list' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-blue-100 group-hover:bg-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors">
+                <i data-lucide="users-2" class="w-8 h-8 text-blue-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">지원자 관리</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">지원자 검토 및 평가</p>
+        </a>
+
+        <a href="{% url 'recruitment:application_list' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-orange-100 group-hover:bg-orange-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors">
+                <i data-lucide="calendar" class="w-8 h-8 text-orange-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">면접 일정</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">면접 일정 조율 및 관리</p>
+        </a>
+
+        <a href="#" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-green-100 group-hover:bg-green-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors">
+                <i data-lucide="bar-chart-3" class="w-8 h-8 text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">채용 분석</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">채용 프로세스 분석</p>
+        </a>
+    </div>
+
+    <!-- 현재 진행중인 채용 -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">현재 진행중인 채용</h2>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left">
+                            <th class="pb-4 text-sm font-medium text-gray-600 dark:text-gray-400">채용 공고</th>
+                            <th class="pb-4 text-sm font-medium text-gray-600 dark:text-gray-400">부서</th>
+                            <th class="pb-4 text-sm font-medium text-gray-600 dark:text-gray-400">지원자</th>
+                            <th class="pb-4 text-sm font-medium text-gray-600 dark:text-gray-400">진행 단계</th>
+                            <th class="pb-4 text-sm font-medium text-gray-600 dark:text-gray-400">마감일</th>
+                            <th class="pb-4 text-sm font-medium text-gray-600 dark:text-gray-400"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-t border-gray-200 dark:border-gray-700">
+                            <td class="py-4">
+                                <div class="font-medium text-gray-900 dark:text-white">시니어 백엔드 개발자</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">경력 5년 이상</div>
+                            </td>
+                            <td class="py-4 text-gray-600 dark:text-gray-400">IT개발팀</td>
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-900 dark:text-white font-medium">42</span>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">명</span>
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm">서류 검토중</span>
+                            </td>
+                            <td class="py-4 text-gray-600 dark:text-gray-400">2024.03.15</td>
+                            <td class="py-4">
+                                <button class="text-primary hover:text-primary-hover">
+                                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="border-t border-gray-200 dark:border-gray-700">
+                            <td class="py-4">
+                                <div class="font-medium text-gray-900 dark:text-white">디지털 마케팅 매니저</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">경력 3년 이상</div>
+                            </td>
+                            <td class="py-4 text-gray-600 dark:text-gray-400">마케팅팀</td>
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-900 dark:text-white font-medium">28</span>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">명</span>
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-lg text-sm">1차 면접중</span>
+                            </td>
+                            <td class="py-4 text-gray-600 dark:text-gray-400">2024.03.10</td>
+                            <td class="py-4">
+                                <button class="text-primary hover:text-primary-hover">
+                                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="border-t border-gray-200 dark:border-gray-700">
+                            <td class="py-4">
+                                <div class="font-medium text-gray-900 dark:text-white">재무 애널리스트</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">신입/경력</div>
+                            </td>
+                            <td class="py-4 text-gray-600 dark:text-gray-400">재무팀</td>
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-900 dark:text-white font-medium">56</span>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">명</span>
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm">최종 면접중</span>
+                            </td>
+                            <td class="py-4 text-gray-600 dark:text-gray-400">2024.03.05</td>
+                            <td class="py-4">
+                                <button class="text-primary hover:text-primary-hover">
+                                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

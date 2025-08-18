@@ -1,0 +1,36 @@
+name: Load Data to Railway
+
+on:
+  workflow_dispatch:  # 수동 실행
+  push:
+    branches: [main]
+    paths:
+      - 'employees_only.json'
+      - '.github/workflows/railway-data-load.yml'
+
+jobs:
+  load-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Railway CLI
+      run: npm install -g @railway/cli
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Load data to Railway
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        railway run python manage.py migrate --noinput
+        railway run python manage.py loaddata employees_only.json
+        railway run python manage.py shell -c "from employees.models import Employee; print(f'Successfully loaded {Employee.objects.count()} employees')"

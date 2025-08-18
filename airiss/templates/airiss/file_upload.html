@@ -1,0 +1,212 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}AIRISS 파일 업로드 - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_head %}
+<!-- AIRISS API Configuration -->
+<script src="{% static 'js/airiss_config.js' %}?v=1.0.1"></script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .upload-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .upload-area {
+        border: 2px dashed #007bff;
+        border-radius: 8px;
+        padding: 40px;
+        text-align: center;
+        background: #f8f9fa;
+        transition: all 0.3s;
+    }
+    
+    .upload-area:hover {
+        border-color: #0056b3;
+        background: #e9ecef;
+    }
+    
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: -9999px;
+    }
+    
+    .file-input-label {
+        display: inline-block;
+        padding: 12px 30px;
+        background: #007bff;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .file-input-label:hover {
+        background: #0056b3;
+    }
+    
+    .service-status {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        z-index: 1000;
+    }
+    
+    .status-online {
+        background: #28a745;
+        color: white;
+    }
+    
+    .status-offline {
+        background: #dc3545;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Service Status Indicator -->
+    <div id="service-status" class="service-status status-online">
+        <i class="fas fa-circle"></i> AIRISS 서비스 정상
+    </div>
+
+    <div class="upload-container">
+        <div class="upload-header">
+            <h2><i class="fas fa-cloud-upload-alt"></i> AIRISS 파일 업로드</h2>
+            <p class="text-muted">직원 데이터를 업로드하여 AI 분석을 시작하세요</p>
+        </div>
+
+        <!-- Upload Messages -->
+        <div id="upload-message"></div>
+
+        <!-- File Upload Area -->
+        <div class="upload-area">
+            <i class="fas fa-file-upload fa-3x mb-3 text-primary"></i>
+            <h4>파일 선택</h4>
+            <p class="text-muted mb-4">Excel, CSV, JSON 파일을 업로드할 수 있습니다</p>
+            
+            <div class="file-input-wrapper">
+                <label for="airiss-file-input" class="file-input-label">
+                    <i class="fas fa-folder-open"></i> 파일 선택
+                </label>
+                <input type="file" id="airiss-file-input" 
+                       accept=".xlsx,.xls,.csv,.json">
+            </div>
+            
+            <div class="mt-3">
+                <small class="text-muted">최대 파일 크기: 10MB</small>
+            </div>
+        </div>
+
+        <!-- File Information -->
+        <div id="file-info" class="mt-3"></div>
+
+        <!-- Upload Progress -->
+        <div id="upload-progress" class="mt-3"></div>
+
+        <!-- Upload Button -->
+        <div class="text-center mt-4">
+            <button id="airiss-upload-btn" class="btn btn-primary btn-lg" disabled>
+                <i class="fas fa-upload"></i> 업로드 시작
+            </button>
+        </div>
+
+        <!-- Upload Result -->
+        <div id="upload-result" class="mt-4"></div>
+
+        <!-- Additional Options -->
+        <div class="mt-5 pt-4 border-top">
+            <h5>추가 옵션</h5>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="employee-id">직원 ID (선택사항)</label>
+                        <input type="text" class="form-control" id="employee-id" 
+                               placeholder="특정 직원 분석 시 입력">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="analysis-type">분석 유형</label>
+                        <select class="form-control" id="analysis-type">
+                            <option value="performance">성과 분석</option>
+                            <option value="retention">이직 위험도 분석</option>
+                            <option value="skill">역량 분석</option>
+                            <option value="comprehensive">종합 분석</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="mt-5 text-center">
+            <a href="{% url 'airiss:analysis_results' %}" class="btn btn-outline-info">
+                <i class="fas fa-chart-bar"></i> 분석 결과 보기
+            </a>
+            <a href="{% url 'airiss:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-home"></i> 대시보드로 돌아가기
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enable upload button when file is selected
+document.getElementById('airiss-file-input').addEventListener('change', function(e) {
+    const uploadBtn = document.getElementById('airiss-upload-btn');
+    uploadBtn.disabled = !e.target.files.length;
+});
+
+// Check service status
+async function checkServiceStatus() {
+    try {
+        const response = await fetch(window.AIRISS_CONFIG.getApiUrl('HEALTH'));
+        const statusEl = document.getElementById('service-status');
+        
+        if (response.ok) {
+            statusEl.className = 'service-status status-online';
+            statusEl.innerHTML = '<i class="fas fa-circle"></i> AIRISS 서비스 정상';
+        } else {
+            statusEl.className = 'service-status status-offline';
+            statusEl.innerHTML = '<i class="fas fa-circle"></i> AIRISS 서비스 점검 중';
+        }
+    } catch (error) {
+        const statusEl = document.getElementById('service-status');
+        statusEl.className = 'service-status status-offline';
+        statusEl.innerHTML = '<i class="fas fa-circle"></i> AIRISS 서비스 연결 실패';
+    }
+}
+
+// Check status on load and every 30 seconds
+checkServiceStatus();
+setInterval(checkServiceStatus, 30000);
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<!-- AIRISS Upload Handler -->
+<script src="{% static 'js/airiss_upload.js' %}?v=1.0.1"></script>
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}직무 체계도 - OK금융그룹{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/job_tree_unified_improved.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="job-tree-container">
+    <!-- 페이지 헤더 -->
+    <header class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-sitemap"></i>
+            OK금융그룹 직무 체계도
+        </h1>
+        <p class="page-subtitle">직군 → 직종 → 직무 구조를 한눈에 확인하세요</p>
+    </header>
+
+    <!-- 통계 카드 (수정된 카운트) -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">2</div>
+            <div class="stat-label">직군</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">9</div>
+            <div class="stat-label">직종</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">37</div>
+            <div class="stat-label">직무</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">37</div>
+            <div class="stat-label">직무기술서</div>
+        </div>
+    </div>
+
+    <!-- 뷰 모드 선택 탭 -->
+    <div class="view-mode-tabs">
+        <button class="view-tab active" data-view="org">
+            <i class="fas fa-sitemap"></i> 조직도 보기
+        </button>
+        <button class="view-tab" data-view="grid">
+            <i class="fas fa-th"></i> 그리드 보기
+        </button>
+        <button class="view-tab" data-view="treemap">
+            <i class="fas fa-chart-treemap"></i> 트리맵 보기
+        </button>
+    </div>
+
+    <!-- 필터 바 -->
+    <div class="filter-bar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="jobSearch" placeholder="직무 검색...">
+        </div>
+        <div class="filter-chips">
+            <button class="chip active" data-filter="all">전체</button>
+            <button class="chip" data-filter="non-pl">Non-PL 직군</button>
+            <button class="chip" data-filter="pl">PL 직군</button>
+            <button class="chip" data-filter="with-profile">기술서 있음</button>
+            <button class="chip" data-filter="no-profile">기술서 없음</button>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <div class="main-content">
+        <!-- 조직도 보기 -->
+        <div id="org-view" class="view-content active">
+            <!-- Non-PL 직군 섹션 -->
+            <section class="job-group non-pl-group">
+                <div class="group-header">
+                    <span class="group-badge non-pl">Non-PL 직군</span>
+                    <h2 class="group-title">일반 직군 (8개 직종)</h2>
+                </div>
+                
+                <!-- 직종별 카드 -->
+                <div class="job-types-grid">
+                    <div class="job-type-card" data-job-type="IT기획">
+                        <div class="job-type-header">
+                            <i class="fas fa-laptop-code"></i>
+                            <h3>IT기획</h3>
+                            <span class="job-count">1개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">시스템기획</div>
+                        </div>
+                    </div>
+
+                    <div class="job-type-card" data-job-type="IT개발">
+                        <div class="job-type-header">
+                            <i class="fas fa-code"></i>
+                            <h3>IT개발</h3>
+                            <span class="job-count">1개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">시스템개발</div>
+                        </div>
+                    </div>
+
+                    <div class="job-type-card" data-job-type="IT운영">
+                        <div class="job-type-header">
+                            <i class="fas fa-server"></i>
+                            <h3>IT운영</h3>
+                            <span class="job-count">2개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">시스템관리</div>
+                            <div class="job-item">서비스운영</div>
+                        </div>
+                    </div>
+
+                    <div class="job-type-card" data-job-type="경영관리">
+                        <div class="job-type-header">
+                            <i class="fas fa-briefcase"></i>
+                            <h3>경영관리</h3>
+                            <span class="job-count">16개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">감사</div>
+                            <div class="job-item">HRM</div>
+                            <div class="job-item">HRD</div>
+                            <div class="job-item">경영지원</div>
+                            <div class="job-item">비서</div>
+                            <div class="job-item">PR</div>
+                            <div class="job-item">경영기획</div>
+                            <div class="job-item">디자인</div>
+                            <div class="job-item">리스크관리</div>
+                            <div class="job-item">마케팅</div>
+                            <div class="job-item">스포츠사무관리</div>
+                            <div class="job-item">자금</div>
+                            <div class="job-item">재무회계</div>
+                            <div class="job-item">정보보안</div>
+                            <div class="job-item">준법지원</div>
+                            <div class="job-item">총무</div>
+                        </div>
+                    </div>
+
+                    <div class="job-type-card" data-job-type="투자금융">
+                        <div class="job-type-header">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>투자금융</h3>
+                            <span class="job-count">1개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">IB금융</div>
+                        </div>
+                    </div>
+
+                    <div class="job-type-card" data-job-type="기업금융">
+                        <div class="job-type-header">
+                            <i class="fas fa-building"></i>
+                            <h3>기업금융</h3>
+                            <span class="job-count">3개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">기업영업기획</div>
+                            <div class="job-item">기업여신심사</div>
+                            <div class="job-item">기업여신관리</div>
+                        </div>
+                    </div>
+
+                    <div class="job-type-card" data-job-type="기업영업">
+                        <div class="job-type-header">
+                            <i class="fas fa-handshake"></i>
+                            <h3>기업영업</h3>
+                            <span class="job-count">1개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">여신영업</div>
+                        </div>
+                    </div>
+
+                    <div class="job-type-card" data-job-type="리테일금융">
+                        <div class="job-type-header">
+                            <i class="fas fa-coins"></i>
+                            <h3>리테일금융</h3>
+                            <span class="job-count">8개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">데이터/통계</div>
+                            <div class="job-item">플랫폼/핀테크</div>
+                            <div class="job-item">NPL영업기획</div>
+                            <div class="job-item">리테일심사기획</div>
+                            <div class="job-item">PL기획</div>
+                            <div class="job-item">모기지기획</div>
+                            <div class="job-item">수신기획</div>
+                            <div class="job-item">수신영업</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PL 직군 섹션 -->
+            <section class="job-group pl-group">
+                <div class="group-header">
+                    <span class="group-badge pl">PL 직군</span>
+                    <h2 class="group-title">고객서비스 직군 (1개 직종)</h2>
+                </div>
+                
+                <div class="job-types-grid">
+                    <div class="job-type-card" data-job-type="고객지원">
+                        <div class="job-type-header">
+                            <i class="fas fa-headset"></i>
+                            <h3>고객지원</h3>
+                            <span class="job-count">4개 직무</span>
+                        </div>
+                        <div class="job-list">
+                            <div class="job-item">여신고객지원</div>
+                            <div class="job-item">사무지원</div>
+                            <div class="job-item">수신고객지원</div>
+                            <div class="job-item">채권관리지원</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 그리드 보기 -->
+        <div id="grid-view" class="view-content">
+            <div id="grid-content" class="grid-container">
+                <!-- 동적으로 생성될 그리드 컨텐츠 -->
+            </div>
+        </div>
+
+        <!-- 트리맵 보기 -->
+        <div id="treemap-view" class="view-content">
+            <div id="treemap-container" class="treemap-container">
+                <!-- D3.js를 이용한 트리맵 시각화 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 직무 상세 모달 -->
+<div id="jobDetailModal" class="modal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <button class="btn-close" onclick="closeModal()" aria-label="닫기">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <!-- 동적 콘텐츠 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="editJobProfile()">
+                    <i class="fas fa-edit"></i> 편집
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{% static 'js/job_tree_unified_improved.js' %}"></script>
+{% endblock %}

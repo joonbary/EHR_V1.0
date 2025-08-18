@@ -1,0 +1,174 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}인력 구성 대시보드 - OK금융그룹{% endblock %}
+
+{% block extra_css %}
+<style>
+.kpi-dashboard {
+    padding: 20px;
+}
+
+.dashboard-header {
+    margin-bottom: 30px;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2e86de;
+    margin: 10px 0;
+}
+
+.kpi-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.kpi-trend {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.trend-up {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.trend-down {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="kpi-dashboard">
+    <div class="dashboard-header">
+        <h1>인력 구성 대시보드</h1>
+        <p class="text-muted">조직 구성 및 인력 현황 분석</p>
+    </div>
+
+    <!-- KPI 요약 카드 -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">전체 리더 인원</div>
+            <div class="kpi-value">152</div>
+            <span class="kpi-trend trend-up">+5.6%</span>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-label">리더 준비도</div>
+            <div class="kpi-value">78%</div>
+            <span class="kpi-trend trend-up">+3.2%</span>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-label">인증 완료율</div>
+            <div class="kpi-value">65%</div>
+            <span class="kpi-trend trend-down">-2.1%</span>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-label">후계자 충원율</div>
+            <div class="kpi-value">82%</div>
+            <span class="kpi-trend trend-up">+1.5%</span>
+        </div>
+    </div>
+
+    <!-- 차트 영역 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h3>부서별 리더 현황</h3>
+                <canvas id="leaderByDeptChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h3>리더 성장 추이</h3>
+                <canvas id="leaderGrowthChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container">
+                <h3>인재 파이프라인 현황</h3>
+                <canvas id="talentPipelineChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 차트 초기화 및 데이터 로드
+document.addEventListener('DOMContentLoaded', function() {
+    // 부서별 리더 현황 차트
+    const ctx1 = document.getElementById('leaderByDeptChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['IT', '영업', '마케팅', '인사', '재무', '운영'],
+            datasets: [{
+                label: '리더 수',
+                data: [28, 35, 22, 18, 25, 24],
+                backgroundColor: '#2e86de'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+    
+    // 리더 성장 추이 차트
+    const ctx2 = document.getElementById('leaderGrowthChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: ['1월', '2월', '3월', '4월', '5월', '6월'],
+            datasets: [{
+                label: '리더 수',
+                data: [140, 142, 145, 148, 150, 152],
+                borderColor: '#2e86de',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+{% endblock %}

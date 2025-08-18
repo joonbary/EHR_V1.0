@@ -1,0 +1,720 @@
+{% extends 'base_airiss.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}AIRISS - OK금융그룹 e-HR System{% endblock %}
+
+{% block extra_css %}
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                colors: {
+                    primary: {
+                        DEFAULT: '#FF6B00',
+                        hover: '#E55A00',
+                        light: '#FFF4ED',
+                        lighter: '#FFEDE5',
+                        dark: '#CC5500'
+                    },
+                    accent: {
+                        DEFAULT: '#FFAA00',
+                        hover: '#E69900',
+                        light: '#FFF8E6'
+                    },
+                    brand: {
+                        brown: '#55474A',
+                        gray: '#E3DFDA',
+                        dark: '#1A1A1A'
+                    },
+                    status: {
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        error: '#EF4444',
+                        info: '#3B82F6'
+                    }
+                },
+                fontFamily: {
+                    sans: ['Pretendard', 'Noto Sans KR', 'sans-serif']
+                },
+                boxShadow: {
+                    'glow': '0 0 20px rgba(255, 107, 0, 0.15)',
+                    'glow-lg': '0 0 30px rgba(255, 107, 0, 0.2)',
+                    'neumorphic': '8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.7)'
+                }
+            }
+        }
+    }
+</script>
+
+<!-- Custom Styles -->
+<style>
+    /* 그라디언트 배경 */
+    .gradient-bg {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    }
+    
+    .gradient-bg-subtle {
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+    }
+    
+    /* 글래스모피즘 효과 */
+    .glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .glass-dark {
+        background: rgba(26, 26, 26, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    /* 호버 애니메이션 */
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+    }
+    
+    /* 플로팅 애니메이션 */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .float-animation {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    /* 그라디언트 텍스트 */
+    .gradient-text {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 인라인 스크립트 테스트 -->
+<script>
+    console.log("[INLINE] This script is in the content block");
+    document.write("<p style='background:red;color:white;padding:10px;'>JavaScript is working! (document.write test)</p>");
+</script>
+
+<div class="max-w-7xl mx-auto">
+    <!-- 배경 장식 요소 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/3 w-60 h-60 bg-primary/5 rounded-full blur-2xl float-animation"></div>
+    </div>
+
+    <!-- 페이지 헤더 -->
+    <div class="mb-8 relative z-10">
+        <!-- JavaScript 테스트 버튼 추가 -->
+        <div class="mb-4 p-4 bg-yellow-100 border border-yellow-400 rounded-lg">
+            <p class="mb-2">JavaScript 실행 테스트:</p>
+            <button onclick="alert('JavaScript가 정상적으로 작동합니다!')" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                테스트 버튼 (onclick)
+            </button>
+        </div>
+        
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center float-animation">
+                    <i data-lucide="brain" class="w-6 h-6 text-pink-600"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">AIRISS</h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">AI 기반 HR 분석 및 인사이트 시스템</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button id="aiSettingsBtn" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span>AI 설정</span>
+                </button>
+                <button class="px-4 py-2 gradient-bg text-white rounded-xl hover:shadow-lg transition-all flex items-center space-x-2">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>새 분석 시작</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 모델 설정 카드 (숨김 상태) -->
+    <div id="aiSettingsCard" class="hidden mb-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <i data-lucide="cpu" class="w-5 h-5 mr-2 text-purple-600"></i>
+                AI 모델 설정
+            </h3>
+            <button onclick="hideAISettings()" class="text-gray-500 hover:text-gray-700">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">GPT 모델 선택</label>
+                <select id="modelSelector" class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200" disabled>
+                    <option value="">로딩 중...</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">API 상태</label>
+                <div class="flex items-center space-x-2">
+                    <span id="apiStatus" class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    <span id="apiStatusText" class="text-sm text-gray-600 dark:text-gray-400">연결 확인 중...</span>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">모델 정보</label>
+                <div id="modelInfo" class="text-sm text-gray-600 dark:text-gray-400">
+                    모델 정보를 불러오는 중...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알림 영역 -->
+    <div id="alertContainer" class="fixed top-24 right-6 z-50 space-y-2"></div>
+
+    <!-- AI 인사이트 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- 이탈 위험도 -->
+        <div class="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">이탈 위험 직원</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">23명</p>
+                    <p class="text-sm text-red-600 mt-2 flex items-center">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 mr-1"></i>
+                        즉시 조치 필요
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="user-minus" class="w-6 h-6 text-red-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 성과 예측 -->
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">고성과자 예측</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">87명</p>
+                    <p class="text-sm text-green-600 mt-2 flex items-center">
+                        <i data-lucide="trending-up" class="w-4 h-4 mr-1"></i>
+                        상위 15% 예상
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="star" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 팀 효율성 -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">팀 효율성 점수</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">82.5</p>
+                    <p class="text-sm text-blue-600 mt-2 flex items-center">
+                        <i data-lucide="bar-chart" class="w-4 h-4 mr-1"></i>
+                        +5.2 향상
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI 정확도 -->
+        <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6 shadow-sm hover-lift">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">AI 예측 정확도</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">94.7%</p>
+                    <p class="text-sm text-purple-600 mt-2 flex items-center">
+                        <i data-lucide="zap" class="w-4 h-4 mr-1"></i>
+                        업계 최고 수준
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="cpu" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 분석 메뉴 -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <a href="{% url 'airiss:analytics' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-gradient-to-br from-pink-100 to-purple-100 group-hover:from-pink-200 group-hover:to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all">
+                <i data-lucide="pie-chart" class="w-8 h-8 text-purple-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">인재 분석</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">역량 및 잠재력 분석</p>
+        </a>
+
+        <a href="{% url 'airiss:insights' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-100 group-hover:from-blue-200 group-hover:to-cyan-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all">
+                <i data-lucide="zap" class="w-8 h-8 text-blue-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">예측 인사이트</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">미래 트렌드 예측</p>
+        </a>
+
+        <a href="{% url 'airiss:predictions' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 group-hover:from-green-200 group-hover:to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all">
+                <i data-lucide="sparkles" class="w-8 h-8 text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">AI 추천</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">맞춤형 HR 추천</p>
+        </a>
+
+        <a href="{% url 'airiss:chatbot' %}" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover-lift text-center group">
+            <div class="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 group-hover:from-orange-200 group-hover:to-red-200 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all">
+                <i data-lucide="message-circle" class="w-8 h-8 text-orange-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">HR 챗봇</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">AI 기반 상담</p>
+        </a>
+    </div>
+
+    <!-- 실시간 AI 인사이트 -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-8">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <i data-lucide="activity" class="w-5 h-5 mr-2 text-pink-600"></i>
+                    실시간 AI 인사이트
+                </h2>
+                <span class="text-sm text-gray-500">마지막 업데이트: 2분 전</span>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                {% for insight in high_priority_insights %}
+                <div class="flex items-start space-x-4 p-4 bg-{{ insight.priority|lower }}-50 dark:bg-{{ insight.priority|lower }}-900/20 rounded-xl">
+                    <div class="w-10 h-10 bg-{{ insight.priority|lower }}-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="alert-circle" class="w-5 h-5 text-{{ insight.priority|lower }}-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-gray-900 dark:text-white mb-1">{{ insight.title }}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">{{ insight.description }}</p>
+                        <div class="flex items-center space-x-4 mt-3">
+                            <button class="text-sm text-{{ insight.priority|lower }}-600 hover:text-{{ insight.priority|lower }}-700 font-medium">상세 분석 보기</button>
+                            <button class="text-sm text-gray-600 hover:text-gray-700">대응 방안 추천</button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- 기본 인사이트 표시 -->
+                <div class="flex items-start space-x-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-gray-900 dark:text-white mb-1">AI 분석 준비 완료</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">HR 데이터 분석을 시작할 준비가 되었습니다. '새 분석 시작' 버튼을 클릭하여 시작하세요.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 최근 분석 결과 -->
+    {% if recent_analyses %}
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-8">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                <i data-lucide="history" class="w-5 h-5 mr-2 text-purple-600"></i>
+                최근 분석 결과
+            </h2>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="border-b border-gray-200 dark:border-gray-700">
+                        <tr>
+                            <th class="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">분석 유형</th>
+                            <th class="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">대상</th>
+                            <th class="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">점수</th>
+                            <th class="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">신뢰도</th>
+                            <th class="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">분석일시</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for analysis in recent_analyses %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                            <td class="py-4 px-4 text-sm text-gray-900 dark:text-white">{{ analysis.analysis_type.name }}</td>
+                            <td class="py-4 px-4 text-sm text-gray-600 dark:text-gray-400">{{ analysis.employee.name|default:analysis.department }}</td>
+                            <td class="py-4 px-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    {{ analysis.score|floatformat:1 }}점
+                                </span>
+                            </td>
+                            <td class="py-4 px-4 text-sm text-gray-600 dark:text-gray-400">{{ analysis.confidence|floatformat:0 }}%</td>
+                            <td class="py-4 px-4 text-sm text-gray-600 dark:text-gray-400">{{ analysis.analyzed_at|timesince }} 전</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AI 모델 성능 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 예측 정확도 차트 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">AI 모델 예측 정확도</h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">이탈 예측</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">95.2%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" style="width: 95.2%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">성과 예측</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">92.8%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 92.8%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">팀 매칭</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">89.5%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style="width: 89.5%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">경력 개발 추천</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">87.3%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full" style="width: 87.3%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 학습 데이터 현황 -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">AI 학습 데이터 현황</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_analyses|intcomma }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">총 분석 수행</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ active_insights }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">활성 인사이트</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_conversations|intcomma }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">챗봇 대화</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">99.9%</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">시스템 가용성</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 즉시 실행되는 테스트 코드
+    console.log("[AIRISS] JavaScript loaded at:", new Date().toISOString());
+    
+    // window.onload 테스트
+    window.onload = function() {
+        console.log("[AIRISS] window.onload fired");
+    };
+    
+    // 즉시 실행 함수로 DOM 요소 확인
+    (function() {
+        console.log("[AIRISS] IIFE executed");
+        console.log("[AIRISS] document.readyState:", document.readyState);
+    })();
+    // 전역 변수와 함수를 window 객체에 명시적으로 할당
+    window.currentModels = [];
+    window.isChangingModel = false;
+    
+    console.log('🎯 AIRISS Modern Dashboard 로드됨');
+    
+    // AI 설정 표시/숨김 - window 객체에 할당하여 onclick에서 접근 가능하게 함
+    window.showAISettings = function() {
+        console.log('🔧 AI 설정 표시');
+        const card = document.getElementById('aiSettingsCard');
+        if (card) {
+            card.classList.remove('hidden');
+            loadAvailableModels();
+        } else {
+            console.error('❌ aiSettingsCard 요소를 찾을 수 없습니다');
+        }
+    }
+    
+    window.hideAISettings = function() {
+        console.log('🔧 AI 설정 숨김');
+        const card = document.getElementById('aiSettingsCard');
+        if (card) {
+            card.classList.add('hidden');
+        }
+    }
+    
+    // 알림 표시
+    function showAlert(message, type = 'success') {
+        const container = document.getElementById('alertContainer');
+        const alertId = 'alert-' + Date.now();
+        
+        const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 
+                        type === 'error' ? 'bg-red-100 border-red-400 text-red-700' : 
+                        'bg-blue-100 border-blue-400 text-blue-700';
+        
+        const alertHTML = `
+            <div id="${alertId}" class="px-4 py-3 rounded-lg border ${bgColor} flex items-center space-x-3 shadow-lg transform transition-all duration-300 translate-x-0">
+                <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}" class="w-5 h-5"></i>
+                <span>${message}</span>
+                <button onclick="document.getElementById('${alertId}').remove()" class="ml-auto hover:opacity-70">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', alertHTML);
+        lucide.createIcons();
+        
+        // 5초 후 자동 제거
+        setTimeout(() => {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                alert.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => alert.remove(), 300);
+            }
+        }, 5000);
+    }
+    
+    // AI 모델 관리 함수들
+    function loadAvailableModels() {
+        console.log('🔄 모델 목록 로딩 시작...');
+        
+        fetch('{% url "airiss:api_get_models" %}')
+            .then(response => {
+                console.log('📡 API 응답 수신:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('📊 모델 데이터:', data);
+                
+                if (data.success) {
+                    currentModels = data.available_models;
+                    const selector = document.getElementById('modelSelector');
+                    const statusIndicator = document.getElementById('apiStatus');
+                    const statusText = document.getElementById('apiStatusText');
+                    
+                    // API 상태 업데이트
+                    if (data.api_available) {
+                        statusIndicator.className = 'w-2 h-2 bg-green-500 rounded-full animate-pulse';
+                        statusText.textContent = 'OpenAI API 연결됨';
+                    } else {
+                        statusIndicator.className = 'w-2 h-2 bg-red-500 rounded-full';
+                        statusText.textContent = 'API 키가 설정되지 않음';
+                    }
+                    
+                    // 모델 선택기 업데이트
+                    selector.innerHTML = '';
+                    data.available_models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.id;
+                        option.textContent = model.name;
+                        if (model.id === data.current_model) {
+                            option.selected = true;
+                        }
+                        selector.appendChild(option);
+                    });
+                    
+                    selector.disabled = false;
+                    updateModelInfo(data.current_model);
+                    
+                    console.log('✅ 모델 로딩 완료');
+                    
+                } else {
+                    console.error('❌ 모델 로딩 실패:', data.error);
+                    document.getElementById('apiStatus').className = 'w-2 h-2 bg-red-500 rounded-full';
+                    document.getElementById('apiStatusText').textContent = '모델 정보 로드 실패';
+                }
+            })
+            .catch(error => {
+                console.error('❌ 모델 로딩 오류:', error);
+                document.getElementById('apiStatus').className = 'w-2 h-2 bg-red-500 rounded-full';
+                document.getElementById('apiStatusText').textContent = '연결 오류';
+            });
+    }
+    
+    function updateModelInfo(modelId) {
+        const model = currentModels.find(m => m.id === modelId);
+        const infoDiv = document.getElementById('modelInfo');
+        
+        if (model) {
+            infoDiv.innerHTML = `
+                <div class="space-y-1">
+                    <p class="font-medium">${model.name}</p>
+                    <p class="text-xs">${model.description}</p>
+                    <div class="flex space-x-2 mt-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            ${model.cost}
+                        </span>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${model.speed}
+                        </span>
+                    </div>
+                </div>
+            `;
+        } else {
+            infoDiv.innerHTML = '모델 정보를 찾을 수 없습니다.';
+        }
+    }
+    
+    function changeModel(newModelId) {
+        console.log('🔄 모델 변경 시작:', newModelId);
+        
+        if (isChangingModel) {
+            console.log('⚠️ 이미 모델 변경 중...');
+            return;
+        }
+        
+        isChangingModel = true;
+        const selector = document.getElementById('modelSelector');
+        const originalValue = selector.value;
+        
+        // 로딩 상태 표시
+        selector.disabled = true;
+        const infoDiv = document.getElementById('modelInfo');
+        infoDiv.innerHTML = '<div class="flex items-center"><i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i> 모델 변경 중...</div>';
+        lucide.createIcons();
+        
+        fetch('{% url "airiss:api_change_model" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({
+                model: newModelId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                updateModelInfo(newModelId);
+            } else {
+                showAlert(`모델 변경 실패: ${data.error}`, 'error');
+                selector.value = originalValue;
+                updateModelInfo(originalValue);
+            }
+        })
+        .catch(error => {
+            console.error('❌ 모델 변경 오류:', error);
+            showAlert(`네트워크 오류: ${error.message}`, 'error');
+            selector.value = originalValue;
+            updateModelInfo(originalValue);
+        })
+        .finally(() => {
+            selector.disabled = false;
+            isChangingModel = false;
+        });
+    }
+    
+    function getCsrfToken() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                return value;
+            }
+        }
+        return '';
+    }
+    
+    // DOM 준비 상태 체크
+    if (document.readyState === 'loading') {
+        console.log("[AIRISS] Waiting for DOMContentLoaded...");
+        document.addEventListener('DOMContentLoaded', initializeAIRISS);
+    } else {
+        console.log("[AIRISS] DOM already loaded, initializing immediately");
+        initializeAIRISS();
+    }
+    
+    function initializeAIRISS() {
+        console.log('✅ [AIRISS] initializeAIRISS() called');
+        console.log('[AIRISS] Current URL:', window.location.href);
+        console.log('[AIRISS] Document title:', document.title);
+        
+        // Lucide 아이콘 초기화
+        lucide.createIcons();
+        
+        // AI 설정 버튼 이벤트 리스너
+        const aiSettingsBtn = document.getElementById('aiSettingsBtn');
+        if (aiSettingsBtn) {
+            console.log('📋 AI 설정 버튼 발견, 이벤트 리스너 등록...');
+            aiSettingsBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('🎯 AI 설정 버튼 클릭됨');
+                window.showAISettings();
+            });
+        } else {
+            console.error('❌ AI 설정 버튼을 찾을 수 없습니다');
+        }
+        
+        // 모델 선택 이벤트 리스너
+        const selector = document.getElementById('modelSelector');
+        if (selector) {
+            console.log('📋 모델 선택기 발견, 이벤트 리스너 등록...');
+            selector.addEventListener('change', function(e) {
+                console.log('🎯 모델 선택 변경 감지:', e.target.value);
+                if (e.target.value && !isChangingModel) {
+                    changeModel(e.target.value);
+                }
+            });
+        }
+        
+        console.log('✅ AIRISS 초기화 완료');
+    }
+</script>
+{% endblock %}

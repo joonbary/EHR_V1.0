@@ -1,0 +1,757 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OK Financial Group - AI HRM Revolution</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 1s ease;
+        }
+
+        .preloader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .ai-brain {
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+
+        .brain-circle {
+            position: absolute;
+            border: 2px solid #00d4ff;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .brain-circle:nth-child(1) {
+            width: 100%;
+            height: 100%;
+            animation: pulse-ring 2s linear infinite;
+        }
+
+        .brain-circle:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            animation: pulse-ring 2s linear infinite 0.5s;
+        }
+
+        .brain-circle:nth-child(3) {
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            animation: pulse-ring 2s linear infinite 1s;
+        }
+
+        .brain-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-radius: 50%;
+            animation: glow-pulse 2s ease infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.4;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 212, 255, 1);
+            }
+        }
+
+        /* Main Container */
+        .main-container {
+            position: relative;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #000 0%, #0a0f1b 50%, #000 100%);
+        }
+
+        /* Animated Grid Background */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-move 20s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            z-index: 1;
+        }
+
+        /* Company Logo */
+        .company-logo {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #00d4ff;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInDown 1s ease 0.5s forwards;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main Title */
+        .main-headline {
+            text-align: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.7s forwards;
+        }
+
+        .headline-small {
+            font-size: 16px;
+            color: #00d4ff;
+            font-weight: 500;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .headline-large {
+            font-size: clamp(48px, 10vw, 120px);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #fff, #00d4ff, #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .headline-sub {
+            font-size: 24px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
+        /* AI Features Showcase */
+        .ai-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 60px auto;
+            padding: 0 20px;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.2s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .ai-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 24px;
+            padding: 40px 30px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .ai-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .ai-card:hover::before {
+            opacity: 1;
+        }
+
+        .ai-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #00d4ff;
+            box-shadow: 
+                0 20px 40px rgba(0, 212, 255, 0.3),
+                inset 0 0 60px rgba(0, 212, 255, 0.1);
+        }
+
+        .ai-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-radius: 20px;
+            font-size: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .ai-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .ai-description {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .ai-metric {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        /* System Architecture Preview */
+        .architecture-preview {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 60px 20px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 1s ease 1.5s forwards;
+        }
+
+        .architecture-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .architecture-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+        }
+
+        .tech-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .tech-pill {
+            padding: 12px 24px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tech-pill:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 80px 20px;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.8s forwards;
+        }
+
+        .cta-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .cta-subtitle {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 18px 48px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-secondary {
+            padding: 18px 48px;
+            background: transparent;
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            border: 2px solid #00d4ff;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .float-1 {
+            top: 10%;
+            left: 5%;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.3), transparent);
+            border-radius: 50%;
+            animation: float-1 20s infinite ease-in-out;
+        }
+
+        .float-2 {
+            top: 60%;
+            right: 5%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(0, 153, 255, 0.3), transparent);
+            border-radius: 50%;
+            animation: float-2 25s infinite ease-in-out;
+        }
+
+        @keyframes float-1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -30px) scale(1.1); }
+            50% { transform: translate(-30px, 50px) scale(0.9); }
+            75% { transform: translate(30px, 30px) scale(1.05); }
+        }
+
+        @keyframes float-2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-50px, 30px) scale(0.9); }
+            50% { transform: translate(30px, -50px) scale(1.1); }
+            75% { transform: translate(-30px, -30px) scale(1.05); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .headline-large {
+                font-size: 48px;
+            }
+            
+            .ai-showcase {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="ai-brain">
+            <div class="brain-circle"></div>
+            <div class="brain-circle"></div>
+            <div class="brain-circle"></div>
+            <div class="brain-core"></div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Grid Background -->
+        <div class="grid-background"></div>
+
+        <!-- Floating Elements -->
+        <div class="floating-element float-1"></div>
+        <div class="floating-element float-2"></div>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="company-logo">OK FINANCIAL GROUP</div>
+            
+            <div class="main-headline">
+                <div class="headline-small">NEXT GENERATION HRM</div>
+                <h1 class="headline-large">
+                    <span class="gradient-text">AI가 만드는</span><br>
+                    <span class="gradient-text">인사의 미래</span>
+                </h1>
+                <p class="headline-sub">
+                    1,509명의 임직원 데이터가 만드는 무한한 가능성
+                </p>
+            </div>
+
+            <!-- AI Features Showcase -->
+            <div class="ai-showcase">
+                <div class="ai-card">
+                    <div class="ai-icon">🧠</div>
+                    <h3 class="ai-title">AI 채용 분석</h3>
+                    <p class="ai-description">
+                        이력서 자동 분석부터 적합도 평가까지,
+                        AI가 최적의 인재를 찾아드립니다
+                    </p>
+                    <div class="ai-metric">
+                        <span class="metric-label">정확도</span>
+                        <span class="metric-value">97.8%</span>
+                    </div>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-icon">📊</div>
+                    <h3 class="ai-title">성과 예측 모델</h3>
+                    <p class="ai-description">
+                        과거 데이터를 기반으로 미래 성과를 예측하고
+                        선제적 인사 전략을 수립합니다
+                    </p>
+                    <div class="ai-metric">
+                        <span class="metric-label">예측률</span>
+                        <span class="metric-value">94.5%</span>
+                    </div>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-icon">🎯</div>
+                    <h3 class="ai-title">조직 최적화</h3>
+                    <p class="ai-description">
+                        팀 구성과 인력 배치를 AI가 분석하여
+                        최고의 시너지를 만들어냅니다
+                    </p>
+                    <div class="ai-metric">
+                        <span class="metric-label">효율성</span>
+                        <span class="metric-value">+42%</span>
+                    </div>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-icon">💡</div>
+                    <h3 class="ai-title">인재 추천 시스템</h3>
+                    <p class="ai-description">
+                        프로젝트와 직무에 최적화된
+                        내부 인재를 실시간으로 매칭합니다
+                    </p>
+                    <div class="ai-metric">
+                        <span class="metric-label">매칭률</span>
+                        <span class="metric-value">91.2%</span>
+                    </div>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-icon">🛡️</div>
+                    <h3 class="ai-title">이탈 위험 관리</h3>
+                    <p class="ai-description">
+                        핵심 인재의 이탈 징후를 사전에 감지하고
+                        맞춤형 리텐션 전략을 제시합니다
+                    </p>
+                    <div class="ai-metric">
+                        <span class="metric-label">예방률</span>
+                        <span class="metric-value">86.7%</span>
+                    </div>
+                </div>
+
+                <div class="ai-card">
+                    <div class="ai-icon">📈</div>
+                    <h3 class="ai-title">실시간 대시보드</h3>
+                    <p class="ai-description">
+                        모든 HR 지표를 한눈에 파악하고
+                        데이터 기반 의사결정을 지원합니다
+                    </p>
+                    <div class="ai-metric">
+                        <span class="metric-label">실시간</span>
+                        <span class="metric-value">24/7</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Architecture Preview -->
+        <section class="architecture-preview">
+            <h2 class="architecture-title">엔터프라이즈급 기술 스택</h2>
+            <p class="architecture-subtitle">최신 기술로 구현된 안정적이고 확장 가능한 시스템</p>
+            
+            <div class="tech-pills">
+                <div class="tech-pill">Django 5.0</div>
+                <div class="tech-pill">PostgreSQL</div>
+                <div class="tech-pill">Machine Learning</div>
+                <div class="tech-pill">Real-time Analytics</div>
+                <div class="tech-pill">Cloud Native</div>
+                <div class="tech-pill">RESTful API</div>
+                <div class="tech-pill">Responsive Design</div>
+                <div class="tech-pill">Data Security</div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <h2 class="cta-title gradient-text">지금 시작하세요</h2>
+            <p class="cta-subtitle">AI가 이끄는 인사혁명의 주인공이 되십시오</p>
+            
+            <div class="cta-buttons">
+                <a href="{% url 'home' %}" class="btn-primary">시스템 체험하기</a>
+                <a href="{% url 'ai_quick_win_dashboard' %}" class="btn-secondary">AI 대시보드 보기</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Hide preloader after page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const preloader = document.getElementById('preloader');
+                preloader.classList.add('hidden');
+            }, 2000);
+        });
+
+        // Parallax effect on mouse move
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            document.querySelectorAll('.floating-element').forEach(el => {
+                const speed = el.classList.contains('float-1') ? 20 : 30;
+                el.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all AI cards
+        document.querySelectorAll('.ai-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Counter animation for metrics
+        const animateValue = (element, start, end, duration) => {
+            const startTimestamp = Date.now();
+            const step = () => {
+                const timestamp = Date.now();
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = element.dataset.suffix ? 
+                    value + element.dataset.suffix : value;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        // Animate metrics when visible
+        const metricObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.animated) {
+                    const value = entry.target.textContent;
+                    const numericValue = parseFloat(value);
+                    if (!isNaN(numericValue)) {
+                        entry.target.dataset.suffix = value.replace(numericValue.toString(), '');
+                        animateValue(entry.target, 0, numericValue, 1500);
+                        entry.target.animated = true;
+                    }
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.metric-value').forEach(metric => {
+            metricObserver.observe(metric);
+        });
+    </script>
+</body>
+</html>

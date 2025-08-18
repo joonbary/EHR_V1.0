@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}직위 관리{% endblock %}
+
+{% block extra_css %}
+<style>
+    .position-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    .position-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    .rank-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .rank-1 { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .rank-2 { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
+    .rank-3 { background: rgba(250, 204, 21, 0.2); color: #facc15; }
+    .rank-4 { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .rank-5 { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .rank-6 { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- 헤더 -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">직위 관리</h1>
+            <p class="text-gray-300">조직의 직위 체계를 관리합니다</p>
+        </div>
+        <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
+            <i class="fas fa-plus mr-2"></i>새 직위 추가
+        </button>
+    </div>
+
+    <!-- 직위 유형별 분류 -->
+    <div class="mb-6">
+        <div class="flex flex-wrap gap-2">
+            <button class="px-4 py-2 bg-blue-500 bg-opacity-20 text-blue-400 rounded-lg border border-blue-500 border-opacity-50">
+                전체
+            </button>
+            <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors">
+                임원
+            </button>
+            <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors">
+                관리직
+            </button>
+            <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors">
+                전문직
+            </button>
+            <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors">
+                일반직
+            </button>
+        </div>
+    </div>
+
+    <!-- 직위 목록 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for position in positions %}
+        <div class="position-card">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-semibold text-white mb-1">{{ position.name }}</h3>
+                    <p class="text-sm text-gray-400">{{ position.code }}</p>
+                </div>
+                <span class="rank-badge rank-{{ position.rank }}">
+                    Rank {{ position.rank }}
+                </span>
+            </div>
+            
+            <div class="space-y-3 mb-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">직위 유형</span>
+                    <span class="text-white">{{ position.get_position_type_display }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">성장레벨 범위</span>
+                    <span class="text-white">Lv.{{ position.growth_level_min }} - Lv.{{ position.growth_level_max }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">현재 인원</span>
+                    <span class="text-white font-semibold">{{ position.employee_count }}명</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+                {% if position.is_manager %}
+                <span class="px-2 py-1 bg-green-500 bg-opacity-20 text-green-400 text-xs rounded">
+                    <i class="fas fa-user-tie mr-1"></i>관리자
+                </span>
+                {% endif %}
+                {% if position.can_approve %}
+                <span class="px-2 py-1 bg-blue-500 bg-opacity-20 text-blue-400 text-xs rounded">
+                    <i class="fas fa-stamp mr-1"></i>결재권한
+                </span>
+                {% endif %}
+                {% if position.can_evaluate %}
+                <span class="px-2 py-1 bg-purple-500 bg-opacity-20 text-purple-400 text-xs rounded">
+                    <i class="fas fa-star mr-1"></i>평가권한
+                </span>
+                {% endif %}
+            </div>
+            
+            <a href="{% url 'organization:position_detail' position.id %}" class="block text-center bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors">
+                상세 보기
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 직위 체계 설명 -->
+    <div class="mt-12 bg-blue-500 bg-opacity-10 border border-blue-500 border-opacity-30 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">직위 체계 가이드</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+                <h4 class="text-white font-medium mb-2">Rank 설명</h4>
+                <ul class="space-y-1 text-gray-300">
+                    <li>• Rank 1: 최고 경영진 (CEO, COO)</li>
+                    <li>• Rank 2: 임원 (부사장, 전무)</li>
+                    <li>• Rank 3: 상위 관리자 (이사, 부장)</li>
+                    <li>• Rank 4: 중간 관리자 (차장, 과장)</li>
+                    <li>• Rank 5: 실무자 (대리, 주임)</li>
+                    <li>• Rank 6: 신입/인턴</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-medium mb-2">성장레벨 시스템</h4>
+                <ul class="space-y-1 text-gray-300">
+                    <li>• 각 직위별 최소/최대 레벨 설정</li>
+                    <li>• 레벨 상한 도달시 승진 검토</li>
+                    <li>• 성과평가와 연동된 레벨업</li>
+                    <li>• 직위별 필요 역량 정의</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-medium mb-2">권한 관리</h4>
+                <ul class="space-y-1 text-gray-300">
+                    <li>• 관리자: 팀원 관리 권한</li>
+                    <li>• 결재권한: 문서 승인 권한</li>
+                    <li>• 평가권한: 성과평가 수행</li>
+                    <li>• 직위별 세부 권한 설정</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

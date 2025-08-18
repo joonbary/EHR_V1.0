@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIRISS - AI 기반 HR 지원</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #00498B 0%, #007ACC 100%);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .navbar h1 {
+            color: white;
+            margin: 0;
+        }
+        
+        .model-selector-card {
+            background: linear-gradient(135deg, #007ACC 0%, #00498B 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .model-select {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 5px;
+            padding: 0.5rem;
+        }
+        
+        .model-select option {
+            background: #00498B;
+            color: white;
+        }
+        
+        .model-info {
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-online {
+            background-color: #28a745;
+        }
+        
+        .status-offline {
+            background-color: #dc3545;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-test {
+            margin: 0.25rem;
+        }
+        
+        .alert-custom {
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+    
+    <script>
+        // 즉시 실행 스크립트
+        console.log('🚀 AIRISS 독립 대시보드 로드됨');
+        window.airissStandalone = true;
+    </script>
+</head>
+<body>
+    <!-- 상단 네비게이션 -->
+    <div class="navbar">
+        <div class="container">
+            <h1><i class="fas fa-brain"></i> AIRISS - AI 기반 HR 지원 시스템</h1>
+            <p class="mb-0">독립형 대시보드 - JavaScript 테스트 및 AI 모델 설정</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 상태 알림 영역 -->
+        <div id="alertContainer"></div>
+        
+        <!-- AI 모델 설정 -->
+        <div class="model-selector-card">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <h5 class="mb-2">
+                        <i class="fas fa-brain"></i> AI 모델 설정
+                    </h5>
+                    <div class="d-flex align-items-center">
+                        <span class="status-indicator" id="apiStatus"></span>
+                        <span id="apiStatusText">연결 확인 중...</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label mb-1">GPT 모델 선택:</label>
+                    <select class="model-select form-select" id="modelSelector" disabled>
+                        <option value="">로딩 중...</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="model-info" id="modelInfo">
+                        모델 정보를 불러오는 중...
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-sm btn-light" onclick="testQuickButton()" style="margin-top: 1.5rem;">
+                        테스트
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 기능 테스트 섹션 -->
+        <div class="test-section">
+            <h3><i class="fas fa-flask"></i> 기능 테스트</h3>
+            <p>AI 모델 설정 기능을 테스트해보세요.</p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>JavaScript 테스트</h5>
+                    <button class="btn btn-primary btn-test" onclick="testAlert()">
+                        <i class="fas fa-bell"></i> 알림 테스트
+                    </button>
+                    <button class="btn btn-success btn-test" onclick="testConsole()">
+                        <i class="fas fa-terminal"></i> 콘솔 테스트
+                    </button>
+                    <button class="btn btn-info btn-test" onclick="testDOM()">
+                        <i class="fas fa-code"></i> DOM 테스트
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <h5>API 테스트</h5>
+                    <button class="btn btn-warning btn-test" onclick="testAPI()">
+                        <i class="fas fa-plug"></i> API 호출
+                    </button>
+                    <button class="btn btn-secondary btn-test" onclick="refreshModels()">
+                        <i class="fas fa-sync"></i> 모델 새로고침
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <h5>테스트 결과</h5>
+                <div id="testResults" class="border rounded p-3 bg-light" style="min-height: 100px; font-family: monospace;">
+                    테스트를 실행하면 결과가 여기에 표시됩니다...
+                </div>
+            </div>
+        </div>
+        
+        <!-- 링크 섹션 -->
+        <div class="test-section">
+            <h3><i class="fas fa-link"></i> 관련 링크</h3>
+            <a href="/airiss/" class="btn btn-outline-primary me-2">
+                <i class="fas fa-chart-bar"></i> 원본 AIRISS 대시보드
+            </a>
+            <a href="/airiss/test-js/" class="btn btn-outline-success me-2">
+                <i class="fas fa-vial"></i> 순수 JavaScript 테스트
+            </a>
+            <a href="/admin/" class="btn btn-outline-secondary">
+                <i class="fas fa-cog"></i> Django 관리자
+            </a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // 전역 변수
+        let currentModels = [];
+        let isChangingModel = false;
+        
+        // 유틸리티 함수
+        function addTestResult(message) {
+            const results = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            results.innerHTML += `[${timestamp}] ${message}\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            
+            const alertHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show alert-custom" id="${alertId}">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', alertHTML);
+            
+            // 3초 후 자동 제거
+            setTimeout(() => {
+                const alert = document.getElementById(alertId);
+                if (alert) alert.remove();
+            }, 3000);
+        }
+        
+        // 테스트 함수들
+        function testQuickButton() {
+            alert('✅ 퀵 테스트 버튼이 작동합니다!');
+            addTestResult('✅ 퀵 테스트 버튼 클릭됨');
+            console.log('퀵 테스트 버튼 실행');
+        }
+        
+        function testAlert() {
+            alert('🎉 JavaScript Alert이 정상 작동합니다!');
+            addTestResult('✅ Alert 테스트 성공');
+        }
+        
+        function testConsole() {
+            console.log('📝 콘솔 로그 테스트');
+            console.warn('⚠️ 콘솔 경고 테스트');
+            console.error('❌ 콘솔 에러 테스트');
+            addTestResult('✅ Console 테스트 완료 (F12로 확인)');
+        }
+        
+        function testDOM() {
+            const timestamp = new Date().toLocaleString();
+            document.getElementById('modelInfo').innerHTML = `
+                <strong>DOM 테스트 성공!</strong><br>
+                <small>시간: ${timestamp}</small>
+            `;
+            addTestResult('✅ DOM 조작 테스트 성공');
+        }
+        
+        function testAPI() {
+            addTestResult('🔄 API 테스트 시작...');
+            
+            fetch('/airiss/api/models/')
+                .then(response => response.json())
+                .then(data => {
+                    addTestResult(`✅ API 테스트 성공: ${data.current_model}`);
+                    showAlert(`API 연결 성공! 현재 모델: ${data.current_model}`, 'success');
+                })
+                .catch(error => {
+                    addTestResult(`❌ API 테스트 실패: ${error.message}`);
+                    showAlert(`API 연결 실패: ${error.message}`, 'danger');
+                });
+        }
+        
+        function refreshModels() {
+            loadAvailableModels();
+            addTestResult('🔄 모델 목록 새로고침 요청');
+        }
+        
+        // AI 모델 관리 함수들
+        function loadAvailableModels() {
+            console.log('🔄 모델 목록 로딩 시작...');
+            addTestResult('🔄 모델 목록 로딩 중...');
+            
+            fetch('/airiss/api/models/')
+                .then(response => {
+                    console.log('📡 API 응답 수신:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 모델 데이터:', data);
+                    
+                    if (data.success) {
+                        currentModels = data.available_models;
+                        const selector = document.getElementById('modelSelector');
+                        const statusIndicator = document.getElementById('apiStatus');
+                        const statusText = document.getElementById('apiStatusText');
+                        
+                        // API 상태 업데이트
+                        if (data.api_available) {
+                            statusIndicator.className = 'status-indicator status-online';
+                            statusText.textContent = 'OpenAI API 연결됨';
+                        } else {
+                            statusIndicator.className = 'status-indicator status-offline';
+                            statusText.textContent = 'API 키가 설정되지 않음';
+                        }
+                        
+                        // 모델 선택기 업데이트
+                        selector.innerHTML = '';
+                        data.available_models.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model.id;
+                            option.textContent = model.name;
+                            if (model.id === data.current_model) {
+                                option.selected = true;
+                            }
+                            selector.appendChild(option);
+                        });
+                        
+                        selector.disabled = false;
+                        updateModelInfo(data.current_model);
+                        
+                        addTestResult('✅ 모델 목록 로딩 완료');
+                        console.log('✅ 모델 로딩 완료');
+                        
+                    } else {
+                        console.error('❌ 모델 로딩 실패:', data.error);
+                        addTestResult(`❌ 모델 로딩 실패: ${data.error}`);
+                        document.getElementById('apiStatus').className = 'status-indicator status-offline';
+                        document.getElementById('apiStatusText').textContent = '모델 정보 로드 실패';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ 모델 로딩 오류:', error);
+                    addTestResult(`❌ 모델 로딩 오류: ${error.message}`);
+                    document.getElementById('apiStatus').className = 'status-indicator status-offline';
+                    document.getElementById('apiStatusText').textContent = '연결 오류';
+                });
+        }
+        
+        function updateModelInfo(modelId) {
+            const model = currentModels.find(m => m.id === modelId);
+            const infoDiv = document.getElementById('modelInfo');
+            
+            if (model) {
+                infoDiv.innerHTML = `
+                    <strong>${model.name}</strong><br>
+                    <small>${model.description}</small><br>
+                    <span class="badge bg-light text-dark me-2">비용: ${model.cost}</span>
+                    <span class="badge bg-light text-dark">속도: ${model.speed}</span>
+                `;
+            } else {
+                infoDiv.innerHTML = '모델 정보를 찾을 수 없습니다.';
+            }
+        }
+        
+        function changeModel(newModelId) {
+            console.log('🔄 모델 변경 시작:', newModelId);
+            addTestResult(`🔄 모델 변경 시작: ${newModelId}`);
+            
+            if (isChangingModel) {
+                console.log('⚠️ 이미 모델 변경 중...');
+                return;
+            }
+            
+            isChangingModel = true;
+            const selector = document.getElementById('modelSelector');
+            const originalValue = selector.value;
+            
+            // 로딩 상태 표시
+            selector.disabled = true;
+            const infoDiv = document.getElementById('modelInfo');
+            infoDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 모델 변경 중...';
+            
+            fetch('/airiss/api/change-model/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                },
+                body: JSON.stringify({
+                    model: newModelId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    updateModelInfo(newModelId);
+                    addTestResult(`✅ 모델 변경 성공: ${newModelId}`);
+                } else {
+                    showAlert(`모델 변경 실패: ${data.error}`, 'danger');
+                    selector.value = originalValue;
+                    updateModelInfo(originalValue);
+                    addTestResult(`❌ 모델 변경 실패: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('❌ 모델 변경 오류:', error);
+                showAlert(`네트워크 오류: ${error.message}`, 'danger');
+                selector.value = originalValue;
+                updateModelInfo(originalValue);
+                addTestResult(`❌ 모델 변경 오류: ${error.message}`);
+            })
+            .finally(() => {
+                selector.disabled = false;
+                isChangingModel = false;
+            });
+        }
+        
+        function getCsrfToken() {
+            // CSRF 토큰 가져오기 (쿠키에서)
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return value;
+                }
+            }
+            return '';
+        }
+        
+        // 이벤트 리스너 등록
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 독립 대시보드 초기화 시작...');
+            addTestResult('🚀 페이지 로딩 완료');
+            
+            // 모델 정보 로드
+            loadAvailableModels();
+            
+            // 모델 선택 이벤트 리스너
+            const selector = document.getElementById('modelSelector');
+            if (selector) {
+                console.log('📋 모델 선택기 발견, 이벤트 리스너 등록...');
+                selector.addEventListener('change', function(e) {
+                    console.log('🎯 모델 선택 변경 감지:', e.target.value);
+                    if (e.target.value && !isChangingModel) {
+                        changeModel(e.target.value);
+                    }
+                });
+            } else {
+                console.error('❌ modelSelector 요소를 찾을 수 없음!');
+            }
+            
+            console.log('✅ 독립 대시보드 초기화 완료');
+            addTestResult('✅ 초기화 완료 - 모든 기능 준비됨');
+        });
+    </script>
+</body>
+</html>

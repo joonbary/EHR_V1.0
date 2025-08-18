@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-07-26T15:36:40.427592",
+  "components": {
+    "heatmap": {
+      "files": [],
+      "loading_patterns": [],
+      "data_handling": [],
+      "error_handling": [],
+      "render_conditions": []
+    },
+    "sidebar": {
+      "files": [],
+      "scroll_handlers": [],
+      "height_definitions": [],
+      "overflow_settings": [],
+      "list_rendering": []
+    },
+    "api": {
+      "endpoints": [],
+      "response_handling": [],
+      "error_handling": [],
+      "loading_management": []
+    }
+  },
+  "loading_flow": [],
+  "data_flow": [],
+  "render_flow": [],
+  "issues": [],
+  "checkpoints": []
+}

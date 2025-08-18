@@ -1,0 +1,422 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}평가 대시보드 - 혁신적 HRM 시스템{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}">
+<style>
+    .evaluation-hero {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        border-radius: 24px;
+        padding: 48px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .evaluation-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
+        animation: float 8s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .progress-ring {
+        width: 200px;
+        height: 200px;
+        position: relative;
+    }
+    
+    .progress-ring svg {
+        transform: rotate(-90deg);
+    }
+    
+    .progress-ring-circle {
+        fill: none;
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dasharray 1s ease;
+    }
+    
+    .progress-ring-bg {
+        stroke: rgba(0, 212, 255, 0.1);
+    }
+    
+    .progress-ring-fill {
+        stroke: url(#progressGradient);
+        stroke-dasharray: 565.48;
+        stroke-dashoffset: calc(565.48 - (565.48 * var(--progress) / 100));
+    }
+    
+    .evaluation-step-card {
+        background: rgba(26, 31, 46, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .evaluation-step-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%);
+        transform: scaleX(var(--step-progress, 0));
+        transform-origin: left;
+        transition: transform 0.5s ease;
+    }
+    
+    .evaluation-step-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(0, 212, 255, 0.4);
+        box-shadow: 0 12px 40px rgba(0, 212, 255, 0.3);
+    }
+    
+    .evaluation-step-card.completed {
+        border-color: rgba(0, 255, 136, 0.3);
+        background: rgba(0, 255, 136, 0.05);
+    }
+    
+    .evaluation-step-card.in-progress {
+        border-color: rgba(255, 193, 7, 0.3);
+        background: rgba(255, 193, 7, 0.05);
+    }
+    
+    .step-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 16px;
+        position: relative;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.1) 100%);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+    
+    .step-icon.completed {
+        background: linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 200, 100, 0.2) 100%);
+        border-color: rgba(0, 255, 136, 0.5);
+    }
+    
+    .step-icon.in-progress {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 160, 0, 0.2) 100%);
+        border-color: rgba(255, 193, 7, 0.5);
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .timeline-connector {
+        position: absolute;
+        top: 50%;
+        right: -24px;
+        width: 48px;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(0, 212, 255, 0.3) 0%, rgba(0, 212, 255, 0.1) 100%);
+        z-index: -1;
+    }
+    
+    .stat-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 24px;
+        color: #00d4ff;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .action-button {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .action-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+    }
+    
+    .action-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <!-- Hero Section -->
+    <div class="evaluation-hero">
+        <div class="relative z-10">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h1 class="text-4xl font-bold text-white mb-4">
+                        평가 대시보드
+                    </h1>
+                    <p class="text-xl text-gray-300 mb-6">
+                        {{ active_period.year }}년 {{ active_period.get_period_type_display }} 평가 진행 중
+                    </p>
+                    
+                    {% if employee %}
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="https://ui-avatars.com/api/?name={{ employee.name }}&background=00d4ff&color=ffffff" 
+                             alt="{{ employee.name }}" 
+                             class="w-16 h-16 rounded-full border-2 border-cyan-400">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">{{ employee.name }}</h3>
+                            <p class="text-gray-400">{{ employee.department }} · {{ employee.position }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex flex-wrap gap-3">
+                        <span class="stat-badge">
+                            <i class="fas fa-calendar-check"></i>
+                            평가기간: {{ active_period.start_date|date:"m/d" }} - {{ active_period.end_date|date:"m/d" }}
+                        </span>
+                        <span class="stat-badge">
+                            <i class="fas fa-clock"></i>
+                            남은 기간: <span id="remaining-days">30</span>일
+                        </span>
+                        <span class="stat-badge">
+                            <i class="fas fa-chart-line"></i>
+                            진행률: {{ total_progress }}%
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Progress Circle -->
+                <div class="progress-ring" style="--progress: {{ total_progress }}">
+                    <svg width="200" height="200">
+                        <defs>
+                            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#0099ff;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="progress-ring-circle progress-ring-bg" 
+                                cx="100" cy="100" r="90"></circle>
+                        <circle class="progress-ring-circle progress-ring-fill" 
+                                cx="100" cy="100" r="90"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-white">{{ total_progress }}%</div>
+                            <div class="text-sm text-gray-400">완료</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Evaluation Steps -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-6">평가 진행 단계</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Step 1: 기여도 평가 -->
+            <div class="evaluation-step-card {% if contribution_eval %}completed{% else %}{% endif %}" 
+                 style="--step-progress: {% if contribution_eval %}1{% else %}0{% endif %}">
+                <div class="step-icon {% if contribution_eval %}completed{% else %}{% endif %}">
+                    <i class="fas fa-tasks text-cyan-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">기여도 평가</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    업무 목표 달성 및 성과 평가
+                </p>
+                {% if contribution_eval %}
+                    <div class="text-green-400 text-sm mb-3">
+                        <i class="fas fa-check-circle mr-1"></i> 완료
+                    </div>
+                    <p class="text-cyan-400 font-semibold">
+                        점수: {{ contribution_eval.total_score|floatformat:1 }}
+                    </p>
+                {% else %}
+                    <a href="{% url 'evaluations:contribution_evaluation' employee.id %}" 
+                       class="action-button block text-center">
+                        평가 시작
+                    </a>
+                {% endif %}
+                <div class="timeline-connector"></div>
+            </div>
+            
+            <!-- Step 2: 전문성 평가 -->
+            <div class="evaluation-step-card {% if expertise_eval %}completed{% else %}{% endif %}"
+                 style="--step-progress: {% if expertise_eval %}1{% else %}0{% endif %}">
+                <div class="step-icon {% if expertise_eval %}completed{% else %}{% endif %}">
+                    <i class="fas fa-brain text-purple-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">전문성 평가</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    역량 및 전문 지식 평가
+                </p>
+                {% if expertise_eval %}
+                    <div class="text-green-400 text-sm mb-3">
+                        <i class="fas fa-check-circle mr-1"></i> 완료
+                    </div>
+                    <p class="text-purple-400 font-semibold">
+                        점수: {{ expertise_eval.total_score|floatformat:1 }}
+                    </p>
+                {% else %}
+                    <a href="{% url 'evaluations:expertise_evaluation' employee.id %}" 
+                       class="action-button block text-center">
+                        평가 시작
+                    </a>
+                {% endif %}
+                <div class="timeline-connector"></div>
+            </div>
+            
+            <!-- Step 3: 영향력 평가 -->
+            <div class="evaluation-step-card {% if impact_eval %}completed{% else %}{% endif %}"
+                 style="--step-progress: {% if impact_eval %}1{% else %}0{% endif %}">
+                <div class="step-icon {% if impact_eval %}completed{% else %}{% endif %}">
+                    <i class="fas fa-users text-orange-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">영향력 평가</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    조직 기여 및 협업 평가
+                </p>
+                {% if impact_eval %}
+                    <div class="text-green-400 text-sm mb-3">
+                        <i class="fas fa-check-circle mr-1"></i> 완료
+                    </div>
+                    <p class="text-orange-400 font-semibold">
+                        점수: {{ impact_eval.total_score|floatformat:1 }}
+                    </p>
+                {% else %}
+                    <a href="{% url 'evaluations:impact_evaluation' employee.id %}" 
+                       class="action-button block text-center">
+                        평가 시작
+                    </a>
+                {% endif %}
+                <div class="timeline-connector"></div>
+            </div>
+            
+            <!-- Step 4: 종합 평가 -->
+            <div class="evaluation-step-card {% if comprehensive_eval %}completed{% else %}{% endif %}"
+                 style="--step-progress: {% if comprehensive_eval %}1{% else %}0{% endif %}">
+                <div class="step-icon {% if comprehensive_eval %}completed{% else %}{% endif %}">
+                    <i class="fas fa-chart-pie text-green-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">종합 평가</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    최종 등급 및 피드백
+                </p>
+                {% if comprehensive_eval %}
+                    <div class="text-green-400 text-sm mb-3">
+                        <i class="fas fa-check-circle mr-1"></i> 완료
+                    </div>
+                    <p class="text-green-400 font-semibold">
+                        등급: {{ comprehensive_eval.final_grade|default:"평가중" }}
+                    </p>
+                {% else %}
+                    <button class="action-button block w-full" disabled>
+                        대기 중
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl">
+                    <i class="fas fa-bullseye text-2xl text-cyan-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-white">나의 목표</h3>
+            </div>
+            <p class="text-gray-400 text-sm mb-4">
+                설정된 목표와 진행 상황을 확인하세요
+            </p>
+            <a href="{% url 'evaluations:my_goals' %}" class="text-cyan-400 hover:text-cyan-300 transition-colors">
+                목표 관리 <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="p-3 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-xl">
+                    <i class="fas fa-history text-2xl text-purple-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-white">평가 이력</h3>
+            </div>
+            <p class="text-gray-400 text-sm mb-4">
+                과거 평가 결과와 성장 추이를 확인하세요
+            </p>
+            <a href="{% url 'evaluations:my_results' %}" class="text-purple-400 hover:text-purple-300 transition-colors">
+                이력 보기 <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        <div class="bg-gray-800/50 backdrop-filter backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="p-3 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-xl">
+                    <i class="fas fa-chart-line text-2xl text-green-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-white">성장 레벨</h3>
+            </div>
+            <p class="text-gray-400 text-sm mb-4">
+                현재 성장 레벨과 다음 단계를 확인하세요
+            </p>
+            <a href="{% url 'evaluations:growth_level_dashboard' employee.id %}" class="text-green-400 hover:text-green-300 transition-colors">
+                레벨 확인 <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate remaining days
+    const endDate = new Date('{{ active_period.end_date|date:"Y-m-d" }}');
+    const today = new Date();
+    const diffTime = Math.abs(endDate - today);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const remainingDaysEl = document.getElementById('remaining-days');
+    if (remainingDaysEl) {
+        remainingDaysEl.textContent = diffDays;
+    }
+    
+    // Animate progress ring on load
+    setTimeout(() => {
+        const progressRing = document.querySelector('.progress-ring');
+        if (progressRing) {
+            progressRing.style.setProperty('--progress', '{{ total_progress }}');
+        }
+    }, 100);
+});
+</script>
+{% endblock %}

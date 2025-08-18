@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}채용공고 목록{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-gray-800">채용공고 목록</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">홈</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'recruitment:dashboard' %}">채용관리</a></li>
+                    <li class="breadcrumb-item active">채용공고 목록</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="{% url 'recruitment:job_posting_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> 새 채용공고 등록
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">필터</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="form-inline">
+                <div class="form-group mr-3">
+                    <label for="status" class="mr-2">상태:</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">전체</option>
+                        <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>초안</option>
+                        <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>진행중</option>
+                        <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>마감</option>
+                        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>취소</option>
+                    </select>
+                </div>
+                <div class="form-group mr-3">
+                    <label for="department" class="mr-2">부서:</label>
+                    <select name="department" id="department" class="form-control">
+                        <option value="">전체</option>
+                        <option value="IT" {% if request.GET.department == 'IT' %}selected{% endif %}>IT</option>
+                        <option value="HR" {% if request.GET.department == 'HR' %}selected{% endif %}>인사</option>
+                        <option value="FINANCE" {% if request.GET.department == 'FINANCE' %}selected{% endif %}>재무</option>
+                        <option value="MARKETING" {% if request.GET.department == 'MARKETING' %}selected{% endif %}>마케팅</option>
+                        <option value="SALES" {% if request.GET.department == 'SALES' %}selected{% endif %}>영업</option>
+                        <option value="OPERATIONS" {% if request.GET.department == 'OPERATIONS' %}selected{% endif %}>운영</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">검색</button>
+                <a href="{% url 'recruitment:job_posting_list' %}" class="btn btn-secondary ml-2">초기화</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Job Postings Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">채용공고</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>공고 제목</th>
+                            <th>부서</th>
+                            <th>직급</th>
+                            <th>고용 형태</th>
+                            <th>지원자 수</th>
+                            <th>상태</th>
+                            <th>마감일</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for posting in postings %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'recruitment:job_posting_detail' posting.pk %}">
+                                    {{ posting.title }}
+                                </a>
+                            </td>
+                            <td>{{ posting.get_department_display }}</td>
+                            <td>{{ posting.get_position_display }}</td>
+                            <td>{{ posting.get_employment_type_display }}</td>
+                            <td>
+                                <span class="badge badge-pill badge-info">
+                                    {{ posting.application_count }}명
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-{% if posting.status == 'open' %}success{% elif posting.status == 'closed' %}secondary{% elif posting.status == 'draft' %}warning{% else %}danger{% endif %}">
+                                    {{ posting.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ posting.closing_date|date:"Y-m-d" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'recruitment:job_posting_detail' posting.pk %}" 
+                                       class="btn btn-sm btn-info" title="상세보기">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'recruitment:job_posting_update' posting.pk %}" 
+                                       class="btn btn-sm btn-warning" title="수정">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">등록된 채용공고가 없습니다.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#dataTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Korean.json"
+        }
+    });
+});
+</script>
+{% endblock %}

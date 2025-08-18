@@ -1,0 +1,542 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}스킬맵 대시보드 - OK금융그룹{% endblock %}
+
+{% block page_header %}스킬맵 대시보드{% endblock %}
+{% block content_title %}Skills & Competency Matrix{% endblock %}
+{% block page_subtitle %}조직 역량 현황 및 스킬 갭 실시간 분석{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Revolutionary 테마 스타일 */
+.skillmap-dashboard {
+    padding: 20px;
+}
+
+/* 히어로 섹션 */
+.hero-section {
+    margin-bottom: 30px;
+}
+
+/* 스킬 히트맵 */
+.skill-heatmap {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 32px rgba(0, 212, 255, 0.1);
+    margin-bottom: 30px;
+}
+
+.skill-heatmap h3 {
+    color: #00d4ff;
+    font-weight: 600;
+    margin-bottom: 25px;
+    font-size: 1.3rem;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: 150px repeat(10, 1fr);
+    gap: 3px;
+    margin-top: 20px;
+    background: rgba(0, 212, 255, 0.05);
+    padding: 3px;
+    border-radius: 15px;
+}
+
+.heatmap-cell {
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 0.85rem;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+}
+
+.heatmap-header {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.1));
+    color: #00d4ff;
+    font-weight: 600;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+/* 스킬 레벨 색상 (Revolutionary 스타일) */
+.skill-level-0 { 
+    background: rgba(30, 35, 50, 0.5);
+    color: rgba(255, 255, 255, 0.3);
+}
+.skill-level-1 { 
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.05));
+    color: rgba(0, 212, 255, 0.7);
+}
+.skill-level-2 { 
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.1));
+    color: rgba(0, 212, 255, 0.9);
+}
+.skill-level-3 { 
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.15));
+    color: #8b5cf6;
+}
+.skill-level-4 { 
+    background: linear-gradient(135deg, rgba(255, 187, 51, 0.3), rgba(255, 187, 51, 0.15));
+    color: #ffbb33;
+}
+.skill-level-5 { 
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(0, 255, 136, 0.15));
+    color: #00ff88;
+    font-weight: 600;
+}
+
+/* 스킬 갭 분석 카드 */
+.skill-gap-analysis {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 32px rgba(0, 212, 255, 0.1);
+    margin-bottom: 30px;
+}
+
+.skill-gap-analysis h3 {
+    color: #00d4ff;
+    font-weight: 600;
+    margin-bottom: 25px;
+    font-size: 1.3rem;
+}
+
+.gap-chart {
+    height: 400px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+}
+
+/* 범례 */
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(0, 212, 255, 0.05);
+    border-radius: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.legend-color {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 필터 카드 */
+.filter-card {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 12px 32px rgba(0, 212, 255, 0.1);
+    margin-bottom: 30px;
+}
+
+.filter-card h4 {
+    color: #00d4ff;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(0, 212, 255, 0.2);
+    border-color: rgba(0, 212, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #00d4ff, #0099ff);
+    color: #000;
+    font-weight: 600;
+}
+
+/* 통계 카드 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* 버튼 스타일 */
+.btn-gradient {
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    color: #000;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+}
+
+/* 애니메이션 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* Hero subtitle style fix */
+.hero-subtitle {
+    color: rgba(0, 212, 255, 0.8) !important;
+    font-weight: 400;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">스킬맵 대시보드</span>
+            </h1>
+            <p class="hero-subtitle">조직 역량 현황 및 스킬 갭 실시간 분석 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- 통계 카드 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">1,509</div>
+            <div class="stat-label">전체 직원</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">4.2</div>
+            <div class="stat-label">평균 스킬 레벨</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">85%</div>
+            <div class="stat-label">역량 충족률</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">12</div>
+            <div class="stat-label">핵심 역량</div>
+        </div>
+    </div>
+
+    <!-- 필터 섹션 -->
+    <div class="filter-card">
+        <h4>필터 옵션</h4>
+        <div class="filter-group">
+            <button class="filter-btn active" onclick="filterByDept('all')">전체</button>
+            <button class="filter-btn" onclick="filterByDept('it')">IT개발본부</button>
+            <button class="filter-btn" onclick="filterByDept('sales')">영업본부</button>
+            <button class="filter-btn" onclick="filterByDept('marketing')">마케팅본부</button>
+            <button class="filter-btn" onclick="filterByDept('finance')">재무본부</button>
+            <button class="filter-btn" onclick="filterByDept('hr')">인사본부</button>
+        </div>
+    </div>
+
+    <!-- 스킬 히트맵 -->
+    <div class="skill-heatmap">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>부서별 핵심 역량 현황</h3>
+            <button class="btn btn-gradient" onclick="exportHeatmap()">
+                <i class="fas fa-download me-2"></i>데이터 내보내기
+            </button>
+        </div>
+        
+        <div class="heatmap-grid" id="heatmapGrid">
+            <!-- 헤더 행 -->
+            <div class="heatmap-cell heatmap-header">부서/스킬</div>
+            <div class="heatmap-cell heatmap-header">리더십</div>
+            <div class="heatmap-cell heatmap-header">기술역량</div>
+            <div class="heatmap-cell heatmap-header">커뮤니케이션</div>
+            <div class="heatmap-cell heatmap-header">문제해결</div>
+            <div class="heatmap-cell heatmap-header">프로젝트관리</div>
+            <div class="heatmap-cell heatmap-header">데이터분석</div>
+            <div class="heatmap-cell heatmap-header">고객지향</div>
+            <div class="heatmap-cell heatmap-header">혁신역량</div>
+            <div class="heatmap-cell heatmap-header">협업능력</div>
+            <div class="heatmap-cell heatmap-header">디지털역량</div>
+            
+            <!-- IT개발본부 -->
+            <div class="heatmap-cell heatmap-header">IT개발본부</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.2</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.8</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.5</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.6</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.1</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.7</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.2</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.3</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.0</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.9</div>
+            
+            <!-- 영업본부 -->
+            <div class="heatmap-cell heatmap-header">영업본부</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.0</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.2</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.8</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.1</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.5</div>
+            <div class="heatmap-cell skill-level-2" data-level="2">2.8</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.9</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.6</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.2</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.3</div>
+            
+            <!-- 마케팅본부 -->
+            <div class="heatmap-cell heatmap-header">마케팅본부</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.8</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.0</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.7</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.2</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">3.9</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.1</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.6</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.8</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.3</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.0</div>
+            
+            <!-- 재무본부 -->
+            <div class="heatmap-cell heatmap-header">재무본부</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">3.9</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.4</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.6</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.3</div>
+            <div class="heatmap-cell skill-level-4" data-level="4">4.0</div>
+            <div class="heatmap-cell skill-level-5" data-level="5">4.6</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.1</div>
+            <div class="heatmap-cell skill-level-2" data-level="2">2.9</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.5</div>
+            <div class="heatmap-cell skill-level-3" data-level="3">3.7</div>
+        </div>
+        
+        <!-- 범례 -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color skill-level-0"></div>
+                <span>레벨 0 (없음)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color skill-level-1"></div>
+                <span>레벨 1 (기초)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color skill-level-2"></div>
+                <span>레벨 2 (초급)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color skill-level-3"></div>
+                <span>레벨 3 (중급)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color skill-level-4"></div>
+                <span>레벨 4 (고급)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color skill-level-5"></div>
+                <span>레벨 5 (전문가)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스킬 갭 분석 -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="skill-gap-analysis">
+                <h3>스킬 갭 분석</h3>
+                <div class="gap-chart">
+                    <canvas id="gapChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="skill-gap-analysis">
+                <h3>개선 권장사항</h3>
+                <div class="recommendations">
+                    <div class="recommendation-item mb-3 p-3" style="background: rgba(255, 68, 68, 0.1); border-left: 3px solid #ff4444; border-radius: 10px;">
+                        <h6 style="color: #ff4444;">긴급</h6>
+                        <p class="mb-1" style="color: rgba(255, 255, 255, 0.8);">영업본부 데이터분석 역량 강화 필요</p>
+                        <small style="color: rgba(255, 255, 255, 0.5);">평균 2.8점으로 목표 대비 -40%</small>
+                    </div>
+                    <div class="recommendation-item mb-3 p-3" style="background: rgba(255, 187, 51, 0.1); border-left: 3px solid #ffbb33; border-radius: 10px;">
+                        <h6 style="color: #ffbb33;">중요</h6>
+                        <p class="mb-1" style="color: rgba(255, 255, 255, 0.8);">재무본부 혁신역량 교육 프로그램 실시</p>
+                        <small style="color: rgba(255, 255, 255, 0.5);">평균 2.9점으로 개선 필요</small>
+                    </div>
+                    <div class="recommendation-item mb-3 p-3" style="background: rgba(0, 212, 255, 0.1); border-left: 3px solid #00d4ff; border-radius: 10px;">
+                        <h6 style="color: #00d4ff;">권장</h6>
+                        <p class="mb-1" style="color: rgba(255, 255, 255, 0.8);">전사 리더십 역량 향상 워크샵</p>
+                        <small style="color: rgba(255, 255, 255, 0.5);">평균 4.0점이나 추가 향상 가능</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 스킬 갭 차트
+const ctx = document.getElementById('gapChart').getContext('2d');
+const gapChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+        labels: ['리더십', '기술역량', '커뮤니케이션', '문제해결', '프로젝트관리', '데이터분석', '고객지향', '혁신역량'],
+        datasets: [{
+            label: '현재 수준',
+            data: [4.0, 3.8, 4.1, 4.1, 3.9, 3.8, 4.0, 3.8],
+            borderColor: '#00d4ff',
+            backgroundColor: 'rgba(0, 212, 255, 0.2)',
+            borderWidth: 2
+        }, {
+            label: '목표 수준',
+            data: [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+            borderColor: '#00ff88',
+            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+            borderWidth: 2,
+            borderDash: [5, 5]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: {
+                    color: 'rgba(255, 255, 255, 0.8)'
+                }
+            }
+        },
+        scales: {
+            r: {
+                grid: {
+                    color: 'rgba(0, 212, 255, 0.1)'
+                },
+                angleLines: {
+                    color: 'rgba(0, 212, 255, 0.1)'
+                },
+                pointLabels: {
+                    color: 'rgba(255, 255, 255, 0.8)'
+                },
+                ticks: {
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    backdropColor: 'transparent'
+                },
+                beginAtZero: true,
+                max: 5
+            }
+        }
+    }
+});
+
+// 필터 기능
+function filterByDept(dept) {
+    const buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // 실제 필터링 로직 구현
+    console.log('Filtering by department:', dept);
+}
+
+// 데이터 내보내기
+function exportHeatmap() {
+    alert('스킬맵 데이터를 내보내는 중입니다...');
+}
+
+// 히트맵 셀 클릭 이벤트
+document.querySelectorAll('.heatmap-cell[data-level]').forEach(cell => {
+    cell.addEventListener('click', function() {
+        const level = this.dataset.level;
+        const value = this.textContent;
+        console.log('Clicked cell - Level:', level, 'Value:', value);
+    });
+});
+</script>
+{% endblock %}

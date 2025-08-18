@@ -1,0 +1,1337 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}HR 분석 - AIRISS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 107, 0, 0.1);
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px -5px rgba(255, 107, 0, 0.1);
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .metric-label {
+        color: #6B7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255, 107, 0, 0.1);
+        height: 400px; /* 고정 높이 설정 */
+    }
+    
+    .chart-canvas {
+        max-height: 300px !important; /* 차트 최대 높이 제한 */
+    }
+    
+    .analysis-table th {
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid rgba(255, 107, 0, 0.1);
+    }
+    
+    .badge-high {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-medium {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-low {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    /* 조직구조 피라미드 스타일 */
+    .org-pyramid-container {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        height: 280px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .pyramid-chart {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+    }
+    
+    .pyramid-level {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 2px 0;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+        min-height: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .pyramid-level:hover {
+        transform: scale(1.05);
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .pyramid-level-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0 12px;
+    }
+    
+    /* 직급별 색상 */
+    .level-부장 { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+    .level-차장 { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+    .level-과장 { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+    .level-대리 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+    .level-선임 { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
+    .level-사원 { background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%); }
+    .level-주임 { background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); }
+    .level-팀장 { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+    .level-지점장 { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+    .level-본부장 { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">HR 분석 대시보드</h1>
+        <p class="text-gray-600">AI 기반 인사 데이터 분석 및 인사이트</p>
+    </div>
+
+    <!-- 상단 필터바 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">분석 조건</h3>
+            <button id="resetFilters" class="text-sm text-gray-500 hover:text-gray-700 px-3 py-1 rounded-md hover:bg-gray-100">
+                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-1"></i>초기화
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <!-- 계열사 선택 -->
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">계열사</label>
+                <select id="filterAffiliate" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                    <option value="">전체</option>
+                    <option value="OK저축은행">OK저축은행</option>
+                    <option value="OK캐피탈">OK캐피탈</option>
+                    <option value="OK투자증권">OK투자증권</option>
+                    <option value="OK생명보험">OK생명보험</option>
+                    <option value="OK손해보험">OK손해보험</option>
+                </select>
+            </div>
+
+            <!-- 부서 선택 -->
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">부서</label>
+                <select id="filterDepartment" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                    <option value="">전체</option>
+                    <option value="IT">IT</option>
+                    <option value="HR">인사</option>
+                    <option value="FINANCE">재무</option>
+                    <option value="MARKETING">마케팅</option>
+                    <option value="SALES">영업</option>
+                    <option value="OPERATIONS">운영</option>
+                </select>
+            </div>
+
+            <!-- 직군 선택 -->
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">직군</label>
+                <select id="filterJobGroup" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                    <option value="">전체</option>
+                    <option value="PL">PL 직군</option>
+                    <option value="Non-PL">Non-PL 직군</option>
+                </select>
+            </div>
+
+            <!-- 직급 선택 -->
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">직급</label>
+                <select id="filterPosition" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                    <option value="">전체</option>
+                    <option value="사원">사원</option>
+                    <option value="대리">대리</option>
+                    <option value="과장">과장</option>
+                    <option value="차장">차장</option>
+                    <option value="부장">부장</option>
+                </select>
+            </div>
+
+            <!-- 연령대 선택 -->
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">연령대</label>
+                <select id="filterAgeGroup" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                    <option value="">전체</option>
+                    <option value="20s">20대</option>
+                    <option value="30s">30대</option>
+                    <option value="40s">40대</option>
+                    <option value="50s">50대</option>
+                    <option value="60s">60대</option>
+                </select>
+            </div>
+
+            <!-- 기간 선택 -->
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-600">기준일</label>
+                <input type="month" id="filterPeriod" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary" value="2024-07">
+            </div>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+            <button id="applyFilters" class="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors font-medium">
+                <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>분석 실행
+            </button>
+        </div>
+    </div>
+
+    <!-- 인력현황 요약 표 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-800">인력현황 요약</h3>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors">엑셀 다운로드</button>
+                <button class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">상세보기</button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600 text-sm">구분</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-600 text-sm">현재 인원</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-600 text-sm">전월 대비</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-600 text-sm">전년말 대비</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-600 text-sm">전년동기 대비</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-600 text-sm">비율</th>
+                    </tr>
+                </thead>
+                <tbody id="headcountSummaryTable">
+                    <!-- 직군별 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-medium text-blue-600">PL 직군</td>
+                        <td class="py-3 px-4 text-center font-bold">{{ job_group_stats.PL|default:"0" }}</td>
+                        <td class="py-3 px-4 text-center text-green-600 font-medium">+12</td>
+                        <td class="py-3 px-4 text-center text-green-600 font-medium">+45</td>
+                        <td class="py-3 px-4 text-center text-green-600 font-medium">+38</td>
+                        <td class="py-3 px-4 text-center text-gray-600">{{ pl_ratio }}%</td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-medium text-orange-600">Non-PL 직군</td>
+                        <td class="py-3 px-4 text-center font-bold">{{ job_group_stats.Non_PL|default:"0" }}</td>
+                        <td class="py-3 px-4 text-center text-red-600 font-medium">-8</td>
+                        <td class="py-3 px-4 text-center text-green-600 font-medium">+23</td>
+                        <td class="py-3 px-4 text-center text-green-600 font-medium">+18</td>
+                        <td class="py-3 px-4 text-center text-gray-600">{{ non_pl_ratio }}%</td>
+                    </tr>
+                    <!-- 직급별 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-600">└ 부장급</td>
+                        <td class="py-3 px-4 text-center">85</td>
+                        <td class="py-3 px-4 text-center text-gray-500">±0</td>
+                        <td class="py-3 px-4 text-center text-green-600">+5</td>
+                        <td class="py-3 px-4 text-center text-green-600">+3</td>
+                        <td class="py-3 px-4 text-center text-gray-600">6.5%</td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-600">└ 차장급</td>
+                        <td class="py-3 px-4 text-center">142</td>
+                        <td class="py-3 px-4 text-center text-green-600">+2</td>
+                        <td class="py-3 px-4 text-center text-green-600">+8</td>
+                        <td class="py-3 px-4 text-center text-green-600">+12</td>
+                        <td class="py-3 px-4 text-center text-gray-600">10.9%</td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-600">└ 과장급</td>
+                        <td class="py-3 px-4 text-center">256</td>
+                        <td class="py-3 px-4 text-center text-green-600">+8</td>
+                        <td class="py-3 px-4 text-center text-green-600">+18</td>
+                        <td class="py-3 px-4 text-center text-green-600">+15</td>
+                        <td class="py-3 px-4 text-center text-gray-600">19.7%</td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-600">└ 대리급</td>
+                        <td class="py-3 px-4 text-center">398</td>
+                        <td class="py-3 px-4 text-center text-red-600">-5</td>
+                        <td class="py-3 px-4 text-center text-green-600">+22</td>
+                        <td class="py-3 px-4 text-center text-green-600">+18</td>
+                        <td class="py-3 px-4 text-center text-gray-600">30.6%</td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-600">└ 사원급</td>
+                        <td class="py-3 px-4 text-center">421</td>
+                        <td class="py-3 px-4 text-center text-red-600">-13</td>
+                        <td class="py-3 px-4 text-center text-green-600">+15</td>
+                        <td class="py-3 px-4 text-center text-green-600">+8</td>
+                        <td class="py-3 px-4 text-center text-gray-600">32.3%</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="border-t-2 border-gray-300 bg-gray-50">
+                        <td class="py-3 px-4 font-bold text-gray-800">전체</td>
+                        <td class="py-3 px-4 text-center font-bold text-lg">{{ total_employees|default:"0" }}</td>
+                        <td class="py-3 px-4 text-center font-bold text-green-600">+4</td>
+                        <td class="py-3 px-4 text-center font-bold text-green-600">+68</td>
+                        <td class="py-3 px-4 text-center font-bold text-green-600">+56</td>
+                        <td class="py-3 px-4 text-center font-bold text-gray-800">100%</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- 입퇴사 현황 위젯 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- 입퇴사 추이 차트 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">입퇴사 추이</h3>
+                <div class="flex space-x-2">
+                    <button class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded active" id="monthlyBtn">월별</button>
+                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded" id="weeklyBtn">주별</button>
+                    <button class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded" id="dailyBtn">일별</button>
+                </div>
+            </div>
+            <div class="relative" style="height: 280px;">
+                <canvas id="joinLeaveTrendChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+
+        <!-- 입퇴사자 리스트 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">최근 입퇴사자</h3>
+                <div class="flex space-x-2">
+                    <button class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded active" id="joinListBtn">입사자</button>
+                    <button class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded" id="leaveListBtn">퇴사자</button>
+                </div>
+            </div>
+            
+            <div class="space-y-3 max-h-64 overflow-y-auto">
+                <!-- 입사자 리스트 -->
+                <div id="joinList">
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">김</div>
+                            <div>
+                                <div class="font-medium text-gray-800">김신입 (28세)</div>
+                                <div class="text-sm text-gray-600">IT개발 / 사원 / PL직군</div>
+                                <div class="text-xs text-gray-500">2024.07.15 입사 · 경력 2년</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-green-600">신규입사</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">박</div>
+                            <div>
+                                <div class="font-medium text-gray-800">박경력 (32세)</div>
+                                <div class="text-sm text-gray-600">기업영업 / 대리 / Non-PL직군</div>
+                                <div class="text-xs text-gray-500">2024.07.08 입사 · 경력 5년</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-green-600">경력입사</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 퇴사자 리스트 (숨김 상태) -->
+                <div id="leaveList" class="hidden">
+                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border-l-4 border-red-400">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">이</div>
+                            <div>
+                                <div class="font-medium text-gray-800">이퇴사 (35세)</div>
+                                <div class="text-sm text-gray-600">마케팅 / 과장 / Non-PL직군</div>
+                                <div class="text-xs text-gray-500">2024.07.20 퇴사 · 최종등급 B</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-red-600">개인사유</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border-l-4 border-red-400">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">최</div>
+                            <div>
+                                <div class="font-medium text-gray-800">최이직 (29세)</div>
+                                <div class="text-sm text-gray-600">IT운영 / 대리 / PL직군</div>
+                                <div class="text-xs text-gray-500">2024.07.18 퇴사 · 최종등급 A</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-red-600">타사이직</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 직군별 부서 분포 차트 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- PL 직군 부서 분포 -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">PL 직군 부서별 분포</h3>
+            <div class="relative" style="height: 300px;">
+                <canvas id="plDeptChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+        
+        <!-- Non-PL 직군 부서 분포 -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Non-PL 직군 부서별 분포</h3>
+            <div class="relative" style="height: 300px;">
+                <canvas id="nonPlDeptChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+        
+        <!-- 조직구조 피라미드 -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">조직구조 분포</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- PL 직군 피라미드 -->
+                <div class="org-pyramid-container">
+                    <h4 class="text-sm font-medium text-gray-600 mb-2 text-center">PL 직군 (고객지원)</h4>
+                    <div id="plPyramid" class="pyramid-chart"></div>
+                </div>
+                
+                <!-- Non-PL 직군 피라미드 -->
+                <div class="org-pyramid-container">
+                    <h4 class="text-sm font-medium text-gray-600 mb-2 text-center">Non-PL 직군</h4>
+                    <div id="nonPlPyramid" class="pyramid-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 직군별 비교 분석 차트 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- 직군별 퇴사 추세 비교 -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">직군별 퇴사 추세</h3>
+            <div class="relative" style="height: 300px;">
+                <canvas id="turnoverByJobGroupChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+        
+        <!-- 직군별 성과 분포 비교 -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">직군별 성과 분포</h3>
+            <div class="relative" style="height: 300px;">
+                <canvas id="performanceByJobGroupChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+        
+        <!-- 직군별 급여 비교 -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">직군별 급여 비교</h3>
+            <div class="relative" style="height: 300px;">
+                <canvas id="salaryByJobGroupChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 생산성 지표 KPI 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="metric-card">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <span class="text-xs text-green-600 font-medium">+12.5%</span>
+            </div>
+            <div class="metric-value">78.2%</div>
+            <div class="metric-label">HCROI (인적자원투자수익률)</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <span class="text-xs text-red-600 font-medium">+2.1%</span>
+            </div>
+            <div class="metric-value">32.4%</div>
+            <div class="metric-label">인건비 비율</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+                <span class="text-xs text-green-600 font-medium">+8.3%</span>
+            </div>
+            <div class="metric-value">142M</div>
+            <div class="metric-label">인당 자산 (백만원)</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="target" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <span class="text-xs text-green-600 font-medium">+15.7%</span>
+            </div>
+            <div class="metric-value">85.6M</div>
+            <div class="metric-label">인당 성과 (백만원)</div>
+        </div>
+    </div>
+
+    <!-- 관리자 현황 & Succession 위젯 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-800">핵심 관리자 현황</h3>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors">전체보기</button>
+                <button class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">Succession 계획</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 관리자 카드 1 -->
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onclick="openManagerModal('manager1')">
+                <div class="flex items-start space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                        김
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-gray-800">김부장 (45세)</h4>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">A등급</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">IT개발본부 / 부장</p>
+                        <p class="text-xs text-gray-500 mt-2">핵심 R&R: 시스템 아키텍처 설계</p>
+                        <div class="flex items-center mt-3 space-x-2">
+                            <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">리더십</span>
+                            <span class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded">기술전문성</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-xs text-gray-500">Succession: 2명</span>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                <span class="text-xs text-green-600">안정</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 관리자 카드 2 -->
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onclick="openManagerModal('manager2')">
+                <div class="flex items-start space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold">
+                        박
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-gray-800">박차장 (42세)</h4>
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">S등급</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">기업금융부 / 차장</p>
+                        <p class="text-xs text-gray-500 mt-2">핵심 R&R: 대기업 영업 관리</p>
+                        <div class="flex items-center mt-3 space-x-2">
+                            <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">영업</span>
+                            <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">고객관리</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-xs text-gray-500">Succession: 1명</span>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                                <span class="text-xs text-yellow-600">주의</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 관리자 카드 3 -->
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onclick="openManagerModal('manager3')">
+                <div class="flex items-start space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                        이
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-gray-800">이본부장 (48세)</h4>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">A등급</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">리스크관리본부 / 본부장</p>
+                        <p class="text-xs text-gray-500 mt-2">핵심 R&R: 통합 리스크 관리</p>
+                        <div class="flex items-center mt-3 space-x-2">
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">리스크</span>
+                            <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">컴플라이언스</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-xs text-gray-500">Succession: 3명</span>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-red-400 rounded-full"></div>
+                                <span class="text-xs text-red-600">위험</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 인사이트 & 예측 위젯 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- AI 인사이트 카드 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">AI 인사이트</h3>
+                <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <i data-lucide="brain" class="w-4 h-4 text-white"></i>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- 이상치 탐지 알림 -->
+                <div class="p-3 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-red-800">고퇴사율 부서 감지</h4>
+                            <p class="text-sm text-red-700 mt-1">IT운영팀: 최근 3개월 퇴사율 25% (평균 8%의 3배)</p>
+                            <button class="text-xs text-red-600 hover:text-red-800 underline mt-2">상세 분석 보기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 성과-보상 불일치 알림 -->
+                <div class="p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-yellow-800">고성과 저보상 직원</h4>
+                            <p class="text-sm text-yellow-700 mt-1">5명의 S등급 직원이 업계 평균 대비 낮은 보상</p>
+                            <button class="text-xs text-yellow-600 hover:text-yellow-800 underline mt-2">보상 검토 제안</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 고령화 경고 -->
+                <div class="p-3 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="info" class="w-5 h-5 text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-blue-800">부서별 고령화 진행</h4>
+                            <p class="text-sm text-blue-700 mt-1">리스크관리부: 50세 이상 비율 65% (향후 5년 내 대량 은퇴 예상)</p>
+                            <button class="text-xs text-blue-600 hover:text-blue-800 underline mt-2">승계 계획 검토</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI 예측 및 추천 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">AI 예측 & 추천</h3>
+                <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- 인력 감소 예측 -->
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-semibold text-gray-800">향후 6개월 인력 감소 예측</h4>
+                        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">중위험</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">IT개발팀</span>
+                            <span class="text-sm font-medium text-red-600">-8명 (신뢰도 78%)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">마케팅팀</span>
+                            <span class="text-sm font-medium text-orange-600">-3명 (신뢰도 65%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 대체인력 제안 -->
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-semibold text-gray-800">공석 대응 제안</h4>
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">추천</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-sm">
+                            <span class="text-gray-600">기업금융 과장 공석:</span>
+                            <span class="text-green-600 font-medium ml-2">박대리 (승진), 외부채용 1명</span>
+                        </div>
+                        <div class="text-sm">
+                            <span class="text-gray-600">IT 팀장 공석:</span>
+                            <span class="text-green-600 font-medium ml-2">내부승진 후보 3명, 외부 헤드헌팅</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 교육 추천 -->
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-2">맞춤형 교육 추천</h4>
+                    <div class="space-y-1">
+                        <div class="text-sm text-gray-600">• 디지털 전환 교육: PL직군 25명</div>
+                        <div class="text-sm text-gray-600">• 리더십 교육: 신임 관리자 12명</div>
+                        <div class="text-sm text-gray-600">• 컴플라이언스 교육: 전직원 필수</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 최근 예측 결과 테이블 -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">최근 AI 예측 결과</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full analysis-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3 text-left">분석 유형</th>
+                        <th class="px-4 py-3 text-left">대상</th>
+                        <th class="px-4 py-3 text-center">점수</th>
+                        <th class="px-4 py-3 text-center">신뢰도</th>
+                        <th class="px-4 py-3 text-center">분석일시</th>
+                        <th class="px-4 py-3 text-center">상태</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for prediction in recent_predictions %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3">{{ prediction.analysis_type.name }}</td>
+                        <td class="px-4 py-3">
+                            {% if prediction.employee %}
+                                {{ prediction.employee.name }}
+                            {% elif prediction.department %}
+                                {{ prediction.department }} 부서
+                            {% else %}
+                                전사
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="badge {% if prediction.score > 70 %}badge-high{% elif prediction.score > 40 %}badge-medium{% else %}badge-low{% endif %}">
+                                {{ prediction.score|floatformat:0 }}점
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {{ prediction.confidence|floatformat:0|default:"0"|add:0|floatformat:0 }}%
+                        </td>
+                        <td class="px-4 py-3 text-center text-sm text-gray-600">
+                            {{ prediction.analyzed_at|date:"Y-m-d H:i" }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if prediction.is_valid %}
+                                <span class="text-green-600">유효</span>
+                            {% else %}
+                                <span class="text-gray-400">만료</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                            최근 예측 결과가 없습니다.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 차트 데이터
+const chartData = {{ chart_data|safe|default:"{}" }};
+
+// 필터 관련 함수
+function initializeFilters() {
+    // 필터 초기화 버튼
+    document.getElementById('resetFilters')?.addEventListener('click', function() {
+        document.getElementById('filterAffiliate').value = '';
+        document.getElementById('filterDepartment').value = '';
+        document.getElementById('filterJobGroup').value = '';
+        document.getElementById('filterPosition').value = '';
+        document.getElementById('filterAgeGroup').value = '';
+        document.getElementById('filterPeriod').value = '2024-07';
+    });
+
+    // 분석 실행 버튼
+    document.getElementById('applyFilters')?.addEventListener('click', function() {
+        const filters = {
+            affiliate: document.getElementById('filterAffiliate').value,
+            department: document.getElementById('filterDepartment').value,
+            jobGroup: document.getElementById('filterJobGroup').value,
+            position: document.getElementById('filterPosition').value,
+            ageGroup: document.getElementById('filterAgeGroup').value,
+            period: document.getElementById('filterPeriod').value
+        };
+        
+        console.log('필터 적용:', filters);
+        // 여기서 실제 데이터 필터링 로직 구현
+        refreshDashboard(filters);
+    });
+}
+
+// 입퇴사 리스트 토글
+function initializeJoinLeaveList() {
+    const joinListBtn = document.getElementById('joinListBtn');
+    const leaveListBtn = document.getElementById('leaveListBtn');
+    const joinList = document.getElementById('joinList');
+    const leaveList = document.getElementById('leaveList');
+
+    joinListBtn?.addEventListener('click', function() {
+        joinListBtn.className = 'px-2 py-1 text-xs bg-green-100 text-green-700 rounded active';
+        leaveListBtn.className = 'px-2 py-1 text-xs bg-red-100 text-red-700 rounded';
+        joinList.classList.remove('hidden');
+        leaveList.classList.add('hidden');
+    });
+
+    leaveListBtn?.addEventListener('click', function() {
+        leaveListBtn.className = 'px-2 py-1 text-xs bg-red-100 text-red-700 rounded active';
+        joinListBtn.className = 'px-2 py-1 text-xs bg-green-100 text-green-700 rounded';
+        leaveList.classList.remove('hidden');
+        joinList.classList.add('hidden');
+    });
+}
+
+// 입퇴사 추이 차트
+function createJoinLeaveTrendChart() {
+    const ctx = document.getElementById('joinLeaveTrendChart');
+    if (!ctx) return;
+
+    const joinLeaveTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월'],
+            datasets: [{
+                label: '입사자',
+                data: [12, 8, 15, 10, 18, 14, 22],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: '퇴사자',
+                data: [5, 12, 8, 15, 7, 11, 9],
+                borderColor: '#EF4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 5
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 대시보드 새로고침
+function refreshDashboard(filters) {
+    console.log('대시보드 새로고침 중...', filters);
+    // 실제 API 호출 및 차트 업데이트 로직 구현
+}
+
+// 안전한 데이터 처리 함수
+function safeChartData(data, field) {
+    try {
+        return Array.isArray(data) ? data : [];
+    } catch (e) {
+        console.warn(`차트 데이터 처리 오류 (${field}):`, e);
+        return [];
+    }
+}
+
+// 직군 비교 차트
+const jobGroupComparisonData = safeChartData({{ chart_data.job_group_comparison|safe|default:"[]" }}, 'job_group_comparison');
+const jobGroupComparisonCtx = document.getElementById('jobGroupComparisonChart');
+if (jobGroupComparisonCtx && jobGroupComparisonData.length > 0) {
+    const jobGroupComparisonChart = new Chart(jobGroupComparisonCtx, {
+        type: 'doughnut',
+        data: {
+            labels: jobGroupComparisonData.map(item => item.job_group || '미지정'),
+            datasets: [{
+                data: jobGroupComparisonData.map(item => item.count || 0),
+                backgroundColor: [
+                    '#3B82F6', // PL 직군 - 파란색
+                    '#F59E0B'  // Non-PL 직군 - 주황색
+                ],
+                borderWidth: 3,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            }
+        }
+    });
+} else {
+    if (jobGroupComparisonCtx) {
+        const parent = jobGroupComparisonCtx.parentElement;
+        parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">데이터가 없습니다</div>';
+    }
+}
+
+// PL 직군 부서별 차트
+const deptByJobGroup = {{ dept_by_job_group|safe|default:"{}" }};
+const plDeptData = safeChartData(deptByJobGroup.PL || [], 'pl_dept_distribution');
+const plDeptCtx = document.getElementById('plDeptChart');
+if (plDeptCtx && plDeptData.length > 0) {
+    const plDeptChart = new Chart(plDeptCtx, {
+        type: 'bar',
+        data: {
+            labels: plDeptData.map(item => item.department__name || '미지정'),
+            datasets: [{
+                label: 'PL 직군 인원 수',
+                data: plDeptData.map(item => item.count || 0),
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: '#3B82F6',
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+} else {
+    if (plDeptCtx) {
+        const parent = plDeptCtx.parentElement;
+        parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">데이터가 없습니다</div>';
+    }
+}
+
+// Non-PL 직군 부서별 차트
+const nonPlDeptData = safeChartData(deptByJobGroup['Non-PL'] || [], 'non_pl_dept_distribution');
+const nonPlDeptCtx = document.getElementById('nonPlDeptChart');
+if (nonPlDeptCtx && nonPlDeptData.length > 0) {
+    const nonPlDeptChart = new Chart(nonPlDeptCtx, {
+        type: 'bar',
+        data: {
+            labels: nonPlDeptData.map(item => item.department__name || '미지정'),
+            datasets: [{
+                label: 'Non-PL 직군 인원 수',
+                data: nonPlDeptData.map(item => item.count || 0),
+                backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                borderColor: '#F59E0B',
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+} else {
+    if (nonPlDeptCtx) {
+        const parent = nonPlDeptCtx.parentElement;
+        parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">데이터가 없습니다</div>';
+    }
+}
+
+// 조직구조 피라미드 생성
+const jobGroupStructure = {{ job_group_structure|safe|default:"{}" }};
+
+function createOrganizationPyramid(containerId, data, title) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    // 직급 순서 정의 (상위부터)
+    const positionOrder = [
+        '본부장', '지점장', '팀장', '부장', '차장', '과장', '대리', '주임', '선임', '사원'
+    ];
+    
+    // 데이터를 직급 순서대로 정렬
+    const sortedData = data.sort((a, b) => {
+        const aIndex = positionOrder.indexOf(a.new_position);
+        const bIndex = positionOrder.indexOf(b.new_position);
+        return aIndex - bIndex;
+    });
+    
+    if (sortedData.length === 0) {
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500 text-sm">데이터가 없습니다</div>';
+        return;
+    }
+    
+    // 최대 인원수로 정규화 계산
+    const maxCount = Math.max(...sortedData.map(item => item.count));
+    const minWidth = 30; // 최소 너비 (%)
+    const maxWidth = 95; // 최대 너비 (%)
+    
+    container.innerHTML = '';
+    
+    sortedData.forEach((item, index) => {
+        // 너비 계산 (역피라미드: 하위 직급일수록 더 넓게)
+        const normalizedWidth = minWidth + ((maxWidth - minWidth) * (item.count / maxCount));
+        
+        const levelDiv = document.createElement('div');
+        levelDiv.className = `pyramid-level level-${item.new_position}`;
+        levelDiv.style.width = `${normalizedWidth}%`;
+        
+        levelDiv.innerHTML = `
+            <div class="pyramid-level-content">
+                <span>${item.new_position}</span>
+                <span>${item.count}명</span>
+            </div>
+        `;
+        
+        // 툴팁 효과
+        levelDiv.title = `${item.new_position}: ${item.count}명 (${((item.count / sortedData.reduce((sum, d) => sum + d.count, 0)) * 100).toFixed(1)}%)`;
+        
+        container.appendChild(levelDiv);
+    });
+}
+
+// PL 직군 피라미드 생성
+if (jobGroupStructure.PL) {
+    createOrganizationPyramid('plPyramid', jobGroupStructure.PL, 'PL 직군');
+}
+
+// Non-PL 직군 피라미드 생성  
+if (jobGroupStructure['Non-PL']) {
+    createOrganizationPyramid('nonPlPyramid', jobGroupStructure['Non-PL'], 'Non-PL 직군');
+}
+
+// 직군별 퇴사 추세 비교 차트
+const turnoverByJobGroup = chartData.turnover_by_job_group || {};
+const turnoverByJobGroupCtx = document.getElementById('turnoverByJobGroupChart');
+if (turnoverByJobGroupCtx) {
+    const plTurnoverData = safeChartData(turnoverByJobGroup['PL'] || [], 'pl_turnover');
+    const nonPlTurnoverData = safeChartData(turnoverByJobGroup['Non-PL'] || [], 'non_pl_turnover');
+    
+    if (plTurnoverData.length > 0 || nonPlTurnoverData.length > 0) {
+        const months = plTurnoverData.length > 0 ? plTurnoverData.map(item => item.month) : 
+                      nonPlTurnoverData.map(item => item.month);
+        
+        const turnoverChart = new Chart(turnoverByJobGroupCtx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'PL 직군',
+                    data: plTurnoverData.map(item => item.count || 0),
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: false
+                }, {
+                    label: 'Non-PL 직군',
+                    data: nonPlTurnoverData.map(item => item.count || 0),
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        const parent = turnoverByJobGroupCtx.parentElement;
+        parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">데이터가 없습니다</div>';
+    }
+}
+
+// 직군별 성과 분포 비교 차트
+const performanceByJobGroup = chartData.performance_by_job_group || {};
+const performanceByJobGroupCtx = document.getElementById('performanceByJobGroupChart');
+if (performanceByJobGroupCtx) {
+    const plPerformanceData = safeChartData(performanceByJobGroup['PL'] || [], 'pl_performance');
+    const nonPlPerformanceData = safeChartData(performanceByJobGroup['Non-PL'] || [], 'non_pl_performance');
+    
+    if (plPerformanceData.length > 0 || nonPlPerformanceData.length > 0) {
+        const grades = ['S', 'A', 'B', 'C', 'D'];
+        
+        const performanceChart = new Chart(performanceByJobGroupCtx, {
+            type: 'bar',
+            data: {
+                labels: grades,
+                datasets: [{
+                    label: 'PL 직군',
+                    data: grades.map(grade => {
+                        const found = plPerformanceData.find(item => item.grade === grade);
+                        return found ? found.count : 0;
+                    }),
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: '#3B82F6',
+                    borderWidth: 1
+                }, {
+                    label: 'Non-PL 직군',
+                    data: grades.map(grade => {
+                        const found = nonPlPerformanceData.find(item => item.grade === grade);
+                        return found ? found.count : 0;
+                    }),
+                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                    borderColor: '#F59E0B',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        const parent = performanceByJobGroupCtx.parentElement;
+        parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">데이터가 없습니다</div>';
+    }
+}
+
+// 직군별 급여 비교 차트
+const salaryByJobGroup = chartData.salary_by_job_group || {};
+const salaryByJobGroupCtx = document.getElementById('salaryByJobGroupChart');
+if (salaryByJobGroupCtx) {
+    const plSalaryData = safeChartData(salaryByJobGroup['PL'] || [], 'pl_salary');
+    const nonPlSalaryData = safeChartData(salaryByJobGroup['Non-PL'] || [], 'non_pl_salary');
+    
+    if (plSalaryData.length > 0 || nonPlSalaryData.length > 0) {
+        const positions = ['사원', '대리', '과장', '차장', '부장'];
+        
+        const salaryChart = new Chart(salaryByJobGroupCtx, {
+            type: 'line',
+            data: {
+                labels: positions,
+                datasets: [{
+                    label: 'PL 직군 (만원)',
+                    data: positions.map(position => {
+                        const found = plSalaryData.find(item => item.position === position);
+                        return found ? found.avg_salary : 0;
+                    }),
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    pointBackgroundColor: '#3B82F6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }, {
+                    label: 'Non-PL 직군 (만원)',
+                    data: positions.map(position => {
+                        const found = nonPlSalaryData.find(item => item.position === position);
+                        return found ? found.avg_salary : 0;
+                    }),
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    pointBackgroundColor: '#F59E0B',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '만원';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        const parent = salaryByJobGroupCtx.parentElement;
+        parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">데이터가 없습니다</div>';
+    }
+}
+
+// 관리자 모달 함수
+function openManagerModal(managerId) {
+    console.log('관리자 상세 정보 모달 열기:', managerId);
+    // 실제 구현에서는 모달을 열고 해당 관리자의 상세 정보를 표시
+    alert(`${managerId} 관리자의 상세 정보 및 Succession 계획을 표시하는 모달을 구현 예정입니다.`);
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    // 필터 기능 초기화
+    initializeFilters();
+    
+    // 입퇴사 리스트 토글 초기화
+    initializeJoinLeaveList();
+    
+    // 입퇴사 추이 차트 생성
+    createJoinLeaveTrendChart();
+    
+    // Lucide 아이콘 재초기화
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}

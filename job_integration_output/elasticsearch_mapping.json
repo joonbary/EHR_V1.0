@@ -1,0 +1,71 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "integer"
+      },
+      "job_title": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          },
+          "completion": {
+            "type": "completion",
+            "contexts": [
+              {
+                "name": "job_category",
+                "type": "category"
+              }
+            ]
+          }
+        },
+        "analyzer": "korean"
+      },
+      "job_type": {
+        "type": "keyword"
+      },
+      "job_category": {
+        "type": "keyword"
+      },
+      "job_code": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "korean"
+      },
+      "requirements": {
+        "type": "text",
+        "analyzer": "korean"
+      },
+      "skills": {
+        "type": "keyword"
+      },
+      "search_keywords": {
+        "type": "keyword"
+      },
+      "is_active": {
+        "type": "boolean"
+      },
+      "created_at": {
+        "type": "date"
+      },
+      "updated_at": {
+        "type": "date"
+      }
+    }
+  },
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "korean": {
+          "tokenizer": "nori_tokenizer",
+          "filter": ["lowercase", "nori_part_of_speech"]
+        }
+      }
+    },
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  }
+}

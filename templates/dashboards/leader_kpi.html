@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    
+    .kpi-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .kpi-icon {
+        font-size: 2rem;
+        color: #007bff;
+        margin-right: 12px;
+    }
+    
+    .kpi-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 12px 0;
+    }
+    
+    .kpi-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+    }
+    
+    .kpi-trend {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+    
+    .trend-up {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .trend-down {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .kpi-period {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .charts-section {
+        margin-top: 40px;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        height: 400px;
+    }
+    
+    .insights-panel {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .insights-panel h3 {
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+    
+    .insight-item {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-left: 3px solid #007bff;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <h1>{{ title }}</h1>
+        <div class="header-actions">
+            <button class="btn btn-outline-primary" onclick="exportDashboard()">
+                <i class="fas fa-download"></i> 내보내기
+            </button>
+            <button class="btn btn-primary" onclick="refreshDashboard()">
+                <i class="fas fa-sync"></i> 새로고침
+            </button>
+        </div>
+    </div>
+    
+    <div class="kpi-grid">
+        {% for kpi in kpis %}
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <i class="{{ kpi.icon }} kpi-icon"></i>
+                <h3>{{ kpi.title }}</h3>
+            </div>
+            <div class="kpi-value">{{ kpi.value }}</div>
+            <div class="kpi-footer">
+                <span class="kpi-trend trend-{{ kpi.trend_direction }}">
+                    <i class="fas fa-arrow-{{ kpi.trend_direction }}"></i>
+                    {{ kpi.trend_value }}%
+                </span>
+                <span class="kpi-period">{{ kpi.period }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="charts-section">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <h3>부서별 인원 현황</h3>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="insights-panel">
+                    <h3>AI 인사이트</h3>
+                    <div class="insight-list">
+                        <div class="insight-item">
+                            <strong>인력 증가 추세</strong>
+                            <p class="mb-0">최근 3개월간 인력이 5.2% 증가했습니다.</p>
+                        </div>
+                        <div class="insight-item">
+                            <strong>부서별 불균형</strong>
+                            <p class="mb-0">IT부서의 인력이 목표 대비 15% 부족합니다.</p>
+                        </div>
+                        <div class="insight-item">
+                            <strong>급여 경쟁력</strong>
+                            <p class="mb-0">업계 평균 대비 급여 수준이 적절합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 대시보드 JavaScript 코드
+function refreshDashboard() {
+    location.reload();
+}
+
+function exportDashboard() {
+    // PDF 또는 Excel로 내보내기
+    fetch('{% url "export_dashboard" %}?type=pdf')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+            }
+        });
+}
+
+// Chart.js를 사용한 차트 렌더링
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: {{ chart_data|safe }},
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,491 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}코칭 세션 기록{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-page {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .session-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .session-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .session-header {
+        display: flex;
+        justify-content: between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+    
+    .session-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .session-meta {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 10px;
+    }
+    
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .status-scheduled { background-color: #fff3cd; color: #856404; }
+    .status-active { background-color: #d4edda; color: #155724; }
+    .status-completed { background-color: #cce5ff; color: #004085; }
+    .status-cancelled { background-color: #f8d7da; color: #721c24; }
+    .status-paused { background-color: #e9ecef; color: #495057; }
+    
+    .session-type-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .session-performance { background-color: #e7f3ff; color: #004085; }
+    .session-leadership { background-color: #fff3cd; color: #856404; }
+    .session-skill_development { background-color: #d4edda; color: #155724; }
+    .session-career_path { background-color: #f8d7da; color: #721c24; }
+    .session-communication { background-color: #e2e3e5; color: #383d41; }
+    .session-goal_setting { background-color: #fce4ec; color: #880e4f; }
+    
+    .employee-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #17a2b8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        margin-right: 12px;
+    }
+    
+    .satisfaction-stars {
+        color: #ffc107;
+    }
+    
+    .session-stats {
+        display: flex;
+        gap: 20px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .stat-item {
+        text-align: center;
+        flex: 1;
+    }
+    
+    .stat-number {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #17a2b8;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filters-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .summary-cards {
+        margin-bottom: 20px;
+    }
+    
+    .summary-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .summary-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .summary-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .duration-badge {
+        background: #e9ecef;
+        color: #495057;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-page">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="h2 mb-0">
+                    <i class="fas fa-history text-primary me-2"></i>
+                    코칭 세션 기록
+                </h1>
+                <p class="text-muted mt-2">과거 코칭 세션들의 기록과 성과를 확인합니다</p>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Summary Cards -->
+        <div class="row summary-cards">
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <div class="summary-number text-primary">{{ sessions.paginator.count }}</div>
+                    <div class="summary-label">총 세션 수</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <div class="summary-number text-success">
+                        {% widthratio sessions|length sessions.paginator.count 100 %}%
+                    </div>
+                    <div class="summary-label">완료율</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <div class="summary-number text-info">4.2</div>
+                    <div class="summary-label">평균 만족도</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <div class="summary-number text-warning">45</div>
+                    <div class="summary-label">평균 소요시간(분)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <form method="get" class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label">직원</label>
+                    <select name="employee" class="form-select">
+                        <option value="">전체 직원</option>
+                        {% for emp in employees %}
+                        <option value="{{ emp.id }}" {% if employee_filter == emp.id|stringformat:"s" %}selected{% endif %}>
+                            {{ emp.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">세션 유형</label>
+                    <select name="session_type" class="form-select">
+                        <option value="">전체 유형</option>
+                        {% for value, label in session_types %}
+                        <option value="{{ value }}" {% if session_type_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">상태</label>
+                    <select name="status" class="form-select">
+                        <option value="">전체 상태</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>필터 적용
+                        </button>
+                        <a href="{% url 'ai_coaching:session_history' %}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-times me-1"></i>초기화
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <a href="{% url 'ai_coaching:dashboard' %}" class="btn btn-outline-info">
+                            <i class="fas fa-arrow-left me-1"></i>대시보드
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sessions List -->
+        <div class="row">
+            <div class="col-12">
+                {% for session in sessions %}
+                <div class="session-card">
+                    <div class="session-header">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center">
+                                <div class="employee-avatar">{{ session.employee.name|first }}</div>
+                                <div>
+                                    <div class="session-title">{{ session.title }}</div>
+                                    <div class="text-muted">{{ session.employee.name }} ({{ session.employee.department }})</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <span class="status-badge status-{{ session.status|lower }}">
+                                {{ session.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="session-meta">
+                        <span class="session-type-badge session-{{ session.session_type|lower }}">
+                            {{ session.get_session_type_display }}
+                        </span>
+                        
+                        <span class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ session.scheduled_at|date:"Y.m.d H:i" }}
+                        </span>
+                        
+                        {% if session.get_actual_duration %}
+                        <span class="duration-badge">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ session.get_actual_duration }}분
+                        </span>
+                        {% endif %}
+                        
+                        {% if session.satisfaction_score > 0 %}
+                        <span class="satisfaction-stars">
+                            {% for i in "12345" %}
+                                {% if session.satisfaction_score >= i|add:0 %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <small class="ms-1 text-muted">({{ session.satisfaction_score|floatformat:1 }})</small>
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if session.description %}
+                    <div class="mt-3">
+                        <p class="text-muted mb-0">{{ session.description|truncatewords:25 }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="session-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ session.messages.count|default:0 }}</div>
+                            <div class="stat-label">메시지</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ session.goals.count|default:0 }}</div>
+                            <div class="stat-label">목표</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ session.action_items_detailed.count|default:0 }}</div>
+                            <div class="stat-label">액션아이템</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ session.feedback.count|default:0 }}</div>
+                            <div class="stat-label">피드백</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if session.coaching_objectives %}
+                            <small class="text-muted">
+                                <strong>목표:</strong> 
+                                {% for obj in session.coaching_objectives|slice:":2" %}
+                                    {{ obj }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if session.coaching_objectives|length > 2 %}
+                                    외 {{ session.coaching_objectives|length|add:"-2" }}개
+                                {% endif %}
+                            </small>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'ai_coaching:session_detail' session.session_id %}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>상세 보기
+                            </a>
+                            {% if session.status == 'COMPLETED' and session.satisfaction_score == 0 %}
+                            <button class="btn btn-outline-warning btn-sm ms-2" 
+                                    onclick="rateSessioin('{{ session.session_id }}')">
+                                <i class="fas fa-star me-1"></i>평가하기
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if session.ai_insights %}
+                    <div class="mt-3 pt-3 border-top">
+                        <h6 class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-1"></i>
+                            AI 인사이트
+                        </h6>
+                        <div>
+                            {% for key, value in session.ai_insights.items %}
+                            <span class="badge bg-light text-dark me-1">{{ key }}: {{ value }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="text-center py-5">
+                    <i class="fas fa-history text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                    <h4 class="mt-3 text-muted">세션 기록이 없습니다</h4>
+                    <p class="text-muted">첫 번째 코칭 세션을 시작해보세요.</p>
+                    <a href="{% url 'ai_coaching:dashboard' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>코칭 시작하기
+                    </a>
+                </div>
+                {% endfor %}
+                
+                <!-- Pagination -->
+                {% if sessions.has_other_pages %}
+                <nav aria-label="세션 페이지네이션" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if sessions.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ sessions.previous_page_number }}{% if employee_filter %}&employee={{ employee_filter }}{% endif %}{% if session_type_filter %}&session_type={{ session_type_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">이전</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in sessions.paginator.page_range %}
+                        {% if num %}
+                        <li class="page-item {% if num == sessions.number %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% if employee_filter %}&employee={{ employee_filter }}{% endif %}{% if session_type_filter %}&session_type={{ session_type_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if sessions.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ sessions.next_page_number }}{% if employee_filter %}&employee={{ employee_filter }}{% endif %}{% if session_type_filter %}&session_type={{ session_type_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">다음</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function rateSession(sessionId) {
+    // 간단한 평가 기능 (향후 모달로 개선)
+    const rating = prompt('이 세션의 만족도를 1-5점으로 평가해주세요:');
+    if (!rating || rating < 1 || rating > 5) return;
+    
+    const positive = prompt('좋았던 점을 간단히 적어주세요:') || '';
+    const improvement = prompt('개선할 점을 간단히 적어주세요:') || '';
+    
+    const feedbackData = {
+        feedback_type: 'SESSION',
+        overall_rating: parseInt(rating),
+        coaching_quality: parseInt(rating),
+        ai_helpfulness: parseInt(rating),
+        goal_achievement: parseInt(rating),
+        positive_aspects: positive,
+        areas_for_improvement: improvement
+    };
+    
+    fetch(`/ai-coaching/session/${sessionId}/feedback/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(feedbackData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('평가가 완료되었습니다.');
+            location.reload();
+        } else {
+            alert(data.message || '평가 제출 중 오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('평가 제출 중 오류가 발생했습니다.');
+    });
+}
+
+// 페이지 로드 애니메이션
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.session-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

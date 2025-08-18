@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI 예측 분석 - AIRISS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .prediction-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .prediction-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .score-high {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .score-medium {
+        color: #ffc107;
+        font-weight: bold;
+    }
+    
+    .score-low {
+        color: #28a745;
+        font-weight: bold;
+    }
+    
+    .confidence-bar {
+        height: 4px;
+        background: #e9ecef;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .confidence-fill {
+        height: 100%;
+        background: #007bff;
+        transition: width 0.3s ease;
+    }
+    
+    .analysis-type-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .analysis-type-card:hover {
+        background: #e9ecef;
+    }
+    
+    .analysis-type-card.active {
+        background: #007bff;
+        color: white;
+    }
+    
+    .run-analysis-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .run-analysis-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">AI 예측 분석</h1>
+        <p class="text-gray-600">머신러닝 기반 HR 예측 및 분석</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- 왼쪽 사이드바: 분석 유형 필터 -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">분석 유형</h3>
+                
+                <a href="?type=all" class="block">
+                    <div class="analysis-type-card {% if selected_type == 'all' %}active{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>전체</span>
+                            <span class="badge badge-secondary">{{ predictions|length }}</span>
+                        </div>
+                    </div>
+                </a>
+                
+                {% for analysis_type in analysis_types %}
+                <a href="?type={{ analysis_type.type_code }}" class="block">
+                    <div class="analysis-type-card {% if selected_type == analysis_type.type_code %}active{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>{{ analysis_type.name }}</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- 새 분석 실행 -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">새 분석 실행</h3>
+                <form method="post" action="{% url 'airiss:predictions' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">분석 유형</label>
+                        <select name="analysis_type" class="form-select w-full rounded-md border-gray-300">
+                            <option value="TURNOVER_RISK">퇴사 위험도 예측</option>
+                            <option value="PROMOTION_POTENTIAL">승진 가능성 분석</option>
+                            <option value="TEAM_PERFORMANCE">팀 성과 예측</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">대상</label>
+                        <select name="target_type" class="form-select w-full rounded-md border-gray-300">
+                            <option value="all">전체 직원</option>
+                            <option value="IT">IT 부서</option>
+                            <option value="HR">인사 부서</option>
+                            <option value="FINANCE">재무 부서</option>
+                            <option value="MARKETING">마케팅 부서</option>
+                            <option value="SALES">영업 부서</option>
+                            <option value="OPERATIONS">운영 부서</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="run-analysis-btn w-full">
+                        <i class="fas fa-play mr-2"></i>분석 실행
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 오른쪽 메인 컨텐츠: 예측 결과 목록 -->
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">예측 결과</h3>
+                    <span class="text-sm text-gray-600">총 {{ predictions|length }}건</span>
+                </div>
+
+                {% for prediction in predictions %}
+                <div class="prediction-card">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="mb-2">{{ prediction.analysis_type.name }}</h5>
+                            <p class="mb-1">
+                                <strong>대상:</strong>
+                                {% if prediction.employee %}
+                                    {{ prediction.employee.name }} ({{ prediction.employee.department }}, {{ prediction.employee.new_position }})
+                                {% elif prediction.department %}
+                                    {{ prediction.department }} 부서
+                                {% else %}
+                                    전사 분석
+                                {% endif %}
+                            </p>
+                            
+                            {% if prediction.insights %}
+                            <p class="text-gray-600 mb-2">{{ prediction.insights }}</p>
+                            {% endif %}
+                            
+                            <div class="d-flex align-items-center">
+                                <small class="text-muted">{{ prediction.analyzed_at|date:"Y-m-d H:i" }}</small>
+                                {% if prediction.valid_until %}
+                                <span class="mx-2">•</span>
+                                <small class="text-muted">유효기간: {{ prediction.valid_until|date:"Y-m-d" }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 text-right">
+                            <div class="mb-2">
+                                <span class="text-sm text-gray-600">예측 점수</span>
+                                <h3 class="{% if prediction.score > 70 %}score-high{% elif prediction.score > 40 %}score-medium{% else %}score-low{% endif %}">
+                                    {{ prediction.score|floatformat:0 }}점
+                                </h3>
+                            </div>
+                            
+                            <div>
+                                <span class="text-sm text-gray-600">신뢰도</span>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: {{ prediction.confidence|floatformat:0|default:"0"|add:0|floatformat:0 }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ prediction.confidence|floatformat:0|default:"0"|add:0|floatformat:0 }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if prediction.recommendations %}
+                    <div class="mt-3 pt-3 border-top">
+                        <h6 class="text-sm font-semibold text-gray-700 mb-2">권장 조치사항</h6>
+                        <ul class="list-disc list-inside text-sm text-gray-600">
+                            {% for recommendation in prediction.recommendations %}
+                            <li>{{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="text-center py-8">
+                    <i class="fas fa-chart-line text-gray-300 text-5xl mb-4"></i>
+                    <p class="text-gray-500">아직 예측 결과가 없습니다.</p>
+                    <p class="text-sm text-gray-400 mt-2">왼쪽에서 새 분석을 실행해보세요.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 분석 진행 모달 -->
+<div class="modal fade" id="analysisModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <h5>AI 분석을 진행하고 있습니다...</h5>
+                <p class="text-muted">잠시만 기다려주세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 폼 제출 시 로딩 모달 표시
+document.querySelector('form').addEventListener('submit', function(e) {
+    $('#analysisModal').modal('show');
+});
+
+// 분석 유형 카드 클릭 효과
+document.querySelectorAll('.analysis-type-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+        if (!this.classList.contains('active')) {
+            // 다른 카드의 active 제거
+            document.querySelectorAll('.analysis-type-card').forEach(c => {
+                c.classList.remove('active');
+            });
+            // 현재 카드에 active 추가
+            this.classList.add('active');
+        }
+    });
+});
+</script>
+{% endblock %}

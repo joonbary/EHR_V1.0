@@ -1,0 +1,437 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calibration Session - {{ session.session_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 등급 분포 차트 */
+    .grade-distribution {
+        position: relative;
+    }
+    
+    .distribution-bar {
+        height: 40px;
+        border-radius: 20px;
+        overflow: hidden;
+        background-color: #f3f4f6;
+        display: flex;
+    }
+    
+    .distribution-segment {
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .grade-s-segment { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .grade-a-segment { background: linear-gradient(135deg, #10b981, #34d399); }
+    .grade-b-segment { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .grade-c-segment { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .grade-d-segment { background: linear-gradient(135deg, #ef4444, #f87171); }
+    
+    /* 평가 카드 */
+    .evaluation-card {
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .evaluation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border-color: #ff6b00;
+    }
+    
+    .evaluation-card.selected {
+        border-color: #ff6b00;
+        background-color: #fff5eb;
+    }
+    
+    /* 등급 선택 버튼 */
+    .grade-button {
+        transition: all 0.2s;
+        border: 2px solid transparent;
+    }
+    
+    .grade-button:hover {
+        transform: scale(1.05);
+    }
+    
+    .grade-button.selected {
+        border-color: #ff6b00;
+        box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+    }
+    
+    /* 드래그 앤 드롭 */
+    .drop-zone {
+        min-height: 200px;
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        transition: all 0.3s;
+    }
+    
+    .drop-zone.drag-over {
+        border-color: #ff6b00;
+        background-color: #fff5eb;
+    }
+    
+    .draggable {
+        cursor: move;
+    }
+    
+    .draggable:hover {
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ session.session_name }}</h1>
+                <p class="text-gray-600 mt-2">{{ session.session_date }} | {{ session.evaluation_period }}</p>
+            </div>
+            <div class="flex space-x-3">
+                {% if session.status == 'SCHEDULED' %}
+                <button onclick="startSession()" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
+                    <i data-lucide="play" class="w-5 h-5 inline mr-2"></i>
+                    세션 시작
+                </button>
+                {% elif session.status == 'IN_PROGRESS' %}
+                <button onclick="completeSession()" class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                    <i data-lucide="check" class="w-5 h-5 inline mr-2"></i>
+                    세션 완료
+                </button>
+                {% endif %}
+                <a href="{% url 'evaluations:dashboard' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                    돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 세션 정보 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold mb-4">세션 정보</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">진행자</p>
+                <p class="font-medium">{{ session.facilitator.name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">참여자</p>
+                <p class="font-medium">{{ session.participants.count }}명</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">대상 부서</p>
+                <p class="font-medium">{{ session.department.name|default:"전체" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 등급 분포 가이드라인 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold mb-4">등급 분포 가이드라인</h2>
+        
+        <!-- 목표 분포 -->
+        <div class="mb-6">
+            <h3 class="font-medium mb-3">목표 분포</h3>
+            <div class="distribution-bar">
+                <div class="distribution-segment grade-s-segment" style="width: {{ session.s_grade_ratio }}%">
+                    S ({{ session.s_grade_ratio }}%)
+                </div>
+                <div class="distribution-segment grade-a-segment" style="width: {{ session.a_grade_ratio }}%">
+                    A ({{ session.a_grade_ratio }}%)
+                </div>
+                <div class="distribution-segment grade-b-segment" style="width: {{ session.b_grade_ratio }}%">
+                    B ({{ session.b_grade_ratio }}%)
+                </div>
+                <div class="distribution-segment grade-c-segment" style="width: {{ session.c_grade_ratio }}%">
+                    C ({{ session.c_grade_ratio }}%)
+                </div>
+            </div>
+        </div>
+        
+        <!-- 현재 분포 -->
+        <div>
+            <h3 class="font-medium mb-3">현재 분포</h3>
+            <div class="distribution-bar">
+                {% for grade, data in current_distribution.items %}
+                <div class="distribution-segment grade-{{ grade|lower }}-segment" style="width: {{ data.ratio }}%">
+                    {{ grade }} ({{ data.ratio }}%)
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- 분포 상세 -->
+            <div class="grid grid-cols-4 gap-4 mt-4">
+                {% for grade, data in current_distribution.items %}
+                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900">{{ data.count }}</div>
+                    <div class="text-sm text-gray-600">{{ grade }}등급</div>
+                    <div class="text-xs text-gray-500 mt-1">{{ data.ratio }}%</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 평가 대상자 목록 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold">평가 대상자 ({{ evaluations.count }}명)</h2>
+            
+            <div class="flex space-x-2">
+                <button onclick="sortBy('name')" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+                    이름순
+                </button>
+                <button onclick="sortBy('score')" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+                    점수순
+                </button>
+                <button onclick="sortBy('grade')" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+                    등급순
+                </button>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            {% for evaluation in evaluations %}
+            <div class="evaluation-card bg-gray-50 rounded-xl p-4 draggable" 
+                 data-evaluation-id="{{ evaluation.id }}"
+                 draggable="true">
+                
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-primary">
+                                {{ evaluation.employee.name|first }}
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">{{ evaluation.employee.name }}</h3>
+                            <p class="text-sm text-gray-600">{{ evaluation.employee.position }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-right">
+                        <div class="text-lg font-bold text-gray-900">{{ evaluation.overall_score|default:"0" }}</div>
+                        <div class="text-xs text-gray-600">종합점수</div>
+                    </div>
+                </div>
+                
+                <!-- 3대 평가축 현황 -->
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <div class="text-center p-2 bg-white rounded">
+                        <div class="text-sm font-medium {% if evaluation.contribution_achieved %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ evaluation.contribution_score|default:"0" }}
+                        </div>
+                        <div class="text-xs text-gray-600">기여도</div>
+                    </div>
+                    <div class="text-center p-2 bg-white rounded">
+                        <div class="text-sm font-medium {% if evaluation.expertise_achieved %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ evaluation.expertise_score|default:"0" }}
+                        </div>
+                        <div class="text-xs text-gray-600">전문성</div>
+                    </div>
+                    <div class="text-center p-2 bg-white rounded">
+                        <div class="text-sm font-medium {% if evaluation.impact_achieved %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ evaluation.impact_score|default:"0" }}
+                        </div>
+                        <div class="text-xs text-gray-600">영향력</div>
+                    </div>
+                </div>
+                
+                <!-- 등급 선택 -->
+                <div class="flex justify-between items-center">
+                    <div class="flex space-x-1">
+                        {% for grade_value, grade_label in grade_choices %}
+                        <button class="grade-button w-8 h-8 rounded-lg text-xs font-medium
+                                     {% if grade_value == 'S' %}bg-purple-100 text-purple-800 hover:bg-purple-200
+                                     {% elif grade_value == 'A' %}bg-green-100 text-green-800 hover:bg-green-200
+                                     {% elif grade_value == 'B' %}bg-blue-100 text-blue-800 hover:bg-blue-200
+                                     {% elif grade_value == 'C' %}bg-yellow-100 text-yellow-800 hover:bg-yellow-200
+                                     {% else %}bg-red-100 text-red-800 hover:bg-red-200{% endif %}
+                                     {% if evaluation.final_grade == grade_value %}selected{% endif %}"
+                                onclick="updateGrade({{ evaluation.id }}, '{{ grade_value }}')">
+                            {{ grade_value }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-sm text-gray-600">
+                        1차: {{ evaluation.manager_grade|default:"-" }}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-12">
+                <i data-lucide="users" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                <p class="text-gray-500">평가 대상자가 없습니다.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 세션 진행 사항 -->
+    {% if session.status == 'IN_PROGRESS' %}
+    <div class="bg-white rounded-2xl shadow-sm p-6 mt-6">
+        <h2 class="text-lg font-semibold mb-4">회의록</h2>
+        
+        <form id="sessionForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_session">
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">안건</label>
+                <textarea name="agenda" 
+                          rows="3"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                          placeholder="세션 안건을 입력하세요.">{{ session.agenda }}</textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">회의록</label>
+                <textarea name="minutes" 
+                          rows="6"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                          placeholder="세션 진행 사항과 결정 사항을 기록하세요.">{{ session.minutes }}</textarea>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    저장
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// 세션 상태 관리
+function startSession() {
+    if (confirm('Calibration 세션을 시작하시겠습니까?')) {
+        updateSessionStatus('IN_PROGRESS');
+    }
+}
+
+function completeSession() {
+    if (confirm('Calibration 세션을 완료하시겠습니까?')) {
+        updateSessionStatus('COMPLETED');
+    }
+}
+
+function updateSessionStatus(status) {
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            action: 'update_status',
+            status: status
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('오류가 발생했습니다: ' + data.error);
+        }
+    });
+}
+
+// 등급 업데이트
+function updateGrade(evaluationId, grade) {
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            action: 'update_grade',
+            evaluation_id: evaluationId,
+            final_grade: grade
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // UI 업데이트
+            const card = document.querySelector(`[data-evaluation-id="${evaluationId}"]`);
+            card.querySelectorAll('.grade-button').forEach(btn => btn.classList.remove('selected'));
+            card.querySelector(`[onclick*="'${grade}'"]`).classList.add('selected');
+            
+            // 분포 차트 업데이트
+            updateDistributionChart();
+        } else {
+            alert('오류가 발생했습니다: ' + data.error);
+        }
+    });
+}
+
+// 정렬
+function sortBy(criteria) {
+    const container = document.querySelector('.grid');
+    const cards = Array.from(container.children);
+    
+    cards.sort((a, b) => {
+        if (criteria === 'name') {
+            const nameA = a.querySelector('h3').textContent;
+            const nameB = b.querySelector('h3').textContent;
+            return nameA.localeCompare(nameB);
+        } else if (criteria === 'score') {
+            const scoreA = parseFloat(a.querySelector('.text-lg.font-bold').textContent) || 0;
+            const scoreB = parseFloat(b.querySelector('.text-lg.font-bold').textContent) || 0;
+            return scoreB - scoreA;
+        }
+        // 추가 정렬 기준 구현
+    });
+    
+    cards.forEach(card => container.appendChild(card));
+}
+
+// 분포 차트 업데이트
+function updateDistributionChart() {
+    // 현재 등급 분포 재계산 및 차트 업데이트
+    // (실제 구현에서는 서버에서 데이터를 가져와야 함)
+}
+
+// 드래그 앤 드롭 (향후 구현)
+document.querySelectorAll('.draggable').forEach(element => {
+    element.addEventListener('dragstart', handleDragStart);
+    element.addEventListener('dragover', handleDragOver);
+    element.addEventListener('drop', handleDrop);
+});
+
+function handleDragStart(e) {
+    // 드래그 시작 로직
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+}
+
+function handleDrop(e) {
+    // 드롭 로직
+}
+
+// 페이지 로드시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

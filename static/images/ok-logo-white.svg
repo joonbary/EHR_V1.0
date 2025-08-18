@@ -1,0 +1,21 @@
+<svg width="180" height="60" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- OK 로고 -->
+  <g fill="#FFFFFF">
+    <!-- O -->
+    <circle cx="30" cy="30" r="18" stroke="#FFFFFF" stroke-width="5" fill="none"/>
+    
+    <!-- K -->
+    <path d="M 60 12 L 60 48 M 60 30 L 78 12 M 60 30 L 78 48" 
+          stroke="#FFFFFF" 
+          stroke-width="5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          fill="none"/>
+    
+    <!-- 금융그룹 텍스트 -->
+    <text x="90" y="28" font-family="Pretendard, sans-serif" font-size="14" font-weight="700">금융그룹</text>
+    
+    <!-- Financial Group 텍스트 -->
+    <text x="90" y="44" font-family="Pretendard, sans-serif" font-size="10" font-weight="400" opacity="0.9">Financial Group</text>
+  </g>
+</svg>

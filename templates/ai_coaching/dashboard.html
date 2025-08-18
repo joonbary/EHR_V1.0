@@ -1,0 +1,443 @@
+{% extends 'ai_base.html' %}
+{% load static %}
+
+{% block title %}실시간 코칭 어시스턴트 - AI Quick Win{% endblock %}
+
+{% block breadcrumb %}
+<div class="px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <nav aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm">
+            <li>
+                <a href="{% url 'home' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <a href="{% url 'ai_quickwin:dashboard' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    AI Quick Win
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">실시간 코칭 어시스턴트</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .coaching-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .coaching-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(255, 107, 0, 0.15);
+    }
+    
+    .chat-container {
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+    
+    .message {
+        margin-bottom: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .message.user {
+        flex-direction: row-reverse;
+    }
+    
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+    }
+    
+    .message.ai .message-avatar {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        color: white;
+    }
+    
+    .message.user .message-avatar {
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .message-content {
+        max-width: 70%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .message.user .message-content {
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        color: white;
+    }
+    
+    .chat-input {
+        padding: 20px;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 12px;
+    }
+    
+    .coaching-metric {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .metric-bar {
+        width: 100px;
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    
+    .metric-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #FF6B00, #FFAA00);
+        border-radius: 3px;
+        transition: width 0.6s ease;
+    }
+    
+    .suggestion-card {
+        background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border-left: 4px solid #FF6B00;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .suggestion-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+    }
+    
+    .goal-card {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .goal-card.completed {
+        border-color: #28a745;
+        background: #f1f9f1;
+    }
+    
+    .goal-card:hover {
+        border-color: #FF6B00;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">실시간 코칭 어시스턴트</h1>
+                <p class="text-sm text-gray-600 mt-1">개인별 맞춤 코칭과 실시간 피드백</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    <i data-lucide="history" class="w-4 h-4 inline mr-2"></i>
+                    코칭 기록
+                </button>
+                <button class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all">
+                    <i data-lucide="message-circle" class="w-4 h-4 inline mr-2"></i>
+                    새 세션 시작
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="p-6">
+        <!-- 핵심 지표 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="coaching-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">코칭 세션</span>
+                    <i data-lucide="message-circle" class="w-5 h-5 text-blue-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">124</div>
+                <p class="text-gray-500 text-xs mt-2">이번 달 진행</p>
+            </div>
+            
+            <div class="coaching-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">평균 만족도</span>
+                    <i data-lucide="star" class="w-5 h-5 text-yellow-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">4.8</div>
+                <p class="text-gray-500 text-xs mt-2">5점 만점</p>
+            </div>
+            
+            <div class="coaching-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">목표 달성률</span>
+                    <i data-lucide="target" class="w-5 h-5 text-green-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">78%</div>
+                <p class="text-gray-500 text-xs mt-2">전월 대비 +12%</p>
+            </div>
+            
+            <div class="coaching-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">활성 사용자</span>
+                    <i data-lucide="users" class="w-5 h-5 text-purple-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">342</div>
+                <p class="text-gray-500 text-xs mt-2">주간 활성</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 실시간 코칭 챗봇 -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-lg font-semibold mb-4">AI 코칭 어시스턴트</h2>
+                    
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message ai">
+                                <div class="message-avatar">AI</div>
+                                <div class="message-content">
+                                    <p class="font-medium mb-1">코칭 어시스턴트</p>
+                                    <p class="text-sm">안녕하세요! 오늘은 어떤 도움이 필요하신가요? 업무 관련 고민이나 커리어 개발에 대해 편하게 이야기해주세요.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="message user">
+                                <div class="message-avatar">나</div>
+                                <div class="message-content">
+                                    <p class="text-sm">최근 팀 리더로 승진했는데, 팀원들과의 소통이 어렵습니다.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="message ai">
+                                <div class="message-avatar">AI</div>
+                                <div class="message-content">
+                                    <p class="text-sm mb-2">축하드립니다! 새로운 역할에서의 도전은 자연스러운 과정입니다. 효과적인 팀 소통을 위한 몇 가지 제안을 드릴게요:</p>
+                                    <ul class="text-sm space-y-1">
+                                        <li>• 정기적인 1:1 미팅 스케줄 설정</li>
+                                        <li>• 팀원들의 강점과 관심사 파악</li>
+                                        <li>• 투명한 의사결정 프로세스 공유</li>
+                                        <li>• 적극적 경청과 피드백 문화 조성</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input">
+                            <input type="text" class="form-control flex-1" placeholder="메시지를 입력하세요..." id="chat-input">
+                            <button class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all" onclick="sendMessage()">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 코칭 인사이트 -->
+            <div>
+                <!-- AI 추천 코칭 주제 -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">오늘의 추천 코칭</h2>
+                    
+                    <div class="suggestion-card" onclick="startCoaching('leadership')">
+                        <h3 class="font-medium text-gray-900 mb-1">
+                            <i data-lucide="crown" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            리더십 스킬 향상
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            팀 리더를 위한 효과적인 커뮤니케이션 전략
+                        </p>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="startCoaching('productivity')">
+                        <h3 class="font-medium text-gray-900 mb-1">
+                            <i data-lucide="zap" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            생산성 최적화
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            시간 관리와 우선순위 설정 기법
+                        </p>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="startCoaching('stress')">
+                        <h3 class="font-medium text-gray-900 mb-1">
+                            <i data-lucide="heart" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            스트레스 관리
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            업무 스트레스 해소와 워라밸 개선
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 개인 성장 목표 -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-lg font-semibold mb-4">나의 성장 목표</h2>
+                    
+                    <div class="goal-card completed">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-medium text-gray-900">프레젠테이션 스킬</h3>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 100%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">완료 • 2주 소요</p>
+                    </div>
+                    
+                    <div class="goal-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-medium text-gray-900">갈등 관리 능력</h3>
+                            <span class="text-sm font-medium text-orange-600">진행중</span>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 65%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">65% 완료 • 3일 남음</p>
+                    </div>
+                    
+                    <div class="goal-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-medium text-gray-900">데이터 분석 역량</h3>
+                            <span class="text-sm font-medium text-gray-400">예정</span>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 0%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">다음 주 시작</p>
+                    </div>
+                    
+                    <button class="w-full mt-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                        <i data-lucide="plus" class="w-4 h-4 inline mr-1"></i>
+                        새 목표 추가
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Auto-scroll chat to bottom
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Add user message
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user';
+    userMessage.innerHTML = `
+        <div class="message-avatar">나</div>
+        <div class="message-content">
+            <p class="text-sm">${message}</p>
+        </div>
+    `;
+    chatMessages.appendChild(userMessage);
+    
+    // Clear input
+    input.value = '';
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Simulate AI response
+    setTimeout(() => {
+        const aiMessage = document.createElement('div');
+        aiMessage.className = 'message ai';
+        aiMessage.innerHTML = `
+            <div class="message-avatar">AI</div>
+            <div class="message-content">
+                <p class="text-sm">메시지를 분석 중입니다. 맞춤형 코칭 답변을 준비하고 있습니다...</p>
+            </div>
+        `;
+        chatMessages.appendChild(aiMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 1000);
+}
+
+function startCoaching(topic) {
+    const topicMessages = {
+        leadership: "리더십 코칭 세션을 시작하겠습니다. 현재 팀 규모와 리더십 경험에 대해 알려주시겠어요?",
+        productivity: "생산성 향상 코칭을 시작합니다. 현재 가장 시간을 많이 소비하는 업무는 무엇인가요?",
+        stress: "스트레스 관리 코칭을 시작하겠습니다. 최근 가장 스트레스를 받는 상황을 공유해주시겠어요?"
+    };
+    
+    const chatMessages = document.getElementById('chat-messages');
+    const aiMessage = document.createElement('div');
+    aiMessage.className = 'message ai';
+    aiMessage.innerHTML = `
+        <div class="message-avatar">AI</div>
+        <div class="message-content">
+            <p class="font-medium mb-1">코칭 세션 시작</p>
+            <p class="text-sm">${topicMessages[topic]}</p>
+        </div>
+    `;
+    chatMessages.appendChild(aiMessage);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Enter key to send message
+document.getElementById('chat-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+</script>
+{% endblock %}

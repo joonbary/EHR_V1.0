@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ posting.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-gray-800">{{ posting.title }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">홈</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'recruitment:dashboard' %}">채용관리</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'recruitment:job_posting_list' %}">채용공고 목록</a></li>
+                    <li class="breadcrumb-item active">{{ posting.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="btn-group" role="group">
+                <a href="{% url 'recruitment:job_posting_update' posting.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> 수정
+                </a>
+                <a href="{% url 'recruitment:applicant_create' %}?job_posting={{ posting.pk }}" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> 지원자 등록
+                </a>
+                <a href="{% url 'recruitment:job_posting_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-list"></i> 목록으로
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 채용공고 정보 -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">채용공고 상세정보</h6>
+                </div>
+                <div class="card-body">
+                    <!-- 기본 정보 -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>부서:</strong> {{ posting.get_department_display }}</p>
+                            <p><strong>직급:</strong> {{ posting.get_position_display }}</p>
+                            <p><strong>고용형태:</strong> {{ posting.get_employment_type_display }}</p>
+                            {% if posting.job_role %}
+                            <p><strong>직무:</strong> {{ posting.job_role }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>채용인원:</strong> {{ posting.vacancies }}명</p>
+                            <p><strong>근무지역:</strong> {{ posting.location }}</p>
+                            <p><strong>경력:</strong> 
+                                {{ posting.min_experience_years }}년
+                                {% if posting.max_experience_years %}
+                                ~ {{ posting.max_experience_years }}년
+                                {% else %}
+                                이상
+                                {% endif %}
+                            </p>
+                            {% if posting.salary_range_min or posting.salary_range_max %}
+                            <p><strong>급여:</strong> 
+                                {% if posting.salary_range_min %}
+                                    {{ posting.salary_range_min|floatformat:0|intcomma }}만원
+                                {% endif %}
+                                {% if posting.salary_range_min and posting.salary_range_max %}
+                                    ~
+                                {% endif %}
+                                {% if posting.salary_range_max %}
+                                    {{ posting.salary_range_max|floatformat:0|intcomma }}만원
+                                {% endif %}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- 직무 설명 -->
+                    <h5>직무 설명</h5>
+                    <p style="white-space: pre-wrap;">{{ posting.description }}</p>
+
+                    <hr>
+
+                    <!-- 자격 요건 -->
+                    <h5>자격 요건</h5>
+                    <p style="white-space: pre-wrap;">{{ posting.requirements }}</p>
+
+                    {% if posting.preferred_qualifications %}
+                    <hr>
+                    <!-- 우대 사항 -->
+                    <h5>우대 사항</h5>
+                    <p style="white-space: pre-wrap;">{{ posting.preferred_qualifications }}</p>
+                    {% endif %}
+
+                    <hr>
+
+                    <!-- 일정 정보 -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>공고 게시일:</strong> 
+                                {% if posting.posted_date %}
+                                    {{ posting.posted_date|date:"Y년 m월 d일" }}
+                                {% else %}
+                                    미게시
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>마감일:</strong> {{ posting.closing_date|date:"Y년 m월 d일 H시 i분" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 통계 및 상태 -->
+        <div class="col-lg-4">
+            <!-- 상태 카드 -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">상태</h6>
+                </div>
+                <div class="card-body">
+                    <h2 class="text-center">
+                        <span class="badge badge-{% if posting.status == 'open' %}success{% elif posting.status == 'closed' %}secondary{% elif posting.status == 'draft' %}warning{% else %}danger{% endif %} p-3">
+                            {{ posting.get_status_display }}
+                        </span>
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 지원자 통계 -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">지원자 통계</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-center mb-4">
+                        총 <span class="text-primary">{{ total_applications }}</span>명
+                    </h3>
+                    
+                    {% if stage_breakdown %}
+                    <h6>단계별 현황</h6>
+                    <div class="mb-3">
+                        {% for stage in stage_breakdown %}
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <small>{{ stage.current_stage__name }}</small>
+                                <small>{{ stage.count }}명</small>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {% widthratio stage.count total_applications 100 %}%"
+                                     aria-valuenow="{{ stage.count }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="{{ total_applications }}">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if status_breakdown %}
+                    <h6 class="mt-4">상태별 현황</h6>
+                    {% for status in status_breakdown %}
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{{ status.status }}</small>
+                        <small>{{ status.count }}명</small>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 작성자 정보 -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">작성 정보</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>작성자:</strong> {{ posting.created_by.get_full_name|default:posting.created_by.username }}</p>
+                    <p><strong>작성일:</strong> {{ posting.created_at|date:"Y-m-d H:i" }}</p>
+                    <p><strong>수정일:</strong> {{ posting.updated_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 최근 지원자 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">최근 지원자</h6>
+                    <a href="{% url 'recruitment:application_list' %}?job_posting={{ posting.pk }}" class="text-primary">
+                        전체보기 →
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if applications %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>지원자</th>
+                                    <th>이메일</th>
+                                    <th>전화번호</th>
+                                    <th>지원일</th>
+                                    <th>현재 단계</th>
+                                    <th>상태</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in applications %}
+                                <tr>
+                                    <td>{{ application.applicant.full_name }}</td>
+                                    <td>{{ application.applicant.email }}</td>
+                                    <td>{{ application.applicant.phone }}</td>
+                                    <td>{{ application.applied_date|date:"Y-m-d" }}</td>
+                                    <td>
+                                        {% if application.current_stage %}
+                                            {{ application.current_stage.name }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ application.status|default:'secondary' }}">
+                                            {{ application.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'recruitment:application_detail' application.pk %}" 
+                                           class="btn btn-sm btn-info">
+                                            상세보기
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">아직 지원자가 없습니다.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

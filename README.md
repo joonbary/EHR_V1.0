@@ -1,202 +1,186 @@
-# EHR Evaluation System - 직원 성과 평가 시스템
+# OK금융그룹 eHR 시스템
 
-## 개요
-EHR Evaluation System은 Elevate Growth System의 기능을 통합한 직원 성과 및 기여도 평가 시스템입니다. AI 기반 피드백 생성, 실시간 알림, 대시보드 분석 등의 기능을 제공합니다.
+## 프로젝트 개요
+OK금융그룹의 신인사제도를 반영한 종합 인사관리 시스템입니다.
 
 ## 주요 기능
-
-### 1. 기여도 평가 시스템 (/evaluations/contribution/)
-- **단계별 평가 프로세스**: 직원 선택 → 업무 평가 → 성과 점수 → AI 피드백 → 최종 검토
-- **다차원 평가 기준**:
-  - 기술 역량 (코드 품질, 문제 해결, 기술 습득)
-  - 기여도 (프로젝트 기여, 팀 협업, 업무 완성도)
-  - 성장 및 발전 (자기 개발, 목표 달성, 혁신성)
-- **AI 기반 피드백**: OpenAI API를 활용한 맞춤형 피드백 생성
-- **목표 설정 및 추적**: 개인별 목표 설정 및 달성률 모니터링
-
-### 2. 업무 관리
-- 업무 할당 및 추적
-- 우선순위 관리
-- 진행 상황 모니터링
-- 완료율 통계
-
-### 3. 실시간 알림 시스템
-- WebSocket 기반 실시간 알림
-- 평가 상태 변경 알림
-- 업무 할당 알림
-- 피드백 수신 알림
-
-### 4. 대시보드 및 분석
-- 개인/팀 성과 대시보드
-- 성과 추세 차트
-- 카테고리별 점수 분석
-- 업무 완료율 통계
-
-### 5. 사용자 역할 관리
-- Employee (직원)
-- Evaluator (평가자)
-- HR Manager (인사 관리자)
-- Administrator (관리자)
+- **직원 관리**: 직원 정보 CRUD, 프로필 관리, 대량 등록
+- **평가 관리**: 3대 평가축(기여도, 전문성, 영향력) 기반 성과 평가
+- **보상 관리**: 급여 계산, 성과급(PI) 산정, 급여명세서 생성
+- **승진/인사이동**: 승진 요건 검증, 인사이동 이력 관리
+- **셀프서비스**: 개인 정보 조회 및 수정
 
 ## 기술 스택
-
-### Backend
-- Django 5.2
-- Django REST Framework
-- PostgreSQL/SQLite
-- Channels (WebSocket)
-- OpenAI API
-- Redis (캐싱 및 WebSocket)
-
-### Frontend
-- React 18 with TypeScript
-- Material-UI (MUI)
-- React Router
-- React Query
-- Chart.js
-- Socket.io Client
-
-## 설치 및 실행
-
-### 요구사항
-- Python 3.10+
-- Node.js 16+
-- Redis (선택사항, WebSocket용)
-
-### 1. 프로젝트 클론
-```bash
-git clone <repository-url>
-cd EHR_project
-```
-
-### 2. 환경 설정
-`.env` 파일을 생성하고 다음 내용을 설정:
-```
-SECRET_KEY=your-secret-key
-DEBUG=True
-OPENAI_API_KEY=your-openai-api-key
-```
-
-### 3. Backend 실행
-```bash
-# Windows
-run_server.bat
-
-# Linux/Mac
-python manage.py makemigrations
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-```
-
-### 4. Frontend 실행
-```bash
-# Windows
-run_frontend.bat
-
-# Linux/Mac
-cd frontend
-npm install
-npm start
-```
-
-### 5. 접속 정보
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000/api
-- Admin Panel: http://localhost:8000/admin
-- 기여도 평가: http://localhost:3000/evaluations/contribution
-
-## API 엔드포인트
-
-### 인증
-- `POST /api/token/` - 로그인 토큰 발급
-- `GET /api/users/me/` - 현재 사용자 정보
-
-### 평가 관리
-- `GET/POST /api/evaluations/evaluations/` - 평가 목록/생성
-- `GET/PATCH /api/evaluations/evaluations/{id}/` - 평가 상세/수정
-- `POST /api/evaluations/evaluations/{id}/submit/` - 평가 제출
-- `POST /api/evaluations/evaluations/{id}/approve/` - 평가 승인
-- `GET /api/evaluations/evaluations/{id}/analytics/` - 평가 분석
-
-### 업무 관리
-- `GET/POST /api/evaluations/tasks/` - 업무 목록/생성
-- `POST /api/evaluations/tasks/{id}/complete/` - 업무 완료
-
-### AI 피드백
-- `POST /api/evaluations/feedbacks/generate_ai/` - AI 피드백 생성
-
-### 알림
-- `GET /api/notifications/` - 알림 목록
-- `POST /api/notifications/{id}/mark_as_read/` - 읽음 표시
+- **Backend**: Django 5.2.4
+- **Database**: SQLite (개발), PostgreSQL (운영 권장)
+- **Frontend**: Bootstrap 5, Chart.js
+- **MCP Integration**: 파일서버, 시퀀셜싱킹, 태스크 매니저
 
 ## 프로젝트 구조
 ```
-EHR_project/
-├── ehr_evaluation/         # Django 프로젝트 설정
-├── users/                  # 사용자 관리 앱
-├── evaluations/           # 평가 시스템 앱
-├── notifications/         # 알림 시스템 앱
-├── frontend/              # React 프론트엔드
-│   ├── src/
-│   │   ├── components/    # 재사용 컴포넌트
-│   │   ├── pages/        # 페이지 컴포넌트
-│   │   │   └── ContributionEvaluation.tsx  # 기여도 평가 페이지
-│   │   └── services/      # API 서비스
-├── static/                # 정적 파일
-├── media/                 # 업로드 파일
-├── manage.py             # Django 관리 스크립트
-├── run_server.bat        # Backend 실행 스크립트
-└── run_frontend.bat      # Frontend 실행 스크립트
+EHR_V1.0/
+├── core/                   # 공통 모듈 (예외, 데코레이터, 유틸리티)
+│   ├── mcp/               # MCP 통합 레이어
+│   ├── decorators.py      # 공통 데코레이터
+│   ├── exceptions.py      # 커스텀 예외
+│   ├── validators.py      # 검증 유틸리티
+│   └── utils.py          # 공통 유틸리티
+├── services/              # 비즈니스 로직 서비스
+│   ├── employee_service.py
+│   ├── evaluation_service.py
+│   ├── compensation_service.py
+│   └── promotion_service.py
+├── employees/             # 직원 관리 앱
+├── evaluations/          # 평가 관리 앱
+├── compensation/         # 보상 관리 앱
+├── promotions/           # 승진/인사이동 앱
+├── selfservice/          # 셀프서비스 앱
+├── permissions/          # 권한 관리 앱
+├── reports/              # 리포트 앱
+└── templates/            # 템플릿 파일
 ```
 
-## 주요 모델
+## 설치 및 실행
 
-### User (사용자)
-- 확장된 Django User 모델
-- 역할, 부서, 직급, 입사일 등 추가 필드
+### 1. 가상환경 생성 및 활성화
+```bash
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# Mac/Linux
+source venv/bin/activate
+```
 
-### Evaluation (평가)
-- 평가 기간, 직원, 평가자
-- 상태 관리 (draft, submitted, approved, rejected)
-- 종합 점수 자동 계산
+### 2. 의존성 설치
+```bash
+pip install -r requirements.txt
+```
 
-### Task (업무)
-- 업무 제목, 설명, 할당자
-- 우선순위, 상태, 기한
-- 가중치 설정
+### 3. 데이터베이스 마이그레이션
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
 
-### Score (점수)
-- 평가별 세부 점수
-- 평가 기준별 점수
-- 코멘트
+### 4. 슈퍼유저 생성
+```bash
+python manage.py createsuperuser
+```
 
-### Feedback (피드백)
-- AI 생성 및 수동 피드백
-- 강점, 개선점, 추천사항
-- OpenAI API 연동
+### 5. 정적 파일 수집
+```bash
+python manage.py collectstatic
+```
 
-### Goal (목표)
-- 개인별 목표 설정
-- 진행률 추적
-- 달성 상태 관리
+### 6. 개발 서버 실행
+```bash
+python manage.py runserver
+```
 
-## 보안 고려사항
-- Token 기반 인증
-- CORS 설정
-- 역할 기반 접근 제어
-- 환경 변수를 통한 민감 정보 관리
+### 7. 태스크 매니저 실행 (별도 터미널)
+```bash
+python manage.py start_task_manager
+```
 
-## 향후 개선 계획
-- [ ] 다국어 지원 확대
-- [ ] 모바일 앱 개발
-- [ ] 고급 분석 대시보드
-- [ ] 360도 피드백 시스템
-- [ ] 성과 예측 AI 모델
-- [ ] 팀 협업 도구 통합
+## MCP 서버 설정
+`.claude/claude_desktop_config.json` 파일이 자동으로 생성되어 있습니다.
+필요에 따라 경로를 수정하세요.
 
-## 라이선스
-MIT License
+## 환경 설정
+
+### 개발 환경
+```python
+DEBUG = True
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+```
+
+### 운영 환경
+```python
+DEBUG = False
+ALLOWED_HOSTS = ['your-domain.com']
+
+# PostgreSQL 설정
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ehr_db',
+        'USER': 'ehr_user',
+        'PASSWORD': 'your-password',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+```
+
+## 주요 개선사항 (리팩터링)
+
+### 1. 공통 모듈화
+- 중복 코드를 core 패키지로 통합
+- 재사용 가능한 데코레이터, 유틸리티 구현
+
+### 2. MCP 통합 레이어
+- 파일 처리: MCPFileService
+- 복잡한 로직 처리: MCPSequentialService  
+- 백그라운드 작업: MCPTaskService
+
+### 3. 서비스 레이어 도입
+- 비즈니스 로직을 뷰에서 분리
+- 테스트 가능하고 유지보수가 쉬운 구조
+
+### 4. 에러 처리 개선
+- 커스텀 예외 계층 구조
+- 전역 에러 핸들러
+- 사용자 친화적인 에러 페이지
+
+### 5. 로깅 시스템
+- 모듈별 로거 설정
+- 보안, 성능 로깅
+- 로그 로테이션
+
+## API 엔드포인트
+
+### 직원 관리
+- `GET /employees/` - 직원 목록
+- `POST /employees/create/` - 직원 생성
+- `GET /employees/<id>/` - 직원 상세
+- `PUT /employees/<id>/edit/` - 직원 수정
+
+### 평가 관리
+- `GET /evaluations/` - 평가 대시보드
+- `POST /evaluations/process/<period_id>/` - 평가 처리
+- `GET /evaluations/insights/` - 평가 인사이트
+
+### 백그라운드 작업
+- `GET /tasks/` - 작업 대시보드
+- `POST /tasks/submit/` - 작업 제출
+- `GET /tasks/status/<task_id>/` - 작업 상태
+
+## 테스트
+```bash
+# 전체 테스트 실행
+python manage.py test
+
+# 특정 앱 테스트
+python manage.py test employees
+```
+
+## 문제 해결
+
+### 1. 마이그레이션 오류
+```bash
+python manage.py migrate --run-syncdb
+```
+
+### 2. 정적 파일 로드 실패
+```bash
+python manage.py collectstatic --clear --noinput
+```
+
+### 3. 태스크 매니저 오류
+로그 파일 확인: `logs/task_manager.log`
+
+## 라이센스
+이 프로젝트는 OK금융그룹 내부용으로 개발되었습니다.
 
 ## 문의
-프로젝트 관련 문의는 GitHub Issues를 통해 제출해주세요.
+시스템 관련 문의는 IT 지원팀으로 연락주세요.

@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}코칭 목표 관리{% endblock %}
+
+{% block extra_css %}
+<style>
+    .goals-page {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .goal-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #28a745;
+        transition: all 0.3s ease;
+    }
+    
+    .goal-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .goal-card.priority-high { border-left-color: #dc3545; }
+    .goal-card.priority-medium { border-left-color: #ffc107; }
+    .goal-card.priority-low { border-left-color: #28a745; }
+    .goal-card.priority-critical { border-left-color: #6f42c1; }
+    
+    .goal-header {
+        display: flex;
+        justify-content: between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+    
+    .goal-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .goal-meta {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 10px;
+    }
+    
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .status-not_started { background-color: #e9ecef; color: #495057; }
+    .status-in_progress { background-color: #cce5ff; color: #004085; }
+    .status-completed { background-color: #d4edda; color: #155724; }
+    .status-on_hold { background-color: #fff3cd; color: #856404; }
+    .status-cancelled { background-color: #f8d7da; color: #721c24; }
+    
+    .priority-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .priority-critical { background-color: #6f42c1; color: white; }
+    .priority-high { background-color: #dc3545; color: white; }
+    .priority-medium { background-color: #ffc107; color: #212529; }
+    .priority-low { background-color: #28a745; color: white; }
+    
+    .progress-bar-container {
+        background: #e9ecef;
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        transition: width 0.3s ease;
+    }
+    
+    .filters-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .employee-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #17a2b8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 0.9rem;
+        margin-right: 8px;
+    }
+    
+    .overdue {
+        color: #dc3545;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="goals-page">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="h2 mb-0">
+                    <i class="fas fa-bullseye text-success me-2"></i>
+                    코칭 목표 관리
+                </h1>
+                <p class="text-muted mt-2">직원들의 코칭 목표 진행 상황을 관리하고 추적합니다</p>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">상태</label>
+                    <select name="status" class="form-select">
+                        <option value="">전체</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">직원</label>
+                    <select name="employee" class="form-select">
+                        <option value="">전체 직원</option>
+                        {% for emp in employees %}
+                        <option value="{{ emp.id }}" {% if employee_filter == emp.id|stringformat:"s" %}selected{% endif %}>
+                            {{ emp.name }} ({{ emp.department }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>필터 적용
+                        </button>
+                        <a href="{% url 'ai_coaching:goals_list' %}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-times me-1"></i>초기화
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <a href="{% url 'ai_coaching:dashboard' %}" class="btn btn-outline-info">
+                            <i class="fas fa-arrow-left me-1"></i>대시보드
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Goals List -->
+        <div class="row">
+            <div class="col-12">
+                {% for goal in goals %}
+                <div class="goal-card priority-{{ goal.priority|lower }}">
+                    <div class="goal-header">
+                        <div class="flex-grow-1">
+                            <div class="goal-title">{{ goal.title }}</div>
+                            <p class="text-muted mb-0">{{ goal.description|truncatewords:30 }}</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="status-badge status-{{ goal.status|lower }}">
+                                {{ goal.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-meta">
+                        <div class="d-flex align-items-center">
+                            <div class="employee-avatar">{{ goal.session.employee.name|first }}</div>
+                            <span>{{ goal.session.employee.name }}</span>
+                        </div>
+                        
+                        <span class="priority-badge priority-{{ goal.priority|lower }}">
+                            {{ goal.get_priority_display }}
+                        </span>
+                        
+                        <span class="badge bg-light text-dark">
+                            {{ goal.get_goal_type_display }}
+                        </span>
+                        
+                        {% if goal.target_date %}
+                        <span class="{% if goal.is_overdue %}overdue{% else %}text-muted{% endif %}">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ goal.target_date|date:"Y.m.d" }}까지
+                            {% if goal.is_overdue %}
+                            <i class="fas fa-exclamation-triangle ms-1"></i>
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                        
+                        <span class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ goal.created_at|date:"m.d" }} 생성
+                        </span>
+                    </div>
+                    
+                    {% if goal.progress_percentage > 0 %}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ goal.progress_percentage }}%"></div>
+                    </div>
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <small class="text-muted">진행률</small>
+                        <small class="text-success font-weight-bold">{{ goal.progress_percentage|floatformat:0 }}%</small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if goal.success_criteria %}
+                    <div class="mt-3">
+                        <h6 class="mb-2">성공 기준:</h6>
+                        <ul class="mb-0 ps-3">
+                            {% for criteria in goal.success_criteria %}
+                            <li class="small text-muted">{{ criteria }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if goal.ai_recommendations %}
+                    <div class="mt-3">
+                        <h6 class="mb-2">AI 추천사항:</h6>
+                        <div>
+                            {% for rec in goal.ai_recommendations %}
+                            <span class="badge bg-info text-white me-1">{{ rec }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-3 text-end">
+                        <a href="{% url 'ai_coaching:session_detail' goal.session.session_id %}" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>세션 보기
+                        </a>
+                        {% if goal.feasibility_score > 0 %}
+                        <span class="ms-2 small text-success">
+                            <i class="fas fa-chart-line me-1"></i>
+                            실현가능성: {{ goal.feasibility_score|floatformat:1 }}/10
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5">
+                    <i class="fas fa-bullseye text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                    <h4 class="mt-3 text-muted">설정된 목표가 없습니다</h4>
+                    <p class="text-muted">코칭 세션에서 목표를 설정해보세요.</p>
+                    <a href="{% url 'ai_coaching:dashboard' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>코칭 시작하기
+                    </a>
+                </div>
+                {% endfor %}
+                
+                <!-- Pagination -->
+                {% if goals.has_other_pages %}
+                <nav aria-label="목표 페이지네이션" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if goals.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ goals.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if employee_filter %}&employee={{ employee_filter }}{% endif %}">이전</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in goals.paginator.page_range %}
+                        {% if num %}
+                        <li class="page-item {% if num == goals.number %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if employee_filter %}&employee={{ employee_filter }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if goals.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ goals.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if employee_filter %}&employee={{ employee_filter }}{% endif %}">다음</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 진행률 애니메이션
+    setTimeout(() => {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 100);
+        });
+    }, 200);
+});
+</script>
+{% endblock %}

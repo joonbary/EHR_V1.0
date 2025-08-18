@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}직무 체계도{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <h1>직무 체계도</h1>
+        <p class="text-muted">OK금융그룹의 전체 직무 체계를 한눈에 확인하실 수 있습니다.</p>
+    </div>
+    
+    <div class="mb-4">
+        <a href="{% url 'job_profiles:list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 직무기술서 목록으로
+        </a>
+    </div>
+    
+    <!-- 직무 체계 트리 -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="job-hierarchy">
+                        {% for category in categories %}
+                        <div class="category-group mb-4">
+                            <div class="category-header">
+                                <h3 class="text-primary">
+                                    <i class="bi bi-folder2-open"></i> {{ category.name }}
+                                    <small class="text-muted">({{ category.code }})</small>
+                                </h3>
+                                {% if category.description %}
+                                <p class="text-muted mb-3">{{ category.description }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="job-types ms-4">
+                                {% for job_type in category.job_types.all %}
+                                <div class="job-type-group mb-3">
+                                    <h5 class="text-info">
+                                        <i class="bi bi-folder"></i> {{ job_type.name }}
+                                        <small class="text-muted">({{ job_type.code }})</small>
+                                    </h5>
+                                    
+                                    <div class="job-roles ms-4">
+                                        <div class="row">
+                                            {% for job_role in job_type.job_roles.all %}
+                                            <div class="col-md-4 mb-2">
+                                                <div class="job-role-card">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <i class="bi bi-file-earmark-text text-success"></i>
+                                                            <strong>{{ job_role.name }}</strong>
+                                                            <span class="text-muted">({{ job_role.code }})</span>
+                                                        </div>
+                                                        {% if job_role.profile %}
+                                                        <a href="{% url 'job_profiles:detail' job_role.profile.id %}" 
+                                                           class="btn btn-sm btn-outline-primary"
+                                                           title="직무기술서 보기">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        {% else %}
+                                                        <span class="badge bg-secondary">미등록</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% empty %}
+                                            <div class="col-12">
+                                                <p class="text-muted ms-2">등록된 직무가 없습니다.</p>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p class="text-muted ms-2">등록된 직종이 없습니다.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="alert alert-info">
+                            등록된 직군이 없습니다.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 통계 정보 -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">직군</h5>
+                    <h2>{{ categories.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">직종</h5>
+                    <h2 id="jobTypeCount">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">직무</h5>
+                    <h2 id="jobRoleCount">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">직무기술서</h5>
+                    <h2 id="profileCount">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.job-hierarchy {
+    font-size: 0.95rem;
+}
+
+.category-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.job-type-group {
+    border-left: 3px solid #17a2b8;
+    padding-left: 15px;
+}
+
+.job-role-card {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.job-role-card:hover {
+    background-color: #e9ecef;
+}
+
+.job-hierarchy h3 {
+    font-size: 1.5rem;
+}
+
+.job-hierarchy h5 {
+    font-size: 1.1rem;
+}
+</style>
+
+<script>
+// 통계 계산
+document.addEventListener('DOMContentLoaded', function() {
+    let jobTypeCount = 0;
+    let jobRoleCount = 0;
+    let profileCount = 0;
+    
+    // 직종 카운트
+    document.querySelectorAll('.job-type-group').forEach(function() {
+        jobTypeCount++;
+    });
+    
+    // 직무 카운트
+    document.querySelectorAll('.job-role-card').forEach(function(card) {
+        jobRoleCount++;
+        // 직무기술서가 있는 경우
+        if (card.querySelector('.btn-outline-primary')) {
+            profileCount++;
+        }
+    });
+    
+    // 카운트 표시
+    document.getElementById('jobTypeCount').textContent = jobTypeCount;
+    document.getElementById('jobRoleCount').textContent = jobRoleCount;
+    document.getElementById('profileCount').textContent = profileCount;
+});
+</script>
+{% endblock %}

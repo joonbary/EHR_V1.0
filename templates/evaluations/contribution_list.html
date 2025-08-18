@@ -1,0 +1,254 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 - OK Financial Group{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">기여도 평가</span>
+            </h1>
+            <p class="hero-subtitle">업무 목표 달성 및 성과 평가 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Period Info -->
+    {% if active_period %}
+    <div class="dashboard-card mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 style="color: #00d4ff;">{{ active_period.year }}년 {{ active_period.get_period_type_display }}</h4>
+                <p class="text-muted mb-0">
+                    평가기간: {{ active_period.start_date|date:"Y.m.d" }} - {{ active_period.end_date|date:"Y.m.d" }}
+                </p>
+            </div>
+            <div class="text-end">
+                <span class="badge" style="background: rgba(0, 255, 136, 0.2); color: #00ff88; padding: 0.5rem 1rem;">
+                    <i class="fas fa-check-circle me-2"></i>진행중
+                </span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card" style="border-color: #00d4ff;">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #00d4ff, #0099cc);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ employees|length }}</div>
+                    <div class="stat-label">평가 대상</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-color: #00ff88;">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #00ff88, #00cc6a);">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="completed-count">0</div>
+                    <div class="stat-label">완료</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-color: #ffbb33;">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ffbb33, #ff9900);">
+                    <i class="fas fa-spinner"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="in-progress-count">0</div>
+                    <div class="stat-label">진행중</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-color: #ff6b6b;">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff4444);">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="not-started-count">0</div>
+                    <div class="stat-label">미시작</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee List -->
+    <div class="dashboard-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 style="color: #00d4ff;">
+                <i class="fas fa-list me-2"></i>평가 대상자 목록
+            </h3>
+            <div class="btn-group" role="group">
+                <button class="btn btn-sm" style="background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; color: #00d4ff;">
+                    <i class="fas fa-filter me-1"></i>필터
+                </button>
+                <button class="btn btn-sm" style="background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; color: #00d4ff;">
+                    <i class="fas fa-download me-1"></i>내보내기
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table" style="color: #fff;">
+                <thead>
+                    <tr style="border-bottom: 2px solid rgba(0, 212, 255, 0.3);">
+                        <th style="color: #00d4ff;">사원번호</th>
+                        <th style="color: #00d4ff;">이름</th>
+                        <th style="color: #00d4ff;">부서</th>
+                        <th style="color: #00d4ff;">직급</th>
+                        <th style="color: #00d4ff;">업무 수</th>
+                        <th style="color: #00d4ff;">완료율</th>
+                        <th style="color: #00d4ff;">기여도 점수</th>
+                        <th style="color: #00d4ff;">상태</th>
+                        <th style="color: #00d4ff;">액션</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in employees %}
+                    <tr style="border-bottom: 1px solid rgba(0, 212, 255, 0.1);">
+                        <td>{{ data.employee.employee_id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-2" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                    {{ data.employee.name|slice:":1" }}
+                                </div>
+                                {{ data.employee.name }}
+                            </div>
+                        </td>
+                        <td>{{ data.employee.department }}</td>
+                        <td>{{ data.employee.position }}</td>
+                        <td>
+                            <span class="badge bg-dark">{{ data.total_tasks }}</span>
+                        </td>
+                        <td>
+                            <div class="progress" style="height: 20px; background: rgba(255, 255, 255, 0.1);">
+                                <div class="progress-bar" 
+                                     style="width: {{ data.task_completion_rate }}%; 
+                                            background: linear-gradient(90deg, #00d4ff, #00ff88);">
+                                    {{ data.task_completion_rate }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if data.contribution_score %}
+                                <span class="badge" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff;">
+                                    {{ data.contribution_score|floatformat:1 }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data.status == 'completed' %}
+                                <span class="badge" style="background: rgba(0, 255, 136, 0.2); color: #00ff88;">
+                                    <i class="fas fa-check-circle me-1"></i>완료
+                                </span>
+                            {% elif data.status == 'in-progress' %}
+                                <span class="badge" style="background: rgba(255, 187, 51, 0.2); color: #ffbb33;">
+                                    <i class="fas fa-spinner me-1"></i>진행중
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b;">
+                                    <i class="fas fa-clock me-1"></i>미시작
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'evaluations:contribution_evaluation' data.employee.id %}" 
+                               class="btn btn-sm btn-gradient">
+                                <i class="fas fa-edit me-1"></i>평가
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-5">
+                            평가 대상자가 없습니다.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    padding: 1rem;
+    border: none;
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border: none;
+}
+
+.table tbody tr:hover {
+    background: rgba(0, 212, 255, 0.05);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 통계 계산
+    let completedCount = 0;
+    let inProgressCount = 0;
+    let notStartedCount = 0;
+    
+    // 테이블에서 데이터 추출
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(function(row) {
+        const statusBadge = row.querySelector('span.badge');
+        if (statusBadge) {
+            const statusText = statusBadge.textContent.trim();
+            if (statusText.includes('완료')) {
+                completedCount++;
+            } else if (statusText.includes('진행중')) {
+                inProgressCount++;
+            } else {
+                notStartedCount++;
+            }
+        }
+    });
+    
+    // DOM 업데이트
+    document.getElementById('completed-count').textContent = completedCount;
+    document.getElementById('in-progress-count').textContent = inProgressCount;
+    document.getElementById('not-started-count').textContent = notStartedCount;
+});
+</script>
+{% endblock %}

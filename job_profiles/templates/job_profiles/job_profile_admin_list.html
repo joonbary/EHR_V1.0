@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}직무기술서 관리{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1>직무기술서 관리</h1>
+            <p class="text-muted">전체 {{ total_count }}개 중 {{ active_count }}개 활성화</p>
+        </div>
+        <div>
+            <a href="{% url 'job_profiles:create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 새 직무기술서 등록
+            </a>
+        </div>
+    </div>
+    
+    <!-- 검색 필터 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">직군</label>
+                        <select name="category" id="category" class="form-select">
+                            <option value="">전체 직군</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="is_active" class="form-label">상태</label>
+                        <select name="is_active" id="is_active" class="form-select">
+                            <option value="">전체</option>
+                            <option value="1" {% if selected_is_active == "1" %}selected{% endif %}>활성화</option>
+                            <option value="0" {% if selected_is_active == "0" %}selected{% endif %}>비활성화</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <label for="q" class="form-label">검색어</label>
+                        <input type="text" name="q" id="q" class="form-control" 
+                               placeholder="직무명 또는 직무코드로 검색" 
+                               value="{{ search_query }}">
+                    </div>
+                    
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> 검색
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 직무기술서 목록 테이블 -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>직무코드</th>
+                            <th>직무명</th>
+                            <th>직군/직종</th>
+                            <th>스킬 수</th>
+                            <th>상태</th>
+                            <th>최종 수정</th>
+                            <th>수정자</th>
+                            <th class="text-center">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for profile in page_obj %}
+                        <tr>
+                            <td>{{ profile.job_role.code }}</td>
+                            <td>
+                                <a href="{% url 'job_profiles:admin_detail' profile.id %}">
+                                    {{ profile.job_role.name }}
+                                </a>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ profile.job_role.job_type.category.name }} > {{ profile.job_role.job_type.name }}
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ profile.basic_skills|length }}</span>
+                                <span class="badge bg-success">{{ profile.applied_skills|length }}</span>
+                            </td>
+                            <td>
+                                {% if profile.is_active %}
+                                <span class="badge bg-success">활성</span>
+                                {% else %}
+                                <span class="badge bg-secondary">비활성</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ profile.updated_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ profile.updated_by.username|default:"-" }}</td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'job_profiles:admin_detail' profile.id %}" 
+                                       class="btn btn-outline-primary" title="상세보기">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'job_profiles:update' profile.id %}" 
+                                       class="btn btn-outline-warning" title="수정">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if profile.is_active %}
+                                    <a href="{% url 'job_profiles:delete' profile.id %}" 
+                                       class="btn btn-outline-danger" title="비활성화">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                등록된 직무기술서가 없습니다.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 페이지네이션 -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                            처음
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                            이전
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                            다음
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                            마지막
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

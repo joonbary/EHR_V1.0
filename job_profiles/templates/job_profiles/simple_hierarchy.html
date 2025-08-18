@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>직무 체계도 - OK금융그룹</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#FF6B00',
+                            hover: '#E55A00',
+                            light: '#FFF4ED'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #FF6B00;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent">
+            직무 체계도
+        </h1>
+        <p class="text-center text-gray-600 mb-8">OK금융그룹의 체계적인 직무 구조를 한눈에 확인하세요</p>
+        
+        <!-- 통계 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ total_categories|default:0 }}</div>
+                        <div class="text-sm text-gray-600 font-medium">직군 Categories</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0H8m8 0v6a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ total_job_types|default:0 }}</div>
+                        <div class="text-sm text-gray-600 font-medium">직종 Job Types</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ total_job_roles|default:0 }}</div>
+                        <div class="text-sm text-gray-600 font-medium">직무 Job Roles</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ total_profiles|default:0 }}</div>
+                        <div class="text-sm text-gray-600 font-medium">직무기술서 Profiles</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 직무 목록 -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="flex items-center mb-6">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">직무 계층 구조</h2>
+            </div>
+            <div id="jobList" class="space-y-4">
+                <div class="flex items-center justify-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mr-3"></div>
+                    <p class="text-gray-600">직무 데이터를 로드 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    // 데이터 로드
+    console.log('Starting data load...');
+    
+    fetch('/job-profiles/api/tree-map-data/')
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('API Data:', data);
+            if (data.success) {
+                displayJobs(data.data);
+            } else {
+                document.getElementById('jobList').innerHTML = `<p class="text-red-600">API 에러: ${data.error || 'Unknown error'}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading data:', error);
+            document.getElementById('jobList').innerHTML = `<p class="text-red-600">데이터 로드 중 오류: ${error.message}</p>`;
+        });
+    
+    function displayJobs(data) {
+        const container = document.getElementById('jobList');
+        let html = '';
+        
+        // Non-PL 카테고리
+        if (data['Non-PL']) {
+            html += `<div class="mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>Non-PL 직군
+                </h3>`;
+            for (const [category, categoryData] of Object.entries(data['Non-PL'])) {
+                html += `<div class="bg-gray-50 rounded-lg p-6 mb-4 border-l-4 border-orange-500">
+                    <h4 class="text-lg font-semibold text-orange-600 mb-3">${categoryData.name}</h4>
+                    <div class="grid gap-3">`;
+                
+                for (const [jobType, jobs] of Object.entries(categoryData.jobs)) {
+                    html += `<div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="font-medium text-gray-800 mb-2">${jobType}</div>
+                        <div class="flex flex-wrap gap-2">`;
+                    
+                    jobs.forEach(job => {
+                        html += `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            job.has_profile ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                        }">
+                            ${job.name}
+                            ${job.has_profile ? '<span class="ml-1">✓</span>' : ''}
+                        </span>`;
+                    });
+                    
+                    html += `</div></div>`;
+                }
+                html += '</div></div>';
+            }
+            html += '</div>';
+        }
+        
+        // PL 카테고리
+        if (data['PL']) {
+            html += `<div class="mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>PL 직군
+                </h3>`;
+            for (const [category, categoryData] of Object.entries(data['PL'])) {
+                html += `<div class="bg-gray-50 rounded-lg p-6 mb-4 border-l-4 border-purple-500">
+                    <h4 class="text-lg font-semibold text-purple-600 mb-3">${categoryData.name}</h4>
+                    <div class="grid gap-3">`;
+                
+                for (const [jobType, jobs] of Object.entries(categoryData.jobs)) {
+                    html += `<div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="font-medium text-gray-800 mb-2">${jobType}</div>
+                        <div class="flex flex-wrap gap-2">`;
+                    
+                    jobs.forEach(job => {
+                        html += `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            job.has_profile ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                        }">
+                            ${job.name}
+                            ${job.has_profile ? '<span class="ml-1">✓</span>' : ''}
+                        </span>`;
+                    });
+                    
+                    html += `</div></div>`;
+                }
+                html += '</div></div>';
+            }
+            html += '</div>';
+        }
+        
+        container.innerHTML = html || '<p class="text-center text-gray-600 py-8">데이터가 없습니다.</p>';
+    }
+    </script>
+</body>
+</html>

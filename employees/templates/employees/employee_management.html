@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}직원 관리 - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modal 스타일 */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        background: white;
+        border-radius: 1rem;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .dark .modal-content {
+        background: #1f2937;
+    }
+    
+    /* 로딩 스피너 */
+    .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-radius: 50%;
+        border-top-color: #FF6B00;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* 필터 태그 */
+    .filter-tag {
+        display: inline-flex;
+        items-center;
+        padding: 0.25rem 0.75rem;
+        background: #FF6B00;
+        color: white;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        margin: 0.25rem;
+    }
+    
+    .filter-tag button {
+        margin-left: 0.5rem;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    
+    /* 카드 호버 효과 */
+    .employee-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    
+    .employee-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 107, 0, 0.15);
+    }
+    
+    /* 상태 배지 */
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-active { background: #10B981; color: white; }
+    .status-inactive { background: #EF4444; color: white; }
+    .status-leave { background: #F59E0B; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 페이지 헤더 -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold gradient-text mb-2">직원 관리</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-300">AI 기반 인재 분석으로 최적의 인력 배치와 육성 전략을 수립합니다</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button id="refreshBtn" class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors" aria-label="새로고침">
+                <i data-lucide="refresh-cw" class="w-5 h-5 inline mr-2"></i>
+                새로고침
+            </button>
+            <a href="{% url 'employees:employee_bulk_upload' %}" class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors" aria-label="일괄 등록">
+                <i data-lucide="upload" class="w-5 h-5 inline mr-2"></i>
+                일괄 등록
+            </a>
+            <button id="addEmployeeBtn" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-glow transition-all hover-lift" aria-label="새 직원 등록">
+                <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                새 직원 등록
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 필터 및 검색 영역 -->
+<div class="glass dark:glass-dark rounded-2xl p-6 mb-8 border border-gray-200/50 dark:border-gray-700/50">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <!-- 검색 -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">검색</label>
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="이름, 이메일, 직무로 검색..." class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all">
+                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+            </div>
+        </div>
+        
+        <!-- 부서 필터 -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">부서</label>
+            <select id="departmentFilter" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
+                <option value="">전체 부서</option>
+                <option value="IT">IT</option>
+                <option value="HR">인사</option>
+                <option value="FINANCE">재무</option>
+                <option value="MARKETING">마케팅</option>
+                <option value="SALES">영업</option>
+                <option value="OPERATIONS">운영</option>
+            </select>
+        </div>
+        
+        <!-- 직급 필터 -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">직급</label>
+            <select id="positionFilter" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
+                <option value="">전체 직급</option>
+                <option value="사원">사원</option>
+                <option value="선임">선임</option>
+                <option value="주임">주임</option>
+                <option value="대리">대리</option>
+                <option value="과장">과장</option>
+                <option value="차장">차장</option>
+                <option value="부장">부장</option>
+            </select>
+        </div>
+        
+        <!-- 재직상태 필터 -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">재직상태</label>
+            <select id="statusFilter" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
+                <option value="">전체</option>
+                <option value="재직">재직</option>
+                <option value="휴직">휴직</option>
+                <option value="파견">파견</option>
+                <option value="퇴직">퇴직</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- 활성 필터 표시 -->
+    <div id="activeFilters" class="flex flex-wrap items-center"></div>
+    
+    <!-- 액션 버튼 -->
+    <div class="flex items-center justify-between pt-4 border-t border-gray-200/30 dark:border-gray-700/30">
+        <div class="flex items-center space-x-3">
+            <button id="clearFiltersBtn" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+                <i data-lucide="x-circle" class="w-4 h-4 inline mr-1"></i>
+                필터 초기화
+            </button>
+            <span id="resultCount" class="text-sm text-gray-500 dark:text-gray-400">0명</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button id="viewToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="보기 방식 변경">
+                <i data-lucide="grid" class="w-5 h-5"></i>
+            </button>
+            <div class="flex items-center space-x-2">
+                <a href="{% url 'employees:employee_download_template' %}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors" title="템플릿 다운로드">
+                    <i data-lucide="file-down" class="w-4 h-4 inline mr-1"></i>
+                    템플릿
+                </a>
+                <button id="exportBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i data-lucide="download" class="w-4 h-4 inline mr-1"></i>
+                    내보내기
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 로딩 상태 -->
+<div id="loadingState" class="flex items-center justify-center py-12">
+    <div class="text-center">
+        <div class="loading mb-4"></div>
+        <p class="text-gray-500 dark:text-gray-400">직원 목록을 불러오는 중...</p>
+    </div>
+</div>
+
+<!-- 직원 목록 (카드 뷰) -->
+<div id="employeeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
+    <!-- 직원 카드들이 여기에 동적으로 추가됩니다 -->
+</div>
+
+<!-- 직원 목록 (테이블 뷰) -->
+<div id="employeeTable" class="glass dark:glass-dark rounded-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-800/50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">이름</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">부서</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">직급</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">직무</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">레벨</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">상태</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">액션</th>
+                </tr>
+            </thead>
+            <tbody id="employeeTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                <!-- 테이블 행들이 여기에 동적으로 추가됩니다 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 빈 상태 -->
+<div id="emptyState" class="text-center py-12 hidden">
+    <div class="max-w-md mx-auto">
+        <i data-lucide="users-x" class="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">직원이 없습니다</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">조건에 맞는 직원을 찾을 수 없습니다.</p>
+        <button id="addFirstEmployeeBtn" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-glow transition-all">
+            첫 번째 직원 등록하기
+        </button>
+    </div>
+</div>
+
+<!-- 페이지네이션 -->
+<div id="pagination" class="flex items-center justify-center mt-8 space-x-2 hidden">
+    <!-- 페이지네이션 버튼들이 여기에 동적으로 추가됩니다 -->
+</div>
+
+<!-- 직원 상세 모달 -->
+<div id="employeeDetailModal" class="modal" role="dialog" aria-labelledby="employeeDetailTitle" aria-hidden="true">
+    <div class="modal-content w-full max-w-4xl">
+        <div class="p-8">
+            <!-- 모달 헤더 -->
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 id="employeeDetailTitle" class="text-2xl font-bold text-gray-900 dark:text-white">직원 상세 정보</h2>
+                <div class="flex items-center space-x-2">
+                    <button id="editEmployeeBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
+                        수정
+                    </button>
+                    <button id="closeDetailModal" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" aria-label="닫기">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 모달 콘텐츠 -->
+            <div id="employeeDetailContent">
+                <!-- 직원 상세 정보가 여기에 동적으로 추가됩니다 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 직원 등록/수정 모달 -->
+<div id="employeeFormModal" class="modal" role="dialog" aria-labelledby="employeeFormTitle" aria-hidden="true">
+    <div class="modal-content w-full max-w-2xl">
+        <div class="p-8">
+            <!-- 모달 헤더 -->
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 id="employeeFormTitle" class="text-2xl font-bold text-gray-900 dark:text-white">새 직원 등록</h2>
+                <button id="closeFormModal" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" aria-label="닫기">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- 폼 -->
+            <form id="employeeForm">
+                <div id="employeeFormContent">
+                    <!-- 직원 등록/수정 폼이 여기에 동적으로 추가됩니다 -->
+                </div>
+                
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button type="button" id="cancelFormBtn" class="px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 rounded-xl hover:border-gray-300 transition-colors">
+                        취소
+                    </button>
+                    <button type="submit" id="submitFormBtn" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-glow transition-all">
+                        <span class="btn-text">등록</span>
+                        <div class="loading hidden ml-2"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/employee-management.js' %}"></script>
+{% endblock %}

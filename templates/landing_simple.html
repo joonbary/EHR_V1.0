@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OK Financial Group - AI-Powered HRM</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: #00d4ff;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .main-title {
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 60px;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            color: #00d4ff;
+            font-weight: 500;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .stat-card {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #00d4ff;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .feature-card {
+            padding: 40px 30px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: #00d4ff;
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .feature-desc {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .cta-container {
+            margin-top: 80px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 60px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: #00d4ff;
+            border: 2px solid #00d4ff;
+        }
+
+        .cta-button.secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .tech-stack {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tech-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tech-badge {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .airiss-section {
+            margin: 80px 0;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .airiss-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .airiss-header {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 40px;
+        }
+
+        .airiss-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .airiss-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .airiss-subtitle {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+        }
+
+        .airiss-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .airiss-feature {
+            text-align: left;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .airiss-feature:hover {
+            transform: translateX(10px);
+            border-color: #00d4ff;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .airiss-feature-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .airiss-feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #00d4ff;
+        }
+
+        .airiss-feature-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-button {
+                display: block;
+                width: 100%;
+                max-width: 300px;
+                margin: 10px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">OK Financial Group</div>
+        
+        <h1 class="main-title">
+            AI가 합류한<br>
+            새로운 인사정보시스템
+        </h1>
+        
+        <p class="subtitle">
+            <span class="highlight">1,700여명</span>의 임직원 데이터로 만드는<br>
+            <span class="highlight">AI 기반 통합 인사정보시스템</span>
+        </p>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">1,700+</div>
+                <div class="stat-label">임직원 데이터</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">7+</div>
+                <div class="stat-label">AI 기능</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">95%</div>
+                <div class="stat-label">업무 자동화</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">실시간 분석</div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3 class="feature-title">AI 채용 분석</h3>
+                <p class="feature-desc">
+                    이력서 자동 분석부터 적합도 평가까지,
+                    AI가 최적의 인재를 찾아드립니다
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">성과 예측 모델</h3>
+                <p class="feature-desc">
+                    과거 데이터를 기반으로 미래 성과를 예측하고
+                    선제적 인사 전략을 수립합니다
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">조직 최적화</h3>
+                <p class="feature-desc">
+                    팀 구성과 인력 배치를 AI가 분석하여
+                    최고의 시너지를 만들어냅니다
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3 class="feature-title">인재 추천 시스템</h3>
+                <p class="feature-desc">
+                    프로젝트와 직무에 최적화된
+                    내부 인재를 실시간으로 매칭합니다
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3 class="feature-title">이탈 위험 관리</h3>
+                <p class="feature-desc">
+                    핵심 인재의 이탈 징후를 사전에 감지하고
+                    맞춤형 리텐션 전략을 제시합니다
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3 class="feature-title">실시간 대시보드</h3>
+                <p class="feature-desc">
+                    모든 HR 지표를 한눈에 파악하고
+                    데이터 기반 의사결정을 지원합니다
+                </p>
+            </div>
+        </div>
+
+        <!-- AIRISS Section -->
+        <div class="airiss-section">
+            <div class="airiss-header">
+                <span class="airiss-badge">MSA Architecture</span>
+                <h2 class="airiss-title">AIRISS</h2>
+                <p class="airiss-subtitle">
+                    AI Result & Intelligence Scoring System<br>
+                    마이크로서비스 아키텍처로 구현된 차세대 AI 평가 엔진
+                </p>
+            </div>
+            
+            <div class="airiss-features">
+                <div class="airiss-feature">
+                    <div class="airiss-feature-icon">⚡</div>
+                    <div class="airiss-feature-title">실시간 스코어링</div>
+                    <div class="airiss-feature-desc">
+                        모든 HR 데이터를 실시간으로 분석하여 
+                        즉각적인 인사이트 제공
+                    </div>
+                </div>
+                
+                <div class="airiss-feature">
+                    <div class="airiss-feature-icon">🔄</div>
+                    <div class="airiss-feature-title">독립적 확장성</div>
+                    <div class="airiss-feature-desc">
+                        MSA 구조로 각 모듈이 독립적으로 
+                        확장 및 업데이트 가능
+                    </div>
+                </div>
+                
+                <div class="airiss-feature">
+                    <div class="airiss-feature-icon">🎯</div>
+                    <div class="airiss-feature-title">정밀한 평가 모델</div>
+                    <div class="airiss-feature-desc">
+                        다차원 평가 매트릭스로 
+                        객관적이고 공정한 평가 실현
+                    </div>
+                </div>
+                
+                <div class="airiss-feature">
+                    <div class="airiss-feature-icon">🔗</div>
+                    <div class="airiss-feature-title">완벽한 통합</div>
+                    <div class="airiss-feature-desc">
+                        기존 HRM 시스템과 
+                        RESTful API로 완벽하게 통합
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-container">
+            <a href="/home/" class="cta-button">시스템 체험하기</a>
+            <a href="/ai/" class="cta-button secondary">AI 대시보드 보기</a>
+        </div>
+
+        <div class="tech-stack">
+            <h3 style="margin-bottom: 20px; font-size: 24px;">엔터프라이즈급 기술 스택</h3>
+            <div class="tech-badges">
+                <span class="tech-badge">Django 5.0</span>
+                <span class="tech-badge">PostgreSQL</span>
+                <span class="tech-badge">Machine Learning</span>
+                <span class="tech-badge">Real-time Analytics</span>
+                <span class="tech-badge">Cloud Native</span>
+                <span class="tech-badge">RESTful API</span>
+                <span class="tech-badge">Data Security</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+import pandas as pd
+import random
+from datetime import date, timedelta
+
+# 데이터 생성
+data = []
+departments = ['IT', 'HR', 'FINANCE', 'MARKETING', 'SALES', 'OPERATIONS']
+positions = ['INTERN', 'STAFF', 'SENIOR', 'MANAGER', 'DIRECTOR', 'EXECUTIVE']
+
+korean_last_names = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임']
+korean_first_names = ['민준', '서연', '도윤', '서윤', '시우', '지우', '하준', '서현', '지호', '민서']
+
+for i in range(1, 1791):  # 1790명
+    last_name = random.choice(korean_last_names)
+    first_name = random.choice(korean_first_names)
+    
+    data.append({
+        'name': f"{last_name}{first_name}",
+        'email': f"emp{i:04d}@okfg.co.kr",
+        'phone': f"010-{random.randint(1000,9999)}-{random.randint(1000,9999)}",
+        'department': random.choice(departments),
+        'position': random.choice(positions),
+        'hire_date': (date.today() - timedelta(days=random.randint(30, 3650))).strftime('%Y-%m-%d'),
+        'address': f"서울시 {random.choice(['강남구', '서초구', '송파구'])} {random.randint(1,100)}길 {random.randint(1,50)}"
+    })
+
+# DataFrame 생성 및 엑셀 저장
+df = pd.DataFrame(data)
+df.to_excel('sample_employees.xlsx', index=False, engine='openpyxl')
+print(f"엑셀 파일 생성 완료: {len(data)}명")

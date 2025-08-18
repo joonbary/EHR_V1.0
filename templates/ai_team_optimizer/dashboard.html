@@ -1,0 +1,411 @@
+{% extends 'ai_base.html' %}
+{% load static %}
+
+{% block title %}팀 조합 최적화 - AI Quick Win{% endblock %}
+
+{% block breadcrumb %}
+<div class="px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <nav aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm">
+            <li>
+                <a href="{% url 'home' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <a href="{% url 'ai_quickwin:dashboard' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    AI Quick Win
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">팀 조합 최적화</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .optimizer-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .optimizer-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(255, 107, 0, 0.15);
+    }
+    
+    .team-member-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: move;
+    }
+    
+    .team-member-card:hover {
+        border-color: #FF6B00;
+        background: white;
+    }
+    
+    .team-member-card.dragging {
+        opacity: 0.5;
+    }
+    
+    .drop-zone {
+        min-height: 200px;
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .drop-zone.drag-over {
+        border-color: #FF6B00;
+        background: rgba(255, 107, 0, 0.05);
+    }
+    
+    .synergy-score {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .skill-tag {
+        display: inline-block;
+        padding: 4px 12px;
+        background: rgba(255, 107, 0, 0.1);
+        color: #FF6B00;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 2px;
+    }
+    
+    .performance-bar {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .performance-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #FF6B00, #FFAA00);
+        border-radius: 4px;
+        transition: width 0.6s ease;
+    }
+    
+    .recommendation-card {
+        background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border-left: 4px solid #FF6B00;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">팀 조합 최적화</h1>
+                <p class="text-sm text-gray-600 mt-1">AI 기반 최적의 팀 구성 추천</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                    조합 저장
+                </button>
+                <button class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all" onclick="optimizeTeam()">
+                    <i data-lucide="zap" class="w-4 h-4 inline mr-2"></i>
+                    AI 최적화
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="p-6">
+        <!-- 핵심 지표 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="optimizer-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">팀 시너지 점수</span>
+                    <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i>
+                </div>
+                <div class="synergy-score">87%</div>
+                <p class="text-gray-500 text-xs mt-2">이상적 수준</p>
+            </div>
+            
+            <div class="optimizer-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">스킬 커버리지</span>
+                    <i data-lucide="target" class="w-5 h-5 text-blue-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">92%</div>
+                <p class="text-gray-500 text-xs mt-2">필수 역량 충족</p>
+            </div>
+            
+            <div class="optimizer-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">협업 지수</span>
+                    <i data-lucide="users" class="w-5 h-5 text-purple-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">4.5</div>
+                <p class="text-gray-500 text-xs mt-2">5점 만점</p>
+            </div>
+            
+            <div class="optimizer-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-600 text-sm">예상 성과</span>
+                    <i data-lucide="award" class="w-5 h-5 text-yellow-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">+23%</div>
+                <p class="text-gray-500 text-xs mt-2">현재 대비 상승</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 팀 구성 영역 -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-lg font-semibold mb-4">팀 구성</h2>
+                    
+                    <!-- 현재 팀 -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">현재 팀 멤버</h3>
+                        <div class="drop-zone" id="current-team">
+                            <div class="team-member-card" draggable="true">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                            KH
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">김현수</p>
+                                            <p class="text-xs text-gray-500">프론트엔드 개발자</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-semibold text-gray-700">성과 85%</div>
+                                        <div class="performance-bar mt-1" style="width: 60px;">
+                                            <div class="performance-fill" style="width: 85%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="skill-tag">React</span>
+                                    <span class="skill-tag">TypeScript</span>
+                                    <span class="skill-tag">UI/UX</span>
+                                </div>
+                            </div>
+                            
+                            <div class="team-member-card" draggable="true">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                            PJ
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">박지영</p>
+                                            <p class="text-xs text-gray-500">백엔드 개발자</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-semibold text-gray-700">성과 90%</div>
+                                        <div class="performance-bar mt-1" style="width: 60px;">
+                                            <div class="performance-fill" style="width: 90%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="skill-tag">Java</span>
+                                    <span class="skill-tag">Spring</span>
+                                    <span class="skill-tag">Database</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 추천 멤버 풀 -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">추천 멤버 풀</h3>
+                        <div class="drop-zone" id="member-pool">
+                            <div class="team-member-card" draggable="true">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                            LM
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">이민준</p>
+                                            <p class="text-xs text-gray-500">DevOps 엔지니어</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-semibold text-gray-700">성과 88%</div>
+                                        <div class="performance-bar mt-1" style="width: 60px;">
+                                            <div class="performance-fill" style="width: 88%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="skill-tag">AWS</span>
+                                    <span class="skill-tag">Docker</span>
+                                    <span class="skill-tag">CI/CD</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI 추천 영역 -->
+            <div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-lg font-semibold mb-4">AI 추천</h2>
+                    
+                    <div class="recommendation-card">
+                        <h3 class="font-medium text-gray-900 mb-2">
+                            <i data-lucide="lightbulb" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            최적 조합 제안
+                        </h3>
+                        <p class="text-sm text-gray-700 mb-2">
+                            DevOps 엔지니어 추가 시 배포 효율성 35% 향상 예상
+                        </p>
+                        <button class="text-sm text-orange-600 font-medium hover:text-orange-700">
+                            적용하기 →
+                        </button>
+                    </div>
+                    
+                    <div class="recommendation-card">
+                        <h3 class="font-medium text-gray-900 mb-2">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 inline text-orange-500 mr-1"></i>
+                            스킬 갭 발견
+                        </h3>
+                        <p class="text-sm text-gray-700 mb-2">
+                            데이터 분석 역량이 부족합니다. 데이터 사이언티스트 추가 권장
+                        </p>
+                        <button class="text-sm text-orange-600 font-medium hover:text-orange-700">
+                            인재 검색 →
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">팀 밸런스 분석</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>기술 다양성</span>
+                                    <span class="font-medium">85%</span>
+                                </div>
+                                <div class="performance-bar">
+                                    <div class="performance-fill" style="width: 85%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>경험 레벨</span>
+                                    <span class="font-medium">78%</span>
+                                </div>
+                                <div class="performance-bar">
+                                    <div class="performance-fill" style="width: 78%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>협업 성향</span>
+                                    <span class="font-medium">92%</span>
+                                </div>
+                                <div class="performance-bar">
+                                    <div class="performance-fill" style="width: 92%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Drag and Drop functionality
+    let draggedElement = null;
+    
+    document.querySelectorAll('.team-member-card').forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+        });
+        
+        card.addEventListener('dragend', function(e) {
+            this.classList.remove('dragging');
+        });
+    });
+    
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        
+        zone.addEventListener('dragleave', function(e) {
+            this.classList.remove('drag-over');
+        });
+        
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (draggedElement) {
+                this.appendChild(draggedElement);
+                updateTeamAnalysis();
+            }
+        });
+    });
+});
+
+function optimizeTeam() {
+    // Simulate AI optimization
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i data-lucide="loader" class="w-4 h-4 inline mr-2 animate-spin"></i>최적화 중...';
+    
+    setTimeout(() => {
+        button.disabled = false;
+        button.innerHTML = '<i data-lucide="zap" class="w-4 h-4 inline mr-2"></i>AI 최적화';
+        lucide.createIcons();
+        
+        // Update synergy score with animation
+        const synergyElement = document.querySelector('.synergy-score');
+        synergyElement.textContent = '94%';
+        
+        alert('팀 구성이 최적화되었습니다!');
+    }, 2000);
+}
+
+function updateTeamAnalysis() {
+    // Update team analysis when members are moved
+    console.log('Team composition updated');
+}
+</script>
+{% endblock %}

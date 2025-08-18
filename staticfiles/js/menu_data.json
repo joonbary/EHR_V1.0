@@ -1,0 +1,278 @@
+{
+  "mainMenu": [
+    {
+      "id": "dashboard",
+      "name": "대시보드",
+      "icon": "layout-dashboard",
+      "url": "/",
+      "color": "primary",
+      "description": "전체 HR 현황과 주요 지표"
+    },
+    {
+      "id": "employees",
+      "name": "직원관리",
+      "icon": "users",
+      "url": "/employees/",
+      "color": "blue",
+      "description": "직원 정보, 입/퇴사, 근태 관리",
+      "subMenu": [
+        {
+          "id": "employee-list",
+          "name": "직원 목록",
+          "icon": "list",
+          "url": "/employees/"
+        },
+        {
+          "id": "employee-add",
+          "name": "직원 등록",
+          "icon": "user-plus",
+          "url": "/employees/create/"
+        },
+        {
+          "id": "attendance",
+          "name": "근태 관리",
+          "icon": "clock",
+          "url": "/employees/attendance/"
+        },
+        {
+          "id": "employee-bulk-upload",
+          "name": "대량 업로드",
+          "icon": "upload",
+          "url": "/employees/bulk-upload/"
+        }
+      ]
+    },
+    {
+      "id": "evaluations",
+      "name": "평가관리",
+      "icon": "clipboard-check",
+      "url": "/evaluations/",
+      "color": "green",
+      "description": "목표 설정, 성과평가, 피드백",
+      "subMenu": [
+        {
+          "id": "evaluation-dashboard",
+          "name": "평가 대시보드",
+          "icon": "activity",
+          "url": "/evaluations/"
+        },
+        {
+          "id": "goal-setting",
+          "name": "목표 설정",
+          "icon": "target",
+          "url": "/evaluations/goals/"
+        },
+        {
+          "id": "performance-review",
+          "name": "성과 평가",
+          "icon": "award",
+          "url": "/evaluations/reviews/"
+        },
+        {
+          "id": "feedback",
+          "name": "피드백 관리",
+          "icon": "message-square",
+          "url": "/evaluations/feedback/"
+        }
+      ]
+    },
+    {
+      "id": "compensation",
+      "name": "보상관리",
+      "icon": "coins",
+      "url": "/compensation/",
+      "color": "yellow",
+      "description": "급여, 보너스, 복리후생",
+      "subMenu": [
+        {
+          "id": "compensation-dashboard",
+          "name": "보상 대시보드",
+          "icon": "chart-bar",
+          "url": "/compensation/"
+        },
+        {
+          "id": "salary-management",
+          "name": "급여 관리",
+          "icon": "wallet",
+          "url": "/compensation/salary/"
+        },
+        {
+          "id": "bonus-management",
+          "name": "보너스 관리",
+          "icon": "gift",
+          "url": "/compensation/bonus/"
+        },
+        {
+          "id": "benefits",
+          "name": "복리후생",
+          "icon": "heart",
+          "url": "/compensation/benefits/"
+        }
+      ]
+    },
+    {
+      "id": "organization",
+      "name": "조직관리",
+      "icon": "building",
+      "url": "/employees/organization-chart/",
+      "color": "orange",
+      "description": "조직도, 부서, 직위 관리",
+      "subMenu": [
+        {
+          "id": "org-chart",
+          "name": "조직도",
+          "icon": "git-branch",
+          "url": "/employees/organization-chart/"
+        },
+        {
+          "id": "department-management",
+          "name": "부서 관리",
+          "icon": "folder",
+          "url": "/organization/departments/"
+        },
+        {
+          "id": "position-management",
+          "name": "직위 관리",
+          "icon": "shield",
+          "url": "/organization/positions/"
+        },
+        {
+          "id": "job-profiles",
+          "name": "직무 체계도",
+          "icon": "sitemap",
+          "url": "/job-profiles/"
+        }
+      ]
+    },
+    {
+      "id": "recruitment",
+      "name": "채용관리",
+      "icon": "user-check",
+      "url": "/recruitment/",
+      "color": "purple",
+      "description": "채용공고, 지원자, 면접 관리",
+      "subMenu": [
+        {
+          "id": "recruitment-dashboard",
+          "name": "채용 대시보드",
+          "icon": "trending-up",
+          "url": "/recruitment/"
+        },
+        {
+          "id": "job-postings",
+          "name": "채용 공고",
+          "icon": "file-text",
+          "url": "/recruitment/postings/"
+        },
+        {
+          "id": "applicants",
+          "name": "지원자 관리",
+          "icon": "users-2",
+          "url": "/recruitment/applicants/"
+        },
+        {
+          "id": "interviews",
+          "name": "면접 일정",
+          "icon": "calendar",
+          "url": "/recruitment/interviews/"
+        }
+      ]
+    },
+    {
+      "id": "airiss",
+      "name": "AIRISS",
+      "icon": "brain",
+      "url": "/airiss/",
+      "color": "pink",
+      "description": "AI 기반 HR 분석 및 인사이트",
+      "subMenu": [
+        {
+          "id": "ai-dashboard",
+          "name": "AI 대시보드",
+          "icon": "bot",
+          "url": "/airiss/"
+        },
+        {
+          "id": "talent-analytics",
+          "name": "인재 분석",
+          "icon": "pie-chart",
+          "url": "/airiss/talent/"
+        },
+        {
+          "id": "predictive-insights",
+          "name": "예측 인사이트",
+          "icon": "zap",
+          "url": "/airiss/insights/"
+        },
+        {
+          "id": "ai-recommendations",
+          "name": "AI 추천",
+          "icon": "sparkles",
+          "url": "/airiss/recommendations/"
+        }
+      ]
+    }
+  ],
+  "analysisTools": [
+    {
+      "id": "leader-kpi",
+      "name": "경영진 KPI",
+      "icon": "trending-up",
+      "url": "/leader-kpi-dashboard/",
+      "color": "purple"
+    },
+    {
+      "id": "workforce-comp",
+      "name": "인력/보상 현황",
+      "icon": "users-2",
+      "url": "/workforce-comp-dashboard/",
+      "color": "indigo"
+    },
+    {
+      "id": "skillmap",
+      "name": "스킬맵",
+      "icon": "network",
+      "url": "/skillmap-dashboard/",
+      "color": "pink"
+    }
+  ],
+  "aiTools": [
+    {
+      "id": "ai-chatbot",
+      "name": "AI 챗봇",
+      "icon": "bot",
+      "url": "/ai-chatbot/",
+      "color": "primary"
+    },
+    {
+      "id": "leader-ai-assistant",
+      "name": "리더 AI 어시스턴트",
+      "icon": "brain",
+      "url": "/leader-ai-assistant/",
+      "color": "orange"
+    }
+  ],
+  "selfService": [
+    {
+      "id": "my-info",
+      "name": "내 정보",
+      "icon": "user",
+      "url": "/selfservice/",
+      "color": "gray"
+    },
+    {
+      "id": "my-evaluations",
+      "name": "내 평가",
+      "icon": "award",
+      "url": "/selfservice/evaluations/",
+      "color": "gray"
+    },
+    {
+      "id": "my-compensation",
+      "name": "내 보상",
+      "icon": "wallet",
+      "url": "/selfservice/compensation/",
+      "color": "gray"
+    }
+  ]
+}

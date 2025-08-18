@@ -1,0 +1,979 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}AI 스마트 코칭 - 혁신적 맞춤형 성장 도우미{% endblock %}
+
+{% block page_header %}AI Coaching Intelligence{% endblock %}
+
+{% block content_title %}AI 스마트 코칭{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    개인별 맞춤형 성장 경로와 
+    <span style="color: #00d4ff; font-weight: 600;">실시간 AI 코칭</span>을 경험하세요
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 혁신적 코칭 허브 히어로 섹션 */
+    .coaching-hero-section {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 30px;
+        padding: 3rem 2.5rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+    
+    .coaching-hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .coaching-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border-radius: 50px;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+    }
+
+    .coaching-title {
+        font-size: 42px;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #fff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* 코칭 통계 그리드 */
+    .coaching-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .coaching-stat-card {
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .coaching-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(240, 147, 251, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .coaching-stat-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(240, 147, 251, 0.3);
+        box-shadow: 0 20px 40px rgba(240, 147, 251, 0.3);
+    }
+
+    .coaching-stat-card:hover::before {
+        left: 100%;
+    }
+
+    .coaching-stat-icon {
+        font-size: 48px;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .coaching-stat-value {
+        font-size: 36px;
+        font-weight: 800;
+        color: #f093fb;
+        margin-bottom: 0.8rem;
+        text-shadow: 0 0 20px rgba(240, 147, 251, 0.5);
+    }
+
+    .coaching-stat-label {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    /* AI 챗봇 컨테이너 */
+    .ai-chat-container {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ai-chat-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        opacity: 0.8;
+    }
+
+    .chat-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-ai-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 18px;
+    }
+
+    .chat-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+    }
+
+    .chat-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 14px;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        scrollbar-width: thin;
+    }
+
+    .chat-message {
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        animation: fadeInUp 0.5s ease;
+    }
+
+    .chat-message.user {
+        flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .chat-message.ai .message-avatar {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+    }
+
+    .chat-message.user .message-avatar {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+    }
+
+    .message-content {
+        max-width: 75%;
+        padding: 1rem 1.5rem;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.6;
+    }
+
+    .chat-message.user .message-content {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
+        border-color: rgba(0, 212, 255, 0.3);
+    }
+
+    .chat-input-container {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        color: #ffffff;
+        transition: all 0.3s ease;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: #00d4ff;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    .chat-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .chat-send-btn {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chat-send-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 10px 20px rgba(240, 147, 251, 0.3);
+    }
+
+    /* 코칭 추천 시스템 */
+    .coaching-recommendations {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .recommendations-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .recommendation-card {
+        background: rgba(240, 147, 251, 0.05);
+        border: 1px solid rgba(240, 147, 251, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .recommendation-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .recommendation-card:hover {
+        transform: translateX(8px);
+        border-color: #f093fb;
+        background: rgba(240, 147, 251, 0.1);
+        box-shadow: 0 10px 20px rgba(240, 147, 251, 0.2);
+    }
+
+    .recommendation-card:hover::before {
+        transform: scaleY(1);
+    }
+
+    .recommendation-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .recommendation-icon {
+        font-size: 20px;
+        color: #f093fb;
+    }
+
+    .recommendation-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .recommendation-description {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    /* 성장 목표 트래킹 */
+    .growth-goals {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+    }
+
+    .goals-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .goal-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .goal-card:hover {
+        transform: translateY(-3px);
+        border-color: #00d4ff;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .goal-card.completed {
+        border-color: rgba(0, 255, 136, 0.3);
+        background: rgba(0, 255, 136, 0.1);
+    }
+
+    .goal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .goal-title {
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .goal-status {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .goal-status.completed {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .goal-status.in-progress {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .goal-status.upcoming {
+        background: rgba(108, 117, 125, 0.2);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.3);
+    }
+
+    .goal-progress {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .goal-progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        border-radius: 3px;
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .goal-description {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 12px;
+    }
+
+    .add-goal-btn {
+        width: 100%;
+        padding: 15px;
+        background: transparent;
+        border: 2px dashed rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        color: rgba(0, 212, 255, 0.8);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+
+    .add-goal-btn:hover {
+        border-color: #00d4ff;
+        color: #00d4ff;
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 1024px) {
+        .main-content-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .ai-chat-container {
+            height: 500px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .coaching-hero-section {
+            padding: 2rem 1.5rem;
+        }
+        
+        .coaching-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .ai-chat-container {
+            height: 400px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .coaching-stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 혁신적 코칭 허브 히어로 섹션 -->
+<div class="coaching-hero-section animate-fadeInUp">
+    <div class="hero-content">
+        <span class="coaching-badge">Personal AI Coach</span>
+        <h1 class="coaching-title animate-glow">AI 스마트 코칭</h1>
+        <p style="font-size: 18px; color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem; line-height: 1.6;">
+            개인별 맞춤형 성장 경로와 실시간 AI 피드백으로 당신의 잠재력을 깨워보세요
+        </p>
+    </div>
+</div>
+
+<!-- 코칭 핵심 통계 -->
+<div class="coaching-stats-grid">
+    <div class="coaching-stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
+        <span class="coaching-stat-icon">💬</span>
+        <div class="coaching-stat-value">124</div>
+        <div class="coaching-stat-label">이번 달 코칭 세션</div>
+    </div>
+    
+    <div class="coaching-stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
+        <span class="coaching-stat-icon">⭐</span>
+        <div class="coaching-stat-value">4.8</div>
+        <div class="coaching-stat-label">평균 만족도</div>
+    </div>
+    
+    <div class="coaching-stat-card animate-fadeInUp" style="animation-delay: 0.3s;">
+        <span class="coaching-stat-icon">🎯</span>
+        <div class="coaching-stat-value">78%</div>
+        <div class="coaching-stat-label">목표 달성률</div>
+    </div>
+    
+    <div class="coaching-stat-card animate-fadeInUp" style="animation-delay: 0.4s;">
+        <span class="coaching-stat-icon">👥</span>
+        <div class="coaching-stat-value">342</div>
+        <div class="coaching-stat-label">주간 활성 사용자</div>
+    </div>
+</div>
+
+<!-- 메인 콘텐츠 영역 -->
+<div class="main-content-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-top: 3rem;">
+    <!-- AI 코칭 챗봇 -->
+    <div class="ai-chat-container animate-slideInLeft">
+        <div class="chat-header">
+            <div class="chat-ai-avatar">AI</div>
+            <div>
+                <div class="chat-title">AI 코칭 어시스턴트</div>
+                <div class="chat-subtitle">24/7 개인 맞춤형 코칭 서비스</div>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-message ai">
+                <div class="message-avatar">AI</div>
+                <div class="message-content">
+                    <p style="font-weight: 600; margin-bottom: 0.5rem; color: #f093fb;">코칭 어시스턴트</p>
+                    <p>안녕하세요! 오늘은 어떤 성장의 기회를 만들어볼까요? 업무 스킬 향상부터 리더십 개발까지, 당신만의 성장 스토리를 함께 써나가겠습니다. 🚀</p>
+                </div>
+            </div>
+            
+            <div class="chat-message user">
+                <div class="message-avatar">나</div>
+                <div class="message-content">
+                    <p>최근 팀 리더로 승진했는데, 팀원들과의 소통이 어렵습니다. 어떻게 하면 더 효과적으로 소통할 수 있을까요?</p>
+                </div>
+            </div>
+            
+            <div class="chat-message ai">
+                <div class="message-avatar">AI</div>
+                <div class="message-content">
+                    <p style="font-weight: 600; margin-bottom: 0.8rem; color: #f093fb;">축하드립니다! 🎉</p>
+                    <p style="margin-bottom: 1rem;">새로운 리더십 역할에서의 도전은 성장의 기회입니다. 효과적인 팀 소통을 위한 실천 방안을 제안드릴게요:</p>
+                    <ul style="line-height: 1.8; padding-left: 1rem;">
+                        <li>• <strong>정기적인 1:1 미팅</strong> - 개인적 관계 구축</li>
+                        <li>• <strong>팀원 강점 파악</strong> - 개인별 동기와 관심사 이해</li>
+                        <li>• <strong>투명한 의사결정</strong> - 결정 과정 공유로 신뢰 구축</li>
+                        <li>• <strong>적극적 경청</strong> - 피드백 문화 조성</li>
+                    </ul>
+                    <p style="margin-top: 1rem; color: rgba(255, 255, 255, 0.8);">더 구체적인 상황에 대해 이야기해주시면 맞춤형 조언을 드릴 수 있습니다!</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" placeholder="코칭 질문이나 고민을 자유롭게 말씀해주세요..." id="chat-input">
+            <button class="chat-send-btn" onclick="sendMessage()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 코칭 사이드바 -->
+    <div>
+        <!-- AI 추천 코칭 -->
+        <div class="coaching-recommendations animate-slideInRight">
+            <h2 class="recommendations-title">
+                <span>🎯</span>
+                오늘의 추천 코칭
+            </h2>
+            
+            <div class="recommendation-card" onclick="startCoaching('leadership')">
+                <div class="recommendation-header">
+                    <span class="recommendation-icon">👑</span>
+                    <span class="recommendation-title">리더십 스킬 향상</span>
+                </div>
+                <p class="recommendation-description">
+                    팀 리더를 위한 효과적인 커뮤니케이션과 의사결정 전략을 학습하세요
+                </p>
+            </div>
+            
+            <div class="recommendation-card" onclick="startCoaching('productivity')">
+                <div class="recommendation-header">
+                    <span class="recommendation-icon">⚡</span>
+                    <span class="recommendation-title">생산성 최적화</span>
+                </div>
+                <p class="recommendation-description">
+                    시간 관리, 우선순위 설정, 업무 효율성 극대화 기법을 익혀보세요
+                </p>
+            </div>
+            
+            <div class="recommendation-card" onclick="startCoaching('stress')">
+                <div class="recommendation-header">
+                    <span class="recommendation-icon">💚</span>
+                    <span class="recommendation-title">스트레스 관리</span>
+                </div>
+                <p class="recommendation-description">
+                    업무 스트레스 해소와 워라밸 개선을 통한 지속가능한 성장 방법
+                </p>
+            </div>
+        </div>
+        
+        <!-- 개인 성장 목표 -->
+        <div class="growth-goals animate-slideInRight" style="animation-delay: 0.2s;">
+            <h2 class="goals-title">
+                <span>🌟</span>
+                나의 성장 목표
+            </h2>
+            
+            <div class="goal-card completed">
+                <div class="goal-header">
+                    <span class="goal-title">프레젠테이션 스킬</span>
+                    <span class="goal-status completed">완료</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill" data-width="100" style="width: 100%; background: linear-gradient(135deg, #00ff88, #00d4aa);"></div>
+                </div>
+                <p class="goal-description">✅ 완료 • 2주 소요 • 발표 자신감 대폭 향상!</p>
+            </div>
+            
+            <div class="goal-card">
+                <div class="goal-header">
+                    <span class="goal-title">갈등 관리 능력</span>
+                    <span class="goal-status in-progress">진행중</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill" data-width="65" style="width: 65%;"></div>
+                </div>
+                <p class="goal-description">⏳ 65% 완료 • 3일 남음 • 팀 내 갈등 해결 실습 중</p>
+            </div>
+            
+            <div class="goal-card">
+                <div class="goal-header">
+                    <span class="goal-title">데이터 분석 역량</span>
+                    <span class="goal-status upcoming">예정</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill" data-width="0" style="width: 0%;"></div>
+                </div>
+                <p class="goal-description">📅 다음 주 시작 • Excel & Power BI 집중 과정</p>
+            </div>
+            
+            <button class="add-goal-btn" onclick="addNewGoal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                새 성장 목표 설정
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize progress bars animation
+    setTimeout(() => {
+        document.querySelectorAll('.goal-progress-fill').forEach(bar => {
+            const targetWidth = bar.getAttribute('data-width') + '%';
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = targetWidth;
+            }, 200);
+        });
+    }, 500);
+    
+    // Auto-scroll chat to bottom
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Enhanced hover effects for coaching cards
+    const coachingCards = document.querySelectorAll('.coaching-stat-card');
+    coachingCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-12px) scale(1.03)';
+            const value = this.querySelector('.coaching-stat-value');
+            if (value) {
+                value.style.textShadow = '0 0 30px rgba(240, 147, 251, 0.8)';
+                value.style.transform = 'scale(1.1)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            const value = this.querySelector('.coaching-stat-value');
+            if (value) {
+                value.style.textShadow = '0 0 20px rgba(240, 147, 251, 0.5)';
+                value.style.transform = 'scale(1)';
+            }
+        });
+    });
+    
+    // Enhanced recommendation card animations
+    const recommendationCards = document.querySelectorAll('.recommendation-card');
+    recommendationCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(12px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0) scale(1)';
+        });
+    });
+});
+
+// Move sendMessage to global scope so onclick can access it
+window.sendMessage = function() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Add user message with animation
+    const userMessage = document.createElement('div');
+    userMessage.className = 'chat-message user';
+    userMessage.innerHTML = `
+        <div class="message-avatar">나</div>
+        <div class="message-content">
+            <p>${message}</p>
+        </div>
+    `;
+    userMessage.style.opacity = '0';
+    userMessage.style.transform = 'translateY(20px)';
+    chatMessages.appendChild(userMessage);
+    
+    // Animate user message
+    setTimeout(() => {
+        userMessage.style.transition = 'all 0.3s ease';
+        userMessage.style.opacity = '1';
+        userMessage.style.transform = 'translateY(0)';
+    }, 50);
+    
+    // Clear input
+    input.value = '';
+    
+    // Scroll to bottom
+    setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 100);
+    
+    // Show typing indicator
+    setTimeout(() => {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'chat-message ai';
+        typingIndicator.id = 'typing-indicator';
+        typingIndicator.innerHTML = `
+            <div class="message-avatar">AI</div>
+            <div class="message-content">
+                <p style="color: #f093fb; font-style: italic;">
+                    <span style="display: inline-block; animation: pulse 1.5s infinite;">AI가 분석 중입니다</span>
+                    <span style="animation: blink 1s infinite;">...</span>
+                </p>
+            </div>
+        `;
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 500);
+    
+    // Simulate AI response
+    setTimeout(() => {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+        
+        const aiResponse = getSmartCoachingResponse(message);
+        const aiMessage = document.createElement('div');
+        aiMessage.className = 'chat-message ai';
+        aiMessage.innerHTML = `
+            <div class="message-avatar">AI</div>
+            <div class="message-content">
+                <p style="font-weight: 600; margin-bottom: 0.5rem; color: #f093fb;">맞춤형 코칭 답변</p>
+                <p>${aiResponse}</p>
+            </div>
+        `;
+        aiMessage.style.opacity = '0';
+        aiMessage.style.transform = 'translateY(20px)';
+        chatMessages.appendChild(aiMessage);
+        
+        // Animate AI message
+        setTimeout(() => {
+            aiMessage.style.transition = 'all 0.3s ease';
+            aiMessage.style.opacity = '1';
+            aiMessage.style.transform = 'translateY(0)';
+        }, 50);
+        
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 2500);
+}
+
+function getSmartCoachingResponse(message) {
+    const responses = {
+        '리더십': '리더십은 지속적인 학습과 실천의 과정입니다. 팀원들과의 신뢰 관계를 구축하고, 비전을 명확히 제시하며, 개별 맞춤형 동기부여 방법을 찾아보세요. 작은 성공을 함께 축하하고, 실패에서도 배움의 기회를 만드는 것이 핵심입니다.',
+        '소통': '효과적인 소통의 핵심은 경청입니다. 상대방의 관점을 이해하려 노력하고, 명확하고 간결한 메시지 전달, 그리고 적절한 피드백을 통해 소통의 질을 높일 수 있습니다. 정기적인 팀 미팅과 개별 면담을 병행해보세요.',
+        '시간관리': '시간 관리는 우선순위 관리입니다. 중요하고 긴급한 일부터 처리하고, 업무를 작은 단위로 나누어 실행하세요. 방해 요소를 최소화하고, 집중 시간을 확보하는 것이 생산성 향상의 열쇠입니다.',
+        '스트레스': '스트레스 관리를 위해서는 적절한 휴식과 운동, 그리고 명상이나 호흡법 같은 릴렉스 기법을 활용해보세요. 업무와 개인 시간의 경계를 명확히 하고, 지지적인 동료들과의 관계를 유지하는 것도 중요합니다.',
+        '목표': 'SMART 목표 설정법을 활용해보세요. 구체적(Specific), 측정가능(Measurable), 달성가능(Achievable), 관련성(Relevant), 시간제한(Time-bound)한 목표를 설정하고, 정기적으로 진행상황을 점검하며 필요시 조정하세요.',
+        '팀워크': '팀워크 향상을 위해서는 각 팀원의 강점을 파악하고 활용하며, 공통의 목표와 비전을 공유하는 것이 중요합니다. 정기적인 팀 빌딩 활동과 열린 소통 문화를 조성해보세요.'
+    };
+    
+    // 키워드 매칭
+    for (const [key, response] of Object.entries(responses)) {
+        if (message.includes(key)) {
+            return response;
+        }
+    }
+    
+    // 기본 응답
+    return '흥미로운 질문이네요! 더 구체적인 상황을 말씀해주시면 맞춤형 코칭 조언을 드릴 수 있습니다. 예를 들어, 언제, 어디서, 어떤 상황에서 이런 고민이 생겼는지 자세히 설명해주세요. 함께 해결책을 찾아보겠습니다! 💪';
+}
+
+window.startCoaching = function(topic) {
+    const topicMessages = {
+        leadership: '🎯 리더십 코칭 세션을 시작합니다! 현재 팀 규모와 리더십 경험, 그리고 가장 도전적인 리더십 상황에 대해 말씀해주세요. 개인 맞춤형 리더십 플랜을 함께 수립해보겠습니다.',
+        productivity: '⚡ 생산성 최적화 코칭을 시작합니다! 현재 하루 일과와 가장 시간을 많이 소비하는 업무, 그리고 방해받는 요소들에 대해 알려주세요. 당신만의 효율적인 업무 시스템을 만들어보겠습니다.',
+        stress: '💚 스트레스 관리 코칭 세션에 오신 것을 환영합니다! 최근 스트레스의 주요 원인과 현재 사용하고 있는 스트레스 해소 방법에 대해 공유해주세요. 더 건강하고 지속가능한 업무 방식을 함께 찾아보겠습니다.'
+    };
+    
+    const chatMessages = document.getElementById('chat-messages');
+    const aiMessage = document.createElement('div');
+    aiMessage.className = 'chat-message ai';
+    aiMessage.innerHTML = `
+        <div class="message-avatar">AI</div>
+        <div class="message-content">
+            <p style="font-weight: 600; margin-bottom: 0.8rem; color: #f093fb;">새로운 코칭 세션 시작!</p>
+            <p>${topicMessages[topic]}</p>
+        </div>
+    `;
+    aiMessage.style.opacity = '0';
+    aiMessage.style.transform = 'translateY(20px)';
+    chatMessages.appendChild(aiMessage);
+    
+    setTimeout(() => {
+        aiMessage.style.transition = 'all 0.3s ease';
+        aiMessage.style.opacity = '1';
+        aiMessage.style.transform = 'translateY(0)';
+    }, 50);
+    
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Focus on input
+    document.getElementById('chat-input').focus();
+}
+
+function addNewGoal() {
+    const goalExamples = [
+        '공개 발표 능력 향상',
+        '프로젝트 관리 스킬 습득',
+        '외국어 실력 개선',
+        '네트워킹 역량 강화',
+        '창의적 사고력 개발',
+        '디지털 마케팅 이해'
+    ];
+    
+    const randomGoal = goalExamples[Math.floor(Math.random() * goalExamples.length)];
+    
+    const chatMessages = document.getElementById('chat-messages');
+    const aiMessage = document.createElement('div');
+    aiMessage.className = 'chat-message ai';
+    aiMessage.innerHTML = `
+        <div class="message-avatar">AI</div>
+        <div class="message-content">
+            <p style="font-weight: 600; margin-bottom: 0.8rem; color: #f093fb;">새로운 성장 목표 설정! 🌟</p>
+            <p>훌륭하네요! 새로운 목표를 세우는 것은 성장의 첫 걸음입니다. 예를 들어 "${randomGoal}" 같은 목표는 어떨까요? 아니면 당신이 직접 원하는 성장 영역을 말씀해주세요!</p>
+            <p style="margin-top: 1rem; font-size: 14px; color: rgba(255, 255, 255, 0.8);">💡 목표 설정 팁: 구체적이고 측정 가능한 목표를 세우면 달성률이 2배 이상 높아집니다!</p>
+        </div>
+    `;
+    aiMessage.style.opacity = '0';
+    aiMessage.style.transform = 'translateY(20px)';
+    chatMessages.appendChild(aiMessage);
+    
+    setTimeout(() => {
+        aiMessage.style.transition = 'all 0.3s ease';
+        aiMessage.style.opacity = '1';
+        aiMessage.style.transform = 'translateY(0)';
+    }, 50);
+    
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Focus on input
+    document.getElementById('chat-input').focus();
+}
+
+// Enter key to send message
+document.getElementById('chat-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+// Add CSS keyframes for animations
+const animationStyles = document.createElement('style');
+animationStyles.textContent = `
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+    
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(animationStyles);
+</script>
+{% endblock %}

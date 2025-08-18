@@ -1,0 +1,452 @@
+{
+  "timestamp": "2025-07-25T13:53:02.293816",
+  "dashboards": {
+    "leader_kpi_dashboard": {
+      "file": "leader_kpi_dashboard.py",
+      "name": "경영진 KPI 대시보드",
+      "description": "경영진을 위한 핵심 성과 지표 대시보드",
+      "url_pattern": "dashboards/leader-kpi/",
+      "menu_category": "dashboards",
+      "roles": [
+        "executive",
+        "admin"
+      ],
+      "features": [
+        "실시간 KPI",
+        "조직 성과",
+        "인력 현황",
+        "재무 지표"
+      ]
+    },
+    "workforce_comp_dashboard": {
+      "file": "workforce_comp_dashboard.py",
+      "name": "인력/보상 통합 대시보드",
+      "description": "인력 현황 및 보상 체계 통합 분석",
+      "url_pattern": "dashboards/workforce-compensation/",
+      "menu_category": "dashboards",
+      "roles": [
+        "hr_manager",
+        "admin"
+      ],
+      "features": [
+        "인력 분포",
+        "보상 분석",
+        "조직도",
+        "급여 통계"
+      ]
+    },
+    "skillmap_dashboard": {
+      "file": "skillmap_dashboard.py",
+      "name": "스킬맵 대시보드",
+      "description": "직원 역량 및 스킬 매핑 시각화",
+      "url_pattern": "dashboards/skillmap/",
+      "menu_category": "dashboards",
+      "roles": [
+        "hr_manager",
+        "team_leader"
+      ],
+      "features": [
+        "스킬 인벤토리",
+        "역량 갭 분석",
+        "교육 추천"
+      ]
+    }
+  },
+  "modules": {
+    "ai_features": {
+      "ehr_gpt_chatbot": {
+        "file": "ehr_gpt_chatbot.py",
+        "name": "AI HR 챗봇",
+        "description": "GPT 기반 HR 상담 챗봇",
+        "url_pattern": "ai/chatbot/",
+        "menu_category": "ai_tools",
+        "roles": [
+          "all"
+        ],
+        "features": [
+          "실시간 상담",
+          "FAQ 응답",
+          "정책 안내",
+          "일정 조회"
+        ]
+      },
+      "leader_ai_assistant": {
+        "file": "leader_ai_assistant.py",
+        "name": "리더 AI 어시스턴트",
+        "description": "리더십을 위한 AI 의사결정 지원",
+        "url_pattern": "ai/leader-assistant/",
+        "menu_category": "ai_tools",
+        "roles": [
+          "team_leader",
+          "executive"
+        ],
+        "features": [
+          "팀 분석",
+          "의사결정 지원",
+          "성과 예측"
+        ]
+      }
+    },
+    "analytics": {
+      "leader_strategy_reportgen": {
+        "file": "leader_strategy_reportgen.py",
+        "name": "전략 리포트 생성기",
+        "description": "리더십 전략 리포트 자동 생성",
+        "url_pattern": "reports/strategy-generator/",
+        "menu_category": "reports",
+        "roles": [
+          "executive",
+          "hr_manager"
+        ],
+        "features": [
+          "자동 리포트",
+          "PDF 생성",
+          "인사이트 도출"
+        ]
+      },
+      "promotion_analyzer": {
+        "file": "promotions/promotion_analyzer.py",
+        "name": "승진 분석기",
+        "description": "승진 후보자 분석 및 추천",
+        "url_pattern": "analytics/promotion-analyzer/",
+        "menu_category": "analytics",
+        "roles": [
+          "hr_manager",
+          "team_leader"
+        ],
+        "features": [
+          "승진 예측",
+          "후보자 평가",
+          "경력 경로"
+        ]
+      }
+    },
+    "matching_systems": {
+      "job_search_recommend_api": {
+        "file": "job_search_recommend_api.py",
+        "name": "직무 매칭 시스템",
+        "description": "직무-인재 자동 매칭 및 추천",
+        "url_pattern": "matching/job-search/",
+        "menu_category": "matching",
+        "roles": [
+          "hr_manager",
+          "employee"
+        ],
+        "api_endpoints": [
+          "/api/job-matching/search/",
+          "/api/job-matching/recommend/",
+          "/api/job-matching/candidates/"
+        ]
+      }
+    },
+    "ess_extensions": {
+      "growth_path": {
+        "name": "성장 경로 관리",
+        "url_pattern": "ess/growth-path/",
+        "menu_category": "self_service",
+        "roles": [
+          "employee"
+        ],
+        "features": [
+          "경력 계획",
+          "스킬 개발",
+          "멘토링"
+        ]
+      },
+      "training_recommendations": {
+        "name": "맞춤 교육 추천",
+        "url_pattern": "ess/training-recommendations/",
+        "menu_category": "self_service",
+        "roles": [
+          "employee"
+        ],
+        "features": [
+          "AI 기반 추천",
+          "학습 경로",
+          "자격증 안내"
+        ]
+      }
+    }
+  },
+  "url_mappings": [
+    {
+      "pattern": "path('dashboards/leader-kpi/', views.leader_kpi_dashboard_view, name='leader_kpi_dashboard')",
+      "import": "from . import leader_kpi_dashboard",
+      "view_function": "leader_kpi_dashboard_view"
+    },
+    {
+      "pattern": "path('dashboards/workforce-compensation/', views.workforce_comp_dashboard_view, name='workforce_comp_dashboard')",
+      "import": "from . import workforce_comp_dashboard",
+      "view_function": "workforce_comp_dashboard_view"
+    },
+    {
+      "pattern": "path('dashboards/skillmap/', views.skillmap_dashboard_view, name='skillmap_dashboard')",
+      "import": "from . import skillmap_dashboard",
+      "view_function": "skillmap_dashboard_view"
+    },
+    {
+      "pattern": "path('ai/chatbot/', views.ehr_gpt_chatbot_view, name='ehr_gpt_chatbot')",
+      "category": "ai_features",
+      "module": "ehr_gpt_chatbot"
+    },
+    {
+      "pattern": "path('ai/leader-assistant/', views.leader_ai_assistant_view, name='leader_ai_assistant')",
+      "category": "ai_features",
+      "module": "leader_ai_assistant"
+    },
+    {
+      "pattern": "path('reports/strategy-generator/', views.leader_strategy_reportgen_view, name='leader_strategy_reportgen')",
+      "category": "analytics",
+      "module": "leader_strategy_reportgen"
+    },
+    {
+      "pattern": "path('analytics/promotion-analyzer/', views.promotion_analyzer_view, name='promotion_analyzer')",
+      "category": "analytics",
+      "module": "promotion_analyzer"
+    },
+    {
+      "pattern": "path('matching/job-search/', views.job_search_recommend_api_view, name='job_search_recommend_api')",
+      "category": "matching_systems",
+      "module": "job_search_recommend_api"
+    },
+    {
+      "pattern": "path('ess/growth-path/', views.growth_path_view, name='growth_path')",
+      "category": "ess_extensions",
+      "module": "growth_path"
+    },
+    {
+      "pattern": "path('ess/training-recommendations/', views.training_recommendations_view, name='training_recommendations')",
+      "category": "ess_extensions",
+      "module": "training_recommendations"
+    }
+  ],
+  "navigation": {
+    "main_menu": [
+      {
+        "id": "dashboards",
+        "name": "대시보드",
+        "icon": "fas fa-chart-line",
+        "submenu": [
+          {
+            "name": "경영진 KPI",
+            "url": "leader-kpi-dashboard",
+            "roles": [
+              "executive"
+            ]
+          },
+          {
+            "name": "인력/보상 현황",
+            "url": "workforce-comp-dashboard",
+            "roles": [
+              "hr_manager"
+            ]
+          },
+          {
+            "name": "스킬맵",
+            "url": "skillmap-dashboard",
+            "roles": [
+              "hr_manager",
+              "team_leader"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai_tools",
+        "name": "AI 도구",
+        "icon": "fas fa-robot",
+        "submenu": [
+          {
+            "name": "HR 챗봇",
+            "url": "ai-chatbot",
+            "roles": [
+              "all"
+            ]
+          },
+          {
+            "name": "리더 AI 어시스턴트",
+            "url": "leader-ai-assistant",
+            "roles": [
+              "team_leader"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "analytics",
+        "name": "분석/리포트",
+        "icon": "fas fa-analytics",
+        "submenu": [
+          {
+            "name": "전략 리포트",
+            "url": "strategy-report-generator",
+            "roles": [
+              "executive"
+            ]
+          },
+          {
+            "name": "승진 분석",
+            "url": "promotion-analyzer",
+            "roles": [
+              "hr_manager"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "matching",
+        "name": "매칭 시스템",
+        "icon": "fas fa-users-cog",
+        "submenu": [
+          {
+            "name": "직무 매칭",
+            "url": "job-matching",
+            "roles": [
+              "hr_manager"
+            ]
+          },
+          {
+            "name": "인재 추천",
+            "url": "talent-recommendation",
+            "roles": [
+              "team_leader"
+            ]
+          }
+        ]
+      }
+    ],
+    "quick_access": [
+      {
+        "name": "AI 챗봇",
+        "url": "ai-chatbot",
+        "icon": "fas fa-comments"
+      },
+      {
+        "name": "내 성장경로",
+        "url": "growth-path",
+        "icon": "fas fa-route"
+      },
+      {
+        "name": "팀 현황",
+        "url": "team-dashboard",
+        "icon": "fas fa-users"
+      }
+    ]
+  },
+  "ui_components": {
+    "dashboard_widgets": [
+      {
+        "name": "KPICard",
+        "description": "KPI 지표 카드 컴포넌트",
+        "props": [
+          "title",
+          "value",
+          "trend",
+          "icon",
+          "color"
+        ],
+        "usage": "leader_kpi_dashboard"
+      },
+      {
+        "name": "SkillRadarChart",
+        "description": "스킬 레이더 차트",
+        "props": [
+          "skills",
+          "employee",
+          "benchmark"
+        ],
+        "usage": "skillmap_dashboard"
+      },
+      {
+        "name": "OrgChartTree",
+        "description": "인터랙티브 조직도",
+        "props": [
+          "departments",
+          "employees",
+          "expandLevel"
+        ],
+        "usage": "workforce_comp_dashboard"
+      }
+    ],
+    "ai_components": [
+      {
+        "name": "ChatInterface",
+        "description": "AI 챗봇 인터페이스",
+        "props": [
+          "messages",
+          "onSend",
+          "suggestions"
+        ],
+        "usage": "ehr_gpt_chatbot"
+      },
+      {
+        "name": "AIInsightCard",
+        "description": "AI 인사이트 표시 카드",
+        "props": [
+          "insight",
+          "confidence",
+          "actions"
+        ],
+        "usage": "leader_ai_assistant"
+      }
+    ],
+    "common_components": [
+      {
+        "name": "RoleBasedMenu",
+        "description": "역할 기반 메뉴 컴포넌트",
+        "props": [
+          "user",
+          "roles",
+          "menuItems"
+        ]
+      },
+      {
+        "name": "DataExportButton",
+        "description": "데이터 내보내기 버튼",
+        "props": [
+          "data",
+          "formats",
+          "filename"
+        ]
+      }
+    ]
+  },
+  "integration_plan": {
+    "phase1": {
+      "name": "기본 URL 연결",
+      "tasks": [
+        "urls.py에 새 패턴 추가",
+        "views.py에 뷰 함수 생성",
+        "templates 디렉토리 구조 정리"
+      ],
+      "duration": "1-2 days"
+    },
+    "phase2": {
+      "name": "네비게이션 통합",
+      "tasks": [
+        "base.html에 새 메뉴 추가",
+        "역할 기반 메뉴 표시 로직",
+        "모바일 반응형 메뉴 구현"
+      ],
+      "duration": "2-3 days"
+    },
+    "phase3": {
+      "name": "UI/UX 개선",
+      "tasks": [
+        "대시보드 위젯 컴포넌트화",
+        "공통 스타일 가이드 적용",
+        "다크모드 지원"
+      ],
+      "duration": "3-4 days"
+    },
+    "phase4": {
+      "name": "API 통합",
+      "tasks": [
+        "REST API 엔드포인트 정리",
+        "GraphQL 스키마 정의",
+        "API 문서 자동화"
+      ],
+      "duration": "2-3 days"
+    }
+  }
+}

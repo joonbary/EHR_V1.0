@@ -1,0 +1,200 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Skillmap Heatmap{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/heatmap_optimized.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="skillmap-heatmap-container">
+                <div class="heatmap-header">
+                    <h2 class="heatmap-title">{{ title|default:"Organization Skillmap" }}</h2>
+                    <p class="heatmap-subtitle">
+                        Updated: {% now "Y-m-d H:i" %}
+                    </p>
+                    
+                    <!-- 필터 폼 -->
+                    <form method="get" class="heatmap-controls">
+                        <div class="control-group">
+                            <label class="control-label" for="department">Department:</label>
+                            <select name="department" id="department" class="control-select">
+                                <option value="">All Departments</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.id }}" {% if dept.id|stringformat:"s" == request.GET.department %}selected{% endif %}>
+                                    {{ dept.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label" for="skill_category">Skill Category:</label>
+                            <select name="skill_category" id="skill_category" class="control-select">
+                                <option value="">All Categories</option>
+                                {% for category in skill_categories %}
+                                <option value="{{ category }}" {% if category == request.GET.skill_category %}selected{% endif %}>
+                                    {{ category }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+                            <a href="{% url 'skillmap_heatmap' %}" class="btn btn-secondary btn-sm">Reset</a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="heatmap-chart-wrapper">
+                    <div id="heatmapChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script>
+    // Django 데이터를 JavaScript로 전달
+    const heatmapData = {
+        employees: {{ employees_json|safe }},
+        skills: {{ skills_json|safe }},
+        values: {{ values_json|safe }}
+    };
+    
+    // 동적 크기 계산
+    function calculateDimensions() {
+        const container = document.querySelector('.heatmap-chart-wrapper');
+        const containerWidth = container.offsetWidth;
+        const cellHeight = 20;
+        const minHeight = 600;
+        const calculatedHeight = Math.max(
+            minHeight,
+            heatmapData.employees.length * cellHeight + 300
+        );
+        
+        return {
+            width: containerWidth - 40,
+            height: calculatedHeight
+        };
+    }
+    
+    // 동적 폰트 크기
+    function calculateFontSize() {
+        const maxItems = Math.max(
+            heatmapData.employees.length,
+            heatmapData.skills.length
+        );
+        
+        if (maxItems > 50) return 8;
+        if (maxItems > 30) return 10;
+        return 12;
+    }
+    
+    // 히트맵 생성
+    function createHeatmap() {
+        const dimensions = calculateDimensions();
+        const fontSize = calculateFontSize();
+        
+        const data = [{
+            z: heatmapData.values,
+            x: heatmapData.skills,
+            y: heatmapData.employees,
+            type: 'heatmap',
+            colorscale: [
+                [0, '#ffffff'],
+                [0.2, '#deebf7'],
+                [0.4, '#9ecae1'],
+                [0.6, '#4292c6'],
+                [0.8, '#08519c'],
+                [1, '#053061']
+            ],
+            colorbar: {
+                title: {
+                    text: 'Proficiency (%)',
+                    side: 'right'
+                },
+                thickness: 20,
+                len: 0.9,
+                x: 1.02
+            },
+            hovertemplate: 
+                '<b>%{y}</b><br>' +
+                'Skill: %{x}<br>' +
+                'Proficiency: %{z}%<br>' +
+                '<extra></extra>'
+        }];
+        
+        const layout = {
+            title: {
+                text: '{{ title|default:"Organization Skillmap" }}',
+                font: { size: 20 }
+            },
+            xaxis: {
+                title: 'Skills',
+                side: 'top',
+                tickangle: -45,
+                tickfont: { size: fontSize },
+                automargin: true
+            },
+            yaxis: {
+                title: 'Employees',
+                tickfont: { size: fontSize },
+                automargin: true,
+                dtick: 1
+            },
+            margin: {
+                l: 150,
+                r: 100,
+                t: 150,
+                b: 50,
+                pad: 4
+            },
+            width: dimensions.width,
+            height: dimensions.height,
+            paper_bgcolor: '#f8f9fa',
+            plot_bgcolor: 'white'
+        };
+        
+        const config = {
+            responsive: true,
+            displayModeBar: true,
+            modeBarButtonsToRemove: ['lasso2d', 'select2d']
+        };
+        
+        Plotly.newPlot('heatmapChart', data, layout, config);
+    }
+    
+    // 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        createHeatmap();
+        
+        // 윈도우 리사이즈 대응
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                Plotly.Plots.resize('heatmapChart');
+            }, 250);
+        });
+    });
+    
+    // 필터 변경 시 자동 제출
+    document.getElementById('department').addEventListener('change', function() {
+        this.form.submit();
+    });
+    
+    document.getElementById('skill_category').addEventListener('change', function() {
+        this.form.submit();
+    });
+</script>
+{% endblock %}

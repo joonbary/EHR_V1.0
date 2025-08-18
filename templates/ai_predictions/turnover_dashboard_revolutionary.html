@@ -1,0 +1,601 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 예측 - 이직 위험도 분석{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Risk level colors */
+    .risk-critical { color: #ff4444; }
+    .risk-high { color: #ff8800; }
+    .risk-medium { color: #ffbb33; }
+    .risk-low { color: #00d4ff; }
+
+    .risk-meter {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+
+    .risk-meter-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: conic-gradient(
+            from 180deg,
+            #ff4444 0deg,
+            #ff8800 90deg,
+            #ffbb33 180deg,
+            #00d4ff 270deg,
+            #00ff88 360deg
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        filter: blur(20px);
+    }
+
+    .risk-meter-inner {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border-radius: 50%;
+        background: #0a0f1b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .risk-value {
+        font-size: 3rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .employee-risk-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .employee-risk-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--risk-color), transparent);
+    }
+
+    .employee-risk-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    }
+
+    .risk-factor {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem;
+        background: rgba(255, 100, 100, 0.1);
+        border: 1px solid rgba(255, 100, 100, 0.3);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin: 0.2rem;
+    }
+
+    .protective-factor {
+        background: rgba(0, 255, 136, 0.1);
+        border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .retention-plan {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .alert-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ff4444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .prediction-timeline {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .timeline-bar {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00d4ff, #ff4444);
+        border-radius: 2px;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #0a0f1b;
+        border: 3px solid #00d4ff;
+        cursor: pointer;
+    }
+
+    .timeline-label {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-size: 0.85rem;
+        color: #00d4ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">AI 이직 예측</span>
+            </h1>
+            <p class="hero-subtitle">머신러닝 기반 이직 위험도 실시간 분석 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Risk Overview -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <h4 class="mb-4" style="color: #00d4ff;">위험도 현황</h4>
+                <div class="risk-meter">
+                    <div class="risk-meter-circle"></div>
+                    <div class="risk-meter-inner">
+                        <div class="risk-value">{{ risk_stats.total|default:"0" }}</div>
+                        <div class="text-muted">전체 분석</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="dashboard-card">
+                <h4 class="mb-4" style="color: #00d4ff;">위험도 레벨별 분포</h4>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="stat-card" style="border-color: #ff4444;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ff4444, #cc0000);">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value risk-critical">{{ risk_stats.critical|default:"0" }}</div>
+                                <div class="stat-label">위험</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="border-color: #ff8800;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ff8800, #ff6600);">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value risk-high">{{ risk_stats.high|default:"0" }}</div>
+                                <div class="stat-label">높음</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="border-color: #ffbb33;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ffbb33, #ff9900);">
+                                <i class="fas fa-minus-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value risk-medium">{{ risk_stats.medium|default:"0" }}</div>
+                                <div class="stat-label">보통</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="border-color: #00d4ff;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #00d4ff, #0099cc);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value risk-low">{{ risk_stats.low|default:"0" }}</div>
+                                <div class="stat-label">낮음</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if airiss_integrated %}
+    <!-- AIRISS Integration Section -->
+    <div class="dashboard-card mb-4" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05)); border: 2px solid rgba(139, 92, 246, 0.3);">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 style="color: #8b5cf6;">
+                <i class="fas fa-robot me-2"></i>AIRISS AI 분석 - 실시간 위험 직원
+            </h3>
+            <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 0.5rem 1rem;">
+                총 {{ risk_stats.airiss_total }}명 중 {{ risk_stats.airiss_high_risk }}명 고위험
+            </span>
+        </div>
+        
+        <div class="row g-3 mb-4">
+            {% for emp in airiss_risk_employees %}
+            <div class="col-md-6">
+                <div class="employee-risk-card" style="border-left: 4px solid {% if emp.risk_level == 'CRITICAL' %}#ff4444{% elif emp.risk_level == 'HIGH' %}#ff8800{% elif emp.risk_level == 'MEDIUM' %}#ffbb33{% else %}#00d4ff{% endif %};">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 style="color: #fff;">{{ emp.name }}</h5>
+                            <p class="text-muted small mb-1">{{ emp.department }} | {{ emp.position }}</p>
+                            <span class="badge" style="background: {% if emp.grade == 'D' %}#ff4444{% elif emp.grade == 'C' %}#ff8800{% else %}#ffbb33{% endif %};">
+                                등급: {{ emp.grade }}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <div style="font-size: 1.8rem; font-weight: bold; color: {% if emp.risk_level == 'CRITICAL' %}#ff4444{% elif emp.risk_level == 'HIGH' %}#ff8800{% else %}#ffbb33{% endif %};">
+                                {{ emp.risk_score|floatformat:1 }}
+                            </div>
+                            <small class="text-muted">위험도 점수</small>
+                        </div>
+                    </div>
+                    
+                    {% if emp.key_factors %}
+                    <div class="mb-2">
+                        <small class="text-muted d-block mb-1">주요 위험 요인:</small>
+                        {% for factor in emp.key_factors %}
+                        <span class="badge" style="background: rgba(255, 68, 68, 0.2); color: #ff8800; margin-right: 4px;">{{ factor }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if emp.ai_insights %}
+                    <div class="mt-2 p-2" style="background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+                        <small class="text-muted">AI 인사이트: {{ emp.ai_insights|truncatewords:20 }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if emp.recommended_actions %}
+                    <div class="mt-2">
+                        <small class="text-muted d-block mb-1">권장 조치:</small>
+                        {% for action in emp.recommended_actions|slice:":2" %}
+                        <small class="d-block" style="color: #00d4ff;">• {{ action }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Department Risk Heatmap -->
+        {% if department_heatmap %}
+        <h4 class="mb-3" style="color: #8b5cf6;">부서별 리스크 히트맵</h4>
+        <div class="row g-2">
+            {% for dept in department_heatmap %}
+            <div class="col-md-4">
+                <div class="p-3" style="background: linear-gradient(135deg, 
+                    {% if dept.risk_ratio > 15 %}rgba(255, 68, 68, 0.2){% elif dept.risk_ratio > 10 %}rgba(255, 136, 0, 0.2){% elif dept.risk_ratio > 5 %}rgba(255, 187, 51, 0.2){% else %}rgba(0, 212, 255, 0.1){% endif %},
+                    rgba(0, 0, 0, 0.3)); border-radius: 10px; border: 1px solid {% if dept.risk_ratio > 15 %}#ff4444{% elif dept.risk_ratio > 10 %}#ff8800{% elif dept.risk_ratio > 5 %}#ffbb33{% else %}#00d4ff{% endif %};">
+                    <h6 style="color: #fff;">{{ dept.department }}</h6>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="text-muted small">리스크율</span>
+                        <span style="font-size: 1.2rem; font-weight: bold; color: {% if dept.risk_ratio > 15 %}#ff4444{% elif dept.risk_ratio > 10 %}#ff8800{% else %}#ffbb33{% endif %};">
+                            {{ dept.risk_ratio|floatformat:1 }}%
+                        </span>
+                    </div>
+                    <div class="progress mt-2" style="height: 5px; background: rgba(255, 255, 255, 0.1);">
+                        <div class="progress-bar" style="width: {{ dept.risk_ratio }}%; background: {% if dept.risk_ratio > 15 %}#ff4444{% elif dept.risk_ratio > 10 %}#ff8800{% else %}#ffbb33{% endif %};"></div>
+                    </div>
+                    <small class="text-muted d-block">고위험: {{ dept.high_risk_count }}명 / 전체: {{ dept.total_count }}명</small>
+                    {% if dept.trend %}
+                    <small class="d-block mt-1">
+                        트렌드: 
+                        {% if dept.trend == 'increasing' %}
+                        <span style="color: #ff4444;">↑ 증가</span>
+                        {% elif dept.trend == 'decreasing' %}
+                        <span style="color: #00ff88;">↓ 감소</span>
+                        {% else %}
+                        <span style="color: #ffbb33;">→ 유지</span>
+                        {% endif %}
+                    </small>
+                    {% endif %}
+                    {% if dept.top_risks %}
+                    <small class="text-muted d-block mt-1">주요 리스크:</small>
+                    {% for risk in dept.top_risks|slice:":2" %}
+                    <small class="badge" style="background: rgba(255, 68, 68, 0.1); color: #ff8800; font-size: 0.7rem;">{{ risk }}</small>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- AI Recommendations Section -->
+        {% if ai_recommendations %}
+        <h4 class="mb-3 mt-4" style="color: #8b5cf6;">AI 추천 조치사항</h4>
+        <div class="row g-3">
+            {% for rec in ai_recommendations %}
+            <div class="col-md-4">
+                <div class="p-3" style="background: rgba(139, 92, 246, 0.1); border-radius: 10px; border: 1px solid rgba(139, 92, 246, 0.3);">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge" style="background: {% if rec.priority == 'high' %}#ff4444{% elif rec.priority == 'medium' %}#ff8800{% else %}#00d4ff{% endif %};">
+                            {{ rec.priority|upper }}
+                        </span>
+                        <small class="ms-2 text-muted">{{ rec.type }}</small>
+                    </div>
+                    <h6 style="color: #fff;">{{ rec.action }}</h6>
+                    <small class="text-muted d-block mt-2">
+                        예상 효과: 
+                        {% if rec.expected_impact == 'high' %}
+                        <span style="color: #00ff88;">높음</span>
+                        {% elif rec.expected_impact == 'medium' %}
+                        <span style="color: #ffbb33;">중간</span>
+                        {% else %}
+                        <span style="color: #00d4ff;">낮음</span>
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Batch Analysis Summary -->
+        {% if batch_analysis %}
+        <div class="mt-4 p-3" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.05)); border-radius: 10px; border: 1px solid rgba(0, 212, 255, 0.3);">
+            <h6 style="color: #00d4ff;">배치 분석 요약</h6>
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <small class="text-muted d-block">분석 완료</small>
+                    <span style="font-size: 1.5rem; color: #fff;">{{ batch_analysis.total_analyzed }}</span>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">고위험 식별</small>
+                    <span style="font-size: 1.5rem; color: #ff4444;">{{ batch_analysis.high_risk_identified }}</span>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">평균 위험도</small>
+                    <span style="font-size: 1.5rem; color: #ff8800;">{{ batch_analysis.average_risk_score|floatformat:2 }}</span>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted d-block">마지막 갱신</small>
+                    <small style="color: #00d4ff;">{{ batch_analysis.timestamp|default:"방금 전" }}</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- High Risk Employees -->
+    <div class="dashboard-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 style="color: #00d4ff;">
+                <i class="fas fa-user-clock me-2"></i>고위험 직원 현황
+            </h3>
+            <button class="btn btn-gradient btn-sm" onclick="analyzeAll()">
+                <i class="fas fa-sync-alt me-1"></i>전체 분석
+            </button>
+        </div>
+        
+        <div class="row g-3">
+            {% for employee_risk in high_risk_employees %}
+            <div class="col-md-6">
+                <div class="employee-risk-card" 
+                     style="--risk-color: {% if employee_risk.risk_level == 'CRITICAL' %}#ff4444{% elif employee_risk.risk_level == 'HIGH' %}#ff8800{% else %}#ffbb33{% endif %};">
+                    {% if employee_risk.has_alert %}
+                    <div class="alert-badge">!</div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 style="color: #fff;">{{ employee_risk.employee.name }}</h5>
+                            <p class="text-muted mb-1">{{ employee_risk.employee.department }} | {{ employee_risk.employee.position }}</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="risk-score" style="font-size: 1.5rem; font-weight: bold; color: var(--risk-color);">
+                                {{ employee_risk.risk_score|floatformat:1 }}%
+                            </div>
+                            <small class="text-muted">위험도</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-2">주요 위험 요인:</small>
+                        {% for factor in employee_risk.primary_risk_factors %}
+                        <span class="risk-factor">
+                            <i class="fas fa-exclamation-circle"></i>{{ factor }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if employee_risk.protective_factors %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-2">보호 요인:</small>
+                        {% for factor in employee_risk.protective_factors %}
+                        <span class="risk-factor protective-factor">
+                            <i class="fas fa-shield-alt"></i>{{ factor }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary" 
+                                onclick="viewDetail('{{ employee_risk.employee.id }}')">
+                            <i class="fas fa-chart-line me-1"></i>상세분석
+                        </button>
+                        <button class="btn btn-sm btn-gradient" 
+                                onclick="createRetentionPlan('{{ employee_risk.employee.id }}')">
+                            <i class="fas fa-hand-holding-heart me-1"></i>유지계획
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-muted text-center">고위험 직원이 없습니다.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Alerts -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="dashboard-card">
+                <h4 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-bell me-2"></i>최근 알림
+                </h4>
+                <div class="alerts-list">
+                    {% for alert in recent_alerts %}
+                    <div class="alert-item d-flex justify-content-between align-items-center p-3 mb-2"
+                         style="background: rgba(255, 68, 68, 0.1); border-left: 3px solid #ff4444; border-radius: 10px;">
+                        <div>
+                            <h6 style="color: #fff;">{{ alert.turnover_risk.employee.name }}</h6>
+                            <p class="text-muted small mb-0">{{ alert.message }}</p>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                onclick="acknowledgeAlert('{{ alert.id }}')">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">새로운 알림이 없습니다.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="dashboard-card">
+                <h4 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-tasks me-2"></i>유지 계획 현황
+                </h4>
+                <div class="d-flex justify-content-around text-center">
+                    <div>
+                        <div class="stat-value" style="color: #00d4ff; font-size: 2rem;">
+                            {{ active_retention_plans|default:"0" }}
+                        </div>
+                        <div class="text-muted">진행중</div>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="color: #00ff88; font-size: 2rem;">
+                            {{ completed_plans_today|default:"0" }}
+                        </div>
+                        <div class="text-muted">오늘 완료</div>
+                    </div>
+                </div>
+                
+                <div class="retention-plan mt-4">
+                    <h6 style="color: #fff;">AI 추천 조치사항</h6>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2" style="color: #00ff88;"></i>
+                            1:1 면담 일정 수립
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2" style="color: #00ff88;"></i>
+                            경력개발 계획 수립
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2" style="color: #00ff88;"></i>
+                            보상체계 재검토
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewDetail(employeeId) {
+    window.location.href = `/ai-predictions/employee/${employeeId}/`;
+}
+
+function createRetentionPlan(employeeId) {
+    console.log('Creating retention plan for employee:', employeeId);
+}
+
+function analyzeAll() {
+    fetch("{% url 'ai_predictions:api_batch_analyze' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`${data.analyzed_count}명 분석 완료!`);
+            location.reload();
+        }
+    });
+}
+
+function acknowledgeAlert(alertId) {
+    fetch(`/ai-predictions/api/alert/${alertId}/acknowledge/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

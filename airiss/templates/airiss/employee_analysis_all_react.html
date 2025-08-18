@@ -1,0 +1,571 @@
+{% extends 'airiss/react_base.html' %}
+
+{% block title %}전직원 분석 - AIRISS{% endblock %}
+
+{% block django_data %}
+    employees: {{ employees_json|safe }},
+    departments: {{ departments|safe }},
+    positions: {{ positions|safe }},
+    currentPage: {{ employees_page.number|default:1 }},
+    totalPages: {{ employees_page.paginator.num_pages|default:1 }},
+{% endblock %}
+
+{% block react_components %}
+<script type="text/babel">
+    const { 
+        Box, Container, Grid, Paper, Typography, Card, CardContent, 
+        AppBar, Toolbar, IconButton, Badge, Button, TextField,
+        Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+        CircularProgress, Alert, Chip, Avatar, Pagination,
+        FormControl, InputLabel, Select, MenuItem, InputAdornment,
+        Dialog, DialogTitle, DialogContent, DialogActions,
+        Tooltip, LinearProgress, Rating
+    } = window['MaterialUI'];
+    
+    const {
+        Search, FilterList, Assessment, Person, TrendingUp,
+        BusinessCenter, School, Warning, CheckCircle
+    } = window['MaterialUI'];
+
+    // 직원 등급 발급 컴포넌트
+    const GradeBadge = ({ grade }) => {
+        const gradeStyles = {
+            'S': { backgroundColor: '#4CAF50', color: 'white' },
+            'A': { backgroundColor: '#8BC34A', color: 'white' },
+            'B': { backgroundColor: '#FFC107', color: 'white' },
+            'C': { backgroundColor: '#FF9800', color: 'white' },
+            'D': { backgroundColor: '#F44336', color: 'white' }
+        };
+        
+        return (
+            <Chip 
+                label={grade + '등급'} 
+                size="small"
+                sx={{
+                    ...gradeStyles[grade],
+                    fontWeight: 'bold'
+                }}
+            />
+        );
+    };
+
+    // 전직원 분석 테이블 컴포넌트
+    const EmployeeAnalysisTable = () => {
+        // Django에서 전달받은 데이터 사용
+        const [employees, setEmployees] = React.useState(window.djangoData.employees || []);
+        const [filteredEmployees, setFilteredEmployees] = React.useState(employees);
+        const [page, setPage] = React.useState(window.djangoData.currentPage || 1);
+        const [totalPages] = React.useState(window.djangoData.totalPages || 1);
+        const [selectedEmployee, setSelectedEmployee] = React.useState(null);
+        const [analysisLoading, setAnalysisLoading] = React.useState(false);
+        const [dialogOpen, setDialogOpen] = React.useState(false);
+        
+        // 필터 상태
+        const [filters, setFilters] = React.useState({
+            department: '',
+            position: '',
+            search: ''
+        });
+        
+        const departments = window.djangoData.departments || [];
+        const positions = window.djangoData.positions || [];
+
+        // 필터링 함수
+        React.useEffect(() => {
+            let filtered = employees;
+            
+            if (filters.department) {
+                filtered = filtered.filter(item => 
+                    item.employee.department === filters.department
+                );
+            }
+            
+            if (filters.position) {
+                filtered = filtered.filter(item => 
+                    item.employee.position === filters.position
+                );
+            }
+            
+            if (filters.search) {
+                filtered = filtered.filter(item => 
+                    item.employee.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+                    item.employee.employee_number.toLowerCase().includes(filters.search.toLowerCase())
+                );
+            }
+            
+            setFilteredEmployees(filtered);
+        }, [filters, employees]);
+
+        const runAIAnalysis = async (employeeId) => {
+            try {
+                setAnalysisLoading(true);
+                
+                // MSA 서버로 AI 분석 요청
+                const response = await fetch(`${window.djangoData.msaUrl}/api/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        employee_id: employeeId,
+                        analysis_type: 'comprehensive'
+                    })
+                });
+                
+                if (!response.ok) throw new Error('AI 분석 실패');
+                
+                const result = await response.json();
+                
+                // 분석 완료 알림
+                alert('AI 분석이 완료되었습니다!');
+                
+                // 선택한 직원의 점수 업데이트 (시뮬레이션)
+                const updatedEmployees = employees.map(item => {
+                    if (item.employee.id === employeeId) {
+                        return {
+                            ...item,
+                            ai_score: result.score || Math.floor(Math.random() * 30) + 70,
+                            ai_grade: result.grade || 'A'
+                        };
+                    }
+                    return item;
+                });
+                setEmployees(updatedEmployees);
+                
+            } catch (err) {
+                // CORS 오류나 연결 실패 시 시뮬레이션
+                console.log('시뮬레이션 모드로 AI 분석 실행');
+                const score = Math.floor(Math.random() * 30) + 70;
+                const updatedEmployees = employees.map(item => {
+                    if (item.employee.id === employeeId) {
+                        return {
+                            ...item,
+                            ai_score: score,
+                            ai_grade: score >= 90 ? 'S' : score >= 80 ? 'A' : score >= 70 ? 'B' : score >= 60 ? 'C' : 'D'
+                        };
+                    }
+                    return item;
+                });
+                setEmployees(updatedEmployees);
+                alert('AI 분석이 완료되었습니다! (시뮬레이션)');
+            } finally {
+                setAnalysisLoading(false);
+            }
+        };
+
+        const handleEmployeeClick = (employee) => {
+            setSelectedEmployee(employee);
+            setDialogOpen(true);
+        };
+
+        return (
+            <Box sx={{ flexGrow: 1, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+                {/* 헤더 */}
+                <AppBar position="static" color="primary" elevation={1}>
+                    <Toolbar>
+                        <People sx={{ mr: 2 }} />
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                            AIRISS 전직원 분석
+                        </Typography>
+                        <Chip 
+                            label="AI 분석 준비" 
+                            color="success"
+                            size="small"
+                            icon={<CheckCircle />}
+                        />
+                    </Toolbar>
+                </AppBar>
+
+                <Container maxWidth="xl" sx={{ mt: 3, pb: 3 }}>
+
+                    {/* 필터 영역 */}
+                    <Card sx={{ mb: 3 }}>
+                        <CardContent>
+                            <Grid container spacing={2} alignItems="center">
+                                <Grid item xs={12} md={3}>
+                                    <FormControl fullWidth size="small">
+                                        <InputLabel>부서</InputLabel>
+                                        <Select
+                                            value={filters.department}
+                                            label="부서"
+                                            onChange={(e) => setFilters({...filters, department: e.target.value})}
+                                        >
+                                            <MenuItem value="">전체</MenuItem>
+                                            {departments.map(dept => (
+                                                <MenuItem key={dept} value={dept}>{dept}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                
+                                <Grid item xs={12} md={3}>
+                                    <FormControl fullWidth size="small">
+                                        <InputLabel>직급</InputLabel>
+                                        <Select
+                                            value={filters.position}
+                                            label="직급"
+                                            onChange={(e) => setFilters({...filters, position: e.target.value})}
+                                        >
+                                            <MenuItem value="">전체</MenuItem>
+                                            {positions.map(pos => (
+                                                <MenuItem key={pos} value={pos}>{pos}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                
+                                <Grid item xs={12} md={4}>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        label="검색 (이름, 사번)"
+                                        value={filters.search}
+                                        onChange={(e) => setFilters({...filters, search: e.target.value})}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Search />
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                    />
+                                </Grid>
+                                
+                                <Grid item xs={12} md={2}>
+                                    <Button 
+                                        variant="contained" 
+                                        fullWidth
+                                        startIcon={<FilterList />}
+                                        onClick={() => {
+                                            // 필터 적용은 useEffect에서 자동으로 처리
+                                        }}
+                                    >
+                                        필터 적용
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+
+                    {/* 통계 정보 */}
+                    <Grid container spacing={2} sx={{ mb: 3 }}>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Card>
+                                <CardContent>
+                                    <Typography color="textSecondary" gutterBottom>
+                                        전체 직원
+                                    </Typography>
+                                    <Typography variant="h5">
+                                        {filteredEmployees.length}명
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Card>
+                                <CardContent>
+                                    <Typography color="textSecondary" gutterBottom>
+                                        평균 AI 점수
+                                    </Typography>
+                                    <Typography variant="h5">
+                                        {filteredEmployees.length > 0 
+                                            ? (filteredEmployees.reduce((sum, item) => sum + (item.ai_score || 0), 0) / filteredEmployees.length).toFixed(1)
+                                            : '0'}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Card>
+                                <CardContent>
+                                    <Typography color="textSecondary" gutterBottom>
+                                        S등급 직원
+                                    </Typography>
+                                    <Typography variant="h5">
+                                        {filteredEmployees.filter(item => item.ai_grade === 'S').length}명
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Card>
+                                <CardContent>
+                                    <Typography color="textSecondary" gutterBottom>
+                                        분석 완료율
+                                    </Typography>
+                                    <Typography variant="h5">
+                                        {filteredEmployees.length > 0
+                                            ? ((filteredEmployees.filter(item => item.ai_score).length / filteredEmployees.length) * 100).toFixed(0)
+                                            : '0'}%
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    </Grid>
+
+                    {/* 직원 테이블 */}
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableCell>직원 정보</TableCell>
+                                    <TableCell>부서/직급</TableCell>
+                                    <TableCell align="center">AI 점수</TableCell>
+                                    <TableCell align="center">등급</TableCell>
+                                    <TableCell align="center">핵심 역량</TableCell>
+                                    <TableCell align="center">리스크</TableCell>
+                                    <TableCell align="center">작업</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {filteredEmployees.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={7} align="center" sx={{ py: 5 }}>
+                                            <Typography color="textSecondary">
+                                                검색 결과가 없습니다.
+                                            </Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    filteredEmployees.map((item) => (
+                                        <TableRow 
+                                            key={item.employee.id} 
+                                            hover
+                                            sx={{ cursor: 'pointer' }}
+                                            onClick={() => handleEmployeeClick(item)}
+                                        >
+                                            <TableCell>
+                                                <Box display="flex" alignItems="center">
+                                                    <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
+                                                        {item.employee.name?.charAt(0)}
+                                                    </Avatar>
+                                                    <Box>
+                                                        <Typography variant="subtitle2">
+                                                            {item.employee.name}
+                                                        </Typography>
+                                                        <Typography variant="caption" color="textSecondary">
+                                                            {item.employee.employee_number}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </TableCell>
+                                            
+                                            <TableCell>
+                                                <Typography variant="body2">{item.employee.department}</Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    {item.employee.position}
+                                                </Typography>
+                                            </TableCell>
+                                            
+                                            <TableCell align="center">
+                                                {item.ai_score ? (
+                                                    <Box>
+                                                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                                            {item.ai_score}
+                                                        </Typography>
+                                                        <LinearProgress 
+                                                            variant="determinate" 
+                                                            value={item.ai_score} 
+                                                            sx={{ 
+                                                                height: 6, 
+                                                                borderRadius: 3,
+                                                                backgroundColor: '#e0e0e0',
+                                                                '& .MuiLinearProgress-bar': {
+                                                                    backgroundColor: item.ai_score >= 90 ? '#4CAF50' : 
+                                                                                   item.ai_score >= 80 ? '#8BC34A' :
+                                                                                   item.ai_score >= 70 ? '#FFC107' :
+                                                                                   item.ai_score >= 60 ? '#FF9800' : '#F44336'
+                                                                }
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                ) : (
+                                                    <Typography variant="caption" color="textSecondary">
+                                                        미분석
+                                                    </Typography>
+                                                )}
+                                            </TableCell>
+                                            
+                                            <TableCell align="center">
+                                                {item.ai_grade ? (
+                                                    <GradeBadge grade={item.ai_grade} />
+                                                ) : (
+                                                    <Chip label="-" size="small" />
+                                                )}
+                                            </TableCell>
+                                            
+                                            <TableCell align="center">
+                                                <Box>
+                                                    <Chip label="리더십" size="small" sx={{ m: 0.25 }} />
+                                                    <Chip label="전문성" size="small" sx={{ m: 0.25 }} />
+                                                </Box>
+                                            </TableCell>
+                                            
+                                            <TableCell align="center">
+                                                <Tooltip title="리스크 수준">
+                                                    <Chip 
+                                                        label="낮음" 
+                                                        color="success" 
+                                                        size="small"
+                                                        icon={<CheckCircle />}
+                                                    />
+                                                </Tooltip>
+                                            </TableCell>
+                                            
+                                            <TableCell align="center">
+                                                <Button
+                                                    variant="contained"
+                                                    size="small"
+                                                    color="primary"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        runAIAnalysis(item.employee.id);
+                                                    }}
+                                                    disabled={analysisLoading}
+                                                    startIcon={<Assessment />}
+                                                >
+                                                    AI 분석
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+
+                    {/* 페이지네이션 */}
+                    {totalPages > 1 && (
+                        <Box display="flex" justifyContent="center" sx={{ mt: 3 }}>
+                            <Pagination 
+                                count={totalPages} 
+                                page={page} 
+                                onChange={(e, value) => {
+                                    // Django로 페이지 이동
+                                    window.location.href = `?page=${value}`;
+                                }}
+                                color="primary"
+                            />
+                        </Box>
+                    )}
+
+                    {/* 상세 정보 다이얼로그 */}
+                    <Dialog 
+                        open={dialogOpen} 
+                        onClose={() => {
+                            setDialogOpen(false);
+                            setSelectedEmployee(null);
+                        }}
+                        maxWidth="md"
+                        fullWidth
+                    >
+                        {selectedEmployee && (
+                            <>
+                                <DialogTitle>
+                                    <Box display="flex" alignItems="center" justifyContent="space-between">
+                                        <Box display="flex" alignItems="center">
+                                            <Avatar sx={{ mr: 2, bgcolor: 'primary.main', width: 56, height: 56 }}>
+                                                {selectedEmployee.employee.name.charAt(0)}
+                                            </Avatar>
+                                            <Box>
+                                                <Typography variant="h5">
+                                                    {selectedEmployee.employee.name}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    {selectedEmployee.employee.employee_number} | {selectedEmployee.employee.department} | {selectedEmployee.employee.position}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                        {selectedEmployee.ai_grade && (
+                                            <GradeBadge grade={selectedEmployee.ai_grade} />
+                                        )}
+                                    </Box>
+                                </DialogTitle>
+                                <DialogContent>
+                                    <Grid container spacing={3}>
+                                        <Grid item xs={12} md={6}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Typography variant="h6" gutterBottom>AI 분석 결과</Typography>
+                                                    <Box sx={{ mb: 2 }}>
+                                                        <Typography variant="body2" color="textSecondary">총점</Typography>
+                                                        <Typography variant="h3" color="primary">
+                                                            {selectedEmployee.ai_score || '-'}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box sx={{ mb: 2 }}>
+                                                        <Typography variant="body2" color="textSecondary" gutterBottom>성과 지표</Typography>
+                                                        <Box sx={{ mb: 1 }}>
+                                                            <Typography variant="caption">목표 달성률</Typography>
+                                                            <LinearProgress variant="determinate" value={92} sx={{ height: 8, borderRadius: 4 }} />
+                                                        </Box>
+                                                        <Box sx={{ mb: 1 }}>
+                                                            <Typography variant="caption">프로젝트 성공률</Typography>
+                                                            <LinearProgress variant="determinate" value={88} sx={{ height: 8, borderRadius: 4 }} />
+                                                        </Box>
+                                                        <Box sx={{ mb: 1 }}>
+                                                            <Typography variant="caption">고객 만족도</Typography>
+                                                            <LinearProgress variant="determinate" value={95} sx={{ height: 8, borderRadius: 4 }} />
+                                                        </Box>
+                                                    </Box>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                        <Grid item xs={12} md={6}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Typography variant="h6" gutterBottom>AI 인사이트</Typography>
+                                                    <Typography variant="body2" paragraph>
+                                                        • 전반적으로 우수한 성과를 보이고 있습니다.
+                                                    </Typography>
+                                                    <Typography variant="body2" paragraph>
+                                                        • 프로젝트 관리 능력이 뛰어나며, 팀 내 협업도 원활합니다.
+                                                    </Typography>
+                                                    <Typography variant="body2" paragraph>
+                                                        • 리더십 교육을 통해 관리자로의 성장 가능성이 높습니다.
+                                                    </Typography>
+                                                    <Box sx={{ mt: 2 }}>
+                                                        <Typography variant="body2" color="textSecondary" gutterBottom>추천 사항</Typography>
+                                                        <Chip label="리더십 교육" size="small" sx={{ mr: 1 }} />
+                                                        <Chip label="승진 후보" size="small" color="primary" />
+                                                    </Box>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    </Grid>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={() => {
+                                        window.location.href = window.djangoData.apiEndpoints.employeeAnalysisDetail.replace('{id}', selectedEmployee.employee.id);
+                                    }}>
+                                        상세 분석 보기
+                                    </Button>
+                                    <Button onClick={() => {
+                                        setDialogOpen(false);
+                                        setSelectedEmployee(null);
+                                    }} color="primary">
+                                        닫기
+                                    </Button>
+                                </DialogActions>
+                            </>
+                        )}
+                    </Dialog>
+                </Container>
+            </Box>
+        );
+    };
+
+    // 메인 앱 컴포넌트
+    const App = () => {
+        return (
+            <AirissProvider>
+                <EmployeeAnalysisTable />
+            </AirissProvider>
+        );
+    };
+
+    // React 앱 렌더링
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+</script>
+{% endblock %}

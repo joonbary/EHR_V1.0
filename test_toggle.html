@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toggle Test</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .hidden { display: none; }
+        .grid-view { background: lightblue; padding: 20px; margin: 10px; }
+        .table-view { background: lightgreen; padding: 20px; margin: 10px; }
+        button { padding: 10px; margin: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>View Toggle Test</h1>
+    
+    <button id="viewToggle" title="테이블 보기로 변경">
+        <i data-lucide="grid"></i>
+        Toggle View
+    </button>
+    
+    <div id="employeeGrid" class="grid-view">
+        <h2>Grid View</h2>
+        <p>This is the grid/card view</p>
+    </div>
+    
+    <div id="employeeTable" class="table-view hidden">
+        <h2>Table View</h2>
+        <p>This is the table view</p>
+    </div>
+    
+    <script>
+        let isGridView = true;
+        
+        function toggleView() {
+            console.log('Toggle view clicked, current isGridView:', isGridView);
+            isGridView = !isGridView;
+            console.log('New isGridView:', isGridView);
+            
+            const button = document.getElementById('viewToggle');
+            const icon = button.querySelector('i');
+            const grid = document.getElementById('employeeGrid');
+            const table = document.getElementById('employeeTable');
+            
+            if (isGridView) {
+                icon.setAttribute('data-lucide', 'grid');
+                button.title = '테이블 보기로 변경';
+                grid.classList.remove('hidden');
+                table.classList.add('hidden');
+                console.log('Switched to grid view');
+            } else {
+                icon.setAttribute('data-lucide', 'list');
+                button.title = '카드 보기로 변경';
+                grid.classList.add('hidden');
+                table.classList.remove('hidden');
+                console.log('Switched to table view');
+            }
+            
+            // 아이콘 재생성
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            
+            // 이벤트 리스너 등록
+            document.getElementById('viewToggle').addEventListener('click', toggleView);
+            
+            // 초기 아이콘 설정
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            console.log('Initialization complete');
+        });
+    </script>
+</body>
+</html>

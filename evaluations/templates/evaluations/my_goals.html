@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}나의 목표 관리 - OK금융그룹 e-HR{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <!-- 브레드크럼 -->
+        <nav class="breadcrumb">
+            <ul class="breadcrumb-list">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'home' %}" class="breadcrumb-link">홈</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'evaluations:dashboard' %}" class="breadcrumb-link">평가관리</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'evaluations:my_evaluations' %}" class="breadcrumb-link">나의 평가</a>
+                </li>
+                <li class="breadcrumb-item">목표 관리</li>
+            </ul>
+        </nav>
+
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-bullseye"></i>
+                    나의 목표 관리
+                </h1>
+                <p class="page-description">{{ active_period }} 평가 기간의 개인 목표를 설정하고 관리합니다</p>
+            </div>
+            <div class="page-header-actions">
+                {% if remaining_weight > 0 %}
+                <a href="{% url 'evaluations:create_goal' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    새 목표 추가
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 가중치 현황 -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="mb-3">가중치 현황</h4>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="progress" style="height: 30px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ total_weight }}%"
+                                 aria-valuenow="{{ total_weight }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                                {{ total_weight }}% 사용
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <span class="text-muted">남은 가중치:</span>
+                        <span class="font-weight-bold text-primary">{{ remaining_weight }}%</span>
+                    </div>
+                </div>
+                {% if total_weight < 100 %}
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    가중치 합계가 100%가 되도록 목표를 설정해주세요.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 목표 목록 -->
+        <div class="card">
+            <div class="card-header">
+                <h3>목표 목록</h3>
+            </div>
+            <div class="card-body">
+                {% if tasks %}
+                    <div class="goals-list">
+                        {% for task in tasks %}
+                        <div class="goal-item">
+                            <div class="goal-header">
+                                <div class="goal-title-section">
+                                    <h4 class="goal-title">{{ task.title }}</h4>
+                                    <span class="badge badge-primary">{{ task.weight }}%</span>
+                                    <span class="badge badge-info">{{ task.get_contribution_method_display }}</span>
+                                    <span class="badge badge-secondary">{{ task.get_contribution_scope_display }}</span>
+                                </div>
+                                <div class="goal-status">
+                                    <span class="status-badge status-{{ task.status|lower }}">
+                                        {{ task.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {% if task.description %}
+                            <p class="goal-description">{{ task.description }}</p>
+                            {% endif %}
+                            
+                            <div class="goal-metrics">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="metric-label">목표</label>
+                                        <div class="metric-value">
+                                            {% if task.target_value %}
+                                                {{ task.target_value }} {{ task.target_unit }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="metric-label">실적</label>
+                                        <div class="metric-value">
+                                            {% if task.actual_value %}
+                                                {{ task.actual_value }} {{ task.target_unit }}
+                                            {% else %}
+                                                <form method="post" action="{% url 'evaluations:update_goal' task.id %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" name="actual_value" 
+                                                               class="form-control" placeholder="실적 입력" 
+                                                               step="0.01" required>
+                                                        <div class="input-group-append">
+                                                            <button type="submit" class="btn btn-primary btn-sm">저장</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="metric-label">달성률</label>
+                                        <div class="metric-value">
+                                            {% if task.achievement_rate %}
+                                                <div class="achievement-rate">
+                                                    <div class="progress" style="height: 25px;">
+                                                        <div class="progress-bar {% if task.achievement_rate >= 100 %}bg-success{% elif task.achievement_rate >= 80 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                             role="progressbar" 
+                                                             style="width: {{ task.achievement_rate }}%"
+                                                             aria-valuenow="{{ task.achievement_rate }}" 
+                                                             aria-valuemin="0" aria-valuemax="100">
+                                                            {{ task.achievement_rate }}%
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="goal-footer">
+                                <div class="goal-actions">
+                                    {% if task.status != 'COMPLETED' %}
+                                    <form method="post" action="{% url 'evaluations:update_goal' task.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="IN_PROGRESS">
+                                        <button type="submit" class="btn btn-sm btn-ghost">
+                                            <i class="fas fa-play"></i>
+                                            진행중으로 변경
+                                        </button>
+                                    </form>
+                                    
+                                    <form method="post" action="{% url 'evaluations:update_goal' task.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="COMPLETED">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i>
+                                            완료로 변경
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">아직 설정된 목표가 없습니다</h4>
+                        <p class="text-muted mb-4">새로운 목표를 추가하여 평가 준비를 시작하세요.</p>
+                        <a href="{% url 'evaluations:create_goal' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            첫 번째 목표 추가하기
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.goal-item {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: all var(--transition-normal);
+}
+
+.goal-item:hover {
+    box-shadow: var(--shadow-sm);
+    border-color: var(--gray-300);
+}
+
+.goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.goal-title-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.goal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.goal-description {
+    color: var(--gray-600);
+    margin-bottom: 1rem;
+}
+
+.goal-metrics {
+    background-color: var(--gray-50);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-planned {
+    background-color: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.status-in_progress {
+    background-color: #FFF3CD;
+    color: #856404;
+}
+
+.status-completed {
+    background-color: #D4EDDA;
+    color: #155724;
+}
+
+.goal-footer {
+    border-top: 1px solid var(--gray-200);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.achievement-rate {
+    margin-top: 0.5rem;
+}
+</style>
+{% endblock %}

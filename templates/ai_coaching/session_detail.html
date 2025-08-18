@@ -1,0 +1,729 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ session.title }} - AI 코칭 세션{% endblock %}
+
+{% block extra_css %}
+<style>
+    .coaching-chat {
+        background: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-header {
+        background: white;
+        border-bottom: 1px solid #dee2e6;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100vh - 200px);
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        max-height: 500px;
+    }
+    
+    .message {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .message.employee {
+        justify-content: flex-end;
+    }
+    
+    .message.ai {
+        justify-content: flex-start;
+    }
+    
+    .message-bubble {
+        max-width: 70%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        position: relative;
+        word-wrap: break-word;
+    }
+    
+    .message.employee .message-bubble {
+        background: #007bff;
+        color: white;
+        margin-left: 20px;
+    }
+    
+    .message.ai .message-bubble {
+        background: white;
+        color: #333;
+        border: 1px solid #dee2e6;
+        margin-right: 20px;
+    }
+    
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 14px;
+    }
+    
+    .message.employee .message-avatar {
+        background: #007bff;
+        order: 2;
+    }
+    
+    .message.ai .message-avatar {
+        background: #17a2b8;
+    }
+    
+    .message-time {
+        font-size: 11px;
+        color: #999;
+        margin-top: 4px;
+    }
+    
+    .chat-input-area {
+        background: white;
+        border-top: 1px solid #dee2e6;
+        padding: 20px;
+    }
+    
+    .chat-input-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .chat-input {
+        flex: 1;
+        border: 1px solid #dee2e6;
+        border-radius: 25px;
+        padding: 12px 20px;
+        outline: none;
+        resize: none;
+        min-height: 44px;
+        max-height: 120px;
+    }
+    
+    .send-button {
+        background: #17a2b8;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .send-button:hover {
+        background: #138496;
+        transform: scale(1.05);
+    }
+    
+    .send-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .session-info {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .session-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-active { background: #d4edda; color: #155724; }
+    .status-completed { background: #cce5ff; color: #004085; }
+    .status-scheduled { background: #fff3cd; color: #856404; }
+    
+    .typing-indicator {
+        display: none;
+        padding: 10px 16px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 18px;
+        margin-right: 60px;
+        margin-bottom: 20px;
+    }
+    
+    .typing-dots {
+        display: flex;
+        gap: 4px;
+    }
+    
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #999;
+        animation: typing 1.4s infinite;
+    }
+    
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+        30% { transform: translateY(-10px); opacity: 1; }
+    }
+    
+    .quick-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .quick-action-btn {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-btn:hover {
+        background: #e9ecef;
+        border-color: #17a2b8;
+    }
+    
+    .goals-panel, .actions-panel {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .goal-item, .action-item {
+        padding: 10px;
+        border-left: 3px solid #28a745;
+        background: #f8f9fa;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    
+    .action-item {
+        border-left-color: #17a2b8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="coaching-chat">
+    <!-- Chat Header -->
+    <div class="chat-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-1">{{ session.title }}</h4>
+                    <div class="d-flex align-items-center">
+                        <span class="me-3">
+                            <i class="fas fa-user me-1"></i>{{ session.employee.name }}
+                        </span>
+                        <span class="session-status status-{{ session.status|lower }}">
+                            {{ session.get_status_display }}
+                        </span>
+                        <span class="ms-3 text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            {% if session.status == 'ACTIVE' and session.started_at %}
+                                {{ session.started_at|timesince }} 진행 중
+                            {% elif session.get_actual_duration %}
+                                {{ session.get_actual_duration }}분 진행됨
+                            {% else %}
+                                예정됨
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    {% if session.status == 'ACTIVE' %}
+                    <button class="btn btn-outline-danger me-2" onclick="endSession()">
+                        <i class="fas fa-stop me-1"></i>세션 종료
+                    </button>
+                    {% endif %}
+                    <a href="{% url 'ai_coaching:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>돌아가기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Chat Area -->
+            <div class="col-md-8">
+                <div class="chat-container">
+                    <!-- Messages -->
+                    <div class="chat-messages" id="chatMessages">
+                        {% for message in messages %}
+                        <div class="message {{ message.sender|lower }}">
+                            <div class="message-avatar">
+                                {% if message.sender == 'EMPLOYEE' %}
+                                    {{ session.employee.name|first }}
+                                {% elif message.sender == 'AI_COACH' %}
+                                    AI
+                                {% else %}
+                                    SYS
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="message-bubble">
+                                    {{ message.content|linebreaks }}
+                                    {% if message.key_insights %}
+                                    <div class="mt-2">
+                                        {% for insight in message.key_insights %}
+                                        <small class="badge bg-light text-dark me-1">{{ insight }}</small>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="message-time">{{ message.timestamp|date:"H:i" }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Typing Indicator -->
+                        <div class="typing-indicator" id="typingIndicator">
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    {% if session.status == 'ACTIVE' %}
+                    <div class="chat-input-area">
+                        <!-- Quick Actions -->
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" onclick="insertQuickMessage('더 구체적으로 설명해주세요.')">
+                                더 자세히
+                            </button>
+                            <button class="quick-action-btn" onclick="insertQuickMessage('목표를 설정하고 싶습니다.')">
+                                목표 설정
+                            </button>
+                            <button class="quick-action-btn" onclick="insertQuickMessage('실행 계획을 만들어주세요.')">
+                                실행 계획
+                            </button>
+                            <button class="quick-action-btn" onclick="insertQuickMessage('피드백을 주시면 감사하겠습니다.')">
+                                피드백 요청
+                            </button>
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <textarea class="chat-input" id="messageInput" 
+                                    placeholder="메시지를 입력하세요... (Shift+Enter로 줄바꿈)" 
+                                    rows="1"></textarea>
+                            <button class="send-button" id="sendButton" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Side Panel -->
+            <div class="col-md-4">
+                <!-- Session Info -->
+                <div class="session-info">
+                    <h6>세션 정보</h6>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>유형:</span>
+                            <span>{{ session.get_session_type_display }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>시작:</span>
+                            <span>{{ session.started_at|date:"m.d H:i"|default:"-" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>메시지:</span>
+                            <span>{{ messages.count }}개</span>
+                        </div>
+                        {% if session.satisfaction_score > 0 %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>만족도:</span>
+                            <span class="text-warning">
+                                <i class="fas fa-star"></i> {{ session.satisfaction_score|floatformat:1 }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Goals -->
+                {% if goals %}
+                <div class="goals-panel">
+                    <h6>
+                        <i class="fas fa-bullseye text-success me-2"></i>
+                        설정된 목표
+                    </h6>
+                    <div class="mt-3">
+                        {% for goal in goals %}
+                        <div class="goal-item">
+                            <h6 class="mb-1">{{ goal.title }}</h6>
+                            <p class="mb-2 small text-muted">{{ goal.description|truncatewords:20 }}</p>
+                            {% if goal.target_date %}
+                            <small class="text-muted">목표일: {{ goal.target_date|date:"m.d" }}</small>
+                            {% endif %}
+                            {% if goal.progress_percentage > 0 %}
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-success" style="width: {{ goal.progress_percentage }}%"></div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Action Items -->
+                {% if action_items %}
+                <div class="actions-panel">
+                    <h6>
+                        <i class="fas fa-tasks text-info me-2"></i>
+                        액션 아이템
+                    </h6>
+                    <div class="mt-3">
+                        {% for item in action_items %}
+                        <div class="action-item">
+                            <h6 class="mb-1">{{ item.title }}</h6>
+                            <p class="mb-2 small text-muted">{{ item.description|truncatewords:15 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-dark">{{ item.get_category_display }}</span>
+                                {% if item.due_date %}
+                                <small class="text-muted">{{ item.due_date|date:"m.d" }}까지</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="session-info">
+                    <h6>작업</h6>
+                    <div class="mt-3 d-grid gap-2">
+                        <button class="btn btn-outline-success btn-sm" onclick="createGoal()">
+                            <i class="fas fa-plus me-1"></i>목표 추가
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="createActionItem()">
+                            <i class="fas fa-plus me-1"></i>액션 아이템 추가
+                        </button>
+                        {% if session.status == 'COMPLETED' %}
+                        <button class="btn btn-outline-warning btn-sm" onclick="submitFeedback()">
+                            <i class="fas fa-star me-1"></i>피드백 제출
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    
+    if (messageInput) {
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        messageInput.addEventListener('input', autoResize);
+        messageInput.focus();
+    }
+    
+    scrollToBottom();
+});
+
+function autoResize() {
+    const messageInput = document.getElementById('messageInput');
+    messageInput.style.height = 'auto';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+}
+
+function scrollToBottom() {
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function insertQuickMessage(message) {
+    const messageInput = document.getElementById('messageInput');
+    messageInput.value = message;
+    messageInput.focus();
+    autoResize();
+}
+
+function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const message = messageInput.value.trim();
+    
+    if (!message) return;
+    
+    // UI 업데이트
+    sendButton.disabled = true;
+    messageInput.disabled = true;
+    
+    // 사용자 메시지 추가
+    addMessage('employee', '{{ session.employee.name|first }}', message, new Date());
+    messageInput.value = '';
+    autoResize();
+    
+    // 타이핑 인디케이터 표시
+    showTypingIndicator();
+    
+    // API 호출
+    fetch(`{% url 'ai_coaching:send_message' session.session_id %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            content: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        
+        if (data.success) {
+            // AI 응답 추가
+            addMessage('ai', 'AI', data.ai_response.content, new Date(), data.ai_response.insights);
+        } else {
+            alert(data.message || '메시지 전송 중 오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        hideTypingIndicator();
+        alert('메시지 전송 중 오류가 발생했습니다.');
+    })
+    .finally(() => {
+        sendButton.disabled = false;
+        messageInput.disabled = false;
+        messageInput.focus();
+    });
+}
+
+function addMessage(sender, avatar, content, timestamp, insights = []) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const now = new Date();
+    const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                   now.getMinutes().toString().padStart(2, '0');
+    
+    let insightsHtml = '';
+    if (insights && insights.length > 0) {
+        insightsHtml = '<div class="mt-2">';
+        insights.forEach(insight => {
+            insightsHtml += `<small class="badge bg-light text-dark me-1">${insight}</small>`;
+        });
+        insightsHtml += '</div>';
+    }
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div>
+            <div class="message-bubble">
+                ${content.replace(/\n/g, '<br>')}
+                ${insightsHtml}
+            </div>
+            <div class="message-time">${timeStr}</div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+function showTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'block';
+    scrollToBottom();
+}
+
+function hideTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'none';
+}
+
+function endSession() {
+    if (!confirm('세션을 종료하시겠습니까?')) return;
+    
+    fetch(`{% url 'ai_coaching:end_session' session.session_id %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('세션이 종료되었습니다.');
+            location.reload();
+        } else {
+            alert(data.message || '세션 종료 중 오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('세션 종료 중 오류가 발생했습니다.');
+    });
+}
+
+function createGoal() {
+    const title = prompt('목표 제목을 입력하세요:');
+    if (!title) return;
+    
+    const description = prompt('목표 설명을 입력하세요:');
+    if (!description) return;
+    
+    const goalData = {
+        title: title,
+        description: description,
+        goal_type: 'PERFORMANCE',
+        priority: 'MEDIUM'
+    };
+    
+    fetch(`{% url 'ai_coaching:create_goal' session.session_id %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(goalData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('목표가 생성되었습니다.');
+            location.reload();
+        } else {
+            alert(data.message || '목표 생성 중 오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('목표 생성 중 오류가 발생했습니다.');
+    });
+}
+
+function createActionItem() {
+    const title = prompt('액션 아이템 제목을 입력하세요:');
+    if (!title) return;
+    
+    const description = prompt('액션 아이템 설명을 입력하세요:');
+    if (!description) return;
+    
+    const actionData = {
+        title: title,
+        description: description,
+        category: 'TASK',
+        due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    };
+    
+    fetch(`{% url 'ai_coaching:create_action_item' session.session_id %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(actionData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('액션 아이템이 생성되었습니다.');
+            location.reload();
+        } else {
+            alert(data.message || '액션 아이템 생성 중 오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('액션 아이템 생성 중 오류가 발생했습니다.');
+    });
+}
+
+function submitFeedback() {
+    // 간단한 피드백 폼 (향후 모달로 개선)
+    const rating = prompt('전체적인 만족도를 1-5점으로 평가해주세요:');
+    if (!rating || rating < 1 || rating > 5) return;
+    
+    const positive = prompt('좋았던 점을 적어주세요:') || '';
+    const improvement = prompt('개선할 점을 적어주세요:') || '';
+    
+    const feedbackData = {
+        feedback_type: 'SESSION',
+        overall_rating: parseInt(rating),
+        coaching_quality: parseInt(rating),
+        ai_helpfulness: parseInt(rating),
+        goal_achievement: parseInt(rating),
+        positive_aspects: positive,
+        areas_for_improvement: improvement
+    };
+    
+    fetch(`{% url 'ai_coaching:submit_feedback' session.session_id %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(feedbackData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('피드백이 제출되었습니다.');
+            location.reload();
+        } else {
+            alert(data.message || '피드백 제출 중 오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('피드백 제출 중 오류가 발생했습니다.');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,1106 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}AI Quick Win Dashboard - 혁신적 통합 허브{% endblock %}
+
+{% block page_header %}AI Intelligence Center{% endblock %}
+
+{% block content_title %}AI Quick Win Dashboard{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    <span style="color: #00d4ff; font-weight: 600;">7가지</span> AI 모듈로 만드는 
+    <span style="color: #00d4ff; font-weight: 600;">차세대 인사혁신 생태계</span>
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 혁신적 AI 모듈 카드 시스템 */
+    .ai-hero-section {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 30px;
+        padding: 4rem 3rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+    
+    .ai-hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+    
+    .hero-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border-radius: 50px;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-title {
+        font-size: 48px;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #fff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-description {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* AI 통계 카드 그리드 */
+    .ai-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .ai-stat-card {
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .ai-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .ai-stat-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+    }
+
+    .ai-stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .ai-stat-icon {
+        font-size: 48px;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .ai-stat-value {
+        font-size: 36px;
+        font-weight: 800;
+        color: #00d4ff;
+        margin-bottom: 0.8rem;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .ai-stat-label {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    /* AI 모듈 그리드 */
+    .ai-modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .ai-module-card {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .ai-module-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .ai-module-card:hover {
+        transform: translateY(-12px);
+        border-color: #00d4ff;
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .ai-module-card:hover::after {
+        transform: scaleY(1);
+    }
+
+    .module-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .module-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+
+    .module-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+    }
+
+    .module-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .status-beta {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .status-coming {
+        background: rgba(255, 82, 82, 0.2);
+        color: #ff5252;
+        border: 1px solid rgba(255, 82, 82, 0.3);
+    }
+
+    .module-description {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .module-progress {
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+    }
+
+    .progress-percentage {
+        font-size: 14px;
+        font-weight: 600;
+        color: #00d4ff;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        border-radius: 3px;
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .module-action {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #00d4ff;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .module-action:hover {
+        color: #ffffff;
+        transform: translateX(5px);
+    }
+
+    /* AIRISS 통합 섹션 */
+    .airiss-integration-section {
+        margin: 4rem 0;
+        padding: 3rem;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 25px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .airiss-integration-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    .integration-header {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .integration-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #00d4ff;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .integration-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .integration-card {
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .integration-card:hover {
+        transform: translateY(-5px);
+        border-color: #00d4ff;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .sync-controls {
+        margin-top: 2rem;
+        padding: 2rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .sync-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #00d4ff;
+        margin-bottom: 1rem;
+    }
+
+    .sync-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .form-input {
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        color: #ffffff;
+        min-width: 150px;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #00d4ff;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    .sync-btn {
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sync-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .sync-btn.secondary {
+        background: transparent;
+        color: #00d4ff;
+        border: 2px solid #00d4ff;
+    }
+
+    .sync-btn.secondary:hover {
+        background: rgba(0, 212, 255, 0.1);
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .ai-hero-section {
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .ai-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .ai-modules-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .sync-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .form-input {
+            min-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .ai-stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 혁신적 AI 허브 히어로 섹션 -->
+<div class="ai-hero-section animate-fadeInUp">
+    <span class="hero-badge">AI Revolution Engine</span>
+    <h1 class="hero-title animate-glow">AI Quick Win Hub</h1>
+    <p class="hero-description">
+        7가지 혁신적 AI 모듈이 만드는 차세대 인사정보시스템의 중심
+    </p>
+</div>
+
+<!-- AI 통계 대시보드 -->
+<div class="ai-stats-grid">
+    <div class="ai-stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
+        <span class="ai-stat-icon">🤖</span>
+        <div class="ai-stat-value">7</div>
+        <div class="ai-stat-label">활성 AI 모듈</div>
+    </div>
+    
+    <div class="ai-stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
+        <span class="ai-stat-icon">⚡</span>
+        <div class="ai-stat-value">1,234</div>
+        <div class="ai-stat-label">일일 AI 분석</div>
+    </div>
+    
+    <div class="ai-stat-card animate-fadeInUp" style="animation-delay: 0.3s;">
+        <span class="ai-stat-icon">🎯</span>
+        <div class="ai-stat-value">95%</div>
+        <div class="ai-stat-label">정확도</div>
+    </div>
+    
+    <div class="ai-stat-card animate-fadeInUp" style="animation-delay: 0.4s;">
+        <span class="ai-stat-icon">⏱️</span>
+        <div class="ai-stat-value">0.8초</div>
+        <div class="ai-stat-label">평균 응답시간</div>
+    </div>
+</div>
+
+<!-- AI 모듈 그리드 -->
+<div class="ai-modules-grid">
+    <!-- 팀 최적화 엔진 -->
+    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="ai-module-card animate-slideInLeft" style="animation-delay: 0.1s;">
+        <div class="module-header">
+            <div class="module-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                👥
+            </div>
+            <span class="module-status status-active">
+                <span style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; display: inline-block;"></span>
+                Active
+            </span>
+        </div>
+        <h3 class="module-title">AI 팀 최적화 엔진</h3>
+        <p class="module-description">
+            AI 기반 최적의 팀 구성을 추천하고 성과를 예측합니다. 
+            데이터 기반 팀 빌딩으로 조직 효율성을 극대화합니다.
+        </p>
+        <div class="module-progress">
+            <div class="progress-header">
+                <span class="progress-label">완성도</span>
+                <span class="progress-percentage">90%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="90"></div>
+            </div>
+        </div>
+        <div class="module-action">
+            <span>대시보드 열기</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7,7 17,7 17,17"></polyline>
+            </svg>
+        </div>
+    </a>
+    
+    <!-- AI 스마트 코칭 -->
+    <a href="{% url 'ai_coaching:dashboard' %}" class="ai-module-card animate-slideInLeft" style="animation-delay: 0.2s;">
+        <div class="module-header">
+            <div class="module-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                🎯
+            </div>
+            <span class="module-status status-active">
+                <span style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; display: inline-block;"></span>
+                Active
+            </span>
+        </div>
+        <h3 class="module-title">AI 스마트 코칭</h3>
+        <p class="module-description">
+            개인별 맞춤형 코칭과 실시간 피드백을 제공합니다. 
+            AI가 분석한 성장 경로로 직원 역량을 극대화합니다.
+        </p>
+        <div class="module-progress">
+            <div class="progress-header">
+                <span class="progress-label">완성도</span>
+                <span class="progress-percentage">85%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="85"></div>
+            </div>
+        </div>
+        <div class="module-action">
+            <span>대시보드 열기</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7,7 17,7 17,17"></polyline>
+            </svg>
+        </div>
+    </a>
+    
+    <!-- 경영진 인사이트 -->
+    <a href="{% url 'ai_insights:executive_dashboard' %}" class="ai-module-card animate-slideInLeft" style="animation-delay: 0.3s;">
+        <div class="module-header">
+            <div class="module-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                💡
+            </div>
+            <span class="module-status status-beta">
+                <span style="width: 8px; height: 8px; background: #ffc107; border-radius: 50%; display: inline-block;"></span>
+                Beta
+            </span>
+        </div>
+        <h3 class="module-title">경영진 AI 인사이트</h3>
+        <p class="module-description">
+            조직 전반의 인사이트와 트렌드를 분석합니다. 
+            데이터 기반 경영 의사결정을 위한 핵심 지표를 제공합니다.
+        </p>
+        <div class="module-progress">
+            <div class="progress-header">
+                <span class="progress-label">완성도</span>
+                <span class="progress-percentage">75%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="75"></div>
+            </div>
+        </div>
+        <div class="module-action">
+            <span>대시보드 열기</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7,7 17,7 17,17"></polyline>
+            </svg>
+        </div>
+    </a>
+    
+    <!-- 예측 분석 센터 -->
+    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="ai-module-card animate-slideInLeft" style="animation-delay: 0.4s;">
+        <div class="module-header">
+            <div class="module-icon" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                📈
+            </div>
+            <span class="module-status status-beta">
+                <span style="width: 8px; height: 8px; background: #ffc107; border-radius: 50%; display: inline-block;"></span>
+                Beta
+            </span>
+        </div>
+        <h3 class="module-title">AI 예측 분석 센터</h3>
+        <p class="module-description">
+            이직 리스크를 예측하고 예방 전략을 제시합니다. 
+            성과 예측 모델로 미래 인사 전략을 수립합니다.
+        </p>
+        <div class="module-progress">
+            <div class="progress-header">
+                <span class="progress-label">완성도</span>
+                <span class="progress-percentage">70%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="70"></div>
+            </div>
+        </div>
+        <div class="module-action">
+            <span>대시보드 열기</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7,7 17,7 17,17"></polyline>
+            </svg>
+        </div>
+    </a>
+    
+    <!-- AI 면접 시스템 -->
+    <a href="{% url 'ai_interviewer:interview_dashboard' %}" class="ai-module-card animate-slideInLeft" style="animation-delay: 0.5s;">
+        <div class="module-header">
+            <div class="module-icon" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                🎤
+            </div>
+            <span class="module-status status-beta">
+                <span style="width: 8px; height: 8px; background: #ffc107; border-radius: 50%; display: inline-block;"></span>
+                Beta
+            </span>
+        </div>
+        <h3 class="module-title">AI 면접 시스템</h3>
+        <p class="module-description">
+            AI 기반 면접 질문 생성과 평가를 지원합니다. 
+            객관적 면접 평가로 최적의 인재를 선별합니다.
+        </p>
+        <div class="module-progress">
+            <div class="progress-header">
+                <span class="progress-label">완성도</span>
+                <span class="progress-percentage">65%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="65"></div>
+            </div>
+        </div>
+        <div class="module-action">
+            <span>대시보드 열기</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7,7 17,7 17,17"></polyline>
+            </svg>
+        </div>
+    </a>
+    
+    <!-- AI 어시스턴트 -->
+    <a href="{% url 'ai_quickwin:chatbot' %}" class="ai-module-card animate-slideInLeft" style="animation-delay: 0.6s;">
+        <div class="module-header">
+            <div class="module-icon" style="background: linear-gradient(135deg, #13547a 0%, #80d0c7 100%);">
+                💬
+            </div>
+            <span class="module-status status-active">
+                <span style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; display: inline-block;"></span>
+                Active
+            </span>
+        </div>
+        <h3 class="module-title">AI 어시스턴트</h3>
+        <p class="module-description">
+            HR 관련 질문에 24/7 즉시 답변을 제공합니다. 
+            자연어 처리로 직관적인 상호작용을 지원합니다.
+        </p>
+        <div class="module-progress">
+            <div class="progress-header">
+                <span class="progress-label">완성도</span>
+                <span class="progress-percentage">88%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="88"></div>
+            </div>
+        </div>
+        <div class="module-action">
+            <span>어시스턴트 열기</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7,7 17,7 17,17"></polyline>
+            </svg>
+        </div>
+    </a>
+    
+    <!-- 리더십 AI 파트너 -->
+    <a href="{% url 'ai_quickwin:leader_assistant' %}" class="ai-module-card animate-slideInLeft" style="animation-delay: 0.7s;">
+        <div class="module-header">
+            <div class="module-icon" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);">
+                👑
+            </div>
+            <span class="module-status status-active">
+                <span style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; display: inline-block;"></span>
+                Active
+            </span>
+        </div>
+        <h3 class="module-title">리더십 AI 파트너</h3>
+        <p class="module-description">
+            리더를 위한 의사결정 지원과 전략 제안을 제공합니다. 
+            조직 관리와 팀 리딩을 위한 AI 파트너십을 경험하세요.
+        </p>
+        <div class="module-progress">
+            <div class="progress-header">
+                <span class="progress-label">완성도</span>
+                <span class="progress-percentage">82%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="82"></div>
+            </div>
+        </div>
+        <div class="module-action">
+            <span>파트너 만나기</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7,7 17,7 17,17"></polyline>
+            </svg>
+        </div>
+    </a>
+</div>
+
+<!-- AIRISS 통합 관리 섹션 -->
+<div class="airiss-integration-section animate-fadeInUp">
+    <div class="integration-header">
+        <h2 class="integration-title">AIRISS 서비스 통합 상태</h2>
+        <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem;">
+            AI Result & Intelligence Scoring System 실시간 모니터링
+        </p>
+        <button onclick="checkIntegrationStatus()" class="sync-btn" style="margin-bottom: 2rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m0 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V10m-9 7h4"/>
+            </svg>
+            상태 새로고침
+        </button>
+    </div>
+    
+    <div id="integration-status" class="integration-grid">
+        <div style="text-center; color: rgba(255, 255, 255, 0.6); grid-column: 1 / -1; padding: 2rem;">
+            <div style="width: 40px; height: 40px; border: 3px solid rgba(0, 212, 255, 0.3); border-top: 3px solid #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+            <p>통합 상태를 불러오는 중...</p>
+        </div>
+    </div>
+    
+    <!-- 직원 동기화 컨트롤 -->
+    <div class="sync-controls">
+        <h3 class="sync-title">직원 데이터 동기화</h3>
+        <div class="sync-form">
+            <input type="number" id="employee-id" placeholder="직원 ID 입력" class="form-input">
+            <button onclick="syncEmployee()" class="sync-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+                개별 동기화
+            </button>
+            <button onclick="generateReport()" class="sync-btn secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                </svg>
+                종합 리포트
+            </button>
+        </div>
+        <div id="sync-result" style="margin-top: 1rem;"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize progress bars animation
+    setTimeout(() => {
+        document.querySelectorAll('.progress-fill').forEach(bar => {
+            const targetWidth = bar.getAttribute('data-width') + '%';
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = targetWidth;
+            }, 200);
+        });
+    }, 500);
+    
+    // Initialize integration status check
+    checkIntegrationStatus();
+    
+    // Enhanced hover effects for AI module cards
+    const moduleCards = document.querySelectorAll('.ai-module-card');
+    moduleCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-16px) scale(1.02)';
+            const icon = this.querySelector('.module-icon');
+            if (icon) {
+                icon.style.transform = 'scale(1.1) rotate(5deg)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            const icon = this.querySelector('.module-icon');
+            if (icon) {
+                icon.style.transform = 'scale(1) rotate(0deg)';
+            }
+        });
+    });
+    
+    // Enhanced hover effects for stat cards
+    const statCards = document.querySelectorAll('.ai-stat-card');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-12px) scale(1.05)';
+            const value = this.querySelector('.ai-stat-value');
+            if (value) {
+                value.style.textShadow = '0 0 30px rgba(0, 212, 255, 0.8)';
+                value.style.transform = 'scale(1.1)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            const value = this.querySelector('.ai-stat-value');
+            if (value) {
+                value.style.textShadow = '0 0 20px rgba(0, 212, 255, 0.5)';
+                value.style.transform = 'scale(1)';
+            }
+        });
+    });
+});
+
+// AIRISS 통합 상태 확인
+function checkIntegrationStatus() {
+    fetch('/ai/api/integration-status/')
+        .then(response => response.json())
+        .then(data => {
+            displayIntegrationStatus(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('integration-status').innerHTML = `
+                <div style="grid-column: 1 / -1; text-center; color: #ff5252; padding: 2rem;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    <p>통합 상태를 불러오는데 실패했습니다.</p>
+                </div>
+            `;
+        });
+}
+
+// 통합 상태 표시
+function displayIntegrationStatus(data) {
+    const statusContainer = document.getElementById('integration-status');
+    let html = '';
+    
+    // 전체 상태 표시
+    const healthColor = data.integration_health === 'HEALTHY' ? '#00ff88' : 
+                       data.integration_health === 'DEGRADED' ? '#ffc107' : '#ff5252';
+    
+    html += `
+        <div style="grid-column: 1 / -1; padding: 1.5rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: #ffffff;">전체 통합 상태</span>
+                <span style="padding: 8px 16px; background: rgba(0, 0, 0, 0.5); color: ${healthColor}; border: 1px solid ${healthColor}; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                    ${data.integration_health}
+                </span>
+            </div>
+        </div>
+    `;
+    
+    // 각 모듈 상태 표시
+    if (data.modules) {
+        Object.entries(data.modules).forEach(([module, info]) => {
+            const isActive = info.active || info.connected;
+            const statusColor = isActive ? '#00ff88' : '#666666';
+            const statusText = isActive ? 'Active' : 'Inactive';
+            
+            html += `
+                <div class="integration-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="font-weight: 600; color: #ffffff; margin: 0;">${formatModuleName(module)}</h4>
+                        <div style="width: 12px; height: 12px; background: ${statusColor}; border-radius: 50%;"></div>
+                    </div>
+                    <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-bottom: 0.5rem;">상태: ${statusText}</p>
+                    ${info.recent_insights !== undefined ? `<p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">최근 활동: ${info.recent_insights}</p>` : ''}
+                    ${info.active_sessions !== undefined ? `<p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">활성 세션: ${info.active_sessions}</p>` : ''}
+                    ${info.active_projects !== undefined ? `<p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">활성 프로젝트: ${info.active_projects}</p>` : ''}
+                </div>
+            `;
+        });
+    }
+    
+    statusContainer.innerHTML = html;
+}
+
+// 모듈 이름 포맷팅
+function formatModuleName(module) {
+    const names = {
+        'airiss': 'AIRISS Core',
+        'ai_insights': 'AI 인사이트',
+        'ai_predictions': '예측 분석',
+        'ai_interviewer': 'AI 면접관',
+        'ai_team_optimizer': '팀 최적화',
+        'ai_coaching': '코칭 어시스턴트'
+    };
+    return names[module] || module;
+}
+
+// 직원 동기화
+function syncEmployee() {
+    const employeeId = document.getElementById('employee-id').value;
+    
+    if (!employeeId) {
+        alert('직원 ID를 입력해주세요.');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('sync-result');
+    resultDiv.innerHTML = `
+        <div style="padding: 1rem; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 10px; color: rgba(255, 255, 255, 0.8);">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 16px; height: 16px; border: 2px solid rgba(0, 212, 255, 0.3); border-top: 2px solid #00d4ff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                동기화 중...
+            </div>
+        </div>
+    `;
+    
+    fetch(`/ai/api/sync/employee/${employeeId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div style="padding: 1.5rem; background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px;">
+                    <h4 style="color: #00ff88; font-weight: 600; margin-bottom: 1rem;">✅ 동기화 완료!</h4>
+                    <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 0.5rem;"><strong>직원:</strong> ${data.employee_name}</p>
+                    <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 0.5rem;">이직 위험도: ${data.analysis_summary.risk_level} (${data.analysis_summary.turnover_risk_score}%)</p>
+                    <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px;">승진 준비도: ${data.analysis_summary.promotion_readiness} (${data.analysis_summary.promotion_potential_score}%)</p>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div style="padding: 1.5rem; background: rgba(255, 82, 82, 0.1); border: 1px solid rgba(255, 82, 82, 0.3); border-radius: 10px;">
+                    <h4 style="color: #ff5252; font-weight: 600; margin-bottom: 0.5rem;">❌ 동기화 실패</h4>
+                    <p style="color: rgba(255, 255, 255, 0.9);">${data.error}</p>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultDiv.innerHTML = `
+            <div style="padding: 1.5rem; background: rgba(255, 82, 82, 0.1); border: 1px solid rgba(255, 82, 82, 0.3); border-radius: 10px;">
+                <h4 style="color: #ff5252; font-weight: 600; margin-bottom: 0.5rem;">❌ 오류 발생</h4>
+                <p style="color: rgba(255, 255, 255, 0.9);">네트워크 오류가 발생했습니다.</p>
+            </div>
+        `;
+    });
+}
+
+// 종합 리포트 생성
+function generateReport() {
+    const employeeId = document.getElementById('employee-id').value;
+    
+    if (!employeeId) {
+        alert('직원 ID를 입력해주세요.');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('sync-result');
+    resultDiv.innerHTML = `
+        <div style="padding: 1rem; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 10px; color: rgba(255, 255, 255, 0.8);">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 16px; height: 16px; border: 2px solid rgba(0, 212, 255, 0.3); border-top: 2px solid #00d4ff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                리포트 생성 중...
+            </div>
+        </div>
+    `;
+    
+    fetch(`/ai/api/report/${employeeId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayReport(data.report);
+            } else {
+                resultDiv.innerHTML = `
+                    <div style="padding: 1.5rem; background: rgba(255, 82, 82, 0.1); border: 1px solid rgba(255, 82, 82, 0.3); border-radius: 10px;">
+                        <h4 style="color: #ff5252; font-weight: 600; margin-bottom: 0.5rem;">❌ 리포트 생성 실패</h4>
+                        <p style="color: rgba(255, 255, 255, 0.9);">${data.error}</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultDiv.innerHTML = `
+                <div style="padding: 1.5rem; background: rgba(255, 82, 82, 0.1); border: 1px solid rgba(255, 82, 82, 0.3); border-radius: 10px;">
+                    <h4 style="color: #ff5252; font-weight: 600; margin-bottom: 0.5rem;">❌ 오류 발생</h4>
+                    <p style="color: rgba(255, 255, 255, 0.9);">네트워크 오류가 발생했습니다.</p>
+                </div>
+            `;
+        });
+}
+
+// 리포트 표시
+function displayReport(report) {
+    const resultDiv = document.getElementById('sync-result');
+    
+    let html = `
+        <div style="padding: 2rem; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 15px;">
+            <h4 style="color: #00d4ff; font-weight: 700; margin-bottom: 1.5rem; font-size: 18px;">📊 종합 AI 분석 리포트</h4>
+            <div style="margin-bottom: 1.5rem;">
+                <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 0.5rem;"><strong>직원:</strong> ${report.employee.name} (${report.employee.position})</p>
+                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem;"><strong>부서:</strong> ${report.employee.department}</p>
+            </div>
+    `;
+    
+    if (report.modules.airiss) {
+        const airiss = report.modules.airiss;
+        html += `
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; margin-bottom: 1rem;">
+                <h5 style="color: #00d4ff; font-weight: 600; margin-bottom: 1rem;">🤖 AIRISS 분석</h5>
+                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem;">이직 위험도: <span style="color: #00d4ff; font-weight: 600;">${airiss.turnover_risk.score}%</span></p>
+                <p style="color: rgba(255, 255, 255, 0.8);">승진 가능성: <span style="color: #00d4ff; font-weight: 600;">${airiss.promotion_potential.score}%</span></p>
+            </div>
+        `;
+    }
+    
+    if (report.modules.coaching) {
+        const coaching = report.modules.coaching;
+        html += `
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; margin-bottom: 1rem;">
+                <h5 style="color: #00d4ff; font-weight: 600; margin-bottom: 1rem;">🎯 코칭 현황</h5>
+                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem;">활성 세션: <span style="color: #00d4ff; font-weight: 600;">${coaching.active_sessions}</span></p>
+                <p style="color: rgba(255, 255, 255, 0.8);">완료 목표: <span style="color: #00d4ff; font-weight: 600;">${coaching.completed_goals} / ${coaching.total_goals}</span></p>
+            </div>
+        `;
+    }
+    
+    if (report.summary) {
+        html += `
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <h5 style="color: #00d4ff; font-weight: 600; margin-bottom: 1rem;">📋 종합 평가</h5>
+                <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">상태: <span style="color: #00ff88; font-weight: 600;">${report.summary.overall_status}</span></p>
+                ${report.summary.immediate_actions && report.summary.immediate_actions.length > 0 ? 
+                    `<div style="margin-top: 1rem;">
+                        <p style="color: rgba(255, 255, 255, 0.9); font-weight: 600; margin-bottom: 0.5rem;">⚡ 즉시 조치사항:</p>
+                        <ul style="color: rgba(255, 255, 255, 0.8); margin-left: 1rem; line-height: 1.6;">
+                            ${report.summary.immediate_actions.map(action => `<li>${action}</li>`).join('')}
+                        </ul>
+                    </div>` : ''}
+            </div>
+        `;
+    }
+    
+    html += `</div>`;
+    
+    resultDiv.innerHTML = html;
+}
+
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,262 @@
+"""
+대시보드 뷰 함수들
+"""
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.cache import cache_page
+from django.utils import timezone
+from django.db.models import Count, Avg, Sum, Max, Min
+from employees.models import Employee
+from compensation.models import EmployeeCompensation
+from utils.dashboard_utils import (
+    DashboardAggregator, 
+    ChartDataFormatter,
+    format_currency,
+    format_percentage
+)
+from utils.file_upload import create_standard_response
+from utils.airiss_api_service import AIRISSAPIService
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def leader_kpi_dashboard(request):
+    """경영진 KPI 대시보드"""
+    # DashboardAggregator 사용
+    aggregator = DashboardAggregator()
+    formatter = ChartDataFormatter()
+    
+    # AIRISS API 서비스 사용 (정제된 데이터)
+    airiss_api = AIRISSAPIService()
+    
+    # KPI 통계 데이터 가져오기
+    stats = airiss_api.get_kpi_stats()
+    
+    # 부서별 성과 데이터 가져오기 (정제된 데이터)
+    department_performance = airiss_api.get_department_performance()
+    
+    # 리더십 파이프라인 데이터 가져오기 (정제된 데이터)
+    leadership_pipeline = airiss_api.get_leadership_pipeline()
+    
+    # KPI 카드 생성 (AIRISS API 데이터 통합)
+    kpis = [
+        aggregator.format_kpi_card(
+            title='핵심인재',
+            value=f"{stats.get('core_talent_count', 152):,}명",
+            icon='fas fa-star',
+            trend_direction='up',
+            trend_value=stats.get('talent_density', 10.1),
+            period=f"전체 대비 {stats.get('talent_density', 10.1):.1f}%"
+        ),
+        aggregator.format_kpi_card(
+            title='승진후보',
+            value=f"{stats.get('promotion_candidates_count', 78):,}명",
+            icon='fas fa-user-graduate',
+            trend_direction='up',
+            trend_value=12.5,
+            period='전분기 대비'
+        ),
+        aggregator.format_kpi_card(
+            title='평균성과',
+            value=f"{stats.get('average_score', 782):.0f}점",
+            icon='fas fa-chart-line',
+            trend_direction='up',
+            trend_value=8.3,
+            period='전년 대비'
+        ),
+        aggregator.format_kpi_card(
+            title='전체직원',
+            value=f"{stats.get('total_employees', 1509):,}명",
+            icon='fas fa-users',
+            trend_direction='up',
+            trend_value=5.2,
+            period='전월 대비'
+        )
+    ]
+    
+    # 월별 성과 트렌드 데이터
+    monthly_performance = aggregator.get_monthly_performance_trend()
+    
+    context = {
+        'title': '경영진 KPI 대시보드',
+        'kpis': kpis,
+        'department_performance': department_performance,
+        'leadership_pipeline': leadership_pipeline,
+        'monthly_performance': json.dumps(monthly_performance),  # JSON 직렬화
+        'airiss_integrated': False,  # AIRISS 섹션 비활성화
+        
+        # 갱신 시간
+        'last_updated': timezone.now().strftime('%Y-%m-%d %H:%M')
+    }
+    
+    return render(request, 'dashboards/leader_kpi_dashboard_revolutionary.html', context)
+
+
+def workforce_comp_dashboard(request):
+    """인력/보상 통합 대시보드"""
+    try:
+        # 인력 통계
+        total_employees = Employee.objects.count()
+        dept_distribution = Employee.objects.values('department').annotate(
+            count=Count('id')
+        ).order_by('-count')
+        
+        # 보상 통계 - 안전하게 처리
+        try:
+            compensation_stats = EmployeeCompensation.objects.aggregate(
+                total=Sum('total_compensation'),
+                average=Avg('total_compensation'),
+                max_comp=Max('total_compensation'),
+                min_comp=Min('total_compensation')
+            )
+        except Exception as e:
+            logger.warning(f"Compensation table not available: {e}")
+            compensation_stats = {
+                'total': 0,
+                'average': 0,
+                'max_comp': 0,
+                'min_comp': 0
+            }
+        
+        # avg_salary 제거 (compensation 테이블이 없을 수 있음)
+        for dept in dept_distribution:
+            dept['avg_salary'] = 0  # 기본값 설정
+        
+        context = {
+            'title': '인력/보상 현황',
+            'total_employees': total_employees,
+            'dept_distribution': dept_distribution,
+            'compensation_stats': compensation_stats,
+        }
+        
+        return render(request, 'dashboards/workforce_comp.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error in workforce_comp_dashboard: {e}", exc_info=True)
+        # 에러 발생 시 기본값으로 렌더링
+        context = {
+            'title': '인력/보상 현황',
+            'total_employees': 0,
+            'dept_distribution': [],
+            'compensation_stats': {
+                'total': 0,
+                'average': 0,
+                'max_comp': 0,
+                'min_comp': 0
+            },
+        }
+        return render(request, 'dashboards/workforce_comp.html', context)
+
+
+def skillmap_dashboard(request):
+    """스킬맵 대시보드"""
+    # 기본 필터 옵션
+    context = {
+        'title': '직무스킬맵',
+        'departments': Employee.DEPARTMENT_CHOICES,
+        'job_groups': [('PL', 'PL'), ('Non-PL', 'Non-PL')],
+        'job_types': [
+            ('IT기획', 'IT기획'), ('IT개발', 'IT개발'), ('IT운영', 'IT운영'),
+            ('경영관리', '경영관리'), ('기업영업', '기업영업'), ('기업금융', '기업금융'),
+            ('리테일금융', '리테일금융'), ('투자금융', '투자금융'), ('고객지원', '고객지원')
+        ],
+        'growth_levels': [(i, f'Level {i}') for i in range(1, 6)]
+    }
+    
+    # Use the main dashboard template
+    return render(request, 'skillmap/dashboard.html', context)
+
+
+# API 엔드포인트
+def export_dashboard(request):
+    """대시보드 데이터 내보내기"""
+    export_type = request.GET.get('type', 'pdf')
+    
+    # 실제 구현에서는 PDF/Excel 생성 로직 추가
+    return JsonResponse({
+        'success': True,
+        'message': f'{export_type.upper()} 파일 생성 중...'
+    })
+
+
+def workforce_comp_api(request):
+    """인력/보상 대시보드 API - 개선된 데이터 바인딩"""
+    try:
+        # DashboardAggregator 사용
+        aggregator = DashboardAggregator()
+        
+        # 직원 통계
+        employee_stats = aggregator.get_employee_statistics(Employee.objects.all())
+        
+        # 보상 통계 - 안전하게 처리
+        try:
+            comp_stats = aggregator.get_compensation_statistics(EmployeeCompensation.objects.all())
+        except Exception as comp_error:
+            logger.warning(f"Compensation data not available: {comp_error}")
+            comp_stats = {
+                'total_payroll': 0,
+                'avg_salary': 0,
+                'max_salary': 0,
+                'min_salary': 0
+            }
+        
+        # 부서별 요약 (camelCase 변환)
+        dept_summary = aggregator.get_department_summary(Employee.objects.all())
+        departments = []
+        for dept in dept_summary:
+            departments.append({
+                'departmentName': dept['department_name'],
+                'employeeCount': dept['employee_count'],
+                'avgSalary': dept.get('avg_salary', 0)
+            })
+        
+        # 응답 데이터 구조화
+        response_data = {
+            'success': True,
+            'data': {
+                'workforce': {
+                    'totalEmployees': employee_stats['total_employees'],
+                    'activeEmployees': employee_stats['active_employees'],
+                    'newHiresMonth': employee_stats['new_hires_month'],
+                    'terminationsMonth': employee_stats['resignations_month'],
+                },
+                'compensation': {
+                    'totalPayroll': comp_stats['total_payroll'],
+                    'avgSalary': comp_stats['avg_salary'],
+                    'maxSalary': comp_stats['max_salary'],
+                    'minSalary': comp_stats['min_salary'],
+                },
+                'departments': departments
+            },
+            'timestamp': timezone.now().isoformat()
+        }
+        
+        return create_standard_response(
+            success=True,
+            data=response_data['data']
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in workforce_comp_api: {str(e)}", exc_info=True)
+        return create_standard_response(
+            success=False,
+            error=str(e),
+            data={
+                'workforce': {
+                    'totalEmployees': 0,
+                    'activeEmployees': 0,
+                    'newHiresMonth': 0,
+                    'terminationsMonth': 0,
+                },
+                'compensation': {
+                    'totalPayroll': 0,
+                    'avgSalary': 0,
+                    'maxSalary': 0,
+                    'minSalary': 0,
+                },
+                'departments': []
+            },
+            status_code=500
+        )

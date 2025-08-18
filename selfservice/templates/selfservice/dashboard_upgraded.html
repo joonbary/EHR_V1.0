@@ -1,0 +1,147 @@
+{% extends 'base_upgraded.html' %}
+{% load static %}
+
+{% block title %}내 대시보드 - OK금융그룹 e-HR{% endblock %}
+
+{% block content %}
+<!-- 페이지 헤더 -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        내 대시보드
+    </h1>
+    <p class="text-gray-600 dark:text-gray-300">
+        {{ employee.name }} 님의 개인 정보 및 인사 서비스
+    </p>
+</div>
+
+<!-- 직원 정보 카드 -->
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8">
+    <div class="flex items-center space-x-6">
+        <div class="w-20 h-20 bg-gradient-to-br from-primary to-primary-hover rounded-full flex items-center justify-center text-white text-2xl font-bold">
+            {{ employee.name|slice:":2"|upper }}
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ employee.name }}</h2>
+            <div class="flex items-center space-x-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
+                <span class="flex items-center">
+                    <i data-lucide="hash" class="w-4 h-4 mr-1"></i>
+                    {{ employee.id }}
+                </span>
+                <span class="flex items-center">
+                    <i data-lucide="building-2" class="w-4 h-4 mr-1"></i>
+                    {{ employee.department }}
+                </span>
+                <span class="flex items-center">
+                    <i data-lucide="briefcase" class="w-4 h-4 mr-1"></i>
+                    {{ employee.position }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 빠른 액세스 카드 -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- 내 정보 수정 -->
+    <a href="{% url 'selfservice:profile_update' %}" class="group bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-lg transition-all duration-300 border border-transparent hover:border-primary">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                <i data-lucide="user" class="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:text-white"></i>
+            </div>
+            <i data-lucide="arrow-right" class="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">내 정보 수정</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">개인 정보 및 연락처 관리</p>
+    </a>
+
+    <!-- 평가 이력 -->
+    <a href="{% url 'selfservice:evaluation_history' %}" class="group bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-lg transition-all duration-300 border border-transparent hover:border-primary">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center group-hover:bg-green-500 transition-colors">
+                <i data-lucide="trending-up" class="w-6 h-6 text-green-600 dark:text-green-400 group-hover:text-white"></i>
+            </div>
+            <i data-lucide="arrow-right" class="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">평가 이력</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">성과 평가 결과 조회</p>
+    </a>
+
+    <!-- 보상 명세서 -->
+    <a href="{% url 'selfservice:compensation_statement' %}" class="group bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-lg transition-all duration-300 border border-transparent hover:border-primary">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg flex items-center justify-center group-hover:bg-yellow-500 transition-colors">
+                <i data-lucide="dollar-sign" class="w-6 h-6 text-yellow-600 dark:text-yellow-400 group-hover:text-white"></i>
+            </div>
+            <i data-lucide="arrow-right" class="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">보상 명세서</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">급여 및 보상 내역 확인</p>
+    </a>
+
+    <!-- 비밀번호 변경 -->
+    <a href="{% url 'selfservice:password_change' %}" class="group bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-lg transition-all duration-300 border border-transparent hover:border-primary">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center group-hover:bg-purple-500 transition-colors">
+                <i data-lucide="key" class="w-6 h-6 text-purple-600 dark:text-purple-400 group-hover:text-white"></i>
+            </div>
+            <i data-lucide="arrow-right" class="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">비밀번호 변경</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">계정 보안 설정 관리</p>
+    </a>
+</div>
+
+<!-- 알림 섹션 -->
+<div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <i data-lucide="bell" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">알림</h3>
+            <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <p>평가 시즌, 승진 심사 등 주요 일정은 이곳에 표시됩니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 최근 활동 -->
+<div class="mt-8">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">최근 활동</h2>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div class="p-6">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <span class="font-medium text-gray-900 dark:text-white">2024년 상반기 평가</span> 
+                        완료 - 2024년 7월 15일
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <span class="font-medium text-gray-900 dark:text-white">개인정보 업데이트</span> 
+                        - 2024년 6월 20일
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <span class="font-medium text-gray-900 dark:text-white">교육 이수</span> 
+                        - React 고급 과정 - 2024년 5월 10일
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Lucide icons
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

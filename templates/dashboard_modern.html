@@ -1,0 +1,349 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}OK Financial Group - AI HRM Dashboard{% endblock %}
+
+{% block page_header %}AI-Powered HRM Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Specific Styles */
+    .dashboard-hero {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 30px;
+        padding: 4rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .welcome-title {
+        font-size: 48px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .welcome-subtitle {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .stat-card:hover::before {
+        left: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+    }
+
+    .stat-icon {
+        font-size: 48px;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .stat-value {
+        font-size: 36px;
+        font-weight: 800;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .action-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+        color: inherit;
+    }
+
+    .action-icon {
+        font-size: 40px;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .action-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #00d4ff;
+    }
+
+    .action-description {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.5;
+    }
+
+    .airiss-section {
+        margin-top: 4rem;
+        padding: 4rem;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .airiss-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border-radius: 50px;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+    }
+
+    .airiss-title {
+        font-size: 36px;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #fff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .airiss-description {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .airiss-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+    }
+
+    .metric-item {
+        text-align: center;
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .metric-value {
+        font-size: 32px;
+        font-weight: 800;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Hero Section -->
+<div class="dashboard-hero">
+    <div class="hero-content">
+        <h1 class="welcome-title">AI가 합류한 새로운 인사정보시스템</h1>
+        <p class="welcome-subtitle">
+            1,700여명의 임직원 데이터로 만드는 차세대 HRM 시스템에 오신 것을 환영합니다
+        </p>
+    </div>
+</div>
+
+<!-- Key Statistics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-icon">👥</span>
+        <div class="stat-value">1,700+</div>
+        <div class="stat-label">총 임직원</div>
+    </div>
+    
+    <div class="stat-card">
+        <span class="stat-icon">🤖</span>
+        <div class="stat-value">7</div>
+        <div class="stat-label">AI 기능</div>
+    </div>
+    
+    <div class="stat-card">
+        <span class="stat-icon">⚡</span>
+        <div class="stat-value">95%</div>
+        <div class="stat-label">업무 자동화</div>
+    </div>
+    
+    <div class="stat-card">
+        <span class="stat-icon">📊</span>
+        <div class="stat-value">24/7</div>
+        <div class="stat-label">실시간 분석</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <a href="{% url 'ai_quickwin:dashboard' %}" class="action-card">
+        <span class="action-icon">🤖</span>
+        <div class="action-title">AI 통합 대시보드</div>
+        <div class="action-description">
+            7가지 AI 기능을 한눈에 관리하고 모니터링할 수 있는 통합 대시보드
+        </div>
+    </a>
+    
+    <a href="{% url 'employees:employee_management' %}" class="action-card">
+        <span class="action-icon">👥</span>
+        <div class="action-title">직원 관리</div>
+        <div class="action-description">
+            1,700여명의 임직원 정보를 체계적으로 관리하고 분석
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_coaching:dashboard' %}" class="action-card">
+        <span class="action-icon">🎯</span>
+        <div class="action-title">AI 코칭</div>
+        <div class="action-description">
+            개인별 맞춤형 성장 경로 및 스킬 개발 가이드 제공
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="action-card">
+        <span class="action-icon">⚡</span>
+        <div class="action-title">팀 최적화</div>
+        <div class="action-description">
+            AI 기반 팀 구성 최적화 및 업무 효율성 극대화
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_insights:executive_dashboard' %}" class="action-card">
+        <span class="action-icon">💡</span>
+        <div class="action-title">AI 인사이트</div>
+        <div class="action-description">
+            데이터 기반 인사 전략 수립을 위한 핵심 인사이트 제공
+        </div>
+    </a>
+    
+    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="action-card">
+        <span class="action-icon">📈</span>
+        <div class="action-title">예측 분석</div>
+        <div class="action-description">
+            성과 예측, 이탈 위험 분석 등 미래 지향적 HR 분석
+        </div>
+    </a>
+</div>
+
+<!-- AIRISS Section -->
+<div class="airiss-section">
+    <span class="airiss-badge">MSA Architecture</span>
+    <h2 class="airiss-title">AIRISS</h2>
+    <p class="airiss-description">
+        AI Result & Intelligence Scoring System - 마이크로서비스 아키텍처로 구현된 
+        차세대 AI 평가 엔진이 실시간으로 HR 데이터를 분석합니다
+    </p>
+    
+    <div class="airiss-metrics">
+        <div class="metric-item">
+            <div class="metric-value">0.05s</div>
+            <div class="metric-label">응답시간</div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">99.9%</div>
+            <div class="metric-label">정확도</div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">24/7</div>
+            <div class="metric-label">가용성</div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">실시간</div>
+            <div class="metric-label">데이터 처리</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

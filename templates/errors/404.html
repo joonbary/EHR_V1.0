@@ -1,0 +1,34 @@
+{% extends 'errors/base_error.html' %}
+
+{% block title %}404 - 페이지를 찾을 수 없습니다{% endblock %}
+
+{% block content %}
+    <div class="error-icon">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 10L21 21M21 21V11M21 21H11"></path>
+            <path d="M3 3L14 14"></path>
+        </svg>
+    </div>
+    
+    <div class="error-code">404</div>
+    
+    <h1 class="error-title">페이지를 찾을 수 없습니다</h1>
+    
+    <p class="error-message">
+        {% if error_message %}
+            {{ error_message }}
+        {% else %}
+            요청하신 페이지가 존재하지 않거나 이동되었습니다.<br>
+            URL을 다시 확인해 주세요.
+        {% endif %}
+    </p>
+    
+    <div class="error-actions">
+        <button onclick="goBack()" class="btn btn-secondary">이전 페이지로</button>
+        <a href="/" class="btn btn-primary">홈으로 이동</a>
+    </div>
+    
+    <div class="error-details">
+        계속해서 문제가 발생하면 시스템 관리자에게 문의하세요.
+    </div>
+{% endblock %}

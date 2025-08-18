@@ -1,0 +1,544 @@
+/* 현대적인 직무 상세 정보 스타일 */
+
+/* 모달 제목 스타일 */
+.modal-title-modern {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.job-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-non-pl {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.badge-pl {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.level-badge {
+    padding: 4px 10px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+/* 직무 상세 컨테이너 */
+.job-detail-modern {
+    padding: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* 요약 카드 */
+.summary-card {
+    display: flex;
+    gap: 20px;
+    padding: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    margin-bottom: 24px;
+}
+
+.summary-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.summary-content h4 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.summary-content p {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
+
+/* 정보 그리드 */
+.info-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.info-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.info-card i {
+    font-size: 20px;
+    color: #6366f1;
+}
+
+.info-card label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.info-card span {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* 섹션 스타일 */
+.detail-section-modern {
+    margin-bottom: 32px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.section-header i {
+    font-size: 20px;
+    color: #6366f1;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.section-content {
+    padding: 0 8px;
+}
+
+.section-content ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.section-content li {
+    margin-bottom: 8px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+/* 자격 요건 그리드 */
+.qualification-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.qualification-card {
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.qualification-card.required {
+    background: #fef3c7;
+    border-color: #fbbf24;
+}
+
+.qualification-card.preferred {
+    background: #dbeafe;
+    border-color: #60a5fa;
+}
+
+.qualification-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.qualification-header i {
+    font-size: 18px;
+}
+
+.qualification-card.required .qualification-header i {
+    color: #f59e0b;
+}
+
+.qualification-card.preferred .qualification-header i {
+    color: #3b82f6;
+}
+
+.qualification-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* 스킬 태그 */
+.skills-modern {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.skill-category h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    color: #4b5563;
+}
+
+.skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skill-tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.skill-tag.basic {
+    background: #e0e7ff;
+    color: #4338ca;
+}
+
+.skill-tag.advanced {
+    background: #fce7f3;
+    color: #be185d;
+}
+
+/* 도구 그리드 */
+.tools-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tool-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.tool-tag i {
+    color: #6b7280;
+}
+
+/* 성장 경로 */
+.growth-path {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+}
+
+.path-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.step-number {
+    width: 32px;
+    height: 32px;
+    background: #6366f1;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.step-content {
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.path-arrow {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/* 경력 개발 타임라인 */
+.career-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.timeline-badge {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.timeline-badge.short {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.timeline-badge.mid {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.timeline-badge.long {
+    background: #e0e7ff;
+    color: #4338ca;
+}
+
+.timeline-content h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.timeline-content p {
+    margin: 0;
+    color: #374151;
+    line-height: 1.6;
+}
+
+/* 자격증 그리드 */
+.certification-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.cert-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+}
+
+.cert-card i {
+    color: #f59e0b;
+    font-size: 16px;
+}
+
+.cert-card span {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #92400e;
+}
+
+/* KPI 그리드 */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.kpi-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+}
+
+.kpi-item i {
+    color: #16a34a;
+    font-size: 16px;
+}
+
+.kpi-item span {
+    font-size: 0.875rem;
+    color: #14532d;
+}
+
+/* 이해관계자 그리드 */
+.stakeholder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.stakeholder-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stakeholder-card i {
+    font-size: 24px;
+    color: #6366f1;
+}
+
+.stakeholder-card span {
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+/* 프로젝트 리스트 */
+.project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.project-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: #f9fafb;
+    border-left: 4px solid #6366f1;
+    border-radius: 8px;
+}
+
+.project-item i {
+    color: #6366f1;
+    font-size: 18px;
+}
+
+.project-item span {
+    color: #374151;
+    font-size: 0.9375rem;
+}
+
+/* 근무 환경 */
+.environment-content {
+    padding: 20px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+}
+
+.environment-content ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.environment-content li {
+    margin-bottom: 8px;
+    color: #0c4a6e;
+}
+
+/* 보상 범위 */
+.compensation-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.compensation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.compensation-badge i {
+    font-size: 24px;
+}
+
+/* 스크롤바 스타일 */
+.job-detail-modern::-webkit-scrollbar {
+    width: 8px;
+}
+
+.job-detail-modern::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+.job-detail-modern::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 4px;
+}
+
+.job-detail-modern::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* 빈 프로필 */
+.empty-profile {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b7280;
+}
+
+.empty-profile i {
+    color: #d1d5db;
+    margin-bottom: 20px;
+}
+
+.empty-profile p {
+    margin-bottom: 24px;
+    font-size: 1.125rem;
+}

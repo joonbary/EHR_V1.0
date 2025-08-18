@@ -1,0 +1,32 @@
+/* 대시보드 서브메뉴 스타일 */
+.sidebar-submenu {
+    display: none;
+    padding-left: 1rem;
+    margin-top: 0.5rem;
+}
+
+.sidebar-submenu.show {
+    display: block;
+}
+
+.sidebar-nav-item.has-submenu > .sidebar-nav-link {
+    position: relative;
+}
+
+.sidebar-nav-item.has-submenu .sidebar-nav-link svg:last-child {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-submenu .sidebar-nav-link {
+    padding-left: 2.5rem;
+    font-size: 0.875rem;
+}
+
+.sidebar-submenu .sidebar-nav-link:hover {
+    background: rgba(79, 70, 229, 0.05);
+}
+
+.sidebar-submenu .sidebar-nav-link.active {
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--ok-primary);
+}

@@ -1,0 +1,543 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OK금융그룹 HR System{% endblock %}</title>
+    
+    <!-- OK금융그룹 디자인 시스템 CSS -->
+    <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/brand.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/sidebar-fix.css' %}?v=1">
+    
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <!-- Lucide 아이콘 -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Sidebar Auto-Hide Styles -->
+    <style>
+        .sidebar {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .sidebar.sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        
+        .main-content {
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .main-content.sidebar-hidden {
+            margin-left: 0 !important;
+        }
+        
+        .sidebar-hover-zone {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            z-index: 999;
+            cursor: pointer;
+        }
+        
+        .sidebar-hover-zone:hover {
+            background: linear-gradient(to right, rgba(255, 107, 0, 0.1), transparent);
+        }
+        
+        .sidebar-toggle-switch {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-toggle-switch:hover {
+            box-shadow: 0 6px 16px rgba(255, 107, 0, 0.2);
+        }
+        
+        .sidebar-toggle-switch.hidden-mode {
+            left: 10px;
+            background: rgba(255, 107, 0, 0.95);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-hover-zone,
+            .sidebar-toggle-switch {
+                display: none;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- 사이드바 오버레이 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- 사이드바 -->
+    <div class="sidebar" id="sidebar" style="display: flex; flex-direction: column; height: 100vh;">
+        <div class="sidebar-header" style="flex-shrink: 0;">
+            <img src="{% static 'images/ok-logo-white.svg' %}" alt="OK금융그룹" class="sidebar-logo" 
+                 style="height: 48px; width: auto; margin-bottom: 0.25rem; 
+                        display: block; margin-left: auto; margin-right: auto;">
+            <p class="text-sm text-white" style="opacity: 0.9; font-size: 0.8rem; margin-top: 0.25rem;">HR System</p>
+        </div>
+        
+        <nav class="sidebar-nav" style="flex: 1 1 auto; overflow-y: auto; min-height: 0;">
+            <ul>
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'home' %}" class="sidebar-nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <i data-lucide="home" class="w-4 h-4"></i>
+                        <span>직무 체계도</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'employees:employee_management' %}" class="sidebar-nav-link {% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                        <span>인사정보</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'employees:organization_chart' %}" class="sidebar-nav-link {% if 'organization_chart' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="network" class="w-4 h-4"></i>
+                        <span>조직도</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'employees:hierarchy_organization' %}" class="sidebar-nav-link {% if 'hierarchy_organization' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                        <span>계층별 조직도</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'evaluations:dashboard' %}" class="sidebar-nav-link {% if 'evaluation' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                        <span>평가관리</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'compensation:dashboard' %}" class="sidebar-nav-link {% if 'compensation' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                        <span>보상관리</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'promotions:dashboard' %}" class="sidebar-nav-link {% if 'promotion' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>승진관리</span>
+                    </a>
+                </li>
+                
+                {% comment %}
+                <!-- 리포트 메뉴 임시 제거 -->
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                        <span>리포트</span>
+                    </a>
+                </li>
+                {% endcomment %}
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'job_profiles:hierarchy' %}" class="sidebar-nav-link {% if 'job_profiles' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="briefcase" class="w-4 h-4"></i>
+                        <span>직무기술서</span>
+                    </a>
+                </li>
+                
+                <!-- 대시보드 섹션 -->
+                <li class="sidebar-nav-section">
+                    <span class="sidebar-nav-section-title">대시보드</span>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'leader_kpi_dashboard' %}" class="sidebar-nav-link {% if 'leader_kpi' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="activity" class="w-4 h-4"></i>
+                        <span>경영진 KPI</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'workforce_comp_dashboard' %}" class="sidebar-nav-link {% if 'workforce_comp' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="users-2" class="w-4 h-4"></i>
+                        <span>인력/보상 현황</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'skillmap_dashboard' %}" class="sidebar-nav-link {% if 'skillmap' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="target" class="w-4 h-4"></i>
+                        <span>스킬맵</span>
+                    </a>
+                </li>
+                
+                <!-- AI 도구 섹션 -->
+                <li class="sidebar-nav-section">
+                    <span class="sidebar-nav-section-title">AI 도구</span>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'ai_quickwin:chatbot' %}" class="sidebar-nav-link {% if 'chatbot' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span>AI 챗봇</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'ai_quickwin:leader_assistant' %}" class="sidebar-nav-link {% if 'leader_assistant' in request.resolver_match.url_name %}active{% endif %}">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                        <span>리더 AI 어시스턴트</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content">
+        <!-- 상단 헤더 -->
+        <header class="navbar">
+            <div class="container">
+                <div class="navbar-content">
+                    <!-- 사이드바 토글 버튼 -->
+                    <button class="btn btn-ghost sidebar-toggle" id="sidebarToggle">
+                        <i data-lucide="menu" class="w-5 h-5" id="menuIcon"></i>
+                        <i data-lucide="x" class="w-5 h-5" id="closeIcon" style="display: none;"></i>
+                    </button>
+                    
+                    <!-- 검색바 -->
+                    <div class="search-container">
+                        <div class="search-input-wrapper">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" class="search-input" placeholder="검색... (Ctrl+K)">
+                        </div>
+                    </div>
+                    
+                    <!-- 우측 메뉴 -->
+                    <div class="navbar-actions">
+                        <!-- 알림 -->
+                        <button class="btn btn-ghost notification-btn">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                        
+                        <!-- 설정 버튼 -->
+                        <button class="btn btn-ghost">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 페이지 콘텐츠 -->
+        <main class="page-content">
+            <div class="container">
+                <!-- 브레드크럼 -->
+                {% block breadcrumb %}
+                <nav class="breadcrumb">
+                    <ol class="breadcrumb-list">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'home' %}" class="breadcrumb-link">
+                                <i data-lucide="home" class="w-4 h-4"></i>
+                                <span>홈</span>
+                            </a>
+                        </li>
+                        {% block breadcrumb_items %}{% endblock %}
+                    </ol>
+                </nav>
+                {% endblock %}
+
+                <!-- 페이지 헤더 -->
+                {% block page_header %}
+                {% if request.resolver_match.url_name == 'home' %}
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1 class="page-title">{% block page_title %}OK금융그룹 인사정보시스템{% endblock %}</h1>
+                        {% block page_description %}
+                        <p class="page-description">{% block page_desc %}효율적인 인재관리로 조직의 미래를 설계합니다{% endblock %}</p>
+                        {% endblock %}
+                    </div>
+                    
+                    <div class="page-header-actions">
+                        {% block page_actions %}{% endblock %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endblock %}
+
+                <!-- 메인 콘텐츠 -->
+                <div class="content-area">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Sidebar Auto-Hide Functionality
+        class SidebarAutoHide {
+            constructor() {
+                this.sidebar = document.getElementById('sidebar');
+                this.mainContent = document.querySelector('.main-content');
+                this.isHidden = localStorage.getItem('sidebarHidden') === 'true';
+                this.hoverZone = null;
+                this.toggleSwitch = null;
+                this.isMobile = window.innerWidth <= 768;
+                
+                if (!this.isMobile) {
+                    this.init();
+                }
+                
+                window.addEventListener('resize', () => {
+                    const wasMobile = this.isMobile;
+                    this.isMobile = window.innerWidth <= 768;
+                    
+                    if (wasMobile && !this.isMobile) {
+                        this.init();
+                    } else if (!wasMobile && this.isMobile) {
+                        this.cleanup();
+                    }
+                });
+            }
+            
+            init() {
+                this.createHoverZone();
+                this.createToggleSwitch();
+                this.setupEventListeners();
+                
+                if (this.isHidden) {
+                    this.hideSidebar(false);
+                }
+            }
+            
+            cleanup() {
+                if (this.hoverZone) {
+                    this.hoverZone.remove();
+                    this.hoverZone = null;
+                }
+                if (this.toggleSwitch) {
+                    this.toggleSwitch.remove();
+                    this.toggleSwitch = null;
+                }
+                this.showSidebar(false);
+            }
+            
+            createHoverZone() {
+                this.hoverZone = document.createElement('div');
+                this.hoverZone.className = 'sidebar-hover-zone';
+                this.hoverZone.title = '사이드바 표시';
+                document.body.appendChild(this.hoverZone);
+            }
+            
+            createToggleSwitch() {
+                this.toggleSwitch = document.createElement('div');
+                this.toggleSwitch.className = 'sidebar-toggle-switch';
+                this.toggleSwitch.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                    </svg>
+                    <span style="font-size: 12px; font-weight: 500;">사이드바</span>
+                `;
+                document.body.appendChild(this.toggleSwitch);
+            }
+            
+            setupEventListeners() {
+                if (this.hoverZone) {
+                    this.hoverZone.addEventListener('mouseenter', () => {
+                        if (this.isHidden) {
+                            this.showSidebar(false);
+                        }
+                    });
+                }
+                
+                if (this.mainContent) {
+                    this.mainContent.addEventListener('click', (e) => {
+                        if (!this.isHidden && this.sidebar && !this.sidebar.contains(e.target)) {
+                            this.hideSidebar();
+                        }
+                    });
+                }
+                
+                if (this.sidebar) {
+                    this.sidebar.addEventListener('mouseleave', (e) => {
+                        if (this.isHidden && !this.sidebar.contains(e.relatedTarget)) {
+                            setTimeout(() => {
+                                if (this.isHidden) {
+                                    this.hideSidebar(false);
+                                }
+                            }, 300);
+                        }
+                    });
+                    
+                    this.sidebar.addEventListener('click', (e) => {
+                        const link = e.target.closest('a');
+                        if (link && link.href && !link.href.includes('#')) {
+                            setTimeout(() => {
+                                this.hideSidebar();
+                            }, 100);
+                        }
+                    });
+                }
+                
+                if (this.toggleSwitch) {
+                    this.toggleSwitch.addEventListener('click', () => {
+                        if (this.isHidden) {
+                            this.showSidebar();
+                        } else {
+                            this.hideSidebar();
+                        }
+                    });
+                }
+            }
+            
+            hideSidebar(save = true) {
+                if (this.sidebar) {
+                    this.sidebar.classList.add('sidebar-hidden');
+                }
+                if (this.mainContent) {
+                    this.mainContent.classList.add('sidebar-hidden');
+                }
+                if (this.toggleSwitch) {
+                    this.toggleSwitch.classList.add('hidden-mode');
+                }
+                
+                this.isHidden = true;
+                if (save) {
+                    localStorage.setItem('sidebarHidden', 'true');
+                }
+            }
+            
+            showSidebar(save = true) {
+                if (this.sidebar) {
+                    this.sidebar.classList.remove('sidebar-hidden');
+                }
+                if (this.mainContent) {
+                    this.mainContent.classList.remove('sidebar-hidden');
+                }
+                if (this.toggleSwitch) {
+                    this.toggleSwitch.classList.remove('hidden-mode');
+                }
+                
+                this.isHidden = false;
+                if (save) {
+                    localStorage.setItem('sidebarHidden', 'false');
+                }
+            }
+        }
+        
+        // Initialize sidebar auto-hide
+        document.addEventListener('DOMContentLoaded', () => {
+            new SidebarAutoHide();
+        });
+        
+        // 강제 캐시 클리어 (개발 중에만 사용)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const links = document.querySelectorAll('link[rel="stylesheet"]');
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.includes('?v=')) {
+                    const newHref = href.replace(/\?v=\d+/, '?v=' + Date.now());
+                    link.setAttribute('href', newHref);
+                }
+            });
+        }
+        
+        // Lucide 아이콘 초기화
+        lucide.createIcons();
+        
+        // 사이드바 토글 (기존 모바일 기능 유지)
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                const isCollapsed = sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                
+                // 아이콘 변경
+                const menuIcon = document.getElementById('menuIcon');
+                const closeIcon = document.getElementById('closeIcon');
+                
+                if (isCollapsed) {
+                    menuIcon.style.display = 'block';
+                    closeIcon.style.display = 'none';
+                } else {
+                    menuIcon.style.display = 'none';
+                    closeIcon.style.display = 'block';
+                }
+                
+                // 모바일에서 오버레이 표시
+                if (window.innerWidth <= 768) {
+                    sidebarOverlay.classList.toggle('active');
+                }
+                
+                // Lucide 아이콘 다시 초기화
+                lucide.createIcons();
+            });
+        }
+        
+        // 오버레이 클릭시 사이드바 닫기
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+                sidebarOverlay.classList.remove('active');
+                
+                // 아이콘 원상복귀
+                document.getElementById('menuIcon').style.display = 'block';
+                document.getElementById('closeIcon').style.display = 'none';
+                lucide.createIcons();
+            });
+        }
+        
+        // 검색 단축키
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                const searchInput = document.querySelector('.search-input');
+                if (searchInput) searchInput.focus();
+            }
+        });
+        
+        // 알림 토글
+        const notificationBtn = document.querySelector('.notification-btn');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', function() {
+                // 알림 드롭다운 구현
+                console.log('알림 토글');
+            });
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

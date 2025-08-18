@@ -1,0 +1,347 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 가이드 - OK Financial Group{% endblock %}
+
+{% block page_header %}기여도 평가 센터{% endblock %}
+{% block content_title %}기여도 평가 가이드{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    업무 목표 달성 및 성과 기여도를 체계적으로 평가하는 시스템입니다
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}?v=3">
+<style>
+    .guide-section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+    
+    .criteria-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .criteria-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .criteria-card:hover {
+        transform: translateY(-5px);
+        background: rgba(0, 212, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.4);
+    }
+    
+    .process-flow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 30px 0;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+    }
+    
+    .process-step {
+        flex: 1;
+        text-align: center;
+        padding: 20px;
+        position: relative;
+    }
+    
+    .process-step::after {
+        content: '→';
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        color: #00d4ff;
+    }
+    
+    .process-step:last-child::after {
+        display: none;
+    }
+    
+    .scoring-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    .scoring-table th {
+        background: rgba(0, 212, 255, 0.1);
+        padding: 12px;
+        text-align: left;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        color: #00d4ff;
+    }
+    
+    .scoring-table td {
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 40px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+    }
+    
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- 평가 개요 -->
+    <div class="guide-section" data-aos="fade-up">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-info-circle text-cyan-400 mr-2"></i>
+            기여도 평가 개요
+        </h2>
+        <p class="text-gray-300 mb-4">
+            기여도 평가는 직원의 업무 목표 달성도와 조직 성과에 대한 기여도를 측정하는 핵심 평가 축입니다.
+            전략과제, 개선과제, 운영과제 등 다양한 업무 유형에 대해 체계적으로 평가합니다.
+        </p>
+        
+        <!-- 평가 기간 정보 -->
+        {% if active_period %}
+        <div class="alert alert-info" style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); padding: 16px; border-radius: 12px; margin-top: 20px;">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            <strong>현재 평가 기간:</strong> {{ active_period.year }}년 {{ active_period.get_period_type_display }}
+            ({{ active_period.start_date|date:"Y.m.d" }} ~ {{ active_period.end_date|date:"Y.m.d" }})
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 평가 프로세스 -->
+    <div class="guide-section" data-aos="fade-up" data-aos-delay="100">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-project-diagram text-cyan-400 mr-2"></i>
+            평가 프로세스
+        </h2>
+        <div class="process-flow">
+            <div class="process-step">
+                <div class="text-4xl mb-2">📋</div>
+                <h4 class="text-lg font-semibold text-white">1. 과제 설정</h4>
+                <p class="text-sm text-gray-400 mt-2">업무 과제 및 목표 설정</p>
+            </div>
+            <div class="process-step">
+                <div class="text-4xl mb-2">🎯</div>
+                <h4 class="text-lg font-semibold text-white">2. 실행</h4>
+                <p class="text-sm text-gray-400 mt-2">과제 수행 및 진척 관리</p>
+            </div>
+            <div class="process-step">
+                <div class="text-4xl mb-2">📊</div>
+                <h4 class="text-lg font-semibold text-white">3. 평가</h4>
+                <p class="text-sm text-gray-400 mt-2">달성도 및 기여도 평가</p>
+            </div>
+            <div class="process-step">
+                <div class="text-4xl mb-2">✅</div>
+                <h4 class="text-lg font-semibold text-white">4. 확정</h4>
+                <p class="text-sm text-gray-400 mt-2">최종 평가 결과 확정</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 평가 기준 -->
+    <div class="guide-section" data-aos="fade-up" data-aos-delay="200">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-chart-line text-cyan-400 mr-2"></i>
+            평가 기준 및 척도
+        </h2>
+        
+        <div class="criteria-grid">
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">기여 방식</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-center">
+                        <span class="text-yellow-400 mr-2">⭐</span>
+                        <span class="text-gray-300"><strong>총괄 (4점)</strong> - 전체 과제 총괄 책임</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-blue-400 mr-2">⭐</span>
+                        <span class="text-gray-300"><strong>리딩 (3점)</strong> - 팀/파트 리딩</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-green-400 mr-2">⭐</span>
+                        <span class="text-gray-300"><strong>실무 (2점)</strong> - 개인 실무 수행</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-gray-400 mr-2">⭐</span>
+                        <span class="text-gray-300"><strong>지원 (1점)</strong> - 지원 역할</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">기여 범위</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-center">
+                        <span class="text-red-400 mr-2">🎯</span>
+                        <span class="text-gray-300"><strong>전략적</strong> - 조직 전략 영향</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-orange-400 mr-2">🎯</span>
+                        <span class="text-gray-300"><strong>상호적</strong> - 부서간 협업</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-yellow-400 mr-2">🎯</span>
+                        <span class="text-gray-300"><strong>독립적</strong> - 부서내 독립</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-green-400 mr-2">🎯</span>
+                        <span class="text-gray-300"><strong>의존적</strong> - 타인 의존</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="criteria-card">
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3">평가 등급</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-center">
+                        <span class="text-purple-400 mr-2">S</span>
+                        <span class="text-gray-300">탁월한 성과 (상위 5%)</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-blue-400 mr-2">A</span>
+                        <span class="text-gray-300">우수한 성과 (상위 20%)</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-green-400 mr-2">B</span>
+                        <span class="text-gray-300">양호한 성과 (중위 60%)</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-yellow-400 mr-2">C</span>
+                        <span class="text-gray-300">개선 필요 (하위 20%)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 평가 점수 산정표 -->
+    <div class="guide-section" data-aos="fade-up" data-aos-delay="300">
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fas fa-calculator text-cyan-400 mr-2"></i>
+            평가 점수 산정표
+        </h2>
+        
+        <table class="scoring-table">
+            <thead>
+                <tr>
+                    <th>기여 범위</th>
+                    <th>총괄 (Directing)</th>
+                    <th>리딩 (Leading)</th>
+                    <th>실무 (Individual)</th>
+                    <th>지원 (Support)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>전략적</strong></td>
+                    <td class="text-center">4점</td>
+                    <td class="text-center">4점</td>
+                    <td class="text-center">3점</td>
+                    <td class="text-center">2점</td>
+                </tr>
+                <tr>
+                    <td><strong>상호적</strong></td>
+                    <td class="text-center">3점</td>
+                    <td class="text-center">3점</td>
+                    <td class="text-center">3점</td>
+                    <td class="text-center">2점</td>
+                </tr>
+                <tr>
+                    <td><strong>독립적</strong></td>
+                    <td class="text-center">2점</td>
+                    <td class="text-center">3점</td>
+                    <td class="text-center">2점</td>
+                    <td class="text-center">1점</td>
+                </tr>
+                <tr>
+                    <td><strong>의존적</strong></td>
+                    <td class="text-center">2점</td>
+                    <td class="text-center">2점</td>
+                    <td class="text-center">1점</td>
+                    <td class="text-center">1점</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 액션 버튼 -->
+    <div class="action-buttons" data-aos="fade-up" data-aos-delay="400">
+        <a href="{% url 'evaluations:contribution_employees' %}" class="btn-primary">
+            <i class="fas fa-users"></i>
+            평가 대상자 조회
+        </a>
+        <a href="{% url 'evaluations:dashboard' %}" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            대시보드로 돌아가기
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 50
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,126 @@
+# 📊 주간 인력현황 스프레드시트 기반 관리 시스템
+
+## ✅ 목적
+
+주마다 업로드되는 인력현황 엑셀 파일을 기반으로,
+- 계열사 / 직군 / 직급 / 직책 / 신분별 인원 현황을 시각화하고
+- 전주, 전월, 전년말 대비 증감 분석이 가능한
+- 직관적이고 분석 중심의 **HR 대시보드**를 구축한다.
+
+---
+
+## 📂 입력 데이터 정의
+
+### 1. 인력 스냅샷 파일 (매주 1회)
+
+| 컬럼명 | 예시 | 비고 |
+|--------|------|------|
+| 계열사명 | OK저축은행 | `company` |
+| 직군 | PL / Non-PL | `job_group` |
+| 직급 | 대리 / 과장 / 차장 등 | `grade` |
+| 직책 | 팀장 / 매니저 등 | `position` |
+| 신분 | 별정직, 전문계약직, 인턴/계약직, 외주인력 등 | `contract_type` |
+| 인원수 | 3 | `headcount` |
+
+### 2. 입/퇴사자 정보 파일 (별도 업로드)
+
+| 구분 | 필드 | 예시 |
+|------|------|------|
+| 입사자 | 성명, 입사일자, 소속, 직급, 직책, 직군 | 김인사, 2025-07-03, HR팀, 대리, 인사담당, PL |
+| 퇴사자 | 성명, 퇴사일자, 퇴사사유 | 이기획, 2025-07-01, 조직개편 |
+| 퇴사예정자 | 동일 | - |
+
+---
+
+## 🗂 DB 테이블 설계
+
+### 1. weekly_workforce_snapshot
+
+```sql
+CREATE TABLE weekly_workforce_snapshot (
+  id SERIAL PRIMARY KEY,
+  snapshot_date DATE NOT NULL,
+  company VARCHAR(100),
+  job_group VARCHAR(50),
+  grade VARCHAR(50),
+  position VARCHAR(50),
+  contract_type VARCHAR(50),
+  headcount INTEGER,
+  uploaded_at TIMESTAMP DEFAULT NOW()
+);
+2. weekly_join_leave
+sql
+복사
+편집
+CREATE TABLE weekly_join_leave (
+  id SERIAL PRIMARY KEY,
+  type VARCHAR(10), -- '입사', '퇴사', '퇴사예정'
+  name VARCHAR(50),
+  company VARCHAR(100),
+  org_unit VARCHAR(100),
+  grade VARCHAR(50),
+  position VARCHAR(50),
+  job_group VARCHAR(50),
+  date DATE,
+  reason TEXT
+);
+⚙ API 명세 (FastAPI 기준)
+Method	Endpoint	설명
+POST	/upload/snapshot	인력현황 스냅샷 업로드
+POST	/upload/join-leave	입/퇴사자 정보 업로드
+GET	/snapshot/{date}	특정 기준일자 인력현황 조회
+GET	/snapshot/compare?from=2025-07-03&to=2025-07-10	전주/전월/전년말 증감 조회
+GET	/trend/headcount?filter=job_group=PL	인력 시계열 추이 조회
+GET	/summary/latest	최근 기준일자 인력 요약
+
+🖥️ UI 구성 (React 기반)
+컴포넌트 구조
+📁 UploadSnapshot.tsx – Excel drag & drop
+
+📁 UploadJoinLeave.tsx – 입/퇴사자 업로드
+
+📊 SummaryCard.tsx – 총인원 / 입사 / 퇴사 / 퇴사예정
+
+📈 TrendChart.tsx – 직군/직급/신분별 추이 (LineChart)
+
+📋 HeadcountTable.tsx – 직군·직급 기준 증감표 (↑↓컬러표시)
+
+🧪 증감 비교 방식
+기준일자 A와 B를 기준으로 다음 기준으로 증감 계산
+
+그룹핑 Key: (company, job_group, grade, position, contract_type)
+
+증감량 = B 인원수 - A 인원수
+
+증감기준: 전주(default), 전월, 전년말 선택 가능
+
+기준일자 자동정렬로 가장 가까운 스냅샷 기반 계산
+
+🛠 SuperClaude 실행 지시서
+markdown
+복사
+편집
+/sc:workflow -plan -persona-backend -persona-frontend -magic -seq
+
+🎯 목표: 주간 인력현황 업로드 및 분석 시스템 구현
+
+1. 백엔드
+  - FastAPI로 snapshot, join/leave 업로드 API 구성
+  - DB모델 생성 및 SQLAlchemy 연결
+  - 전주/전월/전년말 기준 증감 분석 로직 구현
+
+2. 프론트엔드
+  - FileUploader 컴포넌트 구성
+  - KPI Card 및 증감 테이블 구현
+  - Chart.js 또는 Recharts 기반 시계열 추이차트 구성
+
+3. 대시보드 통합
+  - HR메인 대시보드에 ‘주간 인력현황’ 탭으로 연결
+  - 인력 추이 / 증감 / 신분별 현황 통합시각화
+📌 향후 확장 아이디어
+자동 알림: 주간 업로드 누락 시 관리자 알림 Slack 연동
+
+월간 보고서 자동 생성 (PDF 다운로드)
+
+퇴사예정자 중 리스크 인원 예측 (퇴사사유 분석)
+

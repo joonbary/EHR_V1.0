@@ -1,0 +1,745 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}계층별 조직도 - OK금융그룹 eHR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hierarchy-container {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        margin: 2rem 0;
+        min-height: 80vh;
+    }
+
+    .hierarchy-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--ok-primary);
+    }
+
+    .hierarchy-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--ok-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .hierarchy-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .level-dropdown {
+        position: relative;
+    }
+
+    .dropdown-select {
+        appearance: none;
+        background: white;
+        border: 2px solid var(--ok-primary);
+        border-radius: 12px;
+        padding: 0.75rem 3rem 0.75rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ok-primary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 200px;
+    }
+
+    .dropdown-select:focus {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.1);
+        border-color: var(--ok-accent);
+    }
+
+    .dropdown-select::after {
+        content: '▼';
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .filter-section {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .filter-input {
+        padding: 0.5rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--ok-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .organization-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .org-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 4px solid var(--ok-primary);
+        cursor: pointer;
+    }
+
+    .org-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        border-left-color: var(--ok-accent);
+    }
+
+    .org-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .org-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--ok-primary) 0%, var(--ok-accent) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .org-info {
+        flex: 1;
+    }
+
+    .org-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+    }
+
+    .org-position {
+        font-size: 1rem;
+        color: var(--ok-primary);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .org-department {
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+
+    .org-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .detail-item {
+        text-align: center;
+    }
+
+    .detail-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--ok-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .expand-btn {
+        background: var(--ok-accent);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+        width: 100%;
+    }
+
+    .expand-btn:hover {
+        background: var(--ok-primary);
+        transform: translateY(-2px);
+    }
+
+    .members-list {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+        display: none;
+    }
+
+    .members-list.show {
+        display: block;
+    }
+
+    .member-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+
+    .member-info {
+        flex: 1;
+    }
+
+    .member-name {
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+    }
+
+    .member-position {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 3rem;
+        color: #64748b;
+    }
+
+    .loading .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid var(--ok-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+        text-align: center;
+        padding: 2rem;
+        color: #dc2626;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        margin: 1rem 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #64748b;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .hierarchy-controls {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .filter-section {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .dropdown-select {
+            width: 100%;
+        }
+        
+        .organization-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .org-details {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="hierarchy-container">
+        <div class="hierarchy-header">
+            <h1>계층별 조직도</h1>
+            <p>조직 계층별 구조 및 구성원 정보</p>
+        </div>
+
+        <!-- 컨트롤 섹션 -->
+        <div class="hierarchy-controls">
+            <div class="level-dropdown">
+                <select class="dropdown-select" id="levelSelect">
+                    <option value="all">전체 현황</option>
+                    <option value="executive">임원급</option>
+                    <option value="department">부서장급</option>
+                    <option value="team">팀장급</option>
+                    <option value="member">팀원급</option>
+                </select>
+            </div>
+            
+            <div class="filter-section">
+                <select class="filter-input" id="departmentFilter" style="display: none;">
+                    <option value="">전체 부서</option>
+                </select>
+                <input type="text" class="filter-input" id="searchInput" 
+                       placeholder="이름 검색..." style="display: none;">
+            </div>
+        </div>
+
+        <!-- 통계 개요 -->
+        <div class="stats-overview" id="statsOverview">
+            <!-- 통계 카드들이 동적으로 생성됩니다 -->
+        </div>
+
+        <!-- 로딩 상태 -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>조직 정보를 불러오는 중입니다...</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div class="error-message" id="errorMessage" style="display: none;"></div>
+
+        <!-- 조직 그리드 -->
+        <div class="organization-grid" id="organizationGrid">
+            <!-- 조직 카드들이 동적으로 생성됩니다 -->
+        </div>
+
+        <!-- 빈 상태 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <i data-lucide="users-x"></i>
+            <h3>해당 조건에 맞는 조직 정보가 없습니다</h3>
+            <p>다른 조건으로 검색해보세요.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+class HierarchyOrganization {
+    constructor() {
+        this.currentLevel = 'all';
+        this.currentDepartment = '';
+        this.currentData = null;
+        
+        this.initializeElements();
+        this.setupEventListeners();
+        this.loadInitialData();
+    }
+    
+    initializeElements() {
+        this.levelSelect = document.getElementById('levelSelect');
+        this.departmentFilter = document.getElementById('departmentFilter');
+        this.searchInput = document.getElementById('searchInput');
+        this.statsOverview = document.getElementById('statsOverview');
+        this.loading = document.getElementById('loading');
+        this.errorMessage = document.getElementById('errorMessage');
+        this.organizationGrid = document.getElementById('organizationGrid');
+        this.emptyState = document.getElementById('emptyState');
+    }
+    
+    setupEventListeners() {
+        this.levelSelect.addEventListener('change', (e) => {
+            this.currentLevel = e.target.value;
+            this.toggleFilters();
+            this.loadData();
+        });
+        
+        this.departmentFilter.addEventListener('change', (e) => {
+            this.currentDepartment = e.target.value;
+            this.loadData();
+        });
+        
+        this.searchInput.addEventListener('input', (e) => {
+            this.filterData(e.target.value);
+        });
+    }
+    
+    toggleFilters() {
+        const showDepartmentFilter = ['team', 'member'].includes(this.currentLevel);
+        const showSearch = this.currentLevel !== 'all';
+        
+        this.departmentFilter.style.display = showDepartmentFilter ? 'block' : 'none';
+        this.searchInput.style.display = showSearch ? 'block' : 'none';
+    }
+    
+    async loadInitialData() {
+        await this.loadData();
+        await this.loadDepartments();
+    }
+    
+    async loadDepartments() {
+        try {
+            const response = await fetch('{% url "employees:hierarchy_organization_api" %}?level=all');
+            const result = await response.json();
+            
+            if (result.success && result.data.departments_list) {
+                this.departmentFilter.innerHTML = '<option value="">전체 부서</option>';
+                result.data.departments_list.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    this.departmentFilter.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('부서 목록 로딩 실패:', error);
+        }
+    }
+    
+    async loadData() {
+        this.showLoading();
+        
+        try {
+            const params = new URLSearchParams({
+                level: this.currentLevel,
+                department: this.currentDepartment
+            });
+            
+            const response = await fetch(`{% url "employees:hierarchy_organization_api" %}?${params}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                this.currentData = result.data;
+                this.renderData();
+            } else {
+                this.showError(result.error || '데이터를 불러올 수 없습니다.');
+            }
+        } catch (error) {
+            this.showError('네트워크 오류가 발생했습니다.');
+            console.error('Data loading error:', error);
+        }
+    }
+    
+    renderData() {
+        this.hideLoading();
+        
+        if (this.currentLevel === 'all') {
+            this.renderStats();
+            this.organizationGrid.style.display = 'none';
+        } else {
+            this.statsOverview.style.display = 'none';
+            this.renderOrganizations();
+        }
+    }
+    
+    renderStats() {
+        this.statsOverview.style.display = 'grid';
+        this.statsOverview.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${this.currentData.executives}</div>
+                <div class="stat-label">임원급</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${this.currentData.departments}</div>
+                <div class="stat-label">부서장급</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${this.currentData.teams}</div>
+                <div class="stat-label">팀장급</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${this.currentData.members}</div>
+                <div class="stat-label">팀원급</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${this.currentData.total}</div>
+                <div class="stat-label">전체 인원</div>
+            </div>
+        `;
+    }
+    
+    renderOrganizations() {
+        this.organizationGrid.style.display = 'grid';
+        
+        if (!this.currentData || this.currentData.length === 0) {
+            this.showEmptyState();
+            return;
+        }
+        
+        this.organizationGrid.innerHTML = this.currentData.map(org => this.createOrgCard(org)).join('');
+        this.hideEmptyState();
+        
+        // 이벤트 리스너 추가
+        this.addCardEventListeners();
+    }
+    
+    createOrgCard(org) {
+        const initials = org.name.substring(0, 2);
+        const profileImage = org.profile_image ? 
+            `<img src="${org.profile_image}" alt="${org.name}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` :
+            initials;
+        
+        let details = '';
+        if (this.currentLevel === 'executive') {
+            details = `
+                <div class="detail-item">
+                    <div class="detail-value">${org.subordinate_count}</div>
+                    <div class="detail-label">부하직원</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">${org.subordinate_departments?.length || 0}</div>
+                    <div class="detail-label">관할부서</div>
+                </div>
+            `;
+        } else if (this.currentLevel === 'department') {
+            details = `
+                <div class="detail-item">
+                    <div class="detail-value">${org.total_members}</div>
+                    <div class="detail-label">총 인원</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">${org.team_count}</div>
+                    <div class="detail-label">팀 수</div>
+                </div>
+            `;
+        } else if (this.currentLevel === 'team') {
+            details = `
+                <div class="detail-item">
+                    <div class="detail-value">${org.team_members}</div>
+                    <div class="detail-label">팀원 수</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">Level ${org.level}</div>
+                    <div class="detail-label">성장레벨</div>
+                </div>
+            `;
+        } else {
+            details = `
+                <div class="detail-item">
+                    <div class="detail-value">Level ${org.level}</div>
+                    <div class="detail-label">성장레벨</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">${org.age || 0}년</div>
+                    <div class="detail-label">근무년수</div>
+                </div>
+            `;
+        }
+        
+        const expandButton = (this.currentLevel === 'team' && org.members?.length > 0) ? 
+            `<button class="expand-btn" onclick="hierarchyOrg.toggleMembers(${org.id})">
+                팀원 보기 (${org.members.length}명)
+            </button>` : '';
+        
+        const membersList = (this.currentLevel === 'team' && org.members?.length > 0) ?
+            `<div class="members-list" id="members-${org.id}">
+                ${org.members.map(member => `
+                    <div class="member-item">
+                        <div class="member-avatar">${member.name.substring(0, 2)}</div>
+                        <div class="member-info">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-position">${member.position} | Level ${member.level}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>` : '';
+        
+        return `
+            <div class="org-card" data-id="${org.id}">
+                <div class="org-card-header">
+                    <div class="org-avatar">${profileImage}</div>
+                    <div class="org-info">
+                        <div class="org-name">${org.name}</div>
+                        <div class="org-position">${org.position}</div>
+                        <div class="org-department">${org.department} | ${org.job_type}</div>
+                    </div>
+                </div>
+                <div class="org-details">
+                    ${details}
+                </div>
+                ${expandButton}
+                ${membersList}
+            </div>
+        `;
+    }
+    
+    addCardEventListeners() {
+        // 조직 카드 클릭 이벤트
+        document.querySelectorAll('.org-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('expand-btn')) {
+                    const orgId = card.dataset.id;
+                    this.showOrgDetails(orgId);
+                }
+            });
+        });
+    }
+    
+    toggleMembers(orgId) {
+        const membersList = document.getElementById(`members-${orgId}`);
+        const button = event.target;
+        
+        if (membersList.classList.contains('show')) {
+            membersList.classList.remove('show');
+            button.textContent = button.textContent.replace('숨기기', '보기');
+        } else {
+            membersList.classList.add('show');
+            button.textContent = button.textContent.replace('보기', '숨기기');
+        }
+    }
+    
+    showOrgDetails(orgId) {
+        const org = this.currentData.find(o => o.id == orgId);
+        if (org) {
+            // 상세 정보 모달 또는 페이지로 이동
+            alert(`${org.name} (${org.position}) 상세 정보\n이메일: ${org.email}\n전화: ${org.phone}`);
+        }
+    }
+    
+    filterData(searchTerm) {
+        if (!this.currentData) return;
+        
+        const filtered = this.currentData.filter(org => 
+            org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            org.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            org.department.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        
+        this.renderFilteredData(filtered);
+    }
+    
+    renderFilteredData(data) {
+        if (data.length === 0) {
+            this.showEmptyState();
+            return;
+        }
+        
+        this.organizationGrid.innerHTML = data.map(org => this.createOrgCard(org)).join('');
+        this.hideEmptyState();
+        this.addCardEventListeners();
+    }
+    
+    showLoading() {
+        this.loading.style.display = 'block';
+        this.errorMessage.style.display = 'none';
+        this.organizationGrid.style.display = 'none';
+        this.statsOverview.style.display = 'none';
+        this.emptyState.style.display = 'none';
+    }
+    
+    hideLoading() {
+        this.loading.style.display = 'none';
+    }
+    
+    showError(message) {
+        this.hideLoading();
+        this.errorMessage.textContent = message;
+        this.errorMessage.style.display = 'block';
+        this.organizationGrid.style.display = 'none';
+        this.statsOverview.style.display = 'none';
+        this.emptyState.style.display = 'none';
+    }
+    
+    showEmptyState() {
+        this.organizationGrid.style.display = 'none';
+        this.emptyState.style.display = 'block';
+    }
+    
+    hideEmptyState() {
+        this.emptyState.style.display = 'none';
+    }
+}
+
+// 전역 변수로 인스턴스 생성
+let hierarchyOrg;
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    hierarchyOrg = new HierarchyOrganization();
+});
+</script>
+{% endblock %}

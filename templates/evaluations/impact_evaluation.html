@@ -1,0 +1,453 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}영향력 평가 - {{ employee.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 영향 범위 카드 */
+    .scope-card {
+        transition: all 0.3s;
+        border: 3px solid transparent;
+        cursor: pointer;
+    }
+    
+    .scope-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .scope-card.selected {
+        border-color: #ff6b00;
+        background-color: #fff5eb;
+    }
+    
+    /* 가치/리더십 선택 카드 */
+    .value-card {
+        transition: all 0.2s;
+        border: 2px solid #e5e7eb;
+        cursor: pointer;
+    }
+    
+    .value-card:hover {
+        border-color: #ff6b00;
+        transform: scale(1.02);
+    }
+    
+    .value-card.selected {
+        background-color: #ff6b00;
+        color: white;
+        border-color: #ff6b00;
+    }
+    
+    .value-card.selected .text-gray-600 {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    /* 점수 표시 */
+    .score-display {
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* 아이콘 애니메이션 */
+    .icon-bounce {
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">영향력 평가</h1>
+                <p class="text-gray-600 mt-2">{{ employee.name }} ({{ employee.employee_id }}) | {{ active_period }}</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="saveEvaluation()" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    저장하기
+                </button>
+                <a href="{% url 'evaluations:dashboard' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                    돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form id="evaluationForm" method="post">
+        {% csrf_token %}
+        
+        <!-- Scoring Chart -->
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-6">
+            <h2 class="text-xl font-semibold mb-6">영향력 평가 Scoring Chart</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">영향력 범위</th>
+                            <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">리더십 모범 발휘</th>
+                            <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">리더십 제한적 발휘</th>
+                            <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">핵심가치 모범 실천</th>
+                            <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">핵심가치 제한적 실천</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 font-medium">조직외 (시장/업계)</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-purple-600">4</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-purple-600">4</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-green-600">3</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-yellow-600">2</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 font-medium">조직간 (전사)</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-green-600">3</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-purple-600">4</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-green-600">3</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-yellow-600">2</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-medium">조직내 (팀/부서)</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-yellow-600">2</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-green-600">3</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-green-600">3</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-green-600">3</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 font-medium">개인간</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-red-600">1</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-yellow-600">2</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-yellow-600">2</td>
+                            <td class="px-4 py-3 text-center text-lg font-semibold text-yellow-600">2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-sm text-gray-600 mt-4">* 영향력 평가는 범위와 핵심가치/리더십 실천 수준의 조합으로 결정됩니다.</p>
+        </div>
+
+        <!-- Step 1: 영향력 범위 선택 -->
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-6">
+            <h2 class="text-xl font-semibold mb-6">Step 1. 영향력 범위 선택</h2>
+            <p class="text-gray-600 mb-8">평가 대상자의 업무가 미치는 영향력의 범위를 선택해주세요.</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- 개인간 -->
+                <div class="scope-card bg-gray-50 rounded-xl p-6 text-center" onclick="selectScope('individual')" data-scope="individual">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-8 h-8 text-gray-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">개인간</h3>
+                    <p class="text-xs text-gray-600">개인 레벨</p>
+                    <div class="mt-3 text-xl font-bold text-gray-600">1~2점</div>
+                </div>
+
+                <!-- 조직내 -->
+                <div class="scope-card bg-gray-50 rounded-xl p-6 text-center" onclick="selectScope('org')" data-scope="org">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">조직내</h3>
+                    <p class="text-xs text-gray-600">팀/부서 레벨</p>
+                    <div class="mt-3 text-xl font-bold text-blue-600">2~3점</div>
+                </div>
+
+                <!-- 조직간 -->
+                <div class="scope-card bg-gray-50 rounded-xl p-6 text-center" onclick="selectScope('corp')" data-scope="corp">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="building-2" class="w-8 h-8 text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">조직간</h3>
+                    <p class="text-xs text-gray-600">전사 레벨</p>
+                    <div class="mt-3 text-xl font-bold text-green-600">3~4점</div>
+                </div>
+
+                <!-- 조직외 -->
+                <div class="scope-card bg-gray-50 rounded-xl p-6 text-center" onclick="selectScope('market')" data-scope="market">
+                    <div class="w-16 h-16 mx-auto mb-3 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="globe" class="w-8 h-8 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">조직외</h3>
+                    <p class="text-xs text-gray-600">시장/업계 레벨</p>
+                    <div class="mt-3 text-xl font-bold text-purple-600">3~4점</div>
+                </div>
+            </div>
+            
+            <input type="hidden" name="impact_scope" id="impact_scope" value="{{ evaluation.impact_scope|default:'org' }}">
+        </div>
+
+        <!-- Step 2: 핵심가치 실천 평가 -->
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-6">
+            <h2 class="text-xl font-semibold mb-6">Step 2. 핵심가치 실천 평가</h2>
+            <p class="text-gray-600 mb-8">OK금융그룹의 핵심가치를 얼마나 실천하고 있는지 평가해주세요.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="value-card rounded-xl p-6" onclick="selectValues('exemplary_values')" data-values="exemplary_values">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="star" class="w-6 h-6 text-primary"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="font-semibold mb-1">핵심가치 모범 실천</h4>
+                            <p class="text-sm text-gray-600">OK금융그룹의 핵심가치를 완벽히 이해하고 업무와 일상에서 모범적으로 실천하며 동료들에게 긍정적 영향을 미침</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="value-card rounded-xl p-6" onclick="selectValues('limited_values')" data-values="limited_values">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="user-check" class="w-6 h-6 text-gray-600"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="font-semibold mb-1">핵심가치 제한적 실천</h4>
+                            <p class="text-sm text-gray-600">핵심가치를 이해하고 있으나 실천이 일부 영역에 한정되거나 일관성이 부족함</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="hidden" name="core_values_practice" id="core_values_practice" value="{{ evaluation.core_values_practice|default:'average_values' }}">
+        </div>
+
+        <!-- Step 3: 리더십 발휘 평가 -->
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-6">
+            <h2 class="text-xl font-semibold mb-6">Step 3. 리더십 발휘 평가</h2>
+            <p class="text-gray-600 mb-8">업무 수행 과정에서 리더십을 얼마나 발휘하는지 평가해주세요.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="value-card rounded-xl p-6" onclick="selectLeadership('exemplary_leadership')" data-leadership="exemplary_leadership">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="crown" class="w-6 h-6 text-primary"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="font-semibold mb-1">리더십 모범 발휘</h4>
+                            <p class="text-sm text-gray-600">탁월한 리더십으로 팀을 이끌고 구성원의 성장을 지원하며 조직 혁신을 주도함</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="value-card rounded-xl p-6" onclick="selectLeadership('limited_leadership')" data-leadership="limited_leadership">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="users" class="w-6 h-6 text-gray-600"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h4 class="font-semibold mb-1">리더십 제한적 발휘</h4>
+                            <p class="text-sm text-gray-600">주어진 역할은 충실히 수행하나 리더십 발휘가 제한적이며 팀 시너지 창출이 부족함</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="hidden" name="leadership_demonstration" id="leadership_demonstration" value="{{ evaluation.leadership_demonstration|default:'limited_leadership' }}">
+        </div>
+
+        <!-- 평가 결과 요약 -->
+        <div class="bg-gradient-to-r from-primary to-accent text-white rounded-2xl shadow-lg p-8 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold mb-2">영향력 평가 결과</h2>
+                    <p class="text-white/80">선택하신 항목에 따른 최종 점수입니다.</p>
+                </div>
+                <div class="text-right">
+                    <div class="score-display" id="totalScore">0</div>
+                    <div class="mt-2">
+                        <span id="achievementStatus" class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">
+                            평가 중
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 grid grid-cols-3 gap-4 text-center">
+                <div class="bg-white/10 rounded-lg p-4">
+                    <p class="text-sm text-white/80">영향 범위</p>
+                    <p class="font-semibold" id="scopeDisplay">-</p>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <p class="text-sm text-white/80">핵심가치</p>
+                    <p class="font-semibold" id="valuesDisplay">-</p>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <p class="text-sm text-white/80">리더십</p>
+                    <p class="font-semibold" id="leadershipDisplay">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 평가자 의견 -->
+        <div class="bg-white rounded-2xl shadow-sm p-8">
+            <h3 class="text-lg font-semibold mb-4">평가자 의견</h3>
+            <textarea name="comments" 
+                      rows="4"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                      placeholder="평가 대상자의 영향력에 대한 종합적인 의견을 작성해주세요.">{{ evaluation.comments }}</textarea>
+        </div>
+    </form>
+</div>
+
+<script>
+// 영향 범위 선택
+function selectScope(scope) {
+    // 모든 카드 선택 해제
+    document.querySelectorAll('.scope-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // 선택한 카드 활성화
+    event.currentTarget.classList.add('selected');
+    document.getElementById('impact_scope').value = scope;
+    
+    // 표시 업데이트
+    const scopeText = {
+        'individual': '개인간',
+        'org': '조직내',
+        'corp': '조직간',
+        'market': '조직외'
+    };
+    document.getElementById('scopeDisplay').textContent = scopeText[scope] || '-';
+    
+    calculateScore();
+}
+
+// 핵심가치 선택
+function selectValues(value) {
+    // Step 2 영역의 카드만 선택 해제
+    const step2Cards = document.querySelectorAll('[data-values]');
+    step2Cards.forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // 선택한 카드 활성화
+    event.currentTarget.classList.add('selected');
+    document.getElementById('core_values_practice').value = value;
+    
+    // 표시 업데이트
+    const valueText = {
+        'exemplary_values': '모범 실천',
+        'limited_values': '제한적 실천'
+    };
+    document.getElementById('valuesDisplay').textContent = valueText[value] || '-';
+    
+    calculateScore();
+}
+
+// 리더십 선택
+function selectLeadership(leadership) {
+    // Step 3 영역의 카드만 선택 해제
+    const step3Cards = document.querySelectorAll('[data-leadership]');
+    step3Cards.forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // 선택한 카드 활성화
+    event.currentTarget.classList.add('selected');
+    document.getElementById('leadership_demonstration').value = leadership;
+    
+    // 표시 업데이트
+    const leadershipText = {
+        'exemplary_leadership': '모범 발휘',
+        'limited_leadership': '제한적 발휘'
+    };
+    document.getElementById('leadershipDisplay').textContent = leadershipText[leadership] || '-';
+    
+    calculateScore();
+}
+
+// 점수 계산
+function calculateScore() {
+    const scope = document.getElementById('impact_scope').value;
+    const values = document.getElementById('core_values_practice').value;
+    const leadership = document.getElementById('leadership_demonstration').value;
+    
+    if (!scope || !values || !leadership) {
+        return;
+    }
+    
+    // AJAX로 점수 계산
+    fetch("{% url 'evaluations:calculate_score_ajax' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            type: 'impact',
+            scope: scope,
+            values_practice: values,
+            leadership: leadership
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('totalScore').textContent = data.score;
+        
+        // 달성 여부 표시 (목표: 2.5점 이상)
+        const statusEl = document.getElementById('achievementStatus');
+        if (data.score >= 2.5) {
+            statusEl.textContent = '달성';
+            statusEl.className = 'px-4 py-2 bg-white/20 rounded-full text-sm font-medium';
+        } else {
+            statusEl.textContent = '미달성';
+            statusEl.className = 'px-4 py-2 bg-red-500/20 rounded-full text-sm font-medium';
+        }
+    });
+}
+
+// 평가 저장
+function saveEvaluation() {
+    document.getElementById('evaluationForm').submit();
+}
+
+// 페이지 로드시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    // 기존 선택값 표시
+    const scope = document.getElementById('impact_scope').value;
+    const values = document.getElementById('core_values_practice').value;
+    const leadership = document.getElementById('leadership_demonstration').value;
+    
+    // 선택된 항목 표시
+    if (scope) {
+        const scopeCard = document.querySelector(`.scope-card:nth-child(${scope === 'team' ? 1 : scope === 'org' ? 2 : 3})`);
+        if (scopeCard) scopeCard.classList.add('selected');
+    }
+    
+    if (values) {
+        document.querySelectorAll('.value-card').forEach((card, index) => {
+            const valueMap = ['outstanding_values', 'good_values', 'average_values', 'limited_values'];
+            if (valueMap[index] === values && card.parentElement.parentElement.querySelector('h2').textContent.includes('핵심가치')) {
+                card.classList.add('selected');
+            }
+        });
+    }
+    
+    if (leadership) {
+        document.querySelectorAll('.value-card').forEach((card, index) => {
+            const leadershipMap = ['outstanding_leadership', 'good_leadership', 'average_leadership', 'limited_leadership'];
+            if (leadershipMap[index] === leadership && card.parentElement.parentElement.querySelector('h2').textContent.includes('리더십')) {
+                card.classList.add('selected');
+            }
+        });
+    }
+    
+    calculateScore();
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,497 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OK Financial Group - AI HRM System{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Modern Design System CSS -->
+    <link rel="stylesheet" href="{% static 'css/modern_design_system.css' %}">
+    
+    <!-- Bootstrap CSS (for compatibility) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom Override Styles -->
+    <style>
+        /* Override Bootstrap with Modern Design */
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif !important;
+            background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%) !important;
+            color: #fff !important;
+            min-height: 100vh;
+        }
+        
+        /* Modern Layout */
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Modern Sidebar */
+        .sidebar-wrapper {
+            width: 280px;
+            background: linear-gradient(180deg, rgba(10, 15, 27, 0.98) 0%, rgba(26, 31, 46, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 900;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .sidebar-wrapper.collapsed {
+            transform: translateX(-280px);
+        }
+        
+        /* Main Content Area */
+        .content-wrapper {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+        }
+        
+        .content-wrapper.expanded {
+            margin-left: 0;
+        }
+        
+        /* Modern Header */
+        .header-modern {
+            background: rgba(10, 15, 27, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 800;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Logo */
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+        
+        /* Menu Toggle */
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #00d4ff;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-toggle:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+        }
+        
+        /* Sidebar Content */
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-nav {
+            padding: 1rem;
+        }
+        
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+        
+        .nav-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            padding: 0 1rem;
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 12px 16px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #00d4ff;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nav-item:hover::before {
+            transform: translateX(0);
+        }
+        
+        .nav-item.active {
+            color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 153, 255, 0.15));
+        }
+        
+        .nav-item.active::before {
+            transform: translateX(0);
+        }
+        
+        .nav-icon {
+            display: inline-block;
+            width: 20px;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+        
+        /* Page Content */
+        .page-content {
+            padding: 2rem;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Modern Cards Override */
+        .card {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 20px !important;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(0, 212, 255, 0.3) !important;
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+        
+        .card-header {
+            background: transparent !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            padding: 1.5rem !important;
+        }
+        
+        .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        /* Modern Buttons Override */
+        .btn {
+            border-radius: 50px !important;
+            padding: 10px 24px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            border: none !important;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099ff) !important;
+            color: #000 !important;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3) !important;
+        }
+        
+        .btn-secondary {
+            background: transparent !important;
+            color: #00d4ff !important;
+            border: 2px solid #00d4ff !important;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1) !important;
+        }
+        
+        /* Modern Tables Override */
+        .table {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
+            color: #00d4ff !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+        
+        .table tbody tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .sidebar-wrapper {
+                transform: translateX(-280px);
+            }
+            
+            .sidebar-wrapper.active {
+                transform: translateX(0);
+            }
+            
+            .content-wrapper {
+                margin-left: 0;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.5);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="main-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper" id="sidebar">
+            <div class="sidebar-header">
+                <a href="{% url 'home' %}" class="logo-text">
+                    OK Financial HRM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Main Menu -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <span class="nav-icon">🏠</span>
+                        대시보드
+                    </a>
+                    <a href="{% url 'employees:employee_management' %}" class="nav-item {% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
+                        <span class="nav-icon">👥</span>
+                        직원 관리
+                    </a>
+                </div>
+                
+                <!-- AI Features -->
+                <div class="nav-section">
+                    <div class="nav-section-title">AI Quick Win</div>
+                    <a href="{% url 'ai_quickwin:dashboard' %}" class="nav-item {% if 'ai_quickwin' in request.resolver_match.url_name %}active{% endif %}">
+                        <span class="nav-icon">🤖</span>
+                        AI 대시보드
+                    </a>
+                    <a href="{% url 'ai_coaching:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">🎯</span>
+                        AI 코칭
+                    </a>
+                    <a href="{% url 'ai_team_optimizer:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">⚡</span>
+                        팀 최적화
+                    </a>
+                    <a href="{% url 'ai_insights:executive_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">💡</span>
+                        AI 인사이트
+                    </a>
+                    <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📈</span>
+                        예측 분석
+                    </a>
+                    <a href="{% url 'ai_interviewer:interview_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">🎤</span>
+                        AI 면접관
+                    </a>
+                </div>
+                
+                <!-- HR Management -->
+                <div class="nav-section">
+                    <div class="nav-section-title">HR Management</div>
+                    <a href="{% url 'recruitment:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📋</span>
+                        채용 관리
+                    </a>
+                    <a href="{% url 'evaluations:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📊</span>
+                        평가 관리
+                    </a>
+                    <a href="{% url 'compensation:dashboard' %}" class="nav-item">
+                        <span class="nav-icon">💰</span>
+                        보상 관리
+                    </a>
+                    <a href="{% url 'trainings:training_list' %}" class="nav-item">
+                        <span class="nav-icon">📚</span>
+                        교육 훈련
+                    </a>
+                </div>
+                
+                <!-- Analytics -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Analytics</div>
+                    <a href="{% url 'leader_kpi_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📈</span>
+                        경영진 KPI
+                    </a>
+                    <a href="{% url 'workforce_comp_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">📊</span>
+                        인력 구성
+                    </a>
+                    <a href="{% url 'skillmap_dashboard' %}" class="nav-item">
+                        <span class="nav-icon">🗺️</span>
+                        스킬맵
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="content-wrapper" id="content">
+            <!-- Header -->
+            <header class="header-modern">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <button class="menu-toggle" onclick="toggleSidebar()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </button>
+                        <h1 class="page-title-header" style="font-size: 24px; margin: 0;">
+                            {% block page_header %}AI-Powered HRM{% endblock %}
+                        </h1>
+                    </div>
+                    
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            새로고침
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('expanded');
+        }
+        
+        // Auto-hide sidebar on mobile
+        if (window.innerWidth < 992) {
+            document.getElementById('sidebar').classList.add('collapsed');
+            document.getElementById('content').classList.add('expanded');
+        }
+        
+        // Handle resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 992) {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.getElementById('content').classList.add('expanded');
+            } else {
+                document.getElementById('sidebar').classList.remove('collapsed');
+                document.getElementById('content').classList.remove('expanded');
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

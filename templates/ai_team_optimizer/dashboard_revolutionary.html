@@ -1,0 +1,690 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 팀 최적화 - 혁신적 HRM 시스템{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}">
+<style>
+    .team-optimizer-hero {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        border-radius: 24px;
+        padding: 48px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .team-optimizer-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(0,212,255,0.1) 0%, transparent 70%);
+        animation: pulse 6s ease-in-out infinite;
+    }
+    
+    .optimizer-stat-card {
+        background: rgba(26, 31, 46, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+    
+    .optimizer-stat-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(0, 212, 255, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+    }
+    
+    .team-composition-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.9) 0%, rgba(26, 31, 46, 0.6) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        padding: 24px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .team-composition-card:hover {
+        transform: translateX(8px);
+        border-color: #00d4ff;
+        box-shadow: 0 12px 40px rgba(0, 212, 255, 0.3);
+    }
+    
+    .skill-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        color: #00d4ff;
+        font-size: 0.875rem;
+        margin: 4px;
+    }
+    
+    .optimization-score {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, #00d4ff 0deg, #00d4ff calc(var(--score) * 3.6deg), rgba(0, 212, 255, 0.1) calc(var(--score) * 3.6deg));
+        position: relative;
+    }
+    
+    .optimization-score::before {
+        content: attr(data-score);
+        position: absolute;
+        inset: 8px;
+        background: #0a0f1b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #00d4ff;
+    }
+    
+    .project-timeline {
+        position: relative;
+        padding-left: 40px;
+    }
+    
+    .project-timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg, #00d4ff 0%, transparent 100%);
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 24px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -35px;
+        top: 8px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <!-- 사용 가이드 Tip Box -->
+    <div style="background: linear-gradient(135deg, #00d4ff15 0%, #ff6b0015 100%); border: 2px solid #00d4ff; border-radius: 20px; padding: 20px; margin-bottom: 30px;">
+        <div style="display: flex; align-items: start; gap: 20px;">
+            <div style="font-size: 48px;">💡</div>
+            <div style="flex: 1;">
+                <h3 style="color: #00d4ff; font-size: 20px; font-weight: bold; margin-bottom: 10px;">
+                    AI Team Optimizer 사용 가이드
+                </h3>
+                <p style="color: #ffffff; font-size: 16px; line-height: 1.8; margin-bottom: 15px;">
+                    <strong>이런 경우에 사용하세요:</strong><br>
+                    ✅ 새 프로젝트 팀을 구성할 때<br>
+                    ✅ 현재 팀의 스킬 밸런스를 점검할 때<br>
+                    ✅ 프로젝트 요구사항에 맞는 인재를 찾을 때<br>
+                    ✅ 팀원 간 시너지를 극대화하고 싶을 때
+                </p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div style="background: rgba(0, 212, 255, 0.2); padding: 10px 20px; border-radius: 10px;">
+                        <strong style="color: #00d4ff;">Step 1:</strong>
+                        <span style="color: #ffffff; margin-left: 10px;">프로젝트 생성</span>
+                    </div>
+                    <div style="background: rgba(0, 212, 255, 0.2); padding: 10px 20px; border-radius: 10px;">
+                        <strong style="color: #00d4ff;">Step 2:</strong>
+                        <span style="color: #ffffff; margin-left: 10px;">스킬 요구사항 입력</span>
+                    </div>
+                    <div style="background: rgba(0, 212, 255, 0.2); padding: 10px 20px; border-radius: 10px;">
+                        <strong style="color: #00d4ff;">Step 3:</strong>
+                        <span style="color: #ffffff; margin-left: 10px;">AI 최적화 실행</span>
+                    </div>
+                    <div style="background: rgba(255, 107, 0, 0.2); padding: 10px 20px; border-radius: 10px;">
+                        <strong style="color: #ff6b00;">Step 4:</strong>
+                        <span style="color: #ffffff; margin-left: 10px;">팀 구성 검토 및 승인</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="this.parentElement.parentElement.style.display='none'" 
+                    style="background: none; border: none; color: #ffffff50; font-size: 24px; cursor: pointer;">
+                ×
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Section - 개선된 가독성 -->
+    <div class="team-optimizer-hero" style="background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%); border-radius: 24px; padding: 48px; margin-bottom: 32px; position: relative; overflow: hidden;">
+        <div class="relative z-10">
+            <h1 style="font-size: 42px; font-weight: 800; color: #ffffff; margin-bottom: 16px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                🚀 AI 팀 최적화 시스템
+            </h1>
+            <p style="font-size: 24px; color: #00d4ff; margin-bottom: 32px; font-weight: 500;">
+                머신러닝 기반 최적 팀 구성 및 인재 매칭 솔루션
+            </p>
+            
+            <!-- Quick Actions - 더 눈에 띄는 버튼 -->
+            <div class="flex gap-4">
+                <button style="padding: 16px 32px; background: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%); color: white; border-radius: 16px; font-size: 18px; font-weight: 700; box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4); transition: all 0.3s; cursor: pointer;"
+                        onmouseover="this.style.transform='translateY(-3px) scale(1.05)'"
+                        onmouseout="this.style.transform='translateY(0) scale(1)'">
+                    <i class="fas fa-magic mr-2"></i>
+                    새 프로젝트 팀 구성
+                </button>
+                <button style="padding: 16px 32px; background: transparent; border: 2px solid #00d4ff; color: #00d4ff; border-radius: 16px; font-size: 18px; font-weight: 700; transition: all 0.3s; cursor: pointer;"
+                        onmouseover="this.style.background='rgba(0, 212, 255, 0.1)'"
+                        onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    성과 분석 보기
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 대폭 개선된 Stats Grid - 크고 명확한 디자인 -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px;">
+        <!-- 프로젝트 카드 -->
+        <div style="background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%); border: 3px solid #00d4ff; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; transition: all 0.3s;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(0, 212, 255, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <!-- 배경 장식 -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+            
+            <!-- 상단 헤더 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);">
+                    <i class="fas fa-project-diagram" style="font-size: 35px; color: white;"></i>
+                </div>
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border-radius: 30px; font-size: 18px; font-weight: 800; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);">
+                    ↑ 12%
+                </div>
+            </div>
+            
+            <!-- 메인 수치 -->
+            <div style="font-size: 64px; font-weight: 900; color: #ffffff; line-height: 1; margin-bottom: 12px; text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);">
+                {{ stats.projects.total|default:24 }}
+            </div>
+            
+            <!-- 라벨 -->
+            <div style="font-size: 20px; color: #00d4ff; font-weight: 700; margin-bottom: 20px;">
+                전체 프로젝트
+            </div>
+            
+            <!-- 추가 정보 -->
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <span style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    활성: {{ stats.projects.active|default:12 }}
+                </span>
+                <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    완료: {{ stats.projects.completed|default:8 }}
+                </span>
+            </div>
+            
+            <!-- 프로그레스 바 -->
+            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 10px; overflow: hidden;">
+                <div style="height: 100%; background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%); width: {{ stats.projects.completion_rate|default:85 }}%; transition: width 1s ease;"></div>
+            </div>
+        </div>
+        
+        <!-- 팀 카드 -->
+        <div style="background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%); border: 3px solid #ff6b00; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; transition: all 0.3s;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(255, 107, 0, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <!-- 배경 장식 -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255, 107, 0, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+            
+            <!-- 상단 헤더 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #ff6b00 0%, #ff8800 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(255, 107, 0, 0.4);">
+                    <i class="fas fa-users" style="font-size: 35px; color: white;"></i>
+                </div>
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border-radius: 30px; font-size: 18px; font-weight: 800; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);">
+                    ↑ 8%
+                </div>
+            </div>
+            
+            <!-- 메인 수치 -->
+            <div style="font-size: 64px; font-weight: 900; color: #ffffff; line-height: 1; margin-bottom: 12px; text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);">
+                {{ stats.teams.total|default:45 }}
+            </div>
+            
+            <!-- 라벨 -->
+            <div style="font-size: 20px; color: #ff6b00; font-weight: 700; margin-bottom: 20px;">
+                최적화된 팀
+            </div>
+            
+            <!-- 추가 정보 -->
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <span style="background: rgba(255, 107, 0, 0.2); color: #ff6b00; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    승인: {{ stats.teams.approved|default:38 }}
+                </span>
+                <span style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    대기: 7
+                </span>
+            </div>
+            
+            <!-- 프로그레스 바 -->
+            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 10px; overflow: hidden;">
+                <div style="height: 100%; background: linear-gradient(90deg, #ff6b00 0%, #ff8800 100%); width: {{ stats.teams.optimization_rate|default:92 }}%; transition: width 1s ease;"></div>
+            </div>
+        </div>
+        
+        <!-- 승인율 카드 -->
+        <div style="background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%); border: 3px solid #10b981; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; transition: all 0.3s;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(16, 185, 129, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <!-- 배경 장식 -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+            
+            <!-- 상단 헤더 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);">
+                    <i class="fas fa-check-circle" style="font-size: 35px; color: white;"></i>
+                </div>
+                <div style="background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: white; padding: 10px 20px; border-radius: 30px; font-size: 18px; font-weight: 800; box-shadow: 0 5px 15px rgba(234, 179, 8, 0.4);">
+                    → 동일
+                </div>
+            </div>
+            
+            <!-- 메인 수치 -->
+            <div style="font-size: 64px; font-weight: 900; color: #ffffff; line-height: 1; margin-bottom: 12px; text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);">
+                {{ stats.compositions.approval_rate|default:78 }}<span style="font-size: 40px;">%</span>
+            </div>
+            
+            <!-- 라벨 -->
+            <div style="font-size: 20px; color: #10b981; font-weight: 700; margin-bottom: 20px;">
+                팀 구성 승인율
+            </div>
+            
+            <!-- 추가 정보 -->
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    자동승인: 65%
+                </span>
+                <span style="background: rgba(234, 179, 8, 0.2); color: #eab308; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    수동조정: 13%
+                </span>
+            </div>
+            
+            <!-- 프로그레스 바 -->
+            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 10px; overflow: hidden;">
+                <div style="height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); width: {{ stats.compositions.approval_rate|default:78 }}%; transition: width 1s ease;"></div>
+            </div>
+        </div>
+        
+        <!-- 평균 점수 카드 -->
+        <div style="background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%); border: 3px solid #8b5cf6; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; transition: all 0.3s;"
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(139, 92, 246, 0.3)'"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <!-- 배경 장식 -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+            
+            <!-- 상단 헤더 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);">
+                    <i class="fas fa-star" style="font-size: 35px; color: white;"></i>
+                </div>
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 20px; border-radius: 30px; font-size: 18px; font-weight: 800; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);">
+                    ↑ 15%
+                </div>
+            </div>
+            
+            <!-- 메인 수치 -->
+            <div style="font-size: 64px; font-weight: 900; color: #ffffff; line-height: 1; margin-bottom: 12px; text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);">
+                {{ stats.average_scores.overall_score|default:8.5|floatformat:1 }}<span style="font-size: 40px;">/10</span>
+            </div>
+            
+            <!-- 라벨 -->
+            <div style="font-size: 20px; color: #8b5cf6; font-weight: 700; margin-bottom: 20px;">
+                AI 최적화 평균 점수
+            </div>
+            
+            <!-- 추가 정보 -->
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <span style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    최고: 9.8
+                </span>
+                <span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+                    최저: 6.2
+                </span>
+            </div>
+            
+            <!-- 별점 표시 -->
+            <div style="font-size: 24px; color: #fbbf24;">
+                ⭐⭐⭐⭐⭐
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recent Projects - 개선된 디자인 -->
+        <div class="lg:col-span-2">
+            <div style="background: rgba(26, 31, 46, 0.8); backdrop-filter: blur(20px); border-radius: 24px; border: 2px solid rgba(0, 212, 255, 0.2); padding: 32px;">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 style="font-size: 28px; font-weight: 800; color: #ffffff;">
+                        <span style="color: #00d4ff;">📋</span> 최근 프로젝트
+                    </h2>
+                    <a href="#" style="color: #ff6b00; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 0.3s;"
+                       onmouseover="this.style.color='#ffaa00'" 
+                       onmouseout="this.style.color='#ff6b00'">
+                        모두 보기 <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                
+                <div class="space-y-4">
+                    {% for project in recent_projects|slice:":3" %}
+                    <div class="team-composition-card">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-white mb-2">
+                                    {{ project.name|default:"프로젝트명" }}
+                                </h3>
+                                <p class="text-gray-400 text-sm">
+                                    {{ project.description|default:"프로젝트 설명" }}
+                                </p>
+                            </div>
+                            <div class="optimization-score" style="--score: {{ project.optimization_score|default:75 }}" data-score="{{ project.optimization_score|default:75 }}">
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 mb-4">
+                            <span class="text-sm text-gray-400">
+                                <i class="fas fa-calendar-alt mr-1"></i>
+                                {{ project.start_date|date:"Y.m.d" }}
+                            </span>
+                            <span class="text-sm text-gray-400">
+                                <i class="fas fa-users mr-1"></i>
+                                {{ project.team_size|default:5 }}명
+                            </span>
+                            <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold">
+                                {{ project.status|default:"진행중" }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <span class="skill-badge">Python</span>
+                            <span class="skill-badge">React</span>
+                            <span class="skill-badge">AWS</span>
+                            <span class="skill-badge">+3</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-folder-open text-4xl text-gray-600 mb-4"></i>
+                        <p class="text-gray-400">진행 중인 프로젝트가 없습니다</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- 개선된 최적화 제안 섹션 -->
+        <div>
+            <div style="background: rgba(26, 31, 46, 0.9); backdrop-filter: blur(20px); border-radius: 24px; border: 2px solid rgba(255, 107, 0, 0.3); padding: 32px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px;">
+                    <h2 style="font-size: 28px; font-weight: 800; color: #ffffff;">
+                        <span style="color: #ff6b00;">💡</span> AI 최적화 제안
+                    </h2>
+                    <div style="background: rgba(255, 107, 0, 0.2); padding: 8px 16px; border-radius: 20px;">
+                        <span style="color: #ff6b00; font-size: 14px; font-weight: 600;">
+                            실시간 분석 중 🔄
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    {% for suggestion in optimization_suggestions %}
+                    <div style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%); border-radius: 16px; padding: 20px; border-left: 4px solid {% if suggestion.priority == 'HIGH' %}#ef4444{% elif suggestion.priority == 'MEDIUM' %}#ff6b00{% else %}#00d4ff{% endif %}; transition: all 0.3s;"
+                         onmouseover="this.style.transform='translateX(8px)'; this.style.background='linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 100%)'"
+                         onmouseout="this.style.transform='translateX(0)'; this.style.background='linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%)'">
+                        
+                        <div style="display: flex; gap: 16px;">
+                            <!-- 아이콘 영역 -->
+                            <div style="width: 50px; height: 50px; background: {% if suggestion.priority == 'HIGH' %}linear-gradient(135deg, #ef4444 0%, #dc2626 100%){% elif suggestion.priority == 'MEDIUM' %}linear-gradient(135deg, #ff6b00 0%, #ff8800 100%){% else %}linear-gradient(135deg, #00d4ff 0%, #0099ff 100%){% endif %}; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                {% if suggestion.type == 'SKILL_GAP' %}
+                                    <i class="fas fa-graduation-cap" style="color: white; font-size: 24px;"></i>
+                                {% elif suggestion.type == 'TEAM_BALANCE' %}
+                                    <i class="fas fa-balance-scale" style="color: white; font-size: 24px;"></i>
+                                {% else %}
+                                    <i class="fas fa-handshake" style="color: white; font-size: 24px;"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- 내용 영역 -->
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                    <h4 style="color: #ffffff; font-size: 18px; font-weight: 700; margin: 0;">
+                                        {{ suggestion.title }}
+                                    </h4>
+                                    <span style="background: {% if suggestion.priority == 'HIGH' %}rgba(239, 68, 68, 0.2){% elif suggestion.priority == 'MEDIUM' %}rgba(255, 107, 0, 0.2){% else %}rgba(0, 212, 255, 0.2){% endif %}; color: {% if suggestion.priority == 'HIGH' %}#ef4444{% elif suggestion.priority == 'MEDIUM' %}#ff6b00{% else %}#00d4ff{% endif %}; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                                        {{ suggestion.priority }} PRIORITY
+                                    </span>
+                                </div>
+                                
+                                <p style="color: rgba(255, 255, 255, 0.8); font-size: 15px; line-height: 1.6; margin-bottom: 12px;">
+                                    {{ suggestion.description }}
+                                </p>
+                                
+                                <!-- 추가 정보 -->
+                                <div style="display: flex; gap: 16px; align-items: center;">
+                                    {% if suggestion.type == 'SKILL_GAP' %}
+                                        <span style="color: #ff6b00; font-size: 14px;">
+                                            <i class="fas fa-user-plus"></i> 3명 추가 필요
+                                        </span>
+                                        <span style="color: #00d4ff; font-size: 14px;">
+                                            <i class="fas fa-clock"></i> 예상 소요: 2주
+                                        </span>
+                                    {% elif suggestion.type == 'TEAM_BALANCE' %}
+                                        <span style="color: #ff6b00; font-size: 14px;">
+                                            <i class="fas fa-users"></i> 5:3 → 4:4 조정
+                                        </span>
+                                        <span style="color: #00d4ff; font-size: 14px;">
+                                            <i class="fas fa-chart-line"></i> 생산성 +15%
+                                        </span>
+                                    {% else %}
+                                        <span style="color: #10b981; font-size: 14px;">
+                                            <i class="fas fa-rocket"></i> 효율성 +20%
+                                        </span>
+                                        <span style="color: #8b5cf6; font-size: 14px;">
+                                            <i class="fas fa-smile"></i> 만족도 향상
+                                        </span>
+                                    {% endif %}
+                                    
+                                    <button style="margin-left: auto; background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); color: white; padding: 8px 16px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                                            onmouseover="this.style.transform='scale(1.05)'"
+                                            onmouseout="this.style.transform='scale(1)'">
+                                        적용하기 →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="fas fa-check" style="color: white; font-size: 40px;"></i>
+                        </div>
+                        <h3 style="color: #10b981; font-size: 24px; font-weight: 700; margin-bottom: 10px;">
+                            모든 팀이 최적화되었습니다!
+                        </h3>
+                        <p style="color: rgba(255, 255, 255, 0.6); font-size: 16px;">
+                            현재 모든 프로젝트 팀이 최적의 상태로 운영되고 있습니다.
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- 개선된 활성 팀 구성 섹션 -->
+            <div style="background: rgba(26, 31, 46, 0.9); backdrop-filter: blur(20px); border-radius: 24px; border: 2px solid rgba(0, 212, 255, 0.3); padding: 32px; margin-top: 24px;">
+                <h2 style="font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 28px;">
+                    <span style="color: #00d4ff;">👥</span> 활성 팀 구성 현황
+                </h2>
+                
+                {% if active_compositions %}
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    {% for composition in active_compositions|slice:":3" %}
+                    <div style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(0, 212, 255, 0.3); transition: all 0.3s;"
+                         onmouseover="this.style.borderColor='#00d4ff'; this.style.transform='scale(1.02)'"
+                         onmouseout="this.style.borderColor='rgba(0, 212, 255, 0.3)'; this.style.transform='scale(1)'">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #ffffff; font-size: 20px; font-weight: 700; margin-bottom: 8px;">
+                                    {{ composition.name|default:"AI 최적화 팀 #1" }}
+                                </h4>
+                                <p style="color: #00d4ff; font-size: 16px; margin-bottom: 12px;">
+                                    <i class="fas fa-folder"></i> {{ composition.project.name|default:"Digital Transformation 2024" }}
+                                </p>
+                                
+                                <div style="display: flex; gap: 20px;">
+                                    <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">
+                                        <i class="fas fa-users" style="color: #ff6b00;"></i> 15명
+                                    </span>
+                                    <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">
+                                        <i class="fas fa-calendar" style="color: #10b981;"></i> 3개월
+                                    </span>
+                                    <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">
+                                        <i class="fas fa-dollar-sign" style="color: #eab308;"></i> 2.5억
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- 점수 표시 -->
+                            <div style="text-align: center;">
+                                <div style="width: 100px; height: 100px; position: relative;">
+                                    <svg width="100" height="100" style="transform: rotate(-90deg);">
+                                        <circle cx="50" cy="50" r="45" stroke="rgba(255, 255, 255, 0.1)" stroke-width="8" fill="none"/>
+                                        <circle cx="50" cy="50" r="45" stroke="#00d4ff" stroke-width="8" fill="none"
+                                                stroke-dasharray="{{ composition.overall_score|default:8.5|floatformat:1 }}0 100"
+                                                stroke-linecap="round"/>
+                                    </svg>
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                        <div style="font-size: 32px; font-weight: 800; color: #00d4ff;">
+                                            {{ composition.overall_score|default:8.5|floatformat:1 }}
+                                        </div>
+                                        <div style="font-size: 12px; color: rgba(255, 255, 255, 0.6);">
+                                            시너지
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 60px 20px; background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 212, 255, 0.02) 100%); border-radius: 16px; border: 2px dashed rgba(0, 212, 255, 0.3);">
+                    <div style="width: 80px; height: 80px; background: rgba(0, 212, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-users-slash" style="color: #00d4ff; font-size: 40px;"></i>
+                    </div>
+                    <h3 style="color: rgba(255, 255, 255, 0.7); font-size: 20px; font-weight: 600; margin-bottom: 10px;">
+                        활성 팀 구성이 없습니다
+                    </h3>
+                    <p style="color: rgba(255, 255, 255, 0.5); font-size: 16px; margin-bottom: 20px;">
+                        새 프로젝트를 시작하고 AI 최적화를 실행해보세요
+                    </p>
+                    <button style="background: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%); color: white; padding: 12px 24px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 24px rgba(255, 107, 0, 0.3);"
+                            onmouseover="this.style.transform='scale(1.05)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                        <i class="fas fa-plus-circle"></i> 새 팀 구성 시작
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI 작동 원리 설명 섹션 -->
+    <div style="background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 107, 0, 0.05) 100%); border: 2px solid rgba(255, 107, 0, 0.3); border-radius: 24px; padding: 32px; margin-top: 40px;">
+        <h2 style="font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 24px;">
+            <span style="color: #ff6b00;">🤖</span> AI Team Optimizer 작동 원리
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px;">
+                <div style="color: #00d4ff; font-size: 20px; font-weight: 700; margin-bottom: 10px;">
+                    1️⃣ 데이터 수집
+                </div>
+                <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                    직원 프로필, 스킬셋, 과거 프로젝트 성과, 협업 이력 등 다양한 데이터를 수집하여 분석합니다.
+                </p>
+            </div>
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px;">
+                <div style="color: #00d4ff; font-size: 20px; font-weight: 700; margin-bottom: 10px;">
+                    2️⃣ AI 분석
+                </div>
+                <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                    머신러닝 알고리즘이 프로젝트 요구사항과 직원 역량을 매칭하여 최적의 조합을 찾습니다.
+                </p>
+            </div>
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px;">
+                <div style="color: #00d4ff; font-size: 20px; font-weight: 700; margin-bottom: 10px;">
+                    3️⃣ 시너지 계산
+                </div>
+                <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                    팀원 간 협업 경험, 성격 유형, 업무 스타일을 고려하여 팀 시너지 점수를 계산합니다.
+                </p>
+            </div>
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px;">
+                <div style="color: #ff6b00; font-size: 20px; font-weight: 700; margin-bottom: 10px;">
+                    4️⃣ 최적화 제안
+                </div>
+                <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                    예산, 일정, 리스크 등을 종합 고려하여 최종 팀 구성안을 제시합니다.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation for optimization scores
+    const scores = document.querySelectorAll('.optimization-score');
+    scores.forEach(score => {
+        const value = score.style.getPropertyValue('--score');
+        let current = 0;
+        const increment = value / 30;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= value) {
+                current = value;
+                clearInterval(timer);
+            }
+            score.style.setProperty('--score', current);
+        }, 30);
+    });
+    
+    // Hover effects for cards
+    const cards = document.querySelectorAll('.team-composition-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(8px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0) scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

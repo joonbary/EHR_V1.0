@@ -1,0 +1,160 @@
+{% extends 'base_modern.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .score-badge {
+        font-size: 24px;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 8px;
+    }
+    .score-high { background: #d4edda; color: #155724; }
+    .score-medium { background: #fff3cd; color: #856404; }
+    .score-low { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>AI 분석 결과 조회</h1>
+    
+    <!-- 필터 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">부서</label>
+                    <select name="department" class="form-select">
+                        <option value="">전체</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}" {% if dept == selected_department %}selected{% endif %}>{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">분석 유형</label>
+                    <select name="analysis_type" class="form-select">
+                        <option value="">전체</option>
+                        <option value="TEAM_PERFORMANCE" {% if selected_analysis_type == 'TEAM_PERFORMANCE' %}selected{% endif %}>팀 성과 예측</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">조회</button>
+                    <a href="{% url 'airiss:analysis_results' %}" class="btn btn-secondary">초기화</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 결과 목록 -->
+    {% if page_obj %}
+        <div class="mb-3">
+            <strong>총 {{ page_obj.paginator.count }}건의 분석 결과</strong>
+        </div>
+        
+        {% for result in page_obj %}
+        <div class="result-card">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5>{{ result.employee.name }} ({{ result.employee.employee_number }})</h5>
+                    <p class="mb-1">
+                        <strong>부서:</strong> {{ result.employee.department }} | 
+                        <strong>직급:</strong> {{ result.employee.position }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>분석 유형:</strong> {{ result.analysis_type.name }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>분석 일시:</strong> {{ result.analyzed_at|date:"Y-m-d H:i" }}
+                    </p>
+                    {% if result.insights %}
+                    <p class="mb-0 mt-2">
+                        <strong>인사이트:</strong> {{ result.insights }}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="score-badge {% if result.score >= 80 %}score-high{% elif result.score >= 60 %}score-medium{% else %}score-low{% endif %}">
+                        {{ result.score|floatformat:0 }}점
+                    </div>
+                    <small class="text-muted d-block mt-2">신뢰도: {{ result.confidence|floatformat:2 }}</small>
+                    
+                    {% if result.result_data %}
+                    <div class="mt-3 text-start">
+                        {% if result.result_data.dimension_scores %}
+                        <small>
+                            <strong>세부 점수:</strong><br>
+                            {% for key, value in result.result_data.dimension_scores.items %}
+                                {{ key }}: {{ value|floatformat:0 }}점<br>
+                            {% endfor %}
+                        </small>
+                        {% elif result.result_data.goalAchievement %}
+                        <small>
+                            목표달성: {{ result.result_data.goalAchievement }}%<br>
+                            프로젝트: {{ result.result_data.projectSuccess }}%<br>
+                            고객만족: {{ result.result_data.customerSatisfaction }}%<br>
+                            근태: {{ result.result_data.attendance }}%
+                        </small>
+                        {% endif %}
+                        {% if result.result_data.processing_time %}
+                        <small class="text-muted">
+                            처리시간: {{ result.result_data.processing_time|floatformat:2 }}초
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            저장된 AI 분석 결과가 없습니다.
+        </div>
+        {% endfor %}
+        
+        <!-- 페이지네이션 -->
+        {% if page_obj.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if selected_analysis_type %}&analysis_type={{ selected_analysis_type }}{% endif %}">이전</a>
+                </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_department %}&department={{ selected_department }}{% endif %}{% if selected_analysis_type %}&analysis_type={{ selected_analysis_type }}{% endif %}">다음</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-warning">
+            분석 결과를 조회할 수 없습니다.
+        </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <a href="{% url 'airiss:msa_integration' %}" class="btn btn-primary">AI 분석 실행</a>
+        <a href="{% url 'airiss:dashboard' %}" class="btn btn-secondary">AIRISS 대시보드</a>
+    </div>
+</div>
+{% endblock %}

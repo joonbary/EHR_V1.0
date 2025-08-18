@@ -1,0 +1,627 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}리더십 AI 파트너 - OK Financial Group{% endblock %}
+
+{% block page_header %}리더십 AI 파트너{% endblock %}
+{% block content_title %}리더십 AI 파트너{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 리더십 AI 대시보드 스타일 */
+    .leader-ai-container {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 30px;
+        height: calc(100vh - 280px);
+        margin-top: 20px;
+    }
+    
+    /* 메인 콘텐츠 영역 */
+    .leader-main {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+    
+    /* AI 인사이트 카드 */
+    .insight-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    
+    .insight-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .insight-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(0, 212, 255, 0.5);
+        box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+    }
+    
+    .insight-card.critical {
+        border-color: rgba(255, 100, 100, 0.3);
+        background: linear-gradient(135deg, rgba(255, 100, 100, 0.1), rgba(255, 50, 50, 0.05));
+    }
+    
+    .insight-card.warning {
+        border-color: rgba(255, 200, 0, 0.3);
+        background: linear-gradient(135deg, rgba(255, 200, 0, 0.1), rgba(255, 150, 0, 0.05));
+    }
+    
+    .insight-card.success {
+        border-color: rgba(0, 255, 100, 0.3);
+        background: linear-gradient(135deg, rgba(0, 255, 100, 0.1), rgba(0, 200, 50, 0.05));
+    }
+    
+    .insight-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .insight-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
+    }
+    
+    .insight-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .badge-critical {
+        background: rgba(255, 100, 100, 0.2);
+        color: #ff6464;
+    }
+    
+    .badge-warning {
+        background: rgba(255, 200, 0, 0.2);
+        color: #ffc800;
+    }
+    
+    .badge-success {
+        background: rgba(0, 255, 100, 0.2);
+        color: #00ff64;
+    }
+    
+    .insight-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #00d4ff;
+        margin-bottom: 10px;
+    }
+    
+    .insight-description {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    
+    .insight-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .insight-action:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+    }
+    
+    /* 팀 성과 섹션 */
+    .team-performance {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #00d4ff;
+    }
+    
+    .team-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .metric-item {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .metric-value {
+        font-size: 32px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 5px;
+    }
+    
+    .metric-label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+    }
+    
+    .metric-change {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    
+    .change-positive {
+        color: #00ff64;
+    }
+    
+    .change-negative {
+        color: #ff6464;
+    }
+    
+    /* 의사결정 지원 섹션 */
+    .decision-support {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 30px;
+    }
+    
+    .decision-item {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .decision-item:hover {
+        transform: translateX(10px);
+        background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .decision-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    
+    .decision-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #00d4ff;
+    }
+    
+    .decision-priority {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    
+    .priority-high {
+        background: rgba(255, 100, 100, 0.2);
+        color: #ff6464;
+    }
+    
+    .priority-medium {
+        background: rgba(255, 200, 0, 0.2);
+        color: #ffc800;
+    }
+    
+    .priority-low {
+        background: rgba(0, 200, 255, 0.2);
+        color: #00c8ff;
+    }
+    
+    .decision-content {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+    }
+    
+    /* 사이드바 - AI 대화 */
+    .ai-sidebar {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .ai-chat-header {
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+    }
+    
+    .ai-assistant-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .ai-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    
+    .ai-details {
+        flex: 1;
+    }
+    
+    .ai-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #00d4ff;
+    }
+    
+    .ai-status {
+        font-size: 12px;
+        color: #00ff88;
+    }
+    
+    .quick-prompts {
+        margin-bottom: 20px;
+    }
+    
+    .prompts-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 10px;
+    }
+    
+    .prompt-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .prompt-chip {
+        padding: 6px 12px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        font-size: 12px;
+        color: #00d4ff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .prompt-chip:hover {
+        background: rgba(0, 212, 255, 0.2);
+        transform: scale(1.05);
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+    }
+    
+    .mini-message {
+        margin-bottom: 12px;
+        padding: 10px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    
+    .mini-message.ai {
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .mini-message.user {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
+        color: #00d4ff;
+        text-align: right;
+    }
+    
+    .chat-input-mini {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .input-mini {
+        flex: 1;
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        color: #fff;
+        font-size: 14px;
+    }
+    
+    .input-mini::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .btn-send-mini {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        border: none;
+        color: #000;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-send-mini:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="leader-ai-container">
+    <!-- 메인 콘텐츠 영역 -->
+    <div class="leader-main">
+        <!-- AI 인사이트 카드 -->
+        <div class="insight-cards">
+            <div class="insight-card critical">
+                <div class="insight-header">
+                    <div class="insight-icon">⚠️</div>
+                    <span class="insight-badge badge-critical">긴급</span>
+                </div>
+                <div class="insight-title">핵심 인재 이탈 위험</div>
+                <div class="insight-description">
+                    개발팀 시니어 개발자 2명이 높은 이탈 위험을 보이고 있습니다. 
+                    즉각적인 면담과 리텐션 전략이 필요합니다.
+                </div>
+                <div class="insight-action">
+                    대응 방안 보기 →
+                </div>
+            </div>
+            
+            <div class="insight-card warning">
+                <div class="insight-header">
+                    <div class="insight-icon">📊</div>
+                    <span class="insight-badge badge-warning">주의</span>
+                </div>
+                <div class="insight-title">팀 성과 하락 추세</div>
+                <div class="insight-description">
+                    마케팅팀의 KPI 달성률이 3개월 연속 하락 중입니다. 
+                    목표 재설정과 지원 강화를 고려하세요.
+                </div>
+                <div class="insight-action">
+                    상세 분석 보기 →
+                </div>
+            </div>
+            
+            <div class="insight-card success">
+                <div class="insight-header">
+                    <div class="insight-icon">🎯</div>
+                    <span class="insight-badge badge-success">긍정</span>
+                </div>
+                <div class="insight-title">영업팀 목표 초과 달성</div>
+                <div class="insight-description">
+                    영업팀이 분기 목표를 115% 달성했습니다. 
+                    성과 인센티브와 우수사례 공유를 추천합니다.
+                </div>
+                <div class="insight-action">
+                    인센티브 계획 →
+                </div>
+            </div>
+        </div>
+        
+        <!-- 팀 성과 섹션 -->
+        <div class="team-performance">
+            <div class="section-header">
+                <h2 class="section-title">팀 성과 현황</h2>
+                <button class="insight-action">전체 리포트 →</button>
+            </div>
+            
+            <div class="team-metrics">
+                <div class="metric-item">
+                    <div class="metric-value">87%</div>
+                    <div class="metric-label">목표 달성률</div>
+                    <div class="metric-change change-positive">↑ 5% vs 지난달</div>
+                </div>
+                
+                <div class="metric-item">
+                    <div class="metric-value">4.2</div>
+                    <div class="metric-label">팀 만족도</div>
+                    <div class="metric-change change-positive">↑ 0.3 vs 지난 분기</div>
+                </div>
+                
+                <div class="metric-item">
+                    <div class="metric-value">92%</div>
+                    <div class="metric-label">프로젝트 완료율</div>
+                    <div class="metric-change change-negative">↓ 2% vs 지난달</div>
+                </div>
+                
+                <div class="metric-item">
+                    <div class="metric-value">78</div>
+                    <div class="metric-label">팀 효율성 지수</div>
+                    <div class="metric-change change-positive">↑ 8 vs 지난 분기</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 의사결정 지원 섹션 -->
+        <div class="decision-support">
+            <div class="section-header">
+                <h2 class="section-title">오늘의 의사결정 사항</h2>
+            </div>
+            
+            <div class="decision-item">
+                <div class="decision-header">
+                    <div class="decision-title">신규 프로젝트 팀 구성</div>
+                    <span class="decision-priority priority-high">높음</span>
+                </div>
+                <div class="decision-content">
+                    AI 분석 결과, 개발팀 A와 디자인팀 B의 조합이 최적의 시너지를 낼 것으로 예측됩니다. 
+                    과거 유사 프로젝트 성공률 92% 기록.
+                </div>
+            </div>
+            
+            <div class="decision-item">
+                <div class="decision-header">
+                    <div class="decision-title">교육 예산 배분</div>
+                    <span class="decision-priority priority-medium">중간</span>
+                </div>
+                <div class="decision-content">
+                    AI/ML 교육에 40%, 리더십 교육에 30%, 기술 역량에 30% 배분을 추천합니다. 
+                    ROI 예상치는 180%입니다.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI 대화 사이드바 -->
+    <div class="ai-sidebar">
+        <div class="ai-chat-header">
+            <div class="ai-assistant-info">
+                <div class="ai-avatar">👑</div>
+                <div class="ai-details">
+                    <div class="ai-name">Leadership AI Partner</div>
+                    <div class="ai-status">● 실시간 분석 중</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-prompts">
+            <div class="prompts-title">빠른 질문</div>
+            <div class="prompt-chips">
+                <span class="prompt-chip">팀 성과 분석</span>
+                <span class="prompt-chip">인재 추천</span>
+                <span class="prompt-chip">리스크 평가</span>
+                <span class="prompt-chip">예산 최적화</span>
+            </div>
+        </div>
+        
+        <div class="chat-messages">
+            <div class="mini-message ai">
+                안녕하세요! 오늘의 리더십 인사이트를 준비했습니다. 무엇을 도와드릴까요?
+            </div>
+            
+            <div class="mini-message user">
+                이번 분기 성과 목표 달성 가능성은?
+            </div>
+            
+            <div class="mini-message ai">
+                현재 진행률과 팀 성과를 분석한 결과, 85% 확률로 목표 달성이 가능합니다. 
+                마케팅팀 지원 강화 시 92%까지 상승 예상됩니다.
+            </div>
+        </div>
+        
+        <div class="chat-input-mini">
+            <input type="text" class="input-mini" placeholder="질문을 입력하세요...">
+            <button class="btn-send-mini">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 인사이트 카드 클릭 이벤트
+    document.querySelectorAll('.insight-card').forEach(card => {
+        card.addEventListener('click', function() {
+            console.log('인사이트 상세 보기');
+            // 상세 모달 또는 페이지 이동 로직
+        });
+    });
+    
+    // 빠른 질문 칩 클릭
+    document.querySelectorAll('.prompt-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            const input = document.querySelector('.input-mini');
+            input.value = this.textContent;
+            // 자동으로 질문 전송
+        });
+    });
+    
+    // 미니 채팅 전송
+    document.querySelector('.btn-send-mini').addEventListener('click', function() {
+        const input = document.querySelector('.input-mini');
+        const message = input.value.trim();
+        
+        if (message) {
+            // 사용자 메시지 추가
+            const chatMessages = document.querySelector('.chat-messages');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'mini-message user';
+            userMsg.textContent = message;
+            chatMessages.appendChild(userMsg);
+            
+            // AI 응답 시뮬레이션
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'mini-message ai';
+                aiMsg.textContent = '분석 중입니다. 잠시만 기다려주세요...';
+                chatMessages.appendChild(aiMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 500);
+            
+            input.value = '';
+        }
+    });
+    
+    // 엔터키로 전송
+    document.querySelector('.input-mini').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.querySelector('.btn-send-mini').click();
+        }
+    });
+</script>
+{% endblock %}

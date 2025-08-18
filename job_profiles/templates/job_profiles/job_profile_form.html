@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if is_update %}직무기술서 수정{% else %}직무기술서 등록{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        {% if is_update %}
+                            직무기술서 수정: {{ profile.job_role.name }}
+                        {% else %}
+                            새 직무기술서 등록
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="profileForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- 직무 선택 -->
+                        <div class="mb-4">
+                            <label for="{{ form.job_role.id_for_label }}" class="form-label required">
+                                {{ form.job_role.label }}
+                            </label>
+                            {% if is_update %}
+                                <input type="text" class="form-control" value="{{ profile.job_role.full_path }}" disabled>
+                                {{ form.job_role.as_hidden }}
+                            {% else %}
+                                {{ form.job_role }}
+                            {% endif %}
+                            {% if form.job_role.errors %}
+                                <div class="text-danger">{{ form.job_role.errors }}</div>
+                            {% endif %}
+                            {% if not is_update and job_roles %}
+                                <small class="form-text text-muted">
+                                    프로필이 없는 직무: {{ job_roles.count }}개
+                                </small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- 역할과 책임 -->
+                        <div class="mb-4">
+                            <label for="{{ form.role_responsibility.id_for_label }}" class="form-label required">
+                                {{ form.role_responsibility.label }}
+                            </label>
+                            {{ form.role_responsibility }}
+                            {% if form.role_responsibility.errors %}
+                                <div class="text-danger">{{ form.role_responsibility.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                이 직무의 핵심 역할과 주요 책임사항을 구체적으로 기술해주세요.
+                            </small>
+                        </div>
+                        
+                        <!-- 자격요건 -->
+                        <div class="mb-4">
+                            <label for="{{ form.qualification.id_for_label }}" class="form-label required">
+                                {{ form.qualification.label }}
+                            </label>
+                            {{ form.qualification }}
+                            {% if form.qualification.errors %}
+                                <div class="text-danger">{{ form.qualification.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                학력, 경력, 필수 역량 등 이 직무 수행에 필요한 자격요건을 기술해주세요.
+                            </small>
+                        </div>
+                        
+                        <!-- 기본 기술/지식 -->
+                        <div class="mb-4">
+                            <label for="{{ form.basic_skills_text.id_for_label }}" class="form-label">
+                                {{ form.basic_skills_text.label }}
+                            </label>
+                            {{ form.basic_skills_text }}
+                            {% if form.basic_skills_text.errors %}
+                                <div class="text-danger">{{ form.basic_skills_text.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                직무 수행에 필요한 기본적인 기술과 지식을 한 줄에 하나씩 입력해주세요.
+                            </small>
+                        </div>
+                        
+                        <!-- 응용 기술/지식 -->
+                        <div class="mb-4">
+                            <label for="{{ form.applied_skills_text.id_for_label }}" class="form-label">
+                                {{ form.applied_skills_text.label }}
+                            </label>
+                            {{ form.applied_skills_text }}
+                            {% if form.applied_skills_text.errors %}
+                                <div class="text-danger">{{ form.applied_skills_text.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                직무 전문성 향상을 위한 응용 기술과 지식을 한 줄에 하나씩 입력해주세요.
+                            </small>
+                        </div>
+                        
+                        <!-- 관련 자격증 -->
+                        <div class="mb-4">
+                            <label for="{{ form.related_certifications_text.id_for_label }}" class="form-label">
+                                {{ form.related_certifications_text.label }}
+                            </label>
+                            {{ form.related_certifications_text }}
+                            {% if form.related_certifications_text.errors %}
+                                <div class="text-danger">{{ form.related_certifications_text.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                이 직무와 관련된 자격증을 한 줄에 하나씩 입력해주세요.
+                            </small>
+                        </div>
+                        
+                        <!-- 성장경로 -->
+                        <div class="mb-4">
+                            <label for="{{ form.growth_path.id_for_label }}" class="form-label">
+                                {{ form.growth_path.label }}
+                            </label>
+                            {{ form.growth_path }}
+                            {% if form.growth_path.errors %}
+                                <div class="text-danger">{{ form.growth_path.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                이 직무에서의 경력 개발 경로와 성장 방향을 기술해주세요. (선택사항)
+                            </small>
+                        </div>
+                        
+                        <!-- 활성화 상태 -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    {{ form.is_active.label }}
+                                </label>
+                            </div>
+                        </div>
+                        
+                        {% if is_update %}
+                        <!-- 변경 사유 -->
+                        <div class="mb-4">
+                            <label for="change_reason" class="form-label">변경 사유</label>
+                            <textarea name="change_reason" id="change_reason" class="form-control" rows="2"
+                                      placeholder="수정 사유를 간단히 입력해주세요 (선택사항)"></textarea>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- 버튼 그룹 -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'job_profiles:admin_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> 취소
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i>
+                                {% if is_update %}수정 완료{% else %}등록{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.required::after {
+    content: " *";
+    color: red;
+}
+</style>
+
+<script>
+// 폼 제출 전 확인
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    if (!confirm('{% if is_update %}직무기술서를 수정하시겠습니까?{% else %}직무기술서를 등록하시겠습니까?{% endif %}')) {
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .matching-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #007bff;
+        margin-bottom: 8px;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .matching-interface {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .job-list, .candidate-list {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .match-item {
+        padding: 16px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .match-item:hover {
+        border-color: #007bff;
+        background: #f8f9fa;
+    }
+    
+    .match-score {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #e7f3ff;
+        color: #007bff;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .match-score.high {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .match-score.medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <h1><i class="fas fa-users-cog"></i> {{ title }}</h1>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="showNewJobModal()">
+                <i class="fas fa-plus"></i> 새 직무 등록
+            </button>
+            <button class="btn btn-outline-primary" onclick="runMatching()">
+                <i class="fas fa-sync"></i> 매칭 실행
+            </button>
+        </div>
+    </div>
+    
+    <!-- 통계 카드 -->
+    <div class="matching-stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.open_positions }}</div>
+            <div class="stat-label">열린 직무</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.candidates }}</div>
+            <div class="stat-label">후보자</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.recent_matches }}</div>
+            <div class="stat-label">최근 매칭</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.avg_match_score }}%</div>
+            <div class="stat-label">평균 매칭률</div>
+        </div>
+    </div>
+    
+    <!-- 매칭 인터페이스 -->
+    <div class="matching-interface">
+        <div class="job-list">
+            <h3>직무 목록</h3>
+            <div id="jobList">
+                <!-- 동적으로 로드 -->
+                <div class="match-item">
+                    <h5>시니어 백엔드 개발자</h5>
+                    <p>IT팀 • 5년 이상 경력</p>
+                    <span class="match-score high">92% 매칭</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="candidate-list">
+            <h3>추천 후보자</h3>
+            <div id="candidateList">
+                <!-- 동적으로 로드 -->
+                <div class="match-item">
+                    <h5>김철수</h5>
+                    <p>현재: 백엔드 개발자 • 경력 6년</p>
+                    <span class="match-score high">92% 매칭</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function runMatching() {
+    // 매칭 알고리즘 실행
+    fetch('{% url "matching_api" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            job_id: 1,
+            filters: {}
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // 결과 업데이트
+        updateMatchingResults(data);
+    });
+}
+
+function updateMatchingResults(data) {
+    // UI 업데이트 로직
+}
+
+function showNewJobModal() {
+    // 새 직무 등록 모달
+}
+</script>
+{% endblock %}

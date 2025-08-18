@@ -7,49 +7,17 @@ __pycache__/
 env/
 venv/
 ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+.venv
 
 # Django
 *.log
 *.pot
 *.pyc
-__pycache__/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
-
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# React
-frontend/build/
-frontend/.pnp
-frontend/.pnp.js
-frontend/coverage/
-frontend/.DS_Store
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
 
 # IDE
 .vscode/
@@ -58,22 +26,15 @@ frontend/.env.production.local
 *.swo
 *~
 
-# Environment
-.env
-.env.local
-
 # OS
 .DS_Store
 Thumbs.db
 
-# Testing
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+# Environment variables
+.env
+.env.local
+
+# Other
+*.bak
+*.orig
+node_modules/

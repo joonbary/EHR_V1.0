@@ -1,0 +1,853 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}대시보드 - OK금융그룹 AI-Driven HR System{% endblock %}
+
+{% block page_header %}{% endblock %}
+
+{% block content %}
+<!-- 환영 메시지 섹션 -->
+<div class="dashboard-welcome">
+    <div class="welcome-content">
+        <h1 class="welcome-title">안녕하세요, {{ user.get_full_name|default:user.username }}님! 👋</h1>
+        <p class="welcome-subtitle">오늘도 OK금융그룹과 함께 성장하는 하루 되세요</p>
+        
+        <!-- 오늘의 할 일 -->
+        <div class="today-tasks">
+            <div class="task-item">
+                <i class="fas fa-check-circle"></i>
+                <span>평가 완료: 3/5</span>
+            </div>
+            <div class="task-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>오늘의 일정: 2건</span>
+            </div>
+            <div class="task-item">
+                <i class="fas fa-bell"></i>
+                <span>새 알림: 4건</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 배경 장식 -->
+    <div class="welcome-decoration">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path fill="rgba(255,255,255,0.1)" d="M47.4,-57.2C59.8,-47.1,67.1,-30.4,69.3,-13.1C71.5,4.3,68.6,22.3,59.8,36.8C51,51.3,36.3,62.3,19.4,67.2C2.5,72.1,-16.6,70.9,-33.3,63.8C-50,56.7,-64.3,43.7,-71.3,27.2C-78.3,10.7,-78,-9.3,-70.9,-26.3C-63.8,-43.3,-49.9,-57.3,-34.2,-66.9C-18.5,-76.5,-1,-81.7,16.2,-82C33.4,-82.3,35,-67.3,47.4,-57.2Z" transform="translate(100 100)" />
+        </svg>
+    </div>
+</div>
+
+<div class="container-fluid px-4">
+    <!-- 주요 지표 카드 -->
+    <div class="row mb-4">
+        <!-- 나의 성장레벨 -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="ok-stat-card">
+                <div class="stat-icon-wrapper">
+                    <div class="ok-card-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                </div>
+                <div class="stat-content">
+                    <div class="ok-stat-value">Lv.2</div>
+                    <div class="ok-stat-label">나의 성장레벨</div>
+                    <div class="ok-stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>다음 레벨까지 18개월</span>
+                    </div>
+                </div>
+                <div class="stat-progress">
+                    <div class="ok-progress">
+                        <div class="ok-progress-bar" style="width: 65%"></div>
+                    </div>
+                    <div class="progress-text">65% 달성</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 평가점수 -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="ok-stat-card">
+                <div class="stat-icon-wrapper">
+                    <div class="ok-card-icon" style="background: linear-gradient(135deg, var(--secondary-green) 0%, #5CB616 100%);">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="stat-content">
+                    <div class="ok-stat-value">3.8</div>
+                    <div class="ok-stat-label">종합 평가점수</div>
+                    <div class="ok-stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>전년 대비 +0.3</span>
+                    </div>
+                </div>
+                <div class="rating-stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 역량급 등급 -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="ok-stat-card">
+                <div class="stat-icon-wrapper">
+                    <div class="ok-card-icon" style="background: linear-gradient(135deg, var(--secondary-blue) 0%, #3B7BC0 100%);">
+                        <i class="fas fa-award"></i>
+                    </div>
+                </div>
+                <div class="stat-content">
+                    <div class="ok-stat-value">A</div>
+                    <div class="ok-stat-label">역량급 등급</div>
+                    <div class="ok-stat-change">
+                        <i class="fas fa-equals"></i>
+                        <span>현재 유지중</span>
+                    </div>
+                </div>
+                <div class="grade-indicator">
+                    <span class="grade-item">C</span>
+                    <span class="grade-item">B</span>
+                    <span class="grade-item active">A</span>
+                    <span class="grade-item">S</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 다음 승진까지 -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="ok-stat-card">
+                <div class="stat-icon-wrapper">
+                    <div class="ok-card-icon" style="background: linear-gradient(135deg, var(--secondary-purple) 0%, #7C3AED 100%);">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                </div>
+                <div class="stat-content">
+                    <div class="ok-stat-value">24</div>
+                    <div class="ok-stat-label">다음 승진까지 (개월)</div>
+                    <div class="ok-stat-change">
+                        <i class="fas fa-clock"></i>
+                        <span>2026년 1월 예정</span>
+                    </div>
+                </div>
+                <div class="promotion-timeline">
+                    <div class="timeline-track">
+                        <div class="timeline-progress" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 성장 Journey & 평가 현황 -->
+    <div class="row mb-4">
+        <!-- 나의 성장 Journey -->
+        <div class="col-lg-8 mb-4">
+            <div class="ok-card">
+                <div class="ok-card-header">
+                    <h3 class="ok-card-title">
+                        <i class="fas fa-route"></i>
+                        나의 성장 Journey
+                    </h3>
+                    <button class="ok-btn ok-btn-ghost">
+                        <i class="fas fa-info-circle"></i>
+                        가이드 보기
+                    </button>
+                </div>
+                <div class="growth-journey">
+                    <div class="journey-timeline">
+                        <div class="journey-item completed">
+                            <div class="journey-point">
+                                <div class="point-circle">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="point-line"></div>
+                            </div>
+                            <div class="journey-content">
+                                <h4>Level 1</h4>
+                                <p class="text-muted">Junior</p>
+                                <small>2022.03 달성</small>
+                            </div>
+                        </div>
+                        
+                        <div class="journey-item active">
+                            <div class="journey-point">
+                                <div class="point-circle">
+                                    <span>2</span>
+                                </div>
+                                <div class="point-line"></div>
+                            </div>
+                            <div class="journey-content">
+                                <h4>Level 2</h4>
+                                <p class="text-muted">Associate</p>
+                                <small>2024.01 ~ 현재</small>
+                                <div class="journey-requirements">
+                                    <div class="req-item completed">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>기본 역량 완료</span>
+                                    </div>
+                                    <div class="req-item">
+                                        <i class="far fa-circle"></i>
+                                        <span>리더십 과정 이수 필요</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="journey-item">
+                            <div class="journey-point">
+                                <div class="point-circle inactive">
+                                    <span>3</span>
+                                </div>
+                                <div class="point-line inactive"></div>
+                            </div>
+                            <div class="journey-content inactive">
+                                <h4>Level 3</h4>
+                                <p class="text-muted">Senior</p>
+                                <small>목표: 2026.01</small>
+                            </div>
+                        </div>
+                        
+                        <div class="journey-item">
+                            <div class="journey-point">
+                                <div class="point-circle inactive">
+                                    <span>4</span>
+                                </div>
+                            </div>
+                            <div class="journey-content inactive">
+                                <h4>Level 4</h4>
+                                <p class="text-muted">Expert</p>
+                                <small>목표: 2029.01</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 평가 매트릭스 -->
+        <div class="col-lg-4 mb-4">
+            <div class="ok-card">
+                <div class="ok-card-header">
+                    <h3 class="ok-card-title">
+                        <i class="fas fa-th"></i>
+                        평가 매트릭스
+                    </h3>
+                </div>
+                <div class="evaluation-matrix">
+                    <canvas id="matrixChart"></canvas>
+                    <div class="matrix-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: var(--ok-orange);"></span>
+                            <span>현재 위치</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: var(--gray-400);"></span>
+                            <span>팀 평균</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 최근 활동 & 공지사항 -->
+    <div class="row">
+        <!-- 최근 공지사항 -->
+        <div class="col-lg-6 mb-4">
+            <div class="ok-card">
+                <div class="ok-card-header">
+                    <h3 class="ok-card-title">
+                        <i class="fas fa-bullhorn"></i>
+                        최근 공지사항
+                    </h3>
+                    <a href="#" class="text-decoration-none">
+                        <span class="text-muted">전체보기</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="notice-list">
+                    <div class="notice-item">
+                        <div class="notice-badge ok-badge ok-badge-orange">중요</div>
+                        <div class="notice-content">
+                            <h5>2024년 하반기 성과평가 일정 안내</h5>
+                            <p class="text-muted mb-1">Check-in 작성 기간: 12월 1일 ~ 12월 15일</p>
+                            <small class="text-muted">2024.11.25</small>
+                        </div>
+                    </div>
+                    <div class="notice-item">
+                        <div class="notice-badge ok-badge ok-badge-blue">일반</div>
+                        <div class="notice-content">
+                            <h5>AI 역량 강화 교육 프로그램 신청 안내</h5>
+                            <p class="text-muted mb-1">신청 기간: 11월 25일 ~ 12월 5일</p>
+                            <small class="text-muted">2024.11.23</small>
+                        </div>
+                    </div>
+                    <div class="notice-item">
+                        <div class="notice-badge ok-badge ok-badge-green">교육</div>
+                        <div class="notice-content">
+                            <h5>리더십 에센셜 과정 개설 안내</h5>
+                            <p class="text-muted mb-1">Level 2 이상 직원 대상</p>
+                            <small class="text-muted">2024.11.20</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 나의 업무 현황 -->
+        <div class="col-lg-6 mb-4">
+            <div class="ok-card">
+                <div class="ok-card-header">
+                    <h3 class="ok-card-title">
+                        <i class="fas fa-tasks"></i>
+                        나의 업무 현황
+                    </h3>
+                    <a href="#" class="text-decoration-none">
+                        <span class="text-muted">전체보기</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="task-summary">
+                    <div class="task-stat-grid">
+                        <div class="task-stat">
+                            <div class="task-stat-value">12</div>
+                            <div class="task-stat-label">진행중</div>
+                        </div>
+                        <div class="task-stat">
+                            <div class="task-stat-value">5</div>
+                            <div class="task-stat-label">검토 대기</div>
+                        </div>
+                        <div class="task-stat">
+                            <div class="task-stat-value">28</div>
+                            <div class="task-stat-label">완료</div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-tasks">
+                        <h5 class="mb-3">최근 업무</h5>
+                        <div class="task-item">
+                            <div class="task-status">
+                                <i class="fas fa-spinner text-warning"></i>
+                            </div>
+                            <div class="task-content">
+                                <h6>AI 챗봇 시스템 개발</h6>
+                                <div class="task-meta">
+                                    <span class="ok-badge ok-badge-orange">진행중</span>
+                                    <span class="text-muted">마감: 2024.12.15</span>
+                                </div>
+                            </div>
+                            <div class="task-progress">
+                                <div class="ok-progress">
+                                    <div class="ok-progress-bar" style="width: 70%"></div>
+                                </div>
+                                <small>70%</small>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item">
+                            <div class="task-status">
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                            <div class="task-content">
+                                <h6>월간 성과 리포트 작성</h6>
+                                <div class="task-meta">
+                                    <span class="ok-badge ok-badge-green">완료</span>
+                                    <span class="text-muted">완료: 2024.11.20</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 환영 메시지 섹션 */
+.dashboard-welcome {
+    background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    color: white;
+    padding: 3rem 2rem;
+    margin: -2rem -2rem 3rem -2rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 24px 24px;
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    font-size: var(--text-lg);
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.today-tasks {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    backdrop-filter: blur(10px);
+}
+
+.task-item i {
+    font-size: 1.2rem;
+}
+
+.welcome-decoration {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 300px;
+    height: 300px;
+    opacity: 0.3;
+}
+
+/* 스탯 카드 개선 */
+.ok-stat-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+}
+
+.stat-icon-wrapper {
+    margin-bottom: 1rem;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-progress {
+    margin-top: 1rem;
+}
+
+.progress-text {
+    font-size: var(--text-xs);
+    color: var(--gray-600);
+    margin-top: 0.5rem;
+    text-align: right;
+}
+
+.rating-stars {
+    margin-top: 1rem;
+    color: var(--ok-orange);
+}
+
+.grade-indicator {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.grade-item {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: var(--gray-200);
+    color: var(--gray-500);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.grade-item.active {
+    background: var(--ok-orange);
+    color: white;
+    transform: scale(1.1);
+}
+
+.promotion-timeline {
+    margin-top: 1rem;
+}
+
+.timeline-track {
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.timeline-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary-purple) 0%, #A78BFA 100%);
+    border-radius: 100px;
+}
+
+/* 성장 Journey */
+.growth-journey {
+    padding: 2rem;
+}
+
+.journey-timeline {
+    position: relative;
+}
+
+.journey-item {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.journey-point {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.point-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--gray-600);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.journey-item.completed .point-circle {
+    background: var(--secondary-green);
+    color: white;
+}
+
+.journey-item.active .point-circle {
+    background: var(--ok-orange);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4); }
+    50% { box-shadow: 0 2px 20px rgba(255, 107, 0, 0.6); }
+    100% { box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4); }
+}
+
+.point-line {
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100px;
+    background: var(--gray-300);
+}
+
+.journey-item.completed .point-line {
+    background: var(--secondary-green);
+}
+
+.point-line.inactive {
+    background: var(--gray-200);
+    border-style: dashed;
+}
+
+.journey-content h4 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.journey-content.inactive {
+    opacity: 0.5;
+}
+
+.journey-requirements {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 8px;
+}
+
+.req-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: var(--text-sm);
+}
+
+.req-item.completed {
+    color: var(--secondary-green);
+}
+
+/* 평가 매트릭스 */
+.evaluation-matrix {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.matrix-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+/* 공지사항 */
+.notice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notice-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.notice-item:hover {
+    background: var(--gray-50);
+}
+
+.notice-content {
+    flex: 1;
+}
+
+.notice-content h5 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+/* 업무 현황 */
+.task-summary {
+    padding: 1rem;
+}
+
+.task-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--gray-50);
+    border-radius: 12px;
+}
+
+.task-stat {
+    text-align: center;
+}
+
+.task-stat-value {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--ok-orange);
+}
+
+.task-stat-label {
+    font-size: var(--text-sm);
+    color: var(--gray-600);
+}
+
+.recent-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.task-item:hover {
+    border-color: var(--ok-orange-light);
+    background: var(--ok-orange-lighter);
+}
+
+.task-status {
+    font-size: 1.5rem;
+}
+
+.task-content {
+    flex: 1;
+}
+
+.task-content h6 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.task-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.task-progress {
+    width: 120px;
+    text-align: right;
+}
+
+.task-progress small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--gray-600);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .dashboard-welcome {
+        padding: 2rem 1rem;
+        margin: -1rem -1rem 2rem -1rem;
+    }
+    
+    .welcome-title {
+        font-size: var(--text-2xl);
+    }
+    
+    .today-tasks {
+        gap: 1rem;
+    }
+    
+    .task-stat-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .journey-item {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .point-line {
+        left: 24px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 평가 매트릭스 차트
+const ctx = document.getElementById('matrixChart').getContext('2d');
+const matrixChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: '나의 위치',
+            data: [{x: 3.8, y: 3.5}],
+            backgroundColor: 'var(--ok-orange)',
+            pointRadius: 10,
+            pointHoverRadius: 12
+        }, {
+            label: '팀 평균',
+            data: [{x: 3.2, y: 3.0}],
+            backgroundColor: 'var(--gray-400)',
+            pointRadius: 8,
+            pointHoverRadius: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                type: 'linear',
+                position: 'bottom',
+                min: 1,
+                max: 5,
+                title: {
+                    display: true,
+                    text: '기여방식'
+                }
+            },
+            y: {
+                min: 1,
+                max: 5,
+                title: {
+                    display: true,
+                    text: '기여수준'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': (' + context.parsed.x + ', ' + context.parsed.y + ')';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// 애니메이션 효과
+document.addEventListener('DOMContentLoaded', function() {
+    // 진행률 바 애니메이션
+    const progressBars = document.querySelectorAll('.ok-progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 100);
+    });
+    
+    // 카드 순차적 등장
+    const cards = document.querySelectorAll('.ok-stat-card, .ok-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.generic import TemplateView
+
+from .views import DashboardView
+from .dashboard_views import leader_kpi_dashboard, workforce_comp_dashboard, workforce_comp_api
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    
+    # 인증 URL - 제거됨
+    
+    # 랜딩 페이지 (프레젠테이션용)
+    path('', TemplateView.as_view(template_name='landing_simple.html'), name='landing'),
+    
+    # 메인 대시보드
+    path('home/', DashboardView.as_view(), name='home'),
+    path('dashboard/', include('dashboard.urls')),  # 대시보드 하위 메뉴
+    
+    # 앱별 URL
+    path('core/', include('core.urls')),
+    path('job-profiles/', include('job_profiles.urls')),
+    path('employees/', include('employees.urls')),
+    path('evaluations/', include('evaluations.urls')),
+    path('compensation/', include('compensation.urls')),
+    path('promotions/', include('promotions.urls')),
+    path('selfservice/', include('selfservice.urls')),
+    
+    # 경영진 대시보드 - 실제 View 함수 사용
+    path('leader-kpi-dashboard/', leader_kpi_dashboard, name='leader_kpi_dashboard'),
+    path('workforce-comp-dashboard/', workforce_comp_dashboard, name='workforce_comp_dashboard'),
+    path('skillmap-dashboard/', TemplateView.as_view(template_name='skillmap/dashboard_revolutionary.html'), name='skillmap_dashboard'),
+    
+    # AI 도구
+    path('ai-chatbot/', include('ai_chatbot.urls')),
+    path('leader-ai-assistant/', TemplateView.as_view(template_name='ai/leader_assistant_revolutionary.html'), name='leader_ai_assistant'),
+    
+    # 채용관리
+    path('recruitment/', include('recruitment.urls')),
+    
+    # 교육훈련 및 자격증
+    path('trainings/', include('trainings.urls')),
+    path('certifications/', include('certifications.urls')),
+    
+    # AIRISS (AI 기반 HR 지원)
+    path('airiss/', include('airiss.urls')),
+    
+    # AI Quick Win 메뉴들
+    path('ai/', include('ai_quickwin.urls')),  # AI Quick Win 통합 대시보드
+    path('ai-coaching/', include('ai_coaching.urls')),
+    path('ai-team-optimizer/', include('ai_team_optimizer.urls')),
+    path('ai-insights/', include('ai_insights.urls')),
+    path('ai-predictions/', include('ai_predictions.urls')),
+    path('ai-interviewer/', include('ai_interviewer.urls')),
+    
+    # 조직관리
+    path('organization/', include('organization.urls')),
+    
+    # 보고서
+    path('reports/', include('reports.urls')),
+    
+    # API 엔드포인트
+    path('api/workforce-comp/', workforce_comp_api, name='api_workforce_comp'),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

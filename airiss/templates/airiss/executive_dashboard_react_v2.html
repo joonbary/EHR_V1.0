@@ -1,0 +1,403 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .executive-dashboard {
+        padding: 20px;
+        background: #f5f7fa;
+        min-height: calc(100vh - 60px);
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-header .last-updated {
+        opacity: 0.9;
+        font-size: 14px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    }
+
+    .stat-card .stat-title {
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 10px;
+    }
+
+    .stat-card .stat-change {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .stat-change.positive {
+        color: #10b981;
+    }
+
+    .stat-change.negative {
+        color: #ef4444;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        background: #f9fafb;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header h2 {
+        font-size: 1.25rem;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .section-content {
+        padding: 20px;
+    }
+
+    .department-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .department-table th {
+        background: #f9fafb;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #6b7280;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .department-table td {
+        padding: 12px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .department-table tr:hover {
+        background: #f9fafb;
+    }
+
+    .ai-insight-card {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+    }
+
+    .risk-card {
+        background: #fee2e2;
+        border-left: 4px solid #ef4444;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+    }
+
+    .success-card {
+        background: #d1fae5;
+        border-left: 4px solid #10b981;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+    }
+
+    .chart-container {
+        height: 400px;
+        padding: 20px;
+    }
+
+    .employee-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-right: 5px;
+    }
+
+    .badge-high {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-low {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="executive-dashboard">
+    <div class="dashboard-header">
+        <h1>경영진 대시보드</h1>
+        <p class="last-updated">마지막 업데이트: {{ last_updated|date:"Y년 m월 d일 H:i" }}</p>
+    </div>
+
+    <!-- 핵심 지표 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-title">전체 직원</div>
+            <div class="stat-value">{{ total_employees }}</div>
+            <div class="stat-change positive">
+                <span>↑ 2.3%</span> 전월 대비
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">우수 성과자</div>
+            <div class="stat-value">{{ ai_analysis_summary.high_performers|length }}</div>
+            <div class="stat-change positive">
+                <span>↑ 5명</span> 증가
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">퇴사 위험군</div>
+            <div class="stat-value">{{ ai_analysis_summary.risk_employees|length }}</div>
+            <div class="stat-change negative">
+                <span>↑ 3명</span> 증가
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">승진 후보자</div>
+            <div class="stat-value">{{ ai_analysis_summary.promotion_candidates|length }}</div>
+            <div class="stat-change positive">
+                <span>↑ 8명</span> 증가
+            </div>
+        </div>
+    </div>
+
+    <!-- 부서별 현황 -->
+    <div class="section-card">
+        <div class="section-header">
+            <h2>부서별 인원 현황</h2>
+            <button class="btn btn-sm btn-secondary" onclick="location.href='{% url 'airiss:employee_analysis_all' %}'">
+                전체 보기
+            </button>
+        </div>
+        <div class="section-content">
+            <table class="department-table">
+                <thead>
+                    <tr>
+                        <th>부서명</th>
+                        <th>인원</th>
+                        <th>평균 AI 점수</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dept in dept_stats|slice:":5" %}
+                    <tr>
+                        <td>{{ dept.department }}</td>
+                        <td>{{ dept.count }}명</td>
+                        <td>{{ dept.avg_score|floatformat:1 }}</td>
+                        <td>
+                            {% if dept.avg_score > 80 %}
+                                <span class="employee-badge badge-high">우수</span>
+                            {% elif dept.avg_score > 60 %}
+                                <span class="employee-badge badge-medium">보통</span>
+                            {% else %}
+                                <span class="employee-badge badge-low">주의</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- AI 인사이트 -->
+        <div class="col-md-6">
+            <div class="section-card">
+                <div class="section-header">
+                    <h2>주요 AI 인사이트</h2>
+                </div>
+                <div class="section-content">
+                    {% if ai_analysis_summary.risk_employees %}
+                    <div class="risk-card">
+                        <strong>퇴사 위험 직원 관리 필요</strong>
+                        <p style="margin: 5px 0;">
+                            {% for emp in ai_analysis_summary.risk_employees|slice:":3" %}
+                            {{ emp.name }} ({{ emp.department }}){% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            등 {{ ai_analysis_summary.risk_employees|length }}명
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    {% if ai_analysis_summary.promotion_candidates %}
+                    <div class="success-card">
+                        <strong>승진 준비 완료 직원</strong>
+                        <p style="margin: 5px 0;">
+                            {% for emp in ai_analysis_summary.promotion_candidates|slice:":3" %}
+                            {{ emp.name }} ({{ emp.score }}점){% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            등 {{ ai_analysis_summary.promotion_candidates|length }}명
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <div class="ai-insight-card">
+                        <strong>AI 분석 제안</strong>
+                        <p style="margin: 5px 0;">
+                            전사 평균 AI 점수가 지난달 대비 3.2점 상승했습니다.
+                            리더십 교육 프로그램의 효과가 나타나고 있습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 성과 등급 분포 -->
+        <div class="col-md-6">
+            <div class="section-card">
+                <div class="section-header">
+                    <h2>성과 등급 분포</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="gradeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 빠른 액션 -->
+    <div class="section-card">
+        <div class="section-header">
+            <h2>빠른 실행</h2>
+        </div>
+        <div class="section-content">
+            <div class="row">
+                <div class="col-md-3">
+                    <button class="btn btn-primary btn-block" onclick="location.href='{% url 'airiss:msa_integration' %}'">
+                        AI 직원 분석 실행
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-secondary btn-block" onclick="location.href='{% url 'airiss:employee_analysis_all' %}'">
+                        전직원 분석 조회
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-info btn-block" onclick="exportReport()">
+                        보고서 다운로드
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success btn-block" onclick="refreshData()">
+                        데이터 새로고침
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 성과 등급 분포 차트
+const gradeData = {{ grade_distribution|safe }};
+const ctx = document.getElementById('gradeChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(gradeData),
+        datasets: [{
+            data: Object.values(gradeData),
+            backgroundColor: [
+                '#10b981',
+                '#3b82f6',
+                '#f59e0b',
+                '#ef4444',
+                '#6b7280'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right',
+            },
+            title: {
+                display: true,
+                text: '전사 성과 등급 분포'
+            }
+        }
+    }
+});
+
+function exportReport() {
+    alert('보고서 다운로드 기능은 준비 중입니다.');
+}
+
+function refreshData() {
+    location.reload();
+}
+</script>
+{% endblock %}

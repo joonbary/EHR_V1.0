@@ -1,0 +1,812 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}영향력 평가 대상자 - 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}영향력 평가 센터{% endblock %}
+{% block content_title %}영향력 평가 대상자{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    조직 내 영향력과 리더십 역량을 AI 기반으로 종합 분석하여 성장 잠재력을 평가합니다
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}?v=3">
+<!-- AOS for scroll animations -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<style>
+    /* Enhanced Modern Design System */
+    .dashboard-container {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Animated Background Elements */
+    .bg-animation {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+    
+    .floating-orb {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(251,146,60,0.3) 0%, transparent 70%);
+        animation: float 25s infinite ease-in-out;
+    }
+    
+    .orb-1 {
+        width: 350px;
+        height: 350px;
+        top: -175px;
+        left: -120px;
+        animation-delay: 0s;
+    }
+    
+    .orb-2 {
+        width: 450px;
+        height: 450px;
+        bottom: -225px;
+        right: -180px;
+        animation-delay: 8s;
+    }
+    
+    .orb-3 {
+        width: 280px;
+        height: 280px;
+        top: 35%;
+        left: 75%;
+        transform: translate(-50%, -50%);
+        animation-delay: 4s;
+        background: radial-gradient(circle, rgba(255,165,0,0.25) 0%, transparent 70%);
+    }
+    
+    .orb-4 {
+        width: 200px;
+        height: 200px;
+        top: 70%;
+        left: 15%;
+        animation-delay: 12s;
+        background: radial-gradient(circle, rgba(255,140,0,0.2) 0%, transparent 70%);
+    }
+    
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0) translateX(0) rotate(0deg);
+            opacity: 0.3;
+        }
+        25% {
+            transform: translateY(-90px) translateX(40px) rotate(90deg);
+            opacity: 0.6;
+        }
+        50% {
+            transform: translateY(50px) translateX(-90px) rotate(180deg);
+            opacity: 0.3;
+        }
+        75% {
+            transform: translateY(-50px) translateX(90px) rotate(270deg);
+            opacity: 0.6;
+        }
+    }
+    
+    /* Glass Morphism Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(251, 146, 60, 0.8), 
+            transparent);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(251, 146, 60, 0.3);
+        box-shadow: 
+            0 20px 40px rgba(251, 146, 60, 0.2),
+            0 0 60px rgba(251, 146, 60, 0.1) inset;
+    }
+    
+    /* Employee Cards Enhanced */
+    .employee-card {
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.05) 0%, 
+            rgba(255, 255, 255, 0.02) 100%);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .employee-card::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, 
+            #fb923c, #f97316, #fb923c);
+        border-radius: 20px;
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s ease;
+    }
+    
+    .employee-card:hover::after {
+        opacity: 0.3;
+        animation: rotate 3s linear infinite;
+    }
+    
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .employee-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        border-color: rgba(251, 146, 60, 0.3);
+    }
+    
+    /* Status Indicators */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .status-completed {
+        background: linear-gradient(135deg, 
+            rgba(0, 255, 136, 0.2) 0%, 
+            rgba(0, 255, 136, 0.1) 100%);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+    
+    .status-in-progress {
+        background: linear-gradient(135deg, 
+            rgba(255, 193, 7, 0.2) 0%, 
+            rgba(255, 193, 7, 0.1) 100%);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    .status-not-started {
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 100%);
+        color: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+    }
+    
+    /* Interactive Buttons */
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .action-btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(251, 146, 60, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Progress Bar */
+    .progress-bar {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #fb923c 0%, #fbbf24 100%);
+        border-radius: 2px;
+        transition: width 1s ease;
+    }
+    
+    /* Impact Areas Grid */
+    .impact-areas {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin: 16px 0;
+    }
+    
+    .impact-item {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .impact-item:hover {
+        background: rgba(251, 146, 60, 0.1);
+        border-color: rgba(251, 146, 60, 0.3);
+    }
+    
+    .impact-icon {
+        font-size: 1.5rem;
+        margin-bottom: 4px;
+        display: block;
+    }
+    
+    /* Filter Section */
+    .filter-section {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 32px;
+    }
+    
+    .filter-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: white;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: rgba(251, 146, 60, 0.5);
+        box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+    }
+    
+    .filter-select option {
+        background: #1a1f2e;
+        color: white;
+    }
+    
+    /* Stats Cards */
+    .stat-card {
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.08) 0%, 
+            rgba(255, 255, 255, 0.03) 100%);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fb923c 0%, #fbbf24 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+        margin-top: 4px;
+    }
+    
+    /* Leadership Level Indicator */
+    .leadership-level {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        padding: 8px 12px;
+        background: rgba(251, 146, 60, 0.1);
+        border-radius: 8px;
+        border: 1px solid rgba(251, 146, 60, 0.2);
+    }
+    
+    .leadership-stars {
+        color: #fbbf24;
+        font-size: 0.875rem;
+    }
+    
+    .leadership-text {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+    
+    /* Responsive Grid */
+    .employee-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        margin-top: 32px;
+    }
+    
+    /* Impact Score Display */
+    .impact-score {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .score-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, #fb923c 0%, #fbbf24 var(--percentage), rgba(255,255,255,0.1) var(--percentage));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .score-circle::before {
+        content: '';
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #1a1f2e;
+        position: absolute;
+    }
+    
+    .score-text {
+        position: relative;
+        z-index: 1;
+        font-weight: 800;
+        font-size: 0.875rem;
+        color: #fb923c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+        <div class="floating-orb orb-4"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-8">
+
+        <!-- Statistics Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(251, 146, 60, 0.1));">
+                    <i class="fas fa-users text-orange-400"></i>
+                </div>
+                <div class="stat-value">{{ employees|length }}</div>
+                <div class="stat-label">총 대상자</div>
+            </div>
+            
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.1));">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                </div>
+                <div class="stat-value" id="completed-count">0</div>
+                <div class="stat-label">평가 완료</div>
+            </div>
+            
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.1));">
+                    <i class="fas fa-clock text-yellow-400"></i>
+                </div>
+                <div class="stat-value" id="in-progress-count">0</div>
+                <div class="stat-label">진행 중</div>
+            </div>
+            
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(251, 146, 60, 0.1));">
+                    <i class="fas fa-crown text-orange-400"></i>
+                </div>
+                <div class="stat-value">6</div>
+                <div class="stat-label">영향력 영역</div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section" data-aos="fade-down">
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-2">영향력 평가 필터</h3>
+                    <p class="text-gray-400 text-sm">부서, 직급, 상태별로 대상자를 필터링하여 리더십 역량을 체계적으로 분석하세요</p>
+                </div>
+                
+                <div class="flex gap-3">
+                    <select id="departmentFilter" class="filter-select">
+                        <option value="">전체 부서</option>
+                        <option value="IT">IT부서</option>
+                        <option value="HR">인사부서</option>
+                        <option value="FINANCE">재무부서</option>
+                        <option value="MARKETING">마케팅부서</option>
+                        <option value="SALES">영업부서</option>
+                        <option value="OPERATIONS">운영부서</option>
+                    </select>
+                    
+                    <select id="positionFilter" class="filter-select">
+                        <option value="">전체 직급</option>
+                        <option value="MANAGER">매니저급</option>
+                        <option value="SENIOR">선임급</option>
+                        <option value="JUNIOR">주니어급</option>
+                    </select>
+                    
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">전체 상태</option>
+                        <option value="completed">완료</option>
+                        <option value="in-progress">진행중</option>
+                        <option value="not-started">미시작</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Employee Grid -->
+        <div class="employee-grid">
+            {% for employee_data in employees %}
+            <div class="employee-card" 
+                 data-department="{{ employee_data.employee.department }}"
+                 data-position="{{ employee_data.employee.position }}"
+                 data-status="{{ employee_data.status }}"
+                 data-aos="fade-up" 
+                 data-aos-delay="{{ forloop.counter|add:100 }}">
+                
+                <!-- Card Header -->
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <img src="https://ui-avatars.com/api/?name={{ employee_data.employee.name }}&background=fb923c&color=ffffff&size=56" 
+                                 alt="{{ employee_data.employee.name }}" 
+                                 class="w-14 h-14 rounded-full border-2 border-orange-400">
+                            <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-900"></span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">{{ employee_data.employee.name }}</h3>
+                            <p class="text-gray-400 text-sm">{{ employee_data.employee.get_department_display }} · {{ employee_data.employee.get_position_display }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-right">
+                        {% if employee_data.total_score %}
+                        <div class="impact-score">
+                            <div class="score-circle" style="--percentage: {{ employee_data.total_score|floatformat:0 }}%">
+                                <div class="score-text">{{ employee_data.total_score|floatformat:1 }}</div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="impact-score">
+                            <div class="score-circle" style="--percentage: 0%">
+                                <div class="score-text">-</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Impact Areas -->
+                <div class="impact-areas">
+                    <div class="impact-item">
+                        <span class="impact-icon">👑</span>
+                        <div class="text-xs text-white">리더십</div>
+                    </div>
+                    <div class="impact-item">
+                        <span class="impact-icon">🤝</span>
+                        <div class="text-xs text-white">협력</div>
+                    </div>
+                    <div class="impact-item">
+                        <span class="impact-icon">📈</span>
+                        <div class="text-xs text-white">성과창출</div>
+                    </div>
+                    <div class="impact-item">
+                        <span class="impact-icon">🌟</span>
+                        <div class="text-xs text-white">혁신</div>
+                    </div>
+                </div>
+                
+                <!-- Leadership Level -->
+                {% if employee_data.total_score %}
+                <div class="leadership-level">
+                    <div class="leadership-stars">
+                        {% if employee_data.total_score >= 4.5 %}
+                            ⭐⭐⭐⭐⭐
+                        {% elif employee_data.total_score >= 3.5 %}
+                            ⭐⭐⭐⭐☆
+                        {% elif employee_data.total_score >= 2.5 %}
+                            ⭐⭐⭐☆☆
+                        {% elif employee_data.total_score >= 1.5 %}
+                            ⭐⭐☆☆☆
+                        {% else %}
+                            ⭐☆☆☆☆
+                        {% endif %}
+                    </div>
+                    <div class="leadership-text">
+                        {% if employee_data.total_score >= 4.5 %}
+                            탁월한 리더
+                        {% elif employee_data.total_score >= 3.5 %}
+                            우수한 리더
+                        {% elif employee_data.total_score >= 2.5 %}
+                            성장 중인 리더
+                        {% elif employee_data.total_score >= 1.5 %}
+                            잠재 리더
+                        {% else %}
+                            기초 단계
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Progress Bar -->
+                {% if employee_data.total_score %}
+                <div class="mb-4 mt-4">
+                    <div class="flex justify-between text-sm text-gray-400 mb-2">
+                        <span>영향력 지수</span>
+                        <span>{{ employee_data.total_score|floatformat:1 }}/5.0</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ employee_data.total_score|floatformat:0|default:0|add:0 }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Status and Action -->
+                <div class="flex justify-between items-center mt-6">
+                    <span class="status-badge status-{{ employee_data.status }}">
+                        {% if employee_data.status == 'completed' %}
+                            <i class="fas fa-check"></i> 완료
+                        {% elif employee_data.status == 'in-progress' %}
+                            <i class="fas fa-clock"></i> 진행중
+                        {% else %}
+                            <i class="fas fa-play"></i> 시작 대기
+                        {% endif %}
+                    </span>
+                    
+                    <a href="{% url 'evaluations:impact_evaluation' employee_data.employee.id %}" 
+                       class="action-btn">
+                        <i class="fas fa-crown"></i>
+                        평가하기
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full">
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <h3 class="text-xl font-semibold text-white mb-2">평가 대상자가 없습니다</h3>
+                    <p class="text-gray-400">현재 활성 평가 기간에 대한 영향력 평가 대상자가 없습니다.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Leadership Development Section -->
+        <div class="mt-16" data-aos="fade-up">
+            <div class="glass-card">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-trophy text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-1">리더십 개발 프로그램</h3>
+                            <p class="text-lg text-gray-300">영향력 평가 결과를 바탕으로 개인 맞춤형 리더십 개발 계획을 수립하세요</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'evaluations:dashboard' %}" class="action-btn">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        대시보드로 돌아가기
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Stats Summary -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="glass-card text-center">
+                <div class="text-3xl font-bold text-orange-400 mb-2">85%</div>
+                <div class="text-gray-300">리더십 잠재력 보유</div>
+            </div>
+            <div class="glass-card text-center">
+                <div class="text-3xl font-bold text-green-400 mb-2">92%</div>
+                <div class="text-gray-300">협업 역량 우수</div>
+            </div>
+            <div class="glass-card text-center">
+                <div class="text-3xl font-bold text-yellow-400 mb-2">78%</div>
+                <div class="text-gray-300">혁신 마인드 보유</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 50
+    });
+    
+    // Update statistics
+    function updateStats() {
+        const cards = document.querySelectorAll('.employee-card');
+        let completed = 0, inProgress = 0, notStarted = 0;
+        
+        cards.forEach(card => {
+            const status = card.dataset.status;
+            if (status === 'completed') completed++;
+            else if (status === 'in-progress') inProgress++;
+            else notStarted++;
+        });
+        
+        document.getElementById('completed-count').textContent = completed;
+        document.getElementById('in-progress-count').textContent = inProgress;
+    }
+    
+    // Filter functionality
+    function filterEmployees() {
+        const departmentFilter = document.getElementById('departmentFilter').value;
+        const positionFilter = document.getElementById('positionFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const cards = document.querySelectorAll('.employee-card');
+        
+        cards.forEach(card => {
+            const department = card.dataset.department;
+            const position = card.dataset.position;
+            const status = card.dataset.status;
+            
+            const departmentMatch = !departmentFilter || department === departmentFilter;
+            const positionMatch = !positionFilter || position === positionFilter;
+            const statusMatch = !statusFilter || status === statusFilter;
+            
+            if (departmentMatch && positionMatch && statusMatch) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Event listeners
+    document.getElementById('departmentFilter').addEventListener('change', filterEmployees);
+    document.getElementById('positionFilter').addEventListener('change', filterEmployees);
+    document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateStats();
+        
+        // Add stagger animation for cards
+        const cards = document.querySelectorAll('.employee-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+        
+        // Add hover effects
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Initialize progress bars with smooth animation
+        setTimeout(() => {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        }, 500);
+    });
+</script>
+{% endblock %}

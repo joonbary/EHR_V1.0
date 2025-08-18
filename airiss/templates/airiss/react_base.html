@@ -1,0 +1,82 @@
+{% extends "base_modern.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_css %}
+<style>
+    #airiss-react-root {
+        min-height: calc(100vh - 60px);
+        background: #f5f7fa;
+    }
+    
+    .airiss-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+        font-size: 18px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="airiss-react-root">
+    <div class="airiss-loading">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>AIRISS 대시보드를 불러오는 중...</p>
+        </div>
+    </div>
+</div>
+
+<!-- React 및 필요한 라이브러리 -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Material-UI -->
+<script src="https://unpkg.com/@mui/material@5.14.0/umd/material-ui.production.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-chartjs-2@5.2.0/dist/index.umd.js"></script>
+
+<!-- AIRISS 설정 -->
+<script>
+    window.AIRISS_CONFIG = {
+        API_URL: "{{ airiss_api_url|default:'https://web-production-4066.up.railway.app' }}",
+        EHR_API_URL: "{% url 'api:employee-list' %}",
+        CSRF_TOKEN: "{{ csrf_token }}",
+        USER_INFO: {
+            id: {{ user.id }},
+            username: "{{ user.username }}",
+            email: "{{ user.email }}",
+            is_staff: {{ user.is_staff|lower }}
+        }
+    };
+</script>
+
+{% block react_component %}
+<!-- 각 페이지에서 React 컴포넌트를 오버라이드 -->
+{% endblock %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // React 컴포넌트 마운트 대기
+    document.addEventListener('DOMContentLoaded', function() {
+        // 컴포넌트가 로드되었는지 확인
+        setTimeout(() => {
+            const root = document.getElementById('airiss-react-root');
+            if (root && root.querySelector('.airiss-loading')) {
+                console.error('AIRISS React 컴포넌트 로드 실패');
+            }
+        }, 5000);
+    });
+</script>
+{% endblock %}

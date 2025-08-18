@@ -1,0 +1,343 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}조직 관리 대시보드{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Organization specific styles */
+    .org-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .org-tree {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .org-node {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem;
+        text-align: center;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .org-node:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        background: rgba(0, 212, 255, 0.1);
+    }
+
+    .org-node-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+    }
+
+    .org-node-info {
+        color: #8892b0;
+        font-size: 0.9rem;
+    }
+
+    .transfer-item {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent);
+        border-left: 3px solid #00d4ff;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .transfer-item:hover {
+        transform: translateX(10px);
+        background: rgba(0, 212, 255, 0.1);
+    }
+
+    .dept-bar {
+        background: linear-gradient(90deg, #00d4ff, #0099cc);
+        height: 30px;
+        border-radius: 5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dept-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    .promotion-candidate {
+        background: rgba(0, 255, 136, 0.05);
+        border: 1px solid rgba(0, 255, 136, 0.3);
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .promotion-candidate:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+    }
+
+    .level-badge {
+        padding: 0.3rem 0.8rem;
+        background: linear-gradient(135deg, #00ff88, #00cc66);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #0a0f1b;
+    }
+
+    .org-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .org-stat-item {
+        text-align: center;
+        padding: 1.5rem;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 15px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .org-stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .org-stat-label {
+        color: #8892b0;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .hierarchy-visualization {
+        min-height: 400px;
+        background: rgba(0, 212, 255, 0.02);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">조직 관리</span>
+            </h1>
+            <p class="hero-subtitle">조직 구조 및 인사 이동 관리 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Organization Stats -->
+    <div class="org-card mb-4">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-chart-pie me-2"></i>조직 현황
+        </h3>
+        <div class="org-stats-grid">
+            <div class="org-stat-item">
+                <div class="org-stat-value">{{ total_departments|default:"0" }}</div>
+                <div class="org-stat-label">전체 부서</div>
+            </div>
+            <div class="org-stat-item">
+                <div class="org-stat-value">{{ total_positions|default:"0" }}</div>
+                <div class="org-stat-label">직위 수</div>
+            </div>
+            <div class="org-stat-item">
+                <div class="org-stat-value">{{ total_employees|default:"0" }}</div>
+                <div class="org-stat-label">재직 인원</div>
+            </div>
+            <div class="org-stat-item">
+                <div class="org-stat-value">{{ recent_transfers|length|default:"0" }}</div>
+                <div class="org-stat-label">최근 인사이동</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Department Employee Distribution -->
+        <div class="col-md-8">
+            <div class="org-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-building me-2"></i>부서별 인원 현황
+                </h3>
+                {% for dept in dept_employee_counts %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span style="color: #fff;">{{ dept.name }}</span>
+                        <span style="color: #00d4ff;">{{ dept.employee_count }}명</span>
+                    </div>
+                    <div style="background: rgba(0, 212, 255, 0.1); border-radius: 5px; height: 30px; overflow: hidden;">
+                        <div class="dept-bar" style="width: {% widthratio dept.employee_count dept_employee_counts.0.employee_count 100 %}%;"></div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">부서 정보가 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Promotion Candidates -->
+        <div class="col-md-4">
+            <div class="org-card">
+                <h4 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-star me-2"></i>승진 대상자
+                </h4>
+                {% for candidate in promotion_candidates %}
+                <div class="promotion-candidate">
+                    <div>
+                        <h6 style="color: #fff; margin-bottom: 0.25rem;">{{ candidate.name }}</h6>
+                        <small class="text-muted">{{ candidate.position|default:"미지정" }}</small>
+                    </div>
+                    <span class="level-badge">Level {{ candidate.growth_level }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">승진 대상자가 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transfers -->
+    <div class="org-card mt-4">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-exchange-alt me-2"></i>최근 인사이동
+        </h3>
+        <div class="row">
+            {% for transfer in recent_transfers %}
+            <div class="col-md-6">
+                <div class="transfer-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 style="color: #fff;">{{ transfer.employee.name }}</h6>
+                            <p class="text-muted mb-1">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                {{ transfer.old_department.name|default:"미지정" }} → {{ transfer.new_department.name|default:"미지정" }}
+                            </p>
+                            <small class="text-muted">{{ transfer.transfer_date|date:"Y-m-d" }}</small>
+                        </div>
+                        <span class="badge bg-primary">{{ transfer.transfer_type|default:"이동" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-muted text-center">최근 인사이동이 없습니다.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Organization Chart -->
+    {% if current_org_chart %}
+    <div class="org-card mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 style="color: #00d4ff;">
+                <i class="fas fa-sitemap me-2"></i>조직도
+            </h3>
+            <button class="btn btn-gradient btn-sm" onclick="viewFullChart()">
+                <i class="fas fa-expand me-1"></i>전체 보기
+            </button>
+        </div>
+        <div class="hierarchy-visualization">
+            <div class="org-tree">
+                <!-- 조직도 시각화 영역 -->
+                <div class="org-node">
+                    <div class="org-node-title">{{ current_org_chart.name|default:"CEO" }}</div>
+                    <div class="org-node-info">최고경영자</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="org-card mt-4">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-bolt me-2"></i>빠른 실행
+        </h3>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <button class="btn btn-gradient w-100" onclick="createDepartment()">
+                    <i class="fas fa-plus-circle me-2"></i>부서 생성
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="managePositions()">
+                    <i class="fas fa-layer-group me-2"></i>직위 관리
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="transferEmployee()">
+                    <i class="fas fa-exchange-alt me-2"></i>인사 이동
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="exportOrgChart()">
+                    <i class="fas fa-download me-2"></i>조직도 내보내기
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewFullChart() {
+    window.location.href = "{% url 'organization:org_chart' %}";
+}
+
+function createDepartment() {
+    window.location.href = "{% url 'organization:department_create' %}";
+}
+
+function managePositions() {
+    window.location.href = "{% url 'organization:position_list' %}";
+}
+
+function transferEmployee() {
+    window.location.href = "{% url 'organization:transfer_create' %}";
+}
+
+function exportOrgChart() {
+    console.log('Exporting organization chart...');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,832 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 이직 위험도 예측 시스템{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.css">
+<style>
+    .main-dashboard {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        min-height: 100vh;
+    }
+
+    /* Premium Card Design */
+    .premium-card {
+        background: rgba(20, 24, 33, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .premium-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+        animation: slide 3s infinite;
+    }
+
+    @keyframes slide {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .premium-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15);
+        border-color: rgba(0, 212, 255, 0.3);
+    }
+
+    /* KPI Cards */
+    .kpi-card {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.02));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d4ff, #00ff88);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .kpi-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.925rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+
+    .kpi-change {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .kpi-change.positive {
+        background: rgba(0, 255, 136, 0.1);
+        color: #00ff88;
+    }
+
+    .kpi-change.negative {
+        background: rgba(255, 107, 107, 0.1);
+        color: #ff6b6b;
+    }
+
+    /* Risk Score Gauge */
+    .risk-gauge-container {
+        position: relative;
+        width: 250px;
+        height: 250px;
+        margin: 0 auto;
+    }
+
+    .risk-gauge {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Employee Risk Cards */
+    .risk-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.9), rgba(10, 15, 27, 0.9));
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .risk-card::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: 16px 0 0 16px;
+    }
+
+    .risk-card.critical::after {
+        background: linear-gradient(180deg, #ff4444, #cc0000);
+    }
+
+    .risk-card.high::after {
+        background: linear-gradient(180deg, #ff8800, #ff6600);
+    }
+
+    .risk-card.medium::after {
+        background: linear-gradient(180deg, #ffbb33, #ff9900);
+    }
+
+    .risk-card.low::after {
+        background: linear-gradient(180deg, #00d4ff, #0099cc);
+    }
+
+    .risk-card:hover {
+        transform: translateX(10px);
+        box-shadow: -10px 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .employee-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+
+    .risk-score-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    .risk-score-badge.critical {
+        background: radial-gradient(circle, #ff6b6b, #ff4444);
+        box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+    }
+
+    .risk-score-badge.high {
+        background: radial-gradient(circle, #ffaa00, #ff8800);
+        box-shadow: 0 0 20px rgba(255, 136, 0, 0.5);
+    }
+
+    .risk-score-badge.medium {
+        background: radial-gradient(circle, #ffdd33, #ffbb33);
+        box-shadow: 0 0 20px rgba(255, 187, 51, 0.5);
+    }
+
+    /* Department Heatmap */
+    .heatmap-cell {
+        background: rgba(20, 24, 33, 0.8);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .heatmap-cell::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .heatmap-cell:hover::before {
+        opacity: 1;
+    }
+
+    .heatmap-cell.risk-critical::before {
+        background: radial-gradient(circle at center, rgba(255, 68, 68, 0.3), transparent);
+    }
+
+    .heatmap-cell.risk-high::before {
+        background: radial-gradient(circle at center, rgba(255, 136, 0, 0.3), transparent);
+    }
+
+    .heatmap-cell.risk-medium::before {
+        background: radial-gradient(circle at center, rgba(255, 187, 51, 0.3), transparent);
+    }
+
+    .heatmap-cell.risk-low::before {
+        background: radial-gradient(circle at center, rgba(0, 212, 255, 0.3), transparent);
+    }
+
+    .heatmap-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .heatmap-label {
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 0.925rem;
+        font-weight: 500;
+    }
+
+    /* Trend Charts */
+    .chart-container {
+        position: relative;
+        height: 350px;
+    }
+
+    /* Action Items */
+    .action-item {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .action-item:hover {
+        background: rgba(0, 212, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    .action-priority {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .priority-urgent {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff6b6b;
+    }
+
+    .priority-high {
+        background: rgba(255, 136, 0, 0.2);
+        color: #ff8800;
+    }
+
+    .priority-normal {
+        background: rgba(0, 212, 255, 0.2);
+        color: #00d4ff;
+    }
+
+    /* Animated Background */
+    .animated-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.05;
+        z-index: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300d4ff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* Loading Animation */
+    .pulse-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00d4ff;
+        animation: pulse-dot 1.5s infinite;
+        margin: 0 2px;
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 0.3; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Real-time Badge */
+    .realtime-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid rgba(0, 255, 136, 0.3);
+        border-radius: 20px;
+        color: #00ff88;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animated-bg"></div>
+<div class="container-fluid px-4 py-4" style="position: relative; z-index: 1;">
+    <!-- Enhanced Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">AI 이직 위험도 예측 시스템</span>
+            </h1>
+            <p class="hero-subtitle" style="color: rgba(255, 255, 255, 0.95); font-size: 1.1rem; font-weight: 400;">딥러닝 기반 실시간 인재 이탈 예방 플랫폼</p>
+            <div class="mt-3">
+                <span class="pulse-dot"></span>
+                <span class="pulse-dot" style="animation-delay: 0.2s;"></span>
+                <span class="pulse-dot" style="animation-delay: 0.4s;"></span>
+                <span class="ms-2" style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">실시간 분석 중...</span>
+            </div>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Key Metrics Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="kpi-change negative">↑ 12%</div>
+                <div class="kpi-value">87</div>
+                <div class="kpi-label">고위험 직원</div>
+                <div class="progress mt-3" style="height: 4px; background: rgba(255, 255, 255, 0.1);">
+                    <div class="progress-bar" style="width: 87%; background: linear-gradient(90deg, #ff4444, #ff8800);"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="kpi-change positive">↓ 8%</div>
+                <div class="kpi-value">23.5%</div>
+                <div class="kpi-label">예상 이직률</div>
+                <div class="progress mt-3" style="height: 4px; background: rgba(255, 255, 255, 0.1);">
+                    <div class="progress-bar" style="width: 23.5%; background: linear-gradient(90deg, #00d4ff, #00ff88);"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="kpi-change positive">↑ 5%</div>
+                <div class="kpi-value">₩2.8B</div>
+                <div class="kpi-label">예상 손실 비용</div>
+                <div class="progress mt-3" style="height: 4px; background: rgba(255, 255, 255, 0.1);">
+                    <div class="progress-bar" style="width: 65%; background: linear-gradient(90deg, #ffbb33, #ff8800);"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="kpi-change positive">↑ 15%</div>
+                <div class="kpi-value">92.3%</div>
+                <div class="kpi-label">예측 정확도</div>
+                <div class="progress mt-3" style="height: 4px; background: rgba(255, 255, 255, 0.1);">
+                    <div class="progress-bar" style="width: 92.3%; background: linear-gradient(90deg, #00ff88, #00d4ff);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="row g-4">
+        <!-- Left Column - Risk Analysis -->
+        <div class="col-lg-8">
+            <!-- Risk Trend Chart -->
+            <div class="premium-card mb-4">
+                <div class="realtime-badge">LIVE</div>
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-chart-line me-2"></i>이직 위험도 트렌드 분석
+                </h3>
+                <div class="chart-container">
+                    <div id="riskTrendChart"></div>
+                </div>
+            </div>
+
+            <!-- Department Heatmap -->
+            <div class="premium-card mb-4">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-building me-2"></i>부서별 위험도 히트맵
+                </h3>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="heatmap-cell risk-critical">
+                            <div class="heatmap-value" style="color: #ff4444;">32%</div>
+                            <div class="heatmap-label">영업본부</div>
+                            <small style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">위험: 45명</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="heatmap-cell risk-high">
+                            <div class="heatmap-value" style="color: #ff8800;">28%</div>
+                            <div class="heatmap-label">IT개발본부</div>
+                            <small style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">위험: 38명</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="heatmap-cell risk-medium">
+                            <div class="heatmap-value" style="color: #ffbb33;">18%</div>
+                            <div class="heatmap-label">마케팅본부</div>
+                            <small style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">위험: 22명</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="heatmap-cell risk-low">
+                            <div class="heatmap-value" style="color: #00d4ff;">12%</div>
+                            <div class="heatmap-label">재무본부</div>
+                            <small style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">위험: 15명</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="heatmap-cell risk-high">
+                            <div class="heatmap-value" style="color: #ff8800;">25%</div>
+                            <div class="heatmap-label">인사본부</div>
+                            <small style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">위험: 28명</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="heatmap-cell risk-medium">
+                            <div class="heatmap-value" style="color: #ffbb33;">20%</div>
+                            <div class="heatmap-label">전략기획본부</div>
+                            <small style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">위험: 18명</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="heatmap-cell risk-low">
+                            <div class="heatmap-value" style="color: #00d4ff;">8%</div>
+                            <div class="heatmap-label">법무본부</div>
+                            <small style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">위험: 8명</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="heatmap-cell risk-medium">
+                            <div class="heatmap-value" style="color: #ffbb33;">15%</div>
+                            <div class="heatmap-label">고객지원본부</div>
+                            <small style="color: rgba(255, 255, 255, 0.8); font-weight: 400;">위험: 20명</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Factor Analysis -->
+            <div class="premium-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>주요 이직 위험 요인 분석
+                </h3>
+                <div id="riskFactorChart"></div>
+            </div>
+        </div>
+
+        <!-- Right Column - High Risk Employees & Actions -->
+        <div class="col-lg-4">
+            <!-- Risk Gauge -->
+            <div class="premium-card mb-4">
+                <h4 class="mb-3" style="color: #00d4ff;">전사 위험도 지수</h4>
+                <div class="risk-gauge-container">
+                    <div id="riskGauge"></div>
+                </div>
+                <div class="text-center mt-3">
+                    <h2 style="color: #ff8800;">78.5</h2>
+                    <p style="color: rgba(255, 255, 255, 0.85); font-weight: 400;">High Risk Level</p>
+                </div>
+            </div>
+
+            <!-- High Risk Employees -->
+            <div class="premium-card mb-4">
+                <h4 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-user-clock me-2"></i>즉시 관리 필요 직원
+                </h4>
+                
+                <div class="risk-card critical mb-3">
+                    <div class="risk-score-badge critical">95</div>
+                    <div class="d-flex align-items-start">
+                        <div class="employee-avatar me-3">김</div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1" style="color: white;">김철수</h6>
+                            <small class="d-block" style="color: rgba(255, 255, 255, 0.8);">IT개발본부 / 선임개발자</small>
+                            <div class="mt-2">
+                                <span class="badge bg-danger me-1">급여 불만족</span>
+                                <span class="badge bg-warning">과도한 업무</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card high mb-3">
+                    <div class="risk-score-badge high">87</div>
+                    <div class="d-flex align-items-start">
+                        <div class="employee-avatar me-3" style="background: linear-gradient(135deg, #f093fb, #f5576c);">이</div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1" style="color: white;">이영희</h6>
+                            <small class="d-block" style="color: rgba(255, 255, 255, 0.8);">영업본부 / 과장</small>
+                            <div class="mt-2">
+                                <span class="badge bg-warning me-1">승진 지연</span>
+                                <span class="badge bg-info">경력 정체</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card high mb-3">
+                    <div class="risk-score-badge high">82</div>
+                    <div class="d-flex align-items-start">
+                        <div class="employee-avatar me-3" style="background: linear-gradient(135deg, #fa709a, #fee140);">박</div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1" style="color: white;">박민수</h6>
+                            <small class="d-block" style="color: rgba(255, 255, 255, 0.8);">마케팅본부 / 대리</small>
+                            <div class="mt-2">
+                                <span class="badge bg-info me-1">팀 갈등</span>
+                                <span class="badge bg-secondary">워라벨</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn w-100" style="background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; color: #00d4ff;">
+                    더 보기 <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+
+            <!-- Recommended Actions -->
+            <div class="premium-card">
+                <h4 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-tasks me-2"></i>AI 권장 조치사항
+                </h4>
+                
+                <div class="action-item">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="action-priority priority-urgent">긴급</span>
+                        <small style="color: rgba(255, 255, 255, 0.8);">오늘</small>
+                    </div>
+                    <h6 style="color: white;">김철수 1:1 면담 실시</h6>
+                    <small style="color: rgba(255, 255, 255, 0.75);">급여 조정 및 업무 재배분 논의 필요</small>
+                </div>
+
+                <div class="action-item">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="action-priority priority-high">높음</span>
+                        <small style="color: rgba(255, 255, 255, 0.8);">이번 주</small>
+                    </div>
+                    <h6 style="color: white;">영업본부 팀빌딩 프로그램</h6>
+                    <small style="color: rgba(255, 255, 255, 0.75);">부서 전체 사기 진작 프로그램 실시</small>
+                </div>
+
+                <div class="action-item">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="action-priority priority-normal">보통</span>
+                        <small style="color: rgba(255, 255, 255, 0.8);">이번 달</small>
+                    </div>
+                    <h6 style="color: white;">성과 보상 체계 개선</h6>
+                    <small style="color: rgba(255, 255, 255, 0.75);">전사 보상 정책 재검토 및 개선</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Risk Trend Chart
+    var riskTrendOptions = {
+        series: [{
+            name: '고위험',
+            data: [44, 55, 57, 56, 61, 58, 63, 60, 66, 69, 73, 87]
+        }, {
+            name: '중위험',
+            data: [76, 85, 101, 98, 87, 105, 91, 114, 94, 86, 92, 85]
+        }, {
+            name: '저위험',
+            data: [35, 41, 36, 26, 45, 48, 52, 53, 41, 44, 42, 38]
+        }],
+        chart: {
+            type: 'area',
+            height: 350,
+            toolbar: {
+                show: false
+            },
+            background: 'transparent'
+        },
+        colors: ['#ff4444', '#ffbb33', '#00d4ff'],
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 2
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                opacityFrom: 0.6,
+                opacityTo: 0.1,
+            }
+        },
+        xaxis: {
+            categories: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            labels: {
+                style: {
+                    colors: '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: 400
+                }
+            }
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: 400
+                }
+            }
+        },
+        grid: {
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            strokeDashArray: 3
+        },
+        legend: {
+            position: 'top',
+            labels: {
+                colors: '#ffffff'
+            }
+        },
+        tooltip: {
+            theme: 'dark'
+        }
+    };
+
+    var riskTrendChart = new ApexCharts(document.querySelector("#riskTrendChart"), riskTrendOptions);
+    riskTrendChart.render();
+
+    // Risk Factor Chart
+    var riskFactorOptions = {
+        series: [{
+            name: '영향도',
+            data: [85, 78, 72, 68, 65, 62, 58, 55, 52, 48]
+        }],
+        chart: {
+            type: 'bar',
+            height: 350,
+            toolbar: {
+                show: false
+            },
+            background: 'transparent'
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 8,
+                horizontal: true,
+                distributed: true,
+                barHeight: '60%'
+            }
+        },
+        colors: ['#ff4444', '#ff5555', '#ff6666', '#ff8800', '#ffaa00', '#ffbb33', '#00aaff', '#00bbff', '#00ccff', '#00ddff'],
+        dataLabels: {
+            enabled: true,
+            style: {
+                colors: ['#fff']
+            }
+        },
+        xaxis: {
+            categories: [
+                '급여 불만족',
+                '승진 기회 부족',
+                '업무 과부하',
+                '워라벨 불균형',
+                '경력 개발 한계',
+                '조직문화 부적응',
+                '상사와의 갈등',
+                '동료 관계 문제',
+                '복지 불만족',
+                '통근 거리'
+            ],
+            labels: {
+                style: {
+                    colors: '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: 400
+                }
+            }
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: '#ffffff',
+                    fontSize: '13px',
+                    fontWeight: 500
+                }
+            }
+        },
+        grid: {
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            strokeDashArray: 3
+        },
+        tooltip: {
+            theme: 'dark',
+            y: {
+                formatter: function(val) {
+                    return val + "%"
+                }
+            }
+        }
+    };
+
+    var riskFactorChart = new ApexCharts(document.querySelector("#riskFactorChart"), riskFactorOptions);
+    riskFactorChart.render();
+
+    // Risk Gauge
+    var gaugeOptions = {
+        series: [78.5],
+        chart: {
+            height: 250,
+            type: 'radialBar',
+            background: 'transparent'
+        },
+        plotOptions: {
+            radialBar: {
+                startAngle: -135,
+                endAngle: 135,
+                hollow: {
+                    margin: 0,
+                    size: '70%',
+                    background: 'transparent',
+                },
+                track: {
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    strokeWidth: '100%',
+                    margin: 0,
+                },
+                dataLabels: {
+                    show: false
+                }
+            }
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                type: 'horizontal',
+                shadeIntensity: 0.5,
+                gradientToColors: ['#ff4444'],
+                inverseColors: false,
+                opacityFrom: 1,
+                opacityTo: 1,
+                stops: [0, 100]
+            }
+        },
+        stroke: {
+            lineCap: 'round'
+        }
+    };
+
+    var gauge = new ApexCharts(document.querySelector("#riskGauge"), gaugeOptions);
+    gauge.render();
+
+    // Animate numbers
+    const animateValue = (element, start, end, duration) => {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            element.textContent = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    };
+
+    // Animate KPI values
+    document.querySelectorAll('.kpi-value').forEach(el => {
+        const text = el.textContent;
+        if (!text.includes('₩') && !text.includes('%')) {
+            const value = parseInt(text);
+            if (!isNaN(value)) {
+                animateValue(el, 0, value, 1500);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,308 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}직원 관리 시스템{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Management dashboard styles */
+    .management-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .management-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #00d4ff, #0099cc, #00d4ff);
+        border-radius: 20px;
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s ease;
+    }
+
+    .management-card:hover::before {
+        opacity: 0.3;
+    }
+
+    .management-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+    }
+
+    .menu-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+
+    .menu-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .menu-description {
+        color: #8892b0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .menu-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.3rem 0.8rem;
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        border: 1px solid #00ff88;
+    }
+
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .quick-stat {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .quick-stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .quick-stat-label {
+        color: #8892b0;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Hero subtitle style fix */
+    .hero-subtitle {
+        color: rgba(0, 212, 255, 0.8) !important;
+        font-weight: 400;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">직원 관리 시스템</span>
+            </h1>
+            <p class="hero-subtitle">통합 인사 정보 관리 및 분석 플랫폼</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="dashboard-card mb-5">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-chart-line me-2"></i>실시간 현황
+        </h3>
+        <div class="quick-stats">
+            <div class="quick-stat">
+                <div class="quick-stat-value">{{ total_employees|default:"1,254" }}</div>
+                <div class="quick-stat-label">전체 직원수</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-value">{{ active_employees|default:"1,186" }}</div>
+                <div class="quick-stat-label">재직중</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-value">{{ departments|default:"12" }}</div>
+                <div class="quick-stat-label">부서</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-value">{{ new_hires|default:"23" }}</div>
+                <div class="quick-stat-label">이번달 입사</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-value">{{ avg_tenure|default:"4.2" }}년</div>
+                <div class="quick-stat-label">평균 근속</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Menu Grid -->
+    <div class="row g-4">
+        <!-- 직원 목록 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:employee_list' %}'">
+                <div class="menu-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4 class="menu-title">직원 목록</h4>
+                <p class="menu-description">전체 직원 목록을 조회하고 관리합니다. 검색, 필터링, 정렬 기능을 제공합니다.</p>
+            </div>
+        </div>
+
+        <!-- 직원 등록 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:employee_create' %}'">
+                <div class="menu-icon" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h4 class="menu-title">직원 등록</h4>
+                <p class="menu-description">신규 직원을 등록하고 인사 정보를 입력합니다.</p>
+                <span class="menu-badge">NEW</span>
+            </div>
+        </div>
+
+        <!-- 대량 업로드 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:employee_bulk_upload' %}'">
+                <div class="menu-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <h4 class="menu-title">대량 업로드</h4>
+                <p class="menu-description">엑셀 파일을 통해 여러 직원 정보를 한번에 업로드합니다.</p>
+            </div>
+        </div>
+
+        <!-- 조직도 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:organization_chart' %}'">
+                <div class="menu-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h4 class="menu-title">조직도</h4>
+                <p class="menu-description">전체 조직 구조를 시각적으로 확인하고 관리합니다.</p>
+            </div>
+        </div>
+
+        <!-- 계층 구조 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:hierarchy_organization' %}'">
+                <div class="menu-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <h4 class="menu-title">계층 구조</h4>
+                <p class="menu-description">부서별, 직급별 계층 구조를 분석합니다.</p>
+            </div>
+        </div>
+
+        <!-- HR 대시보드 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:hr_dashboard' %}'">
+                <div class="menu-icon" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h4 class="menu-title">HR 대시보드</h4>
+                <p class="menu-description">인사 관련 통계와 분석 대시보드를 확인합니다.</p>
+            </div>
+        </div>
+
+        <!-- 근태 관리 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:attendance_management' %}'">
+                <div class="menu-icon" style="background: linear-gradient(135deg, #ffecd2, #fcb69f);">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h4 class="menu-title">근태 관리</h4>
+                <p class="menu-description">직원들의 출퇴근 및 근태 현황을 관리합니다.</p>
+            </div>
+        </div>
+
+        <!-- 외주 인력 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:outsourced_dashboard' %}'">
+                <div class="menu-icon" style="background: linear-gradient(135deg, #ff9a9e, #fecfef);">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <h4 class="menu-title">외주 인력 관리</h4>
+                <p class="menu-description">외주 및 계약직 인력을 별도로 관리합니다.</p>
+            </div>
+        </div>
+
+        <!-- 해외 인력 -->
+        <div class="col-md-4">
+            <div class="management-card" onclick="window.location.href='{% url 'employees:overseas_workforce' %}'">
+                <div class="menu-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h4 class="menu-title">해외 인력</h4>
+                <p class="menu-description">해외 지사 및 파견 직원을 관리합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="dashboard-card mt-5">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-bolt me-2"></i>빠른 실행
+        </h3>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <button class="btn btn-gradient w-100" onclick="window.location.href='{% url 'employees:employee_create' %}'">
+                    <i class="fas fa-plus-circle me-2"></i>신규 직원 등록
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="window.location.href='{% url 'employees:employee_download_template' %}'">
+                    <i class="fas fa-download me-2"></i>템플릿 다운로드
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="exportData()">
+                    <i class="fas fa-file-excel me-2"></i>데이터 내보내기
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" onclick="generateReport()">
+                    <i class="fas fa-file-pdf me-2"></i>보고서 생성
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportData() {
+    console.log('Exporting employee data...');
+    // 데이터 내보내기 로직
+}
+
+function generateReport() {
+    console.log('Generating HR report...');
+    // 보고서 생성 로직
+}
+</script>
+{% endblock %}

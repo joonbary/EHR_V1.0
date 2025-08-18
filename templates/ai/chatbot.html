@@ -1,0 +1,517 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}AI 챗봇 - OK금융그룹{% endblock %}
+
+{% block page_header %}AI Intelligence Hub{% endblock %}
+{% block content_title %}AI 챗봇 어시스턴트{% endblock %}
+{% block page_subtitle %}
+<p class="page-subtitle">
+    차세대 AI 기반 HR 질의응답 시스템
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* AI 채팅 전용 스타일 - 테마 시스템과 호환 */
+
+.chatbot-container {
+    height: calc(100vh - 280px);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: transparent;
+}
+
+.chat-header {
+    background: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 24px;
+    box-shadow: var(--theme-shadow);
+    color: var(--theme-text-primary);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.chat-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+}
+
+.chat-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-header h2::before {
+    content: '🤖';
+    font-size: 32px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.chat-header p {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 18px;
+    font-weight: 300;
+}
+
+.chat-window {
+    flex: 1;
+    background: var(--theme-card);
+    border: 1px solid var(--theme-border);
+    border-radius: 24px;
+    box-shadow: var(--theme-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    background: var(--theme-surface);
+    position: relative;
+}
+
+.chat-messages::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(240, 147, 251, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.message {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message-content {
+    max-width: 75%;
+    padding: 16px 20px;
+    border-radius: 18px;
+    font-size: 16px;
+    line-height: 1.6;
+    position: relative;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.message.user .message-content {
+    background: var(--theme-primary);
+    color: var(--theme-bg);
+    box-shadow: var(--theme-shadow);
+    border-bottom-right-radius: 6px;
+}
+
+.message.assistant .message-content {
+    background: var(--theme-card);
+    border: 1px solid var(--theme-border);
+    box-shadow: var(--theme-shadow);
+    border-bottom-left-radius: 6px;
+    position: relative;
+    color: var(--theme-text-primary);
+}
+
+.message.assistant .message-content::before {
+    content: '🤖';
+    position: absolute;
+    left: -30px;
+    top: 16px;
+    font-size: 18px;
+    background: var(--ai-accent);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+}
+
+.message-time {
+    font-size: 12px;
+    color: #a0aec0;
+    margin-top: 6px;
+    font-weight: 300;
+}
+
+.chat-input {
+    padding: 24px;
+    background: var(--theme-surface);
+    border-top: 1px solid var(--theme-border);
+}
+
+.input-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 16px 24px;
+    border: 2px solid var(--theme-border);
+    border-radius: 25px;
+    outline: none;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: var(--theme-card);
+    color: var(--theme-text-primary);
+}
+
+.chat-input input:focus {
+    border-color: var(--theme-primary);
+    background: var(--theme-card);
+    box-shadow: 0 0 0 4px rgba(var(--theme-primary), 0.2);
+    transform: translateY(-1px);
+}
+
+.chat-input input::placeholder {
+    color: var(--theme-text-muted);
+}
+
+.chat-input button {
+    padding: 16px 28px;
+    background: var(--theme-primary);
+    color: var(--theme-bg);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: var(--theme-shadow);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-input button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--theme-glow);
+}
+
+.chat-input button::after {
+    content: '✨';
+    font-size: 14px;
+}
+
+.suggested-questions {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.suggestion-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--theme-card);
+    border: 1px solid var(--theme-border);
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: var(--theme-text-secondary);
+}
+
+.suggestion-chip:hover {
+    background: var(--theme-primary);
+    color: var(--theme-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--theme-shadow);
+}
+
+.suggestion-chip::before {
+    content: '💡';
+    margin-right: 6px;
+    font-size: 12px;
+}
+
+.typing-indicator {
+    display: none;
+    padding: 24px;
+    text-align: left;
+}
+
+.typing-indicator::before {
+    content: '🤖 생각하는 중';
+    color: var(--theme-primary);
+    font-weight: 500;
+    margin-right: 12px;
+}
+
+.typing-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--theme-primary);
+    margin: 0 3px;
+    animation: typing 1.4s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(-8px);
+    }
+}
+
+/* 스크롤바 스타일링 */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: var(--theme-border);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--theme-primary);
+    border-radius: 3px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .message-content {
+        max-width: 85%;
+        font-size: 15px;
+        padding: 14px 18px;
+    }
+    
+    .chat-input input {
+        font-size: 16px; /* iOS 줌 방지 */
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chatbot-container landing-card">
+    <div class="chat-header">
+        <h2>🤖 HR AI 어시스턴트</h2>
+        <p style="color: rgba(255, 255, 255, 0.8);">차세대 AI 기반 인사 질의응답 시스템으로 혁신적인 HR 경험을 제공합니다.</p>
+    </div>
+
+    <div class="chat-window">
+        <div class="chat-messages" id="chatMessages">
+            <!-- 환영 메시지 -->
+            <div class="message assistant">
+                <div>
+                    <div class="message-content">🌟 안녕하세요! OK Financial Group의 차세대 AI 어시스턴트입니다.
+
+혁신적인 AI 기술로 인사 정책, 복리후생, 성과평가, 교육 프로그램 등 모든 HR 관련 질문에 대해 정확하고 신속한 답변을 제공합니다.
+
+💡 무엇을 도와드릴까요?</div>
+                    <div class="message-time">온라인</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        </div>
+
+        <div class="chat-input">
+            <div class="input-group">
+                <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." 
+                       onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()">전송</button>
+            </div>
+            
+            <div class="suggested-questions">
+                <div class="suggestion-chip" onclick="askQuestion('AI 기반 성과평가 시스템을 알려주세요')">
+                    🎯 AI 성과평가 시스템
+                </div>
+                <div class="suggestion-chip" onclick="askQuestion('스마트 워크 정책과 디지털 근무환경은?')">
+                    💼 스마트 워크 정책
+                </div>
+                <div class="suggestion-chip" onclick="askQuestion('개인화된 학습 경로 추천을 받고 싶습니다')">
+                    🚀 개인화 학습 추천
+                </div>
+                <div class="suggestion-chip" onclick="askQuestion('팀 시너지 분석과 조직 최적화는?')">
+                    ⚡ 팀 시너지 분석
+                </div>
+                <div class="suggestion-chip" onclick="askQuestion('AI 예측 분석으로 이직위험도를 확인하고 싶어요')">
+                    📊 이직위험도 예측
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // 사용자 메시지 추가
+    addMessage(message, 'user');
+    input.value = '';
+    
+    // 타이핑 인디케이터 표시
+    showTypingIndicator();
+    
+    // 실제 AI API 호출
+    callAIAPI(message);
+}
+
+function addMessage(text, sender) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    
+    messageDiv.innerHTML = `
+        <div>
+            <div class="message-content">${text}</div>
+            <div class="message-time">${timeString}</div>
+        </div>
+    `;
+    
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function askQuestion(question) {
+    document.getElementById('messageInput').value = question;
+    sendMessage();
+}
+
+function showTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'block';
+}
+
+function hideTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'none';
+}
+
+// 실제 AI API 호출 함수
+function callAIAPI(message) {
+    fetch('/ai/api/chat/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        
+        if (data.success) {
+            let responseText = data.response;
+            
+            // 폴백 응답인 경우 표시
+            if (data.fallback) {
+                responseText += '\n\n💡 *AI 서비스 연결 문제로 제한적인 응답을 제공하고 있습니다.*';
+            }
+            
+            addMessage(responseText, 'assistant');
+        } else {
+            const errorMessage = data.error || '죄송합니다. 응답을 생성할 수 없습니다.';
+            addMessage(`⚠️ ${errorMessage}`, 'assistant');
+        }
+    })
+    .catch(error => {
+        console.error('API 호출 오류:', error);
+        hideTypingIndicator();
+        addMessage('⚠️ 네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'assistant');
+    });
+}
+
+// CSRF 토큰 가져오기 함수
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

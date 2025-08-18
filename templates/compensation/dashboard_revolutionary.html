@@ -1,0 +1,307 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}보상 분석 대시보드{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Compensation specific styles */
+    .comp-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .salary-chart {
+        height: 350px;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 15px;
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    .compensation-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 204, 0.1));
+        border-radius: 30px;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .grade-indicator {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+
+    .grade-s { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; }
+    .grade-a { background: linear-gradient(135deg, #00d4ff, #0099cc); }
+    .grade-b { background: linear-gradient(135deg, #00ff88, #00cc66); }
+    .grade-c { background: linear-gradient(135deg, #ffbb33, #ff9900); }
+
+    .compensation-item {
+        background: rgba(0, 212, 255, 0.05);
+        border-left: 3px solid #00d4ff;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .compensation-item:hover {
+        transform: translateX(10px);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">보상 분석 대시보드</span>
+            </h1>
+            <p class="hero-subtitle">AI 기반 보상체계 분석 및 최적화 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ total_employees|default:"0" }}</div>
+                    <div class="stat-label">총 직원수</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                    <i class="fas fa-won-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ avg_base_salary|floatformat:0|default:"0" }}</div>
+                    <div class="stat-label">평균 기본급</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ avg_total_compensation|floatformat:0|default:"0" }}</div>
+                    <div class="stat-label">평균 총보상</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ total_pi|floatformat:0|default:"0" }}</div>
+                    <div class="stat-label">총 성과급</div>
+                </div>
+                <div class="stat-sparkline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="comp-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-chart-bar me-2"></i>평가등급별 보상 분포
+                </h3>
+                <div class="salary-chart">
+                    <canvas id="gradeCompChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="comp-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-building me-2"></i>부서별 평균 보상
+                </h3>
+                <div class="salary-chart">
+                    <canvas id="deptCompChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Analysis -->
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="comp-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-briefcase me-2"></i>직종별 보상 현황
+                </h3>
+                <div class="salary-chart">
+                    <canvas id="jobTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="comp-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-info-circle me-2"></i>핵심 인사이트
+                </h3>
+                <div class="compensation-item">
+                    <h6 style="color: #fff;">최고 보상 직원</h6>
+                    <p class="text-light mb-0">{{ top_compensation_employee|default:"없음" }}</p>
+                </div>
+                <div class="compensation-item">
+                    <h6 style="color: #fff;">평균 성과급 비율</h6>
+                    <p class="text-light mb-0">{{ avg_pi_ratio|floatformat:1|default:"0" }}%</p>
+                </div>
+                <div class="compensation-item">
+                    <h6 style="color: #fff;">보상 격차</h6>
+                    <p class="text-light mb-0">{{ compensation_gap|floatformat:0|default:"0" }}원</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Position-based Compensation -->
+    <div class="comp-card mt-4">
+        <h3 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-layer-group me-2"></i>직급별 보상 분포
+        </h3>
+        <div class="salary-chart">
+            <canvas id="positionChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart configurations
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            labels: {
+                color: '#fff'
+            }
+        }
+    },
+    scales: {
+        x: {
+            ticks: { color: '#fff' },
+            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+        },
+        y: {
+            ticks: { color: '#fff' },
+            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+        }
+    }
+};
+
+// Grade Compensation Chart
+const gradeCtx = document.getElementById('gradeCompChart').getContext('2d');
+new Chart(gradeCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ grade_labels|safe }},
+        datasets: [{
+            label: '평균 보상',
+            data: {{ grade_data|safe }},
+            backgroundColor: 'rgba(0, 212, 255, 0.5)',
+            borderColor: '#00d4ff',
+            borderWidth: 2
+        }]
+    },
+    options: chartOptions
+});
+
+// Department Chart
+const deptCtx = document.getElementById('deptCompChart').getContext('2d');
+new Chart(deptCtx, {
+    type: 'horizontalBar',
+    data: {
+        labels: {{ department_labels|safe }},
+        datasets: [{
+            label: '평균 보상',
+            data: {{ department_data|safe }},
+            backgroundColor: 'rgba(0, 255, 136, 0.5)',
+            borderColor: '#00ff88',
+            borderWidth: 2
+        }]
+    },
+    options: chartOptions
+});
+
+// Job Type Chart
+const jobCtx = document.getElementById('jobTypeChart').getContext('2d');
+new Chart(jobCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ job_labels|safe }},
+        datasets: [{
+            data: {{ job_data|safe }},
+            backgroundColor: [
+                'rgba(0, 212, 255, 0.5)',
+                'rgba(0, 255, 136, 0.5)',
+                'rgba(102, 126, 234, 0.5)',
+                'rgba(240, 147, 251, 0.5)',
+                'rgba(255, 187, 51, 0.5)'
+            ],
+            borderColor: '#0a0f1b',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        ...chartOptions,
+        cutout: '60%'
+    }
+});
+
+// Position Chart
+const posCtx = document.getElementById('positionChart').getContext('2d');
+new Chart(posCtx, {
+    type: 'line',
+    data: {
+        labels: {{ position_labels|safe }},
+        datasets: [{
+            label: '평균 보상',
+            data: {{ position_data|safe }},
+            borderColor: '#00d4ff',
+            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: chartOptions
+});
+</script>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AIRISS v4 - AI 기반 직원 성과역량 평가 시스템{% endblock %}
+
+{% block extra_css %}
+<style>
+    .airiss-launch-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        text-align: center;
+    }
+    
+    .launch-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(255, 107, 0, 0.08);
+        padding: 60px 40px;
+        margin-bottom: 30px;
+    }
+    
+    .launch-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        box-shadow: 0 8px 32px rgba(255, 107, 0, 0.2);
+    }
+    
+    .launch-icon i {
+        font-size: 60px;
+        color: white;
+    }
+    
+    .launch-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 15px;
+    }
+    
+    .launch-description {
+        font-size: 18px;
+        color: #6B7280;
+        margin-bottom: 40px;
+        line-height: 1.6;
+    }
+    
+    .launch-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        color: white;
+        font-size: 18px;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3);
+    }
+    
+    .launch-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 40px;
+    }
+    
+    .feature-item {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+    }
+    
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 107, 0, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+    }
+    
+    .feature-icon i {
+        color: #FF6B00;
+        font-size: 24px;
+    }
+    
+    .feature-title {
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+    }
+    
+    .feature-desc {
+        font-size: 14px;
+        color: #6B7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 페이지 헤더 -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold gradient-text mb-2">AIRISS v4</h1>
+            <p class="text-gray-600 dark:text-gray-400">AI 기반 직원 성과역량 평가 시스템</p>
+        </div>
+    </div>
+</div>
+
+<div class="airiss-launch-container">
+    <div class="launch-card">
+        <div class="launch-icon">
+            <i data-lucide="shield-check"></i>
+        </div>
+        
+        <h2 class="launch-title">AIRISS v4 시스템</h2>
+        <p class="launch-description">
+            차세대 AI 기반 직원 성과역량 평가 시스템으로<br>
+            직원의 성과와 역량을 종합적으로 분석하고 평가합니다.
+        </p>
+        
+        <a href="{{ airiss_v4_url }}" target="_blank" class="launch-button">
+            <i data-lucide="external-link"></i>
+            <span>AIRISS v4 열기</span>
+        </a>
+        
+        <div class="feature-grid">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="upload-cloud"></i>
+                </div>
+                <div class="feature-title">Excel 업로드</div>
+                <div class="feature-desc">직원 데이터 일괄 분석</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="brain"></i>
+                </div>
+                <div class="feature-title">AI 분석</div>
+                <div class="feature-desc">GPT 기반 성과역량 평가</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="bar-chart-3"></i>
+                </div>
+                <div class="feature-title">실시간 모니터링</div>
+                <div class="feature-desc">분석 진행 상황 추적</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i data-lucide="download"></i>
+                </div>
+                <div class="feature-title">결과 다운로드</div>
+                <div class="feature-desc">Excel, CSV, JSON 지원</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center text-sm text-gray-500">
+        <p>AIRISS v4는 별도의 시스템으로 새 창에서 열립니다.</p>
+        <p class="mt-2">
+            <i data-lucide="info" class="inline w-4 h-4 mr-1"></i>
+            문제가 발생한 경우 팝업 차단을 해제해주세요.
+        </p>
+    </div>
+</div>
+
+<script>
+    // Lucide 아이콘 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

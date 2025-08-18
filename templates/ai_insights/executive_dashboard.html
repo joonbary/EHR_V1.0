@@ -1,0 +1,459 @@
+{% extends 'ai_base.html' %}
+{% load static %}
+
+{% block title %}AI 인사이트 대시보드 - OK금융그룹{% endblock %}
+
+{% block breadcrumb %}
+<div class="px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <nav aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm">
+            <li>
+                <a href="{% url 'home' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <a href="{% url 'ai_quickwin:dashboard' %}" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+                    AI Quick Win
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">AI 인사이트 대시보드</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .insight-dashboard {
+        padding: 20px 0;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(255, 107, 0, 0.1);
+    }
+    
+    .stats-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        font-size: 24px;
+    }
+    
+    .stats-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .insight-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 16px;
+        border-left: 4px solid;
+        transition: all 0.3s ease;
+    }
+    
+    .insight-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .priority-urgent { border-left-color: #dc3545; }
+    .priority-high { border-left-color: #fd7e14; }
+    .priority-medium { border-left-color: #ffc107; }
+    .priority-low { border-left-color: #28a745; }
+    
+    .insight-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+    
+    .badge-urgent {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    
+    .badge-high {
+        background: rgba(253, 126, 20, 0.1);
+        color: #fd7e14;
+    }
+    
+    .badge-medium {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .badge-low {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    
+    .action-item {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .action-item:hover {
+        background: white;
+        border-color: #FF6B00;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        height: 100%;
+    }
+    
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #212529;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .section-title i {
+        color: #FF6B00;
+    }
+    
+    .ai-confidence {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-left: auto;
+    }
+    
+    .confidence-high { color: #28a745; }
+    .confidence-medium { color: #ffc107; }
+    .confidence-low { color: #dc3545; }
+    
+    .trend-up { color: #28a745; }
+    .trend-down { color: #dc3545; }
+    .trend-neutral { color: #6c757d; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="insight-dashboard">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i data-lucide="target" class="text-primary me-2"></i>
+                        AI 인사이트 대시보드
+                    </h1>
+                    <p class="text-muted mb-0">실시간 AI 기반 경영 인사이트 제공</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
+                        <i data-lucide="refresh-cw" class="me-1"></i>새로고침
+                    </button>
+                    <button class="btn btn-primary btn-sm">
+                        <i data-lucide="download" class="me-1"></i>리포트 다운로드
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {% if error_message %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i data-lucide="alert-triangle" class="me-2"></i>
+            {{ error_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <!-- Success Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon bg-primary bg-opacity-10">
+                        <i data-lucide="lightbulb" class="text-primary"></i>
+                    </div>
+                    <div class="stats-value">{{ success_metrics.insights_generated|default:0 }}</div>
+                    <div class="stats-label">오늘의 인사이트</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon bg-success bg-opacity-10">
+                        <i data-lucide="check-circle" class="text-success"></i>
+                    </div>
+                    <div class="stats-value">{{ success_metrics.actions_taken|default:0 }}</div>
+                    <div class="stats-label">실행된 액션</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon bg-info bg-opacity-10">
+                        <i data-lucide="trending-up" class="text-info"></i>
+                    </div>
+                    <div class="stats-value">{{ success_metrics.predictions_made|default:0 }}</div>
+                    <div class="stats-label">AI 예측</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon bg-warning bg-opacity-10">
+                        <i data-lucide="activity" class="text-warning"></i>
+                    </div>
+                    <div class="stats-value">{{ success_metrics.accuracy_rate|default:0 }}%</div>
+                    <div class="stats-label">정확도</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="row">
+            <!-- Left Column - Insights -->
+            <div class="col-lg-8">
+                <!-- Today's Key Insights -->
+                <div class="chart-container mb-4">
+                    <h5 class="section-title">
+                        <i data-lucide="brain"></i>
+                        오늘의 핵심 AI 인사이트
+                        <span class="ai-confidence confidence-high">
+                            <i data-lucide="shield-check"></i>
+                            신뢰도 {{ daily_insights.0.confidence_score|default:95 }}%
+                        </span>
+                    </h5>
+                    
+                    {% for insight in daily_insights %}
+                    <div class="insight-card priority-{{ insight.priority|lower }}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">{{ insight.title }}</h6>
+                            <span class="insight-badge badge-{{ insight.priority|lower }}">
+                                {{ insight.get_priority_display }}
+                            </span>
+                        </div>
+                        <p class="text-muted mb-2">{{ insight.description }}</p>
+                        {% if insight.data_points %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for point in insight.data_points %}
+                            <small class="text-muted">
+                                <i data-lucide="circle-dot" style="width: 12px; height: 12px;"></i>
+                                {{ point }}
+                            </small>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">현재 생성된 인사이트가 없습니다.</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Performance Predictions -->
+                <div class="chart-container">
+                    <h5 class="section-title">
+                        <i data-lucide="trending-up"></i>
+                        AI 예측 분석
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="predictionChart"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Actions & Alerts -->
+            <div class="col-lg-4">
+                <!-- Recommended Actions -->
+                <div class="chart-container mb-4">
+                    <h5 class="section-title">
+                        <i data-lucide="zap"></i>
+                        추천 액션
+                    </h5>
+                    
+                    {% for action in action_items %}
+                    <div class="action-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ action.title }}</h6>
+                                <p class="text-muted small mb-1">{{ action.description }}</p>
+                                {% if action.expected_impact %}
+                                <small class="text-success">
+                                    <i data-lucide="target" style="width: 12px; height: 12px;"></i>
+                                    예상 효과: {{ action.expected_impact }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            {% if action.urgency == 'HIGH' %}
+                            <span class="badge bg-danger">긴급</span>
+                            {% elif action.urgency == 'MEDIUM' %}
+                            <span class="badge bg-warning">중요</span>
+                            {% else %}
+                            <span class="badge bg-info">일반</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">추천 액션이 없습니다.</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="chart-container">
+                    <h5 class="section-title">
+                        <i data-lucide="clock"></i>
+                        최근 활동
+                    </h5>
+                    
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activities %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <p class="mb-1">{{ activity.description }}</p>
+                                    <small class="text-muted">{{ activity.timestamp|date:"H:i" }}</small>
+                                </div>
+                                {% if activity.trend == 'up' %}
+                                <i data-lucide="trending-up" class="trend-up"></i>
+                                {% elif activity.trend == 'down' %}
+                                <i data-lucide="trending-down" class="trend-down"></i>
+                                {% else %}
+                                <i data-lucide="minus" class="trend-neutral"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">최근 활동이 없습니다.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Refresh dashboard function
+function refreshDashboard() {
+    location.reload();
+}
+
+// Initialize charts
+document.addEventListener('DOMContentLoaded', function() {
+    // Prediction Chart
+    const predictionCtx = document.getElementById('predictionChart');
+    if (predictionCtx) {
+        new Chart(predictionCtx, {
+            type: 'line',
+            data: {
+                labels: ['1월', '2월', '3월', '4월', '5월', '6월'],
+                datasets: [{
+                    label: '예측 정확도',
+                    data: [85, 88, 87, 91, 93, 95],
+                    borderColor: '#FF6B00',
+                    backgroundColor: 'rgba(255, 107, 0, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+    // Trend Chart
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+        new Chart(trendCtx, {
+            type: 'bar',
+            data: {
+                labels: ['인사', '성과', '보상', '조직', '채용'],
+                datasets: [{
+                    label: '개선율',
+                    data: [12, 19, 8, 15, 10],
+                    backgroundColor: [
+                        'rgba(255, 107, 0, 0.8)',
+                        'rgba(255, 170, 0, 0.8)',
+                        'rgba(23, 162, 184, 0.8)',
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+});
+
+// Auto refresh every 5 minutes
+setInterval(function() {
+    refreshDashboard();
+}, 300000);
+</script>
+{% endblock %}

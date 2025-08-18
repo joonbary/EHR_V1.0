@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}HR 챗봇 - AIRISS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        height: calc(100vh - 200px);
+        max-height: 700px;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .chat-header {
+        background: linear-gradient(135deg, #00498B 0%, #007ACC 100%);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .chat-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .chat-status {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #10b981;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        background-color: #f9fafb;
+    }
+    
+    .message {
+        margin-bottom: 1rem;
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message.user {
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .message.assistant {
+        display: flex;
+        justify-content: flex-start;
+    }
+    
+    .message-bubble {
+        max-width: 70%;
+        padding: 0.75rem 1.25rem;
+        border-radius: 18px;
+        word-wrap: break-word;
+    }
+    
+    .message.user .message-bubble {
+        background-color: #00498B;
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .message.assistant .message-bubble {
+        background-color: white;
+        color: #333;
+        border: 1px solid #e5e7eb;
+        border-bottom-left-radius: 4px;
+    }
+    
+    .message-time {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        margin-top: 0.25rem;
+    }
+    
+    .message.user .message-time {
+        text-align: right;
+    }
+    
+    .chat-input-container {
+        padding: 1.5rem;
+        background: white;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .chat-input-form {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .chat-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 25px;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    
+    .chat-input:focus {
+        border-color: #00498B;
+    }
+    
+    .chat-send-btn {
+        padding: 0.75rem 1.5rem;
+        background-color: #00498B;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .chat-send-btn:hover {
+        background-color: #003a70;
+        transform: translateY(-1px);
+    }
+    
+    .chat-send-btn:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+    }
+    
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        max-width: 80px;
+    }
+    
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #9ca3af;
+        border-radius: 50%;
+        margin: 0 2px;
+        animation: typing 1.4s infinite ease-in-out;
+    }
+    
+    .typing-dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+    
+    .typing-dot:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+    
+    @keyframes typing {
+        0%, 80%, 100% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1.3);
+            opacity: 1;
+        }
+    }
+    
+    .quick-actions {
+        padding: 1rem 1.5rem;
+        background-color: #f3f4f6;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .quick-action-btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        background-color: white;
+        border: 1px solid #d1d5db;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        color: #4b5563;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .quick-action-btn:hover {
+        background-color: #00498B;
+        color: white;
+        border-color: #00498B;
+    }
+    
+    .chat-empty {
+        text-align: center;
+        padding: 3rem;
+        color: #9ca3af;
+    }
+    
+    .chat-empty i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #d1d5db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="chat-container">
+        <!-- 챗봇 헤더 -->
+        <div class="chat-header">
+            <div>
+                <h3>
+                    <i class="fas fa-robot mr-2"></i>
+                    OK금융그룹 HR 챗봇
+                </h3>
+                <p class="mt-1 text-sm opacity-90">HR 관련 문의사항을 도와드립니다</p>
+            </div>
+            <div class="chat-status">
+                <span class="status-dot"></span>
+                <span>온라인</span>
+            </div>
+        </div>
+
+        <!-- 빠른 액션 버튼 -->
+        <div class="quick-actions">
+            <span class="text-sm text-gray-600 mr-2">자주 묻는 질문:</span>
+            <button class="quick-action-btn" onclick="sendQuickMessage('휴가는 어떻게 신청하나요?')">
+                휴가 신청
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('급여명세서는 어디서 확인하나요?')">
+                급여명세서
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('평가 일정이 궁금합니다')">
+                평가 일정
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('교육 프로그램 신청 방법을 알려주세요')">
+                교육 신청
+            </button>
+        </div>
+
+        <!-- 채팅 메시지 영역 -->
+        <div class="chat-messages" id="chatMessages">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="message {{ message.role }}">
+                    <div>
+                        <div class="message-bubble">
+                            {{ message.content|linebreaks }}
+                        </div>
+                        <div class="message-time">
+                            {{ message.timestamp }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="chat-empty">
+                    <i class="fas fa-comments"></i>
+                    <h5 class="text-gray-700 mb-2">대화를 시작해보세요</h5>
+                    <p class="text-gray-500">HR 관련 질문을 입력하시면 도와드리겠습니다.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- 메시지 입력 영역 -->
+        <div class="chat-input-container">
+            <form method="post" action="{% url 'airiss:chatbot' %}" class="chat-input-form" id="chatForm">
+                {% csrf_token %}
+                <input type="text" 
+                       name="message" 
+                       class="chat-input" 
+                       placeholder="메시지를 입력하세요..." 
+                       autocomplete="off"
+                       required>
+                <button type="submit" class="chat-send-btn">
+                    <span>전송</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 페이지 로드 시 스크롤을 맨 아래로
+document.addEventListener('DOMContentLoaded', function() {
+    scrollToBottom();
+});
+
+// 메시지 전송 후 스크롤을 맨 아래로
+function scrollToBottom() {
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 빠른 액션 버튼 클릭 시
+function sendQuickMessage(message) {
+    const input = document.querySelector('.chat-input');
+    input.value = message;
+    document.getElementById('chatForm').submit();
+}
+
+// 폼 제출 시 타이핑 인디케이터 표시
+document.getElementById('chatForm').addEventListener('submit', function(e) {
+    const input = document.querySelector('.chat-input');
+    const sendBtn = document.querySelector('.chat-send-btn');
+    
+    if (input.value.trim() === '') {
+        e.preventDefault();
+        return;
+    }
+    
+    // 버튼 비활성화
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<span>전송중...</span> <i class="fas fa-spinner fa-spin"></i>';
+});
+
+// Enter 키로 전송
+document.querySelector('.chat-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('chatForm').submit();
+    }
+});
+
+// 타이핑 인디케이터 HTML
+function getTypingIndicator() {
+    return `
+        <div class="message assistant" id="typingIndicator">
+            <div>
+                <div class="typing-indicator">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 실시간 채팅 업데이트 (WebSocket 사용 시)
+// 현재는 폼 제출 방식이므로 주석 처리
+/*
+const ws = new WebSocket('ws://localhost:8000/ws/chat/');
+
+ws.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    addMessage(data.message, data.role);
+};
+
+function addMessage(content, role) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageHtml = `
+        <div class="message ${role}">
+            <div>
+                <div class="message-bubble">
+                    ${content}
+                </div>
+                <div class="message-time">
+                    방금 전
+                </div>
+            </div>
+        </div>
+    `;
+    chatMessages.insertAdjacentHTML('beforeend', messageHtml);
+    scrollToBottom();
+}
+*/
+</script>
+{% endblock %}

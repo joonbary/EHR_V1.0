@@ -1,0 +1,303 @@
+🚀 Claude Code 리팩토링 명령어 세트
+1. 🔍 코드 분석 명령어
+bash# 슈퍼클로드 코드 품질 분석
+--analyze code-quality --depth deep
+--metrics complexity,duplication,coverage
+--report detailed-with-suggestions
+
+# 취약점 스캔
+--scan security-vulnerabilities
+--include owasp-top-10,sql-injection,xss
+--fix-suggestion enabled
+
+# 성능 프로파일링
+--profile performance
+--identify bottlenecks,memory-leaks,n+1-queries
+--suggest optimizations
+2. 🛠️ 자동 리팩토링 명령어
+bash# 코드 중복 제거
+--refactor remove-duplication
+--threshold 85% --extract-method auto
+--preserve-functionality strict
+
+# 복잡도 감소
+--refactor reduce-complexity
+--max-cognitive-complexity 10
+--split-functions auto --maintain-interface
+
+# 디자인 패턴 적용
+--refactor apply-pattern
+--patterns singleton,factory,repository
+--context-aware true
+
+📐 단계별 리팩토링 작업 지시서
+Phase 1: 즉시 수정 (Critical Issues)
+python"""
+슈퍼클로드 긴급 수정 지시:
+--priority critical --auto-fix enabled
+--backup-before-change true
+
+1. SQL 인젝션 취약점 수정
+   - 모든 raw query를 parameterized query로 변경
+   - SQLAlchemy ORM 사용 강제
+
+2. 메모리 누수 해결
+   - 대용량 파일 처리 시 스트리밍 적용
+   - 불필요한 객체 참조 제거
+   - Context manager 패턴 적용
+
+3. 동시성 문제 해결
+   - Race condition 있는 코드 식별
+   - 적절한 Lock 메커니즘 적용
+   - AsyncIO 패턴 일관성 확보
+
+예시 변환:
+# Before (위험)
+query = f"SELECT * FROM users WHERE id = {user_id}"
+
+# After (안전)
+query = select(User).where(User.id == user_id)
+"""
+Phase 2: 구조 개선 (Architecture)
+python"""
+슈퍼클로드 아키텍처 개선 지시:
+--refactor architecture --pattern clean-architecture
+--maintain backward-compatibility true
+
+1. 레이어 분리 강화
+   ┌─────────────┐
+   │ Presentation│ (API Routes)
+   ├─────────────┤
+   │ Application │ (Use Cases)
+   ├─────────────┤
+   │   Domain    │ (Business Logic)
+   ├─────────────┤
+   │Infrastructure│ (DB, External APIs)
+   └─────────────┘
+
+2. 의존성 주입 패턴 적용
+   - 모든 서비스를 Interface로 추상화
+   - FastAPI Depends() 활용
+   - 테스트 가능한 구조로 변경
+
+3. Repository 패턴 도입
+   # Before
+   def get_user(db: Session, user_id: int):
+       return db.query(User).filter(User.id == user_id).first()
+   
+   # After
+   class UserRepository:
+       def __init__(self, db: Session):
+           self.db = db
+       
+       async def get_by_id(self, user_id: int) -> Optional[User]:
+           return await self.db.get(User, user_id)
+"""
+Phase 3: 코드 품질 개선 (Quality)
+python"""
+슈퍼클로드 품질 개선 지시:
+--improve code-quality --style pep8
+--type-hints complete --docstrings google-style
+
+1. 함수 단순화 (Single Responsibility)
+   # Before (복잡)
+   def process_employee_data(data):
+       # 100줄의 복잡한 로직...
+       
+   # After (단순)
+   def process_employee_data(data: EmployeeData) -> ProcessedData:
+       validated_data = self._validate(data)
+       enriched_data = self._enrich(validated_data)
+       return self._transform(enriched_data)
+
+2. 에러 핸들링 표준화
+   class AnalysisError(AppException):
+       error_code = "ANALYSIS_001"
+       status_code = 400
+       
+   # 일관된 에러 응답
+   @app.exception_handler(AppException)
+   async def app_exception_handler(request, exc):
+       return JSONResponse(
+           status_code=exc.status_code,
+           content={"error": exc.error_code, "detail": exc.detail}
+       )
+
+3. 타입 안정성 강화
+   # 모든 함수에 타입 힌트 추가
+   from typing import List, Optional, Dict, Any
+   
+   async def analyze_hr_data(
+       file_path: Path,
+       options: AnalysisOptions,
+       user_context: UserContext
+   ) -> AnalysisResult:
+       ...
+"""
+Phase 4: 성능 최적화 (Performance)
+python"""
+슈퍼클로드 성능 최적화 지시:
+--optimize performance --target response-time,throughput
+--benchmark before-after --profile enabled
+
+1. 데이터베이스 쿼리 최적화
+   # N+1 문제 해결
+   # Before
+   employees = db.query(Employee).all()
+   for emp in employees:
+       dept = emp.department  # N개의 추가 쿼리
+   
+   # After
+   employees = db.query(Employee).options(
+       joinedload(Employee.department)
+   ).all()
+
+2. 캐싱 전략 구현
+   from functools import lru_cache
+   from redis import Redis
+   
+   @lru_cache(maxsize=128)
+   def get_hr_policy(policy_id: str) -> HRPolicy:
+       return fetch_from_db(policy_id)
+   
+   # Redis 캐싱 for 분산 환경
+   async def get_analysis_result(analysis_id: str) -> AnalysisResult:
+       cached = await redis.get(f"analysis:{analysis_id}")
+       if cached:
+           return AnalysisResult.parse_raw(cached)
+       ...
+
+3. 비동기 처리 최적화
+   # 병렬 처리 적용
+   async def batch_analyze(files: List[Path]) -> List[Result]:
+       tasks = [analyze_file(f) for f in files]
+       return await asyncio.gather(*tasks)
+"""
+
+🔄 MCP 통합 리팩토링
+MCP 모듈별 표준화
+python"""
+슈퍼클로드 MCP 통합 지시:
+--integrate mcp-modules --standard unified-interface
+--maintain loose-coupling
+
+1. FileServer 통합 표준
+   class FileServerAdapter:
+       async def save_analysis_result(
+           self, 
+           result: AnalysisResult,
+           metadata: Dict[str, Any]
+       ) -> FilePath:
+           # MCP fileserver 호출
+           return await self.mcp_client.save(
+               content=result.to_json(),
+               path=f"analysis/{result.id}",
+               metadata=metadata
+           )
+
+2. Sequential Thinking 통합
+   class AnalysisOrchestrator:
+       def __init__(self, sequential_client: SequentialClient):
+           self.seq = sequential_client
+           
+       async def run_analysis(self, data: InputData) -> Result:
+           # 단계별 처리 정의
+           pipeline = self.seq.create_pipeline([
+               ("validate", self.validate_data),
+               ("preprocess", self.preprocess_data),
+               ("analyze", self.run_ai_analysis),
+               ("postprocess", self.format_results)
+           ])
+           return await pipeline.execute(data)
+
+3. Task Manager 통합
+   class TaskQueueAdapter:
+       async def enqueue_analysis(
+           self, 
+           task: AnalysisTask
+       ) -> TaskId:
+           return await self.task_manager.create_task(
+               name=f"analysis_{task.id}",
+               handler="analyze_hr_data",
+               params=task.to_dict(),
+               priority=task.priority
+           )
+"""
+
+📊 리팩토링 측정 지표
+자동 측정 명령어
+bash# 리팩토링 전후 비교
+--measure refactoring-impact
+--metrics all --format comparison-table
+
+# 실시간 품질 모니터링
+--monitor code-quality --real-time
+--alert-threshold complexity:15,duplication:10%
+주요 지표
+지표목표측정 방법코드 복잡도< 10Cyclomatic Complexity중복 코드< 5%Duplication Index테스트 커버리지> 85%Coverage Report응답 시간< 200msPerformance Profile메모리 사용량< 512MBMemory Profile타입 커버리지100%Type Check
+
+🎬 실전 리팩토링 시나리오
+시나리오 1: 레거시 분석 모듈 개선
+bash# Claude Code 실행 명령
+claude-code refactor legacy-analyzer \
+  --identify-issues auto \
+  --apply-fixes incremental \
+  --test-each-change true \
+  --rollback-on-failure true
+시나리오 2: API 응답 속도 개선
+bash# 성능 병목 지점 찾기
+claude-code profile api-performance \
+  --endpoints all \
+  --load-test concurrent:100 \
+  --identify slow-queries,blocking-io \
+  --suggest-fixes caching,async,pagination
+시나리오 3: 보안 취약점 긴급 패치
+bash# 보안 스캔 및 자동 수정
+claude-code security-patch \
+  --scan-depth deep \
+  --fix-priority critical,high \
+  --test security-regression \
+  --deploy-safe-mode true
+
+📝 리팩토링 체크리스트 템플릿
+markdown## 리팩토링 작업 티켓
+
+### 대상 코드
+- 파일: `services/analyzer.py`
+- 함수: `process_employee_data()`
+- 현재 복잡도: 25
+- 목표 복잡도: < 10
+
+### 문제점
+- [ ] 함수가 너무 길다 (150줄)
+- [ ] 여러 책임을 가지고 있다
+- [ ] 테스트하기 어렵다
+- [ ] 에러 핸들링이 일관성 없다
+
+### 개선 계획
+1. [ ] 단일 책임 원칙 적용
+2. [ ] 서브 함수로 분리
+3. [ ] 의존성 주입 적용
+4. [ ] 단위 테스트 추가
+
+### 검증 기준
+- [ ] 모든 기존 테스트 통과
+- [ ] 새로운 단위 테스트 추가
+- [ ] 성능 저하 없음
+- [ ] 코드 리뷰 승인
+
+🚨 위험 신호 자동 감지
+python"""
+슈퍼클로드 위험 패턴 감지:
+--detect code-smells,anti-patterns
+--auto-suggest refactoring-candidates
+
+감지 대상:
+1. God Class (하나의 클래스가 너무 많은 일을 함)
+2. Long Method (50줄 이상의 함수)
+3. Duplicate Code (85% 이상 유사)
+4. Dead Code (사용되지 않는 코드)
+5. Circular Dependencies (순환 참조)
+6. Magic Numbers (하드코딩된 값)
+7. Inconsistent Naming (명명 규칙 불일치)
+"""

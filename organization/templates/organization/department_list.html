@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}부서 목록{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dept-tree {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .dept-node {
+        margin-left: 20px;
+        position: relative;
+    }
+    .dept-node::before {
+        content: '';
+        position: absolute;
+        left: -15px;
+        top: -10px;
+        bottom: 50%;
+        width: 1px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    .dept-node::after {
+        content: '';
+        position: absolute;
+        left: -15px;
+        top: 50%;
+        width: 15px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    .dept-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+    .dept-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
+    }
+    .root-dept > .dept-node::before,
+    .root-dept > .dept-node::after {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- 헤더 -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">부서 관리</h1>
+            <p class="text-gray-300">전체 {{ total_departments }}개 부서</p>
+        </div>
+        <a href="{% url 'organization:department_create' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
+            <i class="fas fa-plus mr-2"></i>새 부서 추가
+        </a>
+    </div>
+
+    <!-- 부서 트리 -->
+    <div class="dept-tree">
+        <h3 class="text-xl font-semibold text-white mb-4">
+            <i class="fas fa-sitemap mr-2"></i>조직 구조
+        </h3>
+        
+        <div class="root-dept">
+            {% for node in department_tree %}
+                {% include 'organization/department_tree_node.html' with node=node %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 빠른 액션 -->
+    <div class="mt-8 bg-blue-500 bg-opacity-10 border border-blue-500 border-opacity-30 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-white mb-3">빠른 액션</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'organization:organization_chart' %}" class="text-blue-400 hover:text-blue-300">
+                <i class="fas fa-project-diagram mr-2"></i>조직도 보기
+            </a>
+            <a href="{% url 'organization:transfer_list' %}" class="text-blue-400 hover:text-blue-300">
+                <i class="fas fa-exchange-alt mr-2"></i>인사이동 관리
+            </a>
+            <a href="{% url 'organization:position_list' %}" class="text-blue-400 hover:text-blue-300">
+                <i class="fas fa-medal mr-2"></i>직위 관리
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleDepartment(deptId) {
+    const children = document.getElementById('children-' + deptId);
+    const icon = document.getElementById('toggle-' + deptId);
+    
+    if (children.classList.contains('hidden')) {
+        children.classList.remove('hidden');
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+    } else {
+        children.classList.add('hidden');
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+    }
+}
+</script>
+{% endblock %}

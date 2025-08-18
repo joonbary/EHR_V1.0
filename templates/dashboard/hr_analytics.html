@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}HR 대시보드 - OK금융그룹 AI-Driven HR System{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">HR 대시보드</h1>
+        <p class="page-subtitle">인사 관리 종합 분석</p>
+    </div>
+
+    <!-- 전체 인력 현황 카드 -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i data-lucide="users" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ total_employees|intcomma }}</h3>
+                    <p class="stat-label">전체 직원 수</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i data-lucide="building" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ dept_distribution|length }}</h3>
+                    <p class="stat-label">운영 부서</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info">
+                    <i data-lucide="briefcase" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ position_distribution|length }}</h3>
+                    <p class="stat-label">직급 체계</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                    <i data-lucide="trending-up" class="text-white"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">+{{ hiring_trend.0.hired|default:0 }}</h3>
+                    <p class="stat-label">이번달 입사</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 차트 섹션 -->
+    <div class="row mt-4">
+        <!-- 부서별 인원 현황 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">부서별 인원 현황</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="deptChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 입퇴사 추세 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">입퇴사 추세 (최근 6개월)</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="hiringTrendChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 직급별 분포 -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">직급별 인원 분포</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="positionChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.stat-label {
+    color: #666;
+    margin: 4px 0;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 12px;
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 24px;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 부서별 차트
+    const deptCtx = document.getElementById('deptChart').getContext('2d');
+    new Chart(deptCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for dept in dept_distribution %}'{{ dept.department|default:"미지정" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for dept in dept_distribution %}{{ dept.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [
+                    '#4F46E5', '#7C3AED', '#EC4899', '#F59E0B', '#10B981',
+                    '#3B82F6', '#8B5CF6', '#F97316', '#14B8A6', '#EF4444'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+
+    // 입퇴사 추세 차트
+    const trendCtx = document.getElementById('hiringTrendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for trend in hiring_trend %}'{{ trend.month }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '입사',
+                data: [{% for trend in hiring_trend %}{{ trend.hired }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.3
+            }, {
+                label: '퇴사',
+                data: [{% for trend in hiring_trend %}{{ trend.resigned }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: '#EF4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // 직급별 차트
+    const positionCtx = document.getElementById('positionChart').getContext('2d');
+    new Chart(positionCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for pos in position_distribution %}'{{ pos.new_position|default:"미지정" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '인원수',
+                data: [{% for pos in position_distribution %}{{ pos.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#4F46E5'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

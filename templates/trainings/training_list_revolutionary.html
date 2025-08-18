@@ -1,0 +1,435 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}학습 개발 센터 - OK Financial Group{% endblock %}
+
+{% block page_header %}학습 개발 센터{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 교육 대시보드 스타일 */
+    .training-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 25px;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(0, 212, 255, 0.5);
+        box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+    }
+    
+    .training-categories {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+    
+    .category-card {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .category-card:hover {
+        background: rgba(0, 212, 255, 0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
+    }
+    
+    .category-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+    
+    .category-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #00d4ff;
+        margin-bottom: 10px;
+    }
+    
+    .category-count {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .training-list {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+    
+    .training-item {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .training-item:hover {
+        transform: translateX(10px);
+        border-color: rgba(0, 212, 255, 0.3);
+        background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .training-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .training-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #00d4ff;
+    }
+    
+    .training-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+    
+    .training-meta {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .training-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .training-description {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    
+    .training-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-enroll {
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #000;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-enroll:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+    }
+    
+    .btn-detail {
+        padding: 8px 20px;
+        background: transparent;
+        color: #00d4ff;
+        border: 1px solid #00d4ff;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-detail:hover {
+        background: rgba(0, 212, 255, 0.1);
+    }
+    
+    .my-training {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #00d4ff, #0099ff);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="training-container">
+    <!-- 학습 통계 -->
+    <div class="training-stats">
+        <div class="stat-card">
+            <div class="stat-value" style="font-size: 36px; font-weight: 700; color: #00d4ff;">12</div>
+            <div class="stat-label">완료한 교육</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value" style="font-size: 36px; font-weight: 700; color: #00d4ff;">3</div>
+            <div class="stat-label">진행 중인 교육</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value" style="font-size: 36px; font-weight: 700; color: #00d4ff;">48</div>
+            <div class="stat-label">총 학습 시간</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value" style="font-size: 36px; font-weight: 700; color: #00d4ff;">85%</div>
+            <div class="stat-label">평균 성취도</div>
+        </div>
+    </div>
+    
+    <!-- 나의 학습 현황 -->
+    <div class="my-training">
+        <h2 style="margin-bottom: 25px; font-size: 24px; font-weight: 700;">
+            <span style="color: #00d4ff;">나의</span> 학습 현황
+        </h2>
+        
+        <div class="training-item">
+            <div class="training-header">
+                <div class="training-title">리더십 에센셜 과정</div>
+                <div class="training-badge">진행중</div>
+            </div>
+            <div class="training-meta">
+                <div class="training-meta-item">
+                    <span>📅</span> 2024.01.15 시작
+                </div>
+                <div class="training-meta-item">
+                    <span>⏱️</span> 20시간 중 15시간 완료
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 75%;"></div>
+            </div>
+        </div>
+        
+        <div class="training-item">
+            <div class="training-header">
+                <div class="training-title">AI 활용 업무 자동화</div>
+                <div class="training-badge">진행중</div>
+            </div>
+            <div class="training-meta">
+                <div class="training-meta-item">
+                    <span>📅</span> 2024.01.20 시작
+                </div>
+                <div class="training-meta-item">
+                    <span>⏱️</span> 16시간 중 8시간 완료
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 50%;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 교육 카테고리 -->
+    <h2 style="margin-bottom: 25px; font-size: 24px; font-weight: 700;">교육 카테고리</h2>
+    <div class="training-categories">
+        <div class="category-card">
+            <div class="category-icon">🎯</div>
+            <div class="category-title">리더십</div>
+            <div class="category-count">15개 과정</div>
+        </div>
+        
+        <div class="category-card">
+            <div class="category-icon">💻</div>
+            <div class="category-title">디지털 역량</div>
+            <div class="category-count">23개 과정</div>
+        </div>
+        
+        <div class="category-card">
+            <div class="category-icon">🤖</div>
+            <div class="category-title">AI/ML</div>
+            <div class="category-count">18개 과정</div>
+        </div>
+        
+        <div class="category-card">
+            <div class="category-icon">📊</div>
+            <div class="category-title">데이터 분석</div>
+            <div class="category-count">12개 과정</div>
+        </div>
+        
+        <div class="category-card">
+            <div class="category-icon">🌐</div>
+            <div class="category-title">글로벌 역량</div>
+            <div class="category-count">10개 과정</div>
+        </div>
+        
+        <div class="category-card">
+            <div class="category-icon">💡</div>
+            <div class="category-title">혁신 마인드</div>
+            <div class="category-count">8개 과정</div>
+        </div>
+    </div>
+    
+    <!-- 추천 교육 과정 -->
+    <div class="training-list">
+        <h2 style="margin-bottom: 25px; font-size: 24px; font-weight: 700;">
+            <span style="color: #00d4ff;">AI 추천</span> 교육 과정
+        </h2>
+        
+        <div class="training-item">
+            <div class="training-header">
+                <div class="training-title">차세대 리더 양성 프로그램</div>
+                <div class="training-badge">추천</div>
+            </div>
+            <div class="training-meta">
+                <div class="training-meta-item">
+                    <span>📚</span> 40시간
+                </div>
+                <div class="training-meta-item">
+                    <span>👥</span> 25명 정원
+                </div>
+                <div class="training-meta-item">
+                    <span>📅</span> 2024.02.01 시작
+                </div>
+            </div>
+            <div class="training-description">
+                미래 리더로서 필요한 전략적 사고, 조직 관리, 변화 관리 역량을 체계적으로 개발하는 
+                종합 프로그램입니다. 실습과 케이스 스터디를 통해 실무 적용력을 높입니다.
+            </div>
+            <div class="training-actions">
+                <button class="btn-enroll">신청하기</button>
+                <button class="btn-detail">상세보기</button>
+            </div>
+        </div>
+        
+        <div class="training-item">
+            <div class="training-header">
+                <div class="training-title">Python을 활용한 데이터 분석 실무</div>
+                <div class="training-badge">인기</div>
+            </div>
+            <div class="training-meta">
+                <div class="training-meta-item">
+                    <span>📚</span> 32시간
+                </div>
+                <div class="training-meta-item">
+                    <span>👥</span> 20명 정원
+                </div>
+                <div class="training-meta-item">
+                    <span>📅</span> 2024.02.15 시작
+                </div>
+            </div>
+            <div class="training-description">
+                Python 기초부터 고급 데이터 분석 기법까지 단계별로 학습하며, 
+                실제 업무 데이터를 활용한 프로젝트를 수행합니다.
+            </div>
+            <div class="training-actions">
+                <button class="btn-enroll">신청하기</button>
+                <button class="btn-detail">상세보기</button>
+            </div>
+        </div>
+        
+        <div class="training-item">
+            <div class="training-header">
+                <div class="training-title">AI 기반 업무 혁신 전략</div>
+                <div class="training-badge">신규</div>
+            </div>
+            <div class="training-meta">
+                <div class="training-meta-item">
+                    <span>📚</span> 24시간
+                </div>
+                <div class="training-meta-item">
+                    <span>👥</span> 30명 정원
+                </div>
+                <div class="training-meta-item">
+                    <span>📅</span> 2024.03.01 시작
+                </div>
+            </div>
+            <div class="training-description">
+                AI 기술의 비즈니스 적용 방법을 학습하고, 실제 업무 프로세스를 
+                AI로 혁신하는 방법을 실습합니다.
+            </div>
+            <div class="training-actions">
+                <button class="btn-enroll">신청하기</button>
+                <button class="btn-detail">상세보기</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 교육 과정 신청 처리
+    document.querySelectorAll('.btn-enroll').forEach(button => {
+        button.addEventListener('click', function() {
+            // 신청 확인 모달 표시
+            if (confirm('이 교육 과정을 신청하시겠습니까?')) {
+                // 신청 처리 로직
+                alert('교육 신청이 완료되었습니다.');
+                this.textContent = '신청완료';
+                this.disabled = true;
+                this.style.opacity = '0.5';
+            }
+        });
+    });
+    
+    // 카테고리 카드 클릭 이벤트
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const category = this.querySelector('.category-title').textContent;
+            console.log(`${category} 카테고리 선택됨`);
+            // 카테고리별 필터링 로직 추가
+        });
+    });
+    
+    // 진행률 애니메이션
+    document.addEventListener('DOMContentLoaded', function() {
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

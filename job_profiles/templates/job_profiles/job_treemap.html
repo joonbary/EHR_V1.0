@@ -1,0 +1,634 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}직무 체계도 - OK금융그룹{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+.treemap-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.page-title i {
+    color: #2e86de;
+    margin-right: 12px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.stat-card:nth-child(1) .stat-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+.stat-card:nth-child(2) .stat-icon { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.stat-card:nth-child(3) .stat-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.stat-card:nth-child(4) .stat-icon { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.controls-wrapper {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+}
+
+.search-box i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 12px 12px 44px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: 2px solid #e9ecef;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-btn.active {
+    background: #2e86de;
+    border-color: #2e86de;
+    color: white;
+}
+
+.treemap-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.group-container {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.group-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.non-pl-section .group-title {
+    color: #2e86de;
+    border-bottom-color: #2e86de;
+}
+
+.pl-section .group-title {
+    color: #ff6b6b;
+    border-bottom-color: #ff6b6b;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+.loading-state i {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 1024px) {
+    .treemap-main {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="treemap-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-sitemap"></i>
+            직무 체계도
+        </h1>
+        <p class="text-muted">OK금융그룹의 전체 직무 체계를 한눈에 확인하세요</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_categories|default:"0" }}</div>
+                <div class="stat-label">직군</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_job_types|default:"0" }}</div>
+                <div class="stat-label">직종</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_job_roles|default:"0" }}</div>
+                <div class="stat-label">직무</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_profiles|default:"0" }}</div>
+                <div class="stat-label">직무기술서</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-wrapper">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="직무명으로 검색..." class="search-input">
+        </div>
+        <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-th"></i> 전체
+            </button>
+            <button class="filter-btn" data-filter="non-pl">
+                <i class="fas fa-users"></i> Non-PL
+            </button>
+            <button class="filter-btn" data-filter="pl">
+                <i class="fas fa-user-shield"></i> PL
+            </button>
+        </div>
+    </div>
+
+    <div class="treemap-main">
+        <div class="group-container non-pl-section" data-group="non-pl">
+            <h2 class="group-title">
+                <i class="fas fa-users"></i>
+                Non-PL 직군
+            </h2>
+            <div id="nonPlContent" class="group-body">
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>데이터를 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="group-container pl-section" data-group="pl">
+            <h2 class="group-title">
+                <i class="fas fa-user-shield"></i>
+                PL 직군
+            </h2>
+            <div id="plContent" class="group-body">
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>데이터를 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 모달은 필요시 JavaScript로 생성 -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let jobData = null;
+    
+    // 데이터 로드
+    loadJobData();
+    
+    function loadJobData() {
+        fetch('/job-profiles/api/tree-map-data/')
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    jobData = result.data;
+                    renderTreeMap();
+                } else {
+                    showError('데이터를 불러오는데 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('서버 오류가 발생했습니다.');
+            });
+    }
+    
+    function renderTreeMap() {
+        // Non-PL 렌더링
+        const nonPlContent = document.getElementById('nonPlContent');
+        nonPlContent.innerHTML = '';
+        
+        if (jobData['Non-PL'] && Object.keys(jobData['Non-PL']).length > 0) {
+            Object.entries(jobData['Non-PL']).forEach(([categoryName, categoryData]) => {
+                nonPlContent.appendChild(createCategoryElement(categoryName, categoryData));
+            });
+        } else {
+            nonPlContent.innerHTML = '<p class="text-muted">Non-PL 데이터가 없습니다.</p>';
+        }
+        
+        // PL 렌더링
+        const plContent = document.getElementById('plContent');
+        plContent.innerHTML = '';
+        
+        if (jobData['PL'] && Object.keys(jobData['PL']).length > 0) {
+            Object.entries(jobData['PL']).forEach(([categoryName, categoryData]) => {
+                plContent.appendChild(createCategoryElement(categoryName, categoryData));
+            });
+        } else {
+            plContent.innerHTML = '<p class="text-muted">PL 데이터가 없습니다.</p>';
+        }
+    }
+    
+    function createCategoryElement(categoryName, categoryData) {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'category-card';
+        categoryDiv.innerHTML = `
+            <div class="category-header">
+                <i class="fas fa-${categoryData.icon}"></i>
+                <h3>${categoryName}</h3>
+            </div>
+            <div class="job-types">
+                ${Object.entries(categoryData.jobs).map(([jobTypeName, jobs]) => `
+                    <div class="job-type">
+                        <h4>${jobTypeName}</h4>
+                        <div class="job-list">
+                            ${jobs.map(job => `
+                                <button class="job-item ${job.has_profile ? 'has-profile' : ''}" 
+                                        onclick="showJobDetail('${job.id}')">
+                                    ${job.name}
+                                    ${job.has_profile ? '<i class="fas fa-file-alt"></i>' : ''}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        return categoryDiv;
+    }
+    
+    function showError(message) {
+        document.querySelectorAll('.loading-state').forEach(el => {
+            el.innerHTML = `<p class="text-danger">${message}</p>`;
+        });
+    }
+    
+    // 필터 버튼
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            const nonPlSection = document.querySelector('.non-pl-section');
+            const plSection = document.querySelector('.pl-section');
+            
+            if (filter === 'all') {
+                nonPlSection.style.display = 'block';
+                plSection.style.display = 'block';
+            } else if (filter === 'non-pl') {
+                nonPlSection.style.display = 'block';
+                plSection.style.display = 'none';
+            } else if (filter === 'pl') {
+                nonPlSection.style.display = 'none';
+                plSection.style.display = 'block';
+            }
+        });
+    });
+    
+    // 검색 기능
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            document.querySelectorAll('.job-item').forEach(item => {
+                const jobName = item.textContent.toLowerCase();
+                if (jobName.includes(searchTerm)) {
+                    item.style.display = 'inline-block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+
+// 직무 상세 정보 표시
+function showJobDetail(jobRoleId) {
+    fetch(`/job-profiles/api/job-detail-modal/${jobRoleId}/`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showJobDetailModal(result.data);
+            } else {
+                alert('직무 정보를 불러올 수 없습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('서버 오류가 발생했습니다.');
+        });
+}
+
+function showJobDetailModal(data) {
+    // 기존 모달 제거
+    const existingModal = document.getElementById('jobDetailModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // 모달 생성
+    const modal = document.createElement('div');
+    modal.id = 'jobDetailModal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>${data.job.name}</h2>
+                <button class="close-btn" onclick="closeJobDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="job-path">${data.job.full_path}</p>
+                ${data.profile ? `
+                    <div class="profile-section">
+                        <h3>역할과 책임</h3>
+                        <p>${data.profile.role_responsibility}</p>
+                        
+                        <h3>자격요건</h3>
+                        <p>${data.profile.qualification}</p>
+                        
+                        ${data.profile.basic_skills.length > 0 ? `
+                            <h3>기본 기술/지식</h3>
+                            <ul>
+                                ${data.profile.basic_skills.map(skill => `<li>${skill}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                        
+                        ${data.profile.applied_skills.length > 0 ? `
+                            <h3>응용 기술/지식</h3>
+                            <ul>
+                                ${data.profile.applied_skills.map(skill => `<li>${skill}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                        
+                        ${data.profile.growth_path ? `
+                            <h3>성장경로</h3>
+                            <p>${data.profile.growth_path}</p>
+                        ` : ''}
+                    </div>
+                ` : '<p class="text-muted">직무기술서가 등록되지 않았습니다.</p>'}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.style.display = 'block';
+}
+
+function closeJobDetailModal() {
+    const modal = document.getElementById('jobDetailModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+</script>
+
+<style>
+/* 추가 스타일 */
+.category-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.category-header i {
+    font-size: 24px;
+    color: #2e86de;
+}
+
+.category-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #2c3e50;
+}
+
+.job-types {
+    display: grid;
+    gap: 15px;
+}
+
+.job-type h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #495057;
+}
+
+.job-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.job-item {
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.job-item:hover {
+    background: #2e86de;
+    color: white;
+    border-color: #2e86de;
+}
+
+.job-item.has-profile {
+    background: #e8f2ff;
+    border-color: #2e86de;
+}
+
+.job-item.has-profile:hover {
+    background: #2e86de;
+    color: white;
+}
+
+.job-item i {
+    margin-left: 5px;
+    font-size: 12px;
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-header h2 {
+    margin: 0;
+}
+
+.close-btn {
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 20px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #aaa;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.job-path {
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+.profile-section h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.profile-section ul {
+    margin-left: 20px;
+}
+</style>
+{% endblock %}

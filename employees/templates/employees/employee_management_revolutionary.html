@@ -1,0 +1,366 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}직원 관리 센터 - OK Financial Group{% endblock %}
+
+{% block page_header %}Employee Management Hub{% endblock %}
+{% block content_title %}직원 관리 센터{% endblock %}
+{% block page_subtitle %}
+<p class="page-subtitle">
+    차세대 AI 기반 인사정보 관리 시스템
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Employee Management Dashboard Styles */
+.management-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 212, 255, 0.2);
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.feature-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.feature-description {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.feature-btn {
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    color: #000;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.feature-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+    color: #000;
+    text-decoration: none;
+}
+
+.stats-overview {
+    background: rgba(26, 31, 46, 0.8);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: 800;
+    color: #00d4ff;
+    display: block;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.quick-actions {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 30px;
+}
+
+.quick-actions h3 {
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 12px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+    color: #000;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.feature-card.empty-state {
+    border: 2px dashed rgba(0, 212, 255, 0.3);
+    text-align: center;
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.empty-icon {
+    font-size: 64px;
+    opacity: 0.5;
+    margin-bottom: 16px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 통계 개요 -->
+<div class="stats-overview">
+    <h2 style="color: #ffffff; margin-bottom: 20px; font-size: 20px; display: flex; align-items: center; gap: 12px;">
+        <span>📊</span> 직원 현황 대시보드
+    </h2>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number">0</span>
+            <div class="stat-label">총 직원 수</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">12</span>
+            <div class="stat-label">부서 수</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">0</span>
+            <div class="stat-label">활성 계정</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">0</span>
+            <div class="stat-label">신규 입사 (이번 달)</div>
+        </div>
+    </div>
+</div>
+
+<!-- 빠른 작업 -->
+<div class="quick-actions">
+    <h3>⚡ 빠른 작업</h3>
+    <div class="action-buttons">
+        <a href="{% url 'employees:employee_create' %}" class="action-btn">
+            <i class="fas fa-user-plus"></i>
+            새 직원 등록
+        </a>
+        <a href="{% url 'employees:employee_bulk_upload' %}" class="action-btn">
+            <i class="fas fa-upload"></i>
+            Excel 일괄 업로드
+        </a>
+        <a href="{% url 'employees:employee_download_template' %}" class="action-btn">
+            <i class="fas fa-download"></i>
+            Excel 템플릿 다운로드
+        </a>
+        <a href="{% url 'employees:organization_chart' %}" class="action-btn">
+            <i class="fas fa-sitemap"></i>
+            조직도 보기
+        </a>
+    </div>
+</div>
+
+<!-- 주요 기능 카드들 -->
+<div class="management-grid">
+    <!-- 직원 목록 -->
+    <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3 class="feature-title">직원 목록 관리</h3>
+        <p class="feature-description">
+            모든 직원의 상세 정보를 확인하고 관리할 수 있습니다. 검색, 필터링, 정렬 기능을 제공합니다.
+        </p>
+        <a href="{% url 'employees:employee_list' %}" class="feature-btn">
+            <i class="fas fa-list"></i>
+            직원 목록 보기
+        </a>
+    </div>
+
+    <!-- 조직도 -->
+    <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <h3 class="feature-title">조직도 관리</h3>
+        <p class="feature-description">
+            회사의 조직 구조를 시각적으로 확인하고 계층별 인력 배치를 관리할 수 있습니다.
+        </p>
+        <a href="{% url 'employees:organization_chart' %}" class="feature-btn">
+            <i class="fas fa-sitemap"></i>
+            조직도 보기
+        </a>
+    </div>
+
+    <!-- 계층별 조직도 -->
+    <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">계층별 분석</h3>
+        <p class="feature-description">
+            직급별, 부서별 인력 현황과 분포를 한눈에 파악할 수 있는 계층형 조직도입니다.
+        </p>
+        <a href="{% url 'employees:hierarchy_organization' %}" class="feature-btn">
+            <i class="fas fa-chart-tree"></i>
+            계층 분석 보기
+        </a>
+    </div>
+
+    <!-- 데이터가 없는 경우 안내 -->
+    <div class="feature-card empty-state">
+        <div class="empty-icon">🚀</div>
+        <h3 class="feature-title">시작하기</h3>
+        <p class="feature-description">
+            아직 등록된 직원 데이터가 없습니다. 첫 번째 직원을 등록하거나 Excel 파일로 일괄 업로드하여 시작해보세요.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'employees:employee_create' %}" class="feature-btn">
+                <i class="fas fa-user-plus"></i>
+                직원 등록
+            </a>
+            <a href="{% url 'employees:employee_bulk_upload' %}" class="feature-btn">
+                <i class="fas fa-upload"></i>
+                Excel 업로드
+            </a>
+        </div>
+    </div>
+
+    <!-- AI 기반 분석 (예정) -->
+    <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3 class="feature-title">AI 인사 분석</h3>
+        <p class="feature-description">
+            AIRISS AI를 통한 직원 성과 예측, 이직 위험도 분석, 승진 가능성 등의 인사 인사이트를 제공합니다.
+        </p>
+        <a href="{% url 'airiss:dashboard' %}" class="feature-btn">
+            <i class="fas fa-brain"></i>
+            AIRISS 분석
+        </a>
+    </div>
+
+    <!-- HR 대시보드 -->
+    <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3 class="feature-title">HR 대시보드</h3>
+        <p class="feature-description">
+            인력 현황, 외주 인력, 월별 동향 등 HR 관련 모든 지표를 종합적으로 관리하는 대시보드입니다.
+        </p>
+        <a href="{% url 'employees:hr_dashboard' %}" class="feature-btn">
+            <i class="fas fa-chart-line"></i>
+            HR 대시보드
+        </a>
+    </div>
+</div>
+
+<!-- 최근 활동 (샘플 데이터) -->
+<div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 20px; padding: 24px; margin-top: 30px;">
+    <h3 style="color: #ffffff; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+        <span>📝</span> 최근 활동
+    </h3>
+    <div style="color: rgba(255, 255, 255, 0.7); text-align: center; padding: 40px;">
+        <div style="font-size: 48px; opacity: 0.3; margin-bottom: 16px;">📋</div>
+        <p>아직 활동 기록이 없습니다.</p>
+        <p style="font-size: 14px; opacity: 0.8;">직원을 등록하고 관리하면 여기에 활동 기록이 표시됩니다.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Employee management dashboard functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add staggered animation to cards
+    const cards = document.querySelectorAll('.feature-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-slideInUp');
+    });
+    
+    // Add click tracking (optional)
+    const featureBtns = document.querySelectorAll('.feature-btn');
+    featureBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            console.log('Feature accessed:', this.textContent.trim());
+        });
+    });
+});
+</script>
+{% endblock %}
