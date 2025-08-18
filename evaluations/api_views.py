@@ -13,12 +13,34 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db import models
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .models import (
     ContributionEvaluation, ExpertiseEvaluation, 
     ImpactEvaluation, Task, Employee
 )
-from .ai_feedback import ai_feedback_generator, ai_feedback_validator
+try:
+    from .ai_feedback import ai_feedback_generator, ai_feedback_validator
+except Exception as e:
+    logger.error(f"AI feedback import failed: {str(e)}")
+    # Fallback 객체 생성
+    class FallbackFeedbackGenerator:
+        def generate_contribution_feedback(self, data):
+            return "AI 피드백 서비스가 일시적으로 사용 불가능합니다. 수동으로 피드백을 작성해주세요."
+        def generate_expertise_feedback(self, data):
+            return "AI 피드백 서비스가 일시적으로 사용 불가능합니다. 수동으로 피드백을 작성해주세요."
+        def generate_impact_feedback(self, data):
+            return "AI 피드백 서비스가 일시적으로 사용 불가능합니다. 수동으로 피드백을 작성해주세요."
+    
+    class FallbackValidator:
+        def validate_feedback(self, feedback):
+            return {'is_valid': True, 'score': 100, 'issues': []}
+    
+    ai_feedback_generator = FallbackFeedbackGenerator()
+    ai_feedback_validator = FallbackValidator()
+
 from notifications.models import Notification
 
 

@@ -12,11 +12,17 @@ logger = logging.getLogger(__name__)
 
 # OpenAI API 설정
 try:
-    import openai
+    from openai import OpenAI
     OPENAI_AVAILABLE = True
-    openai.api_key = settings.OPENAI_API_KEY or os.getenv('OPENAI_API_KEY')
+    api_key = os.getenv('OPENAI_API_KEY')
+    if api_key:
+        client = OpenAI(api_key=api_key)
+    else:
+        client = None
+        logger.warning("OpenAI API 키가 설정되지 않았습니다.")
 except ImportError:
     OPENAI_AVAILABLE = False
+    client = None
     logger.warning("OpenAI 패키지가 설치되지 않았습니다. pip install openai를 실행하세요.")
 
 
@@ -24,9 +30,10 @@ class AIFeedbackGenerator:
     """AI 기반 평가 피드백 생성기"""
     
     def __init__(self):
-        self.model = settings.OPENAI_MODEL if hasattr(settings, 'OPENAI_MODEL') else "gpt-3.5-turbo"
+        self.model = os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo')
         self.max_tokens = 500
         self.temperature = 0.7
+        self.client = client
         
     def generate_contribution_feedback(self, evaluation_data: Dict) -> str:
         """기여도 평가에 대한 AI 피드백 생성"""
@@ -34,16 +41,16 @@ class AIFeedbackGenerator:
         if not OPENAI_AVAILABLE:
             return self._generate_fallback_feedback(evaluation_data, "contribution")
             
-        if not openai.api_key:
-            logger.warning("OpenAI API 키가 설정되지 않았습니다.")
+        if not self.client:
+            logger.warning("OpenAI 클라이언트가 초기화되지 않았습니다.")
             return self._generate_fallback_feedback(evaluation_data, "contribution")
         
         try:
             # 프롬프트 구성
             prompt = self._build_contribution_prompt(evaluation_data)
             
-            # OpenAI API 호출
-            response = openai.ChatCompletion.create(
+            # OpenAI API 호출 (새로운 버전)
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": "당신은 전문적인 HR 평가자입니다. 건설적이고 구체적인 피드백을 한국어로 제공하세요."},
@@ -66,13 +73,13 @@ class AIFeedbackGenerator:
         if not OPENAI_AVAILABLE:
             return self._generate_fallback_feedback(evaluation_data, "expertise")
             
-        if not openai.api_key:
+        if not self.client:
             return self._generate_fallback_feedback(evaluation_data, "expertise")
         
         try:
             prompt = self._build_expertise_prompt(evaluation_data)
             
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": "당신은 전문성 개발 컨설턴트입니다. 역량 개발을 위한 구체적인 조언을 한국어로 제공하세요."},
@@ -94,13 +101,13 @@ class AIFeedbackGenerator:
         if not OPENAI_AVAILABLE:
             return self._generate_fallback_feedback(evaluation_data, "impact")
             
-        if not openai.api_key:
+        if not self.client:
             return self._generate_fallback_feedback(evaluation_data, "impact")
         
         try:
             prompt = self._build_impact_prompt(evaluation_data)
             
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": "당신은 리더십 코치입니다. 영향력과 리더십 향상을 위한 피드백을 한국어로 제공하세요."},
