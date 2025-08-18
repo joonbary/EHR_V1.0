@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 - {{ employee.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .evaluation-card {
+        background: linear-gradient(135deg, white 0%, #FFF4ED 100%);
+        border: 1px solid rgba(255, 107, 0, 0.1);
+    }
+    
+    .scoring-table td {
+        transition: all 0.3s ease;
+    }
+    
+    .scoring-table td:hover {
+        background: rgba(255, 107, 0, 0.05);
+        transform: translateY(-2px);
+    }
+    
+    .task-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+    
+    .task-card:hover {
+        border-left-color: #FF6B00;
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.15);
+    }
+    
+    .score-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .score-4 { background-color: #10B981; color: white; }
+    .score-3 { background-color: #F59E0B; color: white; }
+    .score-2 { background-color: #3B82F6; color: white; }
+    .score-1 { background-color: #6B7280; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-white to-brand-gray/10 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <nav class="flex mb-4" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li><a href="{% url 'evaluations:dashboard' %}" class="text-gray-500 hover:text-primary transition-colors">평가관리</a></li>
+                    <li><span class="mx-2 text-gray-400">/</span></li>
+                    <li><a href="{% url 'evaluations:contribution_employees' %}" class="text-gray-500 hover:text-primary transition-colors">기여도 평가</a></li>
+                    <li><span class="mx-2 text-gray-400">/</span></li>
+                    <li class="text-gray-900 font-medium">{{ employee.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="bg-white rounded-2xl shadow-sm p-6 evaluation-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                            <i class="fas fa-tasks text-primary mr-3"></i>기여도 평가
+                        </h1>
+                        <div class="flex items-center gap-4 text-gray-600">
+                            <span class="flex items-center">
+                                <i class="fas fa-user mr-2"></i>
+                                <strong>{{ employee.name }}</strong> ({{ employee.employee_id }})
+                            </span>
+                            <span class="flex items-center">
+                                <i class="fas fa-building mr-2"></i>
+                                {{ employee.department.name }}
+                            </span>
+                            <span class="flex items-center">
+                                <i class="fas fa-calendar mr-2"></i>
+                                {{ active_period }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        {% if evaluation.total_score %}
+                        <div class="text-sm text-gray-500 mb-1">현재 점수</div>
+                        <div class="text-3xl font-bold text-primary">{{ evaluation.total_score|floatformat:1 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Scoring Guide -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-info-circle text-primary mr-2"></i>평가 기준표
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full scoring-table">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-primary/10 to-accent/10">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">기여범위</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">총괄</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">리딩</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">실무</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">지원</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">전략적</td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-4">4.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-4">4.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-3">3.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-2">2.0</span></td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">상호적</td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-3">3.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-3">3.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-2">2.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-1">1.0</span></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">개별적</td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-2">2.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-2">2.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-1">1.0</span></td>
+                                <td class="px-6 py-4 text-center"><span class="score-badge score-1">1.0</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tasks Section -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-list-check text-primary mr-2"></i>업무 목록
+                    </h2>
+                    <button type="button" id="add-task-btn" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors">
+                        <i class="fas fa-plus mr-2"></i>업무 추가
+                    </button>
+                </div>
+
+                <div id="tasks-container" class="space-y-4">
+                    {% for task in tasks %}
+                    <div class="task-card bg-gray-50 rounded-lg p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="lg:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">업무명</label>
+                                <input type="text" 
+                                       name="task_{{ task.id }}_title" 
+                                       value="{{ task.title }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                                       required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">기여방법</label>
+                                <select name="task_{{ task.id }}_method" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                                    {% for value, label in scoring_info.method_choices %}
+                                    <option value="{{ value }}" {% if task.contribution_method == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">기여범위</label>
+                                <select name="task_{{ task.id }}_scope" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                                    {% for value, label in scoring_info.scope_choices %}
+                                    <option value="{{ value }}" {% if task.contribution_scope == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="lg:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">업무 설명</label>
+                                <textarea name="task_{{ task.id }}_description" 
+                                          rows="2"
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">{{ task.description }}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">가중치 (%)</label>
+                                <input type="number" 
+                                       name="task_{{ task.id }}_weight" 
+                                       value="{{ task.weight }}"
+                                       min="0" max="100" step="5"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                                       required>
+                            </div>
+                        </div>
+                        
+                        {% if task.score %}
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">계산된 점수</span>
+                                <span class="text-lg font-bold text-primary">{{ task.score|floatformat:1 }}점</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-3"></i>
+                        <p>등록된 업무가 없습니다.</p>
+                        <p class="text-sm mt-2">위의 '업무 추가' 버튼을 클릭하여 업무를 추가하세요.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 평가 의견 -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-comment-dots text-primary mr-2"></i>평가 의견
+                </h2>
+                <textarea name="evaluation_comment" 
+                          rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                          placeholder="평가 의견을 입력하세요...">{{ evaluation.comment }}</textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between items-center bg-white rounded-xl shadow-sm p-6">
+                <a href="{% url 'evaluations:contribution_employees' %}" 
+                   class="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>목록으로
+                </a>
+                <div class="space-x-3">
+                    <button type="submit" name="action" value="save" 
+                            class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors">
+                        <i class="fas fa-save mr-2"></i>저장
+                    </button>
+                    <button type="submit" name="action" value="submit" 
+                            class="inline-flex items-center px-6 py-3 bg-status-success text-white rounded-lg hover:opacity-90 transition-opacity">
+                        <i class="fas fa-check mr-2"></i>평가 완료
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add task functionality
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const tasksContainer = document.getElementById('tasks-container');
+    let taskCount = {{ tasks.count|default:0 }};
+    
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', function() {
+            taskCount++;
+            const newTaskHtml = `
+                <div class="task-card bg-gray-50 rounded-lg p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="lg:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">업무명</label>
+                            <input type="text" 
+                                   name="new_task_${taskCount}_title" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                                   required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">기여방법</label>
+                            <select name="new_task_${taskCount}_method" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                                <option value="총괄">총괄</option>
+                                <option value="리딩">리딩</option>
+                                <option value="실무" selected>실무</option>
+                                <option value="지원">지원</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">기여범위</label>
+                            <select name="new_task_${taskCount}_scope" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                                <option value="전략적">전략적</option>
+                                <option value="상호적" selected>상호적</option>
+                                <option value="개별적">개별적</option>
+                            </select>
+                        </div>
+                        <div class="lg:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">업무 설명</label>
+                            <textarea name="new_task_${taskCount}_description" 
+                                      rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">가중치 (%)</label>
+                            <input type="number" 
+                                   name="new_task_${taskCount}_weight" 
+                                   value="20"
+                                   min="0" max="100" step="5"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                                   required>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove empty message if exists
+            const emptyMessage = tasksContainer.querySelector('.text-center');
+            if (emptyMessage) {
+                emptyMessage.remove();
+            }
+            
+            tasksContainer.insertAdjacentHTML('beforeend', newTaskHtml);
+        });
+    }
+});
+</script>
+{% endblock %}

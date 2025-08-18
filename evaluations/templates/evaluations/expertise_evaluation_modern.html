@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}전문성 평가 - {{ employee.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .evaluation-card {
+        background: linear-gradient(135deg, white 0%, #FFF4ED 100%);
+        border: 1px solid rgba(255, 107, 0, 0.1);
+    }
+    
+    .checklist-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+    
+    .checklist-item:hover {
+        border-left-color: #FF6B00;
+        background: rgba(255, 107, 0, 0.02);
+    }
+    
+    .radio-option {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .radio-option:hover {
+        transform: scale(1.1);
+    }
+    
+    input[type="radio"]:checked + label {
+        color: #FF6B00;
+        font-weight: 600;
+    }
+    
+    .category-header {
+        background: linear-gradient(90deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 170, 0, 0.1) 100%);
+        border-left: 4px solid #FF6B00;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-white to-brand-gray/10 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <nav class="flex mb-4" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li><a href="{% url 'evaluations:dashboard' %}" class="text-gray-500 hover:text-primary transition-colors">평가관리</a></li>
+                    <li><span class="mx-2 text-gray-400">/</span></li>
+                    <li><a href="{% url 'evaluations:expertise_employees' %}" class="text-gray-500 hover:text-primary transition-colors">전문성 평가</a></li>
+                    <li><span class="mx-2 text-gray-400">/</span></li>
+                    <li class="text-gray-900 font-medium">{{ employee.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="bg-white rounded-2xl shadow-sm p-6 evaluation-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                            <i class="fas fa-chart-line text-primary mr-3"></i>전문성 평가
+                        </h1>
+                        <div class="flex items-center gap-4 text-gray-600">
+                            <span class="flex items-center">
+                                <i class="fas fa-user mr-2"></i>
+                                <strong>{{ employee.name }}</strong> ({{ employee.employee_id }})
+                            </span>
+                            <span class="flex items-center">
+                                <i class="fas fa-building mr-2"></i>
+                                {{ employee.department.name }}
+                            </span>
+                            <span class="flex items-center">
+                                <i class="fas fa-calendar mr-2"></i>
+                                {{ active_period }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-500 mb-1">요구 레벨</div>
+                        <div class="text-2xl font-bold text-primary">Lv.{{ evaluation.required_level }}</div>
+                        {% if evaluation.total_score %}
+                        <div class="text-sm text-gray-500 mt-2">현재 점수</div>
+                        <div class="text-xl font-bold text-gray-700">{{ evaluation.total_score|floatformat:1 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- 평가 기준 안내 -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-info-circle text-primary mr-2"></i>평가 기준
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="text-center p-4 bg-red-50 rounded-lg">
+                        <div class="text-2xl font-bold text-red-600 mb-2">1</div>
+                        <div class="text-sm text-gray-700">기대 수준 미달</div>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <div class="text-2xl font-bold text-yellow-600 mb-2">2</div>
+                        <div class="text-sm text-gray-700">기대 수준 충족</div>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600 mb-2">3</div>
+                        <div class="text-sm text-gray-700">기대 수준 초과</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600 mb-2">4</div>
+                        <div class="text-sm text-gray-700">탁월한 수준</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 체크리스트 항목들 -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                    <i class="fas fa-list-check text-primary mr-2"></i>전문성 체크리스트
+                </h2>
+                
+                <!-- 창의적 문제해결 -->
+                <div class="space-y-6">
+                    <!-- 카테고리 1: 혁신과 개선 -->
+                    <div>
+                        <div class="category-header px-4 py-2 rounded-lg mb-4">
+                            <h3 class="font-semibold text-gray-800">혁신과 개선</h3>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">창의적 해결책 제시</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="creative_solution_{{ i }}" name="creative_solution" value="{{ i }}" 
+                                                   {% if evaluation.creative_solution == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="creative_solution_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">복잡한 문제에 대해 창의적이고 혁신적인 해결책을 제시</p>
+                            </div>
+
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">기술적 혁신</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="technical_innovation_{{ i }}" name="technical_innovation" value="{{ i }}" 
+                                                   {% if evaluation.technical_innovation == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="technical_innovation_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">새로운 기술이나 방법론을 도입하여 업무 효율성 향상</p>
+                            </div>
+
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">프로세스 개선</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="process_improvement_{{ i }}" name="process_improvement" value="{{ i }}" 
+                                                   {% if evaluation.process_improvement == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="process_improvement_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">기존 프로세스를 분석하고 개선하여 생산성 증대</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 카테고리 2: 지식 공유와 협업 -->
+                    <div>
+                        <div class="category-header px-4 py-2 rounded-lg mb-4">
+                            <h3 class="font-semibold text-gray-800">지식 공유와 협업</h3>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">지식 공유</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="knowledge_sharing_{{ i }}" name="knowledge_sharing" value="{{ i }}" 
+                                                   {% if evaluation.knowledge_sharing == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="knowledge_sharing_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">전문 지식을 체계적으로 정리하여 팀원들과 공유</p>
+                            </div>
+
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">멘토링</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="mentoring_{{ i }}" name="mentoring" value="{{ i }}" 
+                                                   {% if evaluation.mentoring == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="mentoring_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">후배 직원들의 성장을 위한 멘토링 제공</p>
+                            </div>
+
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">다기능 협업</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="cross_functional_{{ i }}" name="cross_functional" value="{{ i }}" 
+                                                   {% if evaluation.cross_functional == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="cross_functional_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">타 부서와의 협업을 통한 시너지 창출</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 카테고리 3: 전략적 사고 -->
+                    <div>
+                        <div class="category-header px-4 py-2 rounded-lg mb-4">
+                            <h3 class="font-semibold text-gray-800">전략적 사고</h3>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">전략적 사고</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="strategic_thinking_{{ i }}" name="strategic_thinking" value="{{ i }}" 
+                                                   {% if evaluation.strategic_thinking == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="strategic_thinking_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">장기적 관점에서 전략적 의사결정 지원</p>
+                            </div>
+
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">비즈니스 감각</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="business_acumen_{{ i }}" name="business_acumen" value="{{ i }}" 
+                                                   {% if evaluation.business_acumen == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="business_acumen_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">비즈니스 목표와 연계된 기술적 솔루션 제시</p>
+                            </div>
+
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">업계 트렌드</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="industry_trend_{{ i }}" name="industry_trend" value="{{ i }}" 
+                                                   {% if evaluation.industry_trend == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="industry_trend_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">업계 트렌드를 파악하고 조직에 적용</p>
+                            </div>
+
+                            <div class="checklist-item p-4 rounded-lg bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="font-medium text-gray-700">지속적 학습</label>
+                                    <div class="flex items-center gap-4">
+                                        {% for i in "1234"|make_list %}
+                                        <div class="radio-option">
+                                            <input type="radio" id="continuous_learning_{{ i }}" name="continuous_learning" value="{{ i }}" 
+                                                   {% if evaluation.continuous_learning == i|add:0 %}checked{% endif %}
+                                                   class="sr-only peer">
+                                            <label for="continuous_learning_{{ i }}" class="cursor-pointer px-3 py-1 rounded-full border-2 border-gray-300 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">{{ i }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">새로운 지식과 기술을 지속적으로 학습하고 적용</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 평가 의견 -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-comment-dots text-primary mr-2"></i>평가 의견
+                </h2>
+                <textarea name="evaluation_comment" 
+                          rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                          placeholder="평가 의견을 입력하세요...">{{ evaluation.comment }}</textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between items-center bg-white rounded-xl shadow-sm p-6">
+                <a href="{% url 'evaluations:expertise_employees' %}" 
+                   class="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>목록으로
+                </a>
+                <div class="space-x-3">
+                    <button type="submit" name="action" value="save" 
+                            class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors">
+                        <i class="fas fa-save mr-2"></i>저장
+                    </button>
+                    <button type="submit" name="action" value="submit" 
+                            class="inline-flex items-center px-6 py-3 bg-status-success text-white rounded-lg hover:opacity-90 transition-opacity">
+                        <i class="fas fa-check mr-2"></i>평가 완료
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

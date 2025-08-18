@@ -1,0 +1,158 @@
+/sc:workflow "조직도 조회·커스터마이저 구현 (/organization/chart)" \
+  -persona-frontend -persona-backend -persona-architect -persona-qa \
+  -plan -seq -magic -c7 -validate -safe-mode
+
+# ===================================================================
+# 0) 전제: 프로젝트 구조 사용
+# - 백엔드: FastAPI + SQLAlchemy + Alembic + PostgreSQL
+#   backend/app/{models,schemas,routers,services}/...
+# - 프론트엔드: React + Tailwind + shadcn/ui
+#   frontend/src/{pages,components,lib}/...
+# - 공통: .env에 DB_URL, API_BASE_URL 존재
+# ===================================================================
+
+/sc:design "도메인 모델·API 스펙(조직도) 설계" -persona-architect -seq
+- ERD
+  OrgUnit(id PK, company, name, function, reports_to NULL FK->OrgUnit.id,
+          headcount, leader_title, leader_rank, leader_name, leader_age,
+          members JSONB[ {grade, count} ])
+  OrgScenario(scenario_id UUID PK, name, author, created_at, payload JSONB)
+- 인덱스: org_units(company), org_units(reports_to), org_scenarios(created_at)
+- Pydantic
+  MemberCount{grade:str,count:int}, Leader{title,rank,name,age:int}
+  OrgUnit{id,company,name,function,reportsTo?:str|null,headcount:int,leader:Leader,members:MemberCount[]}
+  OrgScenario{name,author,payload:OrgUnit[]}
+- API (FastAPI, /api/org)
+  GET  /units?company=&q= → OrgUnit[] (필터: company, q=조직/리더/기능 포괄검색)
+  GET  /units/tree?company= → 트리 구조(루트노드들 + children)
+  GET  /group/matrix → 기능(function) x 실질리더(rank+name) 매트릭스 요약
+  POST /simulate/scenario → 시나리오 저장
+  GET  /simulate/scenario/{id} → 시나리오 로드
+  POST /simulate/diff → 스냅샷 A/B diff [{type,message}]
+  POST /whatif/reassign → {unitId,newReportsTo} 적용 후 스냅샷 반환
+  POST /io/import → 엑셀 업로드(스키마 템플릿 검증 후 upsert)
+  GET  /io/export → 현 스냅샷 엑셀 다운로드(streaming)
+/sc:implement "Alembic 마이그레이션 생성(org_units, org_scenarios)" -persona-backend -plan
+- NOT NULL 제약 확인, members JSONB 기본값 '[]'
+- 보고체계 무결성: reports_to는 존재하는 id만 허용(ON DELETE SET NULL)
+
+# ===================================================================
+# 1) 백엔드 구현 (FastAPI)
+/sc:implement "조직도 라우터 구현 (backend/app/routers/organization.py)" -persona-backend -seq
+- 의존: services/organization_service.py, models/organization.py, schemas/organization.py
+- 캐싱: Redis(optional) 키 = org:units:{hash(company,q)} TTL 300s
+- 검색: ILIKE('%q%') on name, leader_name, leader_rank, function
+- 매트릭스: SELECT function, leader_rank||' '||leader_name AS leader, SUM(headcount)
+- Diff 규칙: 신규, 삭제, 보고체계 변경, headcount 변경
+- 엑셀 I/O: pandas(openpyxl)로 처리, 컬럼 템플릿 검증(id,company,name,function,reports_to,leader_*,members_json,headcount)
+/sc:test "조직도 API 유닛·통합 테스트 (pytest)" -persona-qa -plan
+- GET /units 필터 조합 테스트
+- what-if 재배치(부모 변경) 이후 트리 무한루프 방지
+- 엑셀 round-trip(Export→Import) 동일성 검증
+
+# ===================================================================
+# 2) 프론트엔드 구현 (React)
+/sc:design "조직도 UI/UX 와이어프레임 & 컴포넌트 구조" -persona-frontend -magic -plan
+- 페이지: frontend/src/pages/organization/chart.tsx
+- 구성:
+  (좌) 필터패널: 회사 Select, 검색 Input, 샌드박스 토글, 스냅샷 A/B 저장, 비교 Dialog, 고급필터, 엑셀 I/O
+  (우) 워크벤치 Tabs: Tree(React Flow) / Matrix(Grid)
+- 노드 카드: 조직명, [회사 배지], 기능, 리더(직책·직급·성명·나이), 구성요약(차장3, 대리4), 총원
+- DnD:
+  - 좌측 리스트 정렬(dnd-kit) → 가상 개편 시 순서/그룹 확인
+  - 트리에서 부모 노드로 드롭 → reportsTo 변경 API 호출
+- 스냅샷:
+  - 로컬상태 A/B 저장, 서버 시나리오로도 저장 가능
+  - 비교: 보고체계/인원/신규/삭제 하이라이트
+- 매트릭스:
+  - 행=function, 열=실질리더(rank+name), 값=헤드카운트 배지
+  - 셀 클릭 → 해당 교차 조직 리스트 팝오버
+/sc:implement "조직도 화면 구현(chart.tsx + components)" -persona-frontend -seq -magic
+- 파일:
+  frontend/src/pages/organization/chart.tsx                 # 페이지 엔트리
+  frontend/src/components/org/OrgTree.tsx                  # React Flow 트리
+  frontend/src/components/org/OrgMatrix.tsx                # 매트릭스 표
+  frontend/src/components/org/OrgNodeCard.tsx              # 노드 카드
+  frontend/src/components/org/OrgSidebar.tsx               # 좌측 패널(필터/스냅샷/엑셀)
+  frontend/src/lib/orgApi.ts                                # fetch 래퍼
+- 라이브러리:
+  reactflow, @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities, lucide-react
+- 상태:
+  company='ALL', q, sandbox=true, snapshotA,B, units[], treeData, matrixData
+- 성능:
+  - 대량 노드: React Flow fitView, nodeExtent, viewport throttle
+  - Lazy render(가시 범위 우선), 가상 스크롤(Matrix)
+/sc:improve "UX 개선" -persona-frontend -performance
+- Hover 툴팁(조직 상세), 키보드 탐색, 반응형 레이아웃(≥1280, 1024~1279, ≤1023)
+- 접근성: role, aria-label, 포커스 링
+
+# ===================================================================
+# 3) 데이터 계약(프론트-백엔드)
+/sc:document "조직도 데이터 계약(JSON)" -persona-scribe
+- OrgUnit 예시
+{
+  "id":"oksb-hr",
+  "company":"OK저축은행",
+  "name":"인사부",
+  "function":"HR",
+  "reportsTo":"oksb-hq",
+  "headcount":8,
+  "leader":{"title":"부장","rank":"부장","name":"박준형","age":46},
+  "members":[{"grade":"차장","count":2},{"grade":"대리","count":5}]
+}
+- 트리 응답
+[{ id, data:OrgUnit, children:[...] }]
+- 매트릭스 응답
+{ headers:["부장 박준형",...], rows:[ {function:"HR", cells:[{leader:"부장 박준형", headcount:8}, ...]} ] }
+
+# ===================================================================
+# 4) 가상 개편(What-if) & 스냅샷
+/sc:implement "What-if 재배치 규칙 및 가드" -persona-backend -seq -validate
+- 제약: 사이클 금지, 동일 유닛 자기 하위로 이동 금지, 최대 뎁스 제한(예: 8)
+- 정책 옵션: 팀 최소/최대 인원(예: 5~12), 동일 기능 내 리더 커버 한도
+- /whatif/reassign: 검증 후 적용 스냅샷 반환
+/sc:implement "스냅샷 A/B 비교 로직" -persona-backend -seq
+- 메시지 포맷: 
+  - "인사부 보고체계 변경: oksb-hq → (최상위)"
+  - "인사부 인원: 8 → 10"
+  - "okcap-risk: (신규)" / "(삭제)"
+
+/sc:implement "시나리오 저장·불러오기 UI" -persona-frontend
+- 좌측 패널에 '시나리오 저장/불러오기' 버튼, 서버 시나리오 목록 모달
+
+# ===================================================================
+# 5) 엑셀 업/다운로드
+/sc:implement "엑셀 템플릿 & 라운드트립" -persona-backend -safe-mode
+- 템플릿 컬럼: id,company,name,function,reports_to,leader_title,leader_rank,leader_name,leader_age,headcount,members_json
+- Import: 필수컬럼 검증, id 중복/존재 판정으로 upsert, FK(reports_to) 사전 확인
+- Export: 현재 필터/스냅샷 기준으로 다운로드
+/sc:implement "프론트 엑셀 I/O 버튼 연결" -persona-frontend
+- 좌측 패널: [엑셀 업로드] (input[type=file]) → /io/import
+              [엑셀 다운로드] → /io/export
+
+# ===================================================================
+# 6) 보안·감사·권한
+/sc:analyze "권한/감사로그/PII 점검" -persona-security -safe-mode
+- 역할: HR관리자=편집/시나리오 저장 가능, 일반사용자=조회 전용
+- 감사로그: diff 실행, import/export, what-if 적용, 시나리오 저장 시 기록
+- 개인정보: 리더 나이 등 최소노출(툴팁/상세만), 응답 필드 마스킹 옵션
+
+# ===================================================================
+# 7) 테스트·E2E·성능
+/sc:test "프론트 단위 테스트(UI 상태전이, 매트릭스 집계 정확도)" -persona-qa
+/sc:test "백엔드 부하테스트(/units, /matrix, /io/export)" -persona-qa
+/sc:troubleshoot "트리 DnD 후 엣지 업데이트 불일치 디버깅" -persona-analyzer -seq
+/sc:play "E2E 시나리오 (필터→검색→트리 DnD→스냅샷 저장→비교→엑셀 Export)" -persona-qa -play
+
+# ===================================================================
+# 8) 배치·완료 기준(DoD)
+/sc:estimate "완료 기준 & 리스크" -plan -validate
+- DoD
+  1) /organization/chart 접속 시 2초 내 초기 렌더(500 유닛 기준)
+  2) 트리 DnD로 보고체계 변경 → 즉시 UI 반영 & 서버 동기화
+  3) 스냅샷 A/B 비교 메시지 최소 4종(신규/삭제/보고/인원) 동작
+  4) 매트릭스 합계 = 트리 합계 ±1명 오차 이내(테스트 통과)
+  5) 엑셀 임포트 템플릿 검증 및 실패 사유 사용자 메시지
+- 주요 리스크
+  - 대규모 노드 렌더링 지연 → 가상화/클러스터링 적용
+  - 순환 보고체계 유입 → 서버 검증과 클라이언트 가드 동시 적용

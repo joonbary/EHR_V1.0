@@ -383,7 +383,7 @@ def contribution_evaluation(request, employee_id):
         'scoring_info': scoring_info,
     }
     
-    return render(request, 'evaluations/contribution_evaluation.html', context)
+    return render(request, 'evaluations/contribution_evaluation_modern.html', context)
 
 
 def expertise_evaluation(request, employee_id):
@@ -452,7 +452,7 @@ def expertise_evaluation(request, employee_id):
         'scoring_chart': EXPERTISE_SCORING_CHART,
     }
     
-    return render(request, 'evaluations/expertise_evaluation.html', context)
+    return render(request, 'evaluations/expertise_evaluation_modern.html', context)
 
 
 def impact_evaluation(request, employee_id):
@@ -506,7 +506,7 @@ def impact_evaluation(request, employee_id):
         'scoring_chart': IMPACT_SCORING_CHART,
     }
     
-    return render(request, 'evaluations/impact_evaluation.html', context)
+    return render(request, 'evaluations/impact_evaluation_modern.html', context)
 
 
 @csrf_exempt

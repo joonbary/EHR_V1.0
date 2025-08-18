@@ -53,7 +53,8 @@
       "Bash(python manage.py makemigrations:*)",
       "Bash(python:*)",
       "Bash(for dir in ai_*)",
-      "Bash(done)"
+      "Bash(done)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }

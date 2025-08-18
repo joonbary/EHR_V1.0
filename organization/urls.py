@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = 'organization'
@@ -28,7 +28,10 @@ urlpatterns = [
     # 팀 배치
     path('assignments/', views.team_assignment_list, name='team_assignment_list'),
     
-    # API
+    # Enhanced Organization API
+    path('api/org/', include('organization.api_urls')),
+    
+    # Legacy API
     path('api/departments/<uuid:department_id>/employees/', views.api_department_employees, name='api_department_employees'),
     path('api/organization-tree/', views.api_organization_tree, name='api_organization_tree'),
 ]
