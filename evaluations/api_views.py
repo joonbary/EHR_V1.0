@@ -99,8 +99,8 @@ def generate_ai_feedback(request):
                 'department': evaluation.employee.department,
                 'position': evaluation.employee.position,
                 'contribution_score': float(evaluation.contribution_score or 0),
-                'completed_tasks': tasks.filter(status='completed').count(),
-                'achievement_rate': evaluation.achievement_rate or 0,
+                'completed_tasks': tasks.filter(status='COMPLETED').count(),
+                'achievement_rate': float(evaluation.total_achievement_rate or 0),
                 'tasks': [
                     {
                         'title': task.title,
@@ -117,13 +117,12 @@ def generate_ai_feedback(request):
             
             evaluation_data = {
                 'employee_name': evaluation.employee.name,
-                'expertise_score': float(evaluation.expertise_score or 0),
+                'expertise_score': float(getattr(evaluation, 'expertise_score', 3.0)),
                 'strengths': ['전문 지식', '문제 해결'],  # 실제 데이터로 교체 필요
                 'improvements': ['커뮤니케이션', '리더십'],
                 'checklist': {
-                    '업무 전문성': evaluation.job_expertise,
-                    '문제 해결': evaluation.problem_solving,
-                    '혁신성': evaluation.innovation,
+                    '요구 레벨': evaluation.required_level,
+                    '전문성 초점': evaluation.expertise_focus,
                 }
             }
             
@@ -134,12 +133,12 @@ def generate_ai_feedback(request):
             
             evaluation_data = {
                 'employee_name': evaluation.employee.name,
-                'impact_score': float(evaluation.impact_score or 0),
-                'leadership_style': '협력적',  # 실제 데이터로 교체
-                'value_practice': 85,
-                'team_impact': 4,
-                'org_impact': 3,
-                'external_impact': 2,
+                'impact_score': float(getattr(evaluation, 'impact_score', 3.0)),
+                'leadership_style': getattr(evaluation, 'leadership_style', '협력적'),
+                'value_practice': float(getattr(evaluation, 'value_practice_score', 85)),
+                'team_impact': float(getattr(evaluation, 'team_impact', 4)),
+                'org_impact': float(getattr(evaluation, 'org_impact', 3)),
+                'external_impact': float(getattr(evaluation, 'external_impact', 2)),
             }
             
             feedback = ai_feedback_generator.generate_impact_feedback(evaluation_data)
