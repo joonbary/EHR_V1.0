@@ -56,7 +56,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-value">
-                        {{ employees|dictsort:"status"|first.status|default:"0" }}
+                        {{ completed_count|default:"0" }}
                     </div>
                     <div class="stat-label">완료</div>
                 </div>
@@ -69,7 +69,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-value">
-                        {{ employees|dictsort:"status"|last.status|default:"0" }}
+                        {{ in_progress_count|default:"0" }}
                     </div>
                     <div class="stat-label">진행중</div>
                 </div>
@@ -82,7 +82,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-value">
-                        {{ employees|length }}
+                        {{ not_started_count|default:"0" }}
                     </div>
                     <div class="stat-label">미시작</div>
                 </div>

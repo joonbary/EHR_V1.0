@@ -74,9 +74,18 @@ def contribution_list(request):
             'status': status
         })
     
+    # 완료된 평가 수 계산
+    completed_count = sum(1 for emp in employee_data if emp['status'] == 'completed')
+    in_progress_count = sum(1 for emp in employee_data if emp['status'] == 'in_progress')
+    not_started_count = sum(1 for emp in employee_data if emp['status'] == 'not_started')
+    
     context = {
         'active_period': active_period,
         'employees': employee_data,
+        'completed_count': completed_count,
+        'in_progress_count': in_progress_count,
+        'not_started_count': not_started_count,
+        'total_count': len(employee_data),
     }
     
     return render(request, 'evaluations/contribution_list_revolutionary.html', context)
