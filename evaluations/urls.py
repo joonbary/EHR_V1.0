@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from . import views_advanced
+from . import api_views
 from core.views import under_construction
 
 app_name = 'evaluations'
@@ -101,9 +102,9 @@ urlpatterns = [
         path('calculate-score/', views.calculate_score_ajax, name='calculate_score_ajax'),
         path('process/<int:period_id>/', views_advanced.ProcessEvaluationView.as_view(), name='process_evaluation'),
         # AI 피드백 및 분석 API
-        path('generate-feedback/', 'evaluations.api_views.generate_ai_feedback', name='generate_ai_feedback'),
-        path('employee/<int:employee_id>/summary/', 'evaluations.api_views.get_evaluation_summary', name='evaluation_summary'),
-        path('create-notification/', 'evaluations.api_views.create_evaluation_notification', name='create_notification'),
-        path('analytics/', 'evaluations.api_views.get_evaluation_analytics', name='evaluation_analytics_data'),
+        path('generate-feedback/', api_views.generate_ai_feedback, name='generate_ai_feedback'),
+        path('employee/<int:employee_id>/summary/', api_views.get_evaluation_summary, name='evaluation_summary'),
+        path('create-notification/', api_views.create_evaluation_notification, name='create_notification'),
+        path('analytics/', api_views.get_evaluation_analytics, name='evaluation_analytics_data'),
     ])),
 ] 
