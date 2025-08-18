@@ -220,17 +220,8 @@ def organization_chart(request):
         'total_employees': Employee.objects.filter(employment_status='재직').count(),
     }
     
-    # 디버깅: 어떤 템플릿이 사용되는지 확인
-    import os
-    from django.template.loader import get_template
-    template = get_template('organization/organization_chart.html')
-    print(f"[DEBUG] Template file: {template.origin.name}")
-    if os.path.exists(template.origin.name):
-        with open(template.origin.name, 'r', encoding='utf-8') as f:
-            first_line = f.readline().strip()
-            print(f"[DEBUG] First line of template: {first_line}")
-    
-    return render(request, 'organization/organization_chart.html', context)
+    # Revolutionary 템플릿 강제 사용
+    return render(request, 'organization/organization_chart_revolutionary.html', context)
 
 
 def transfer_list(request):
