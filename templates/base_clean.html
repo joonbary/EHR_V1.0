@@ -1,0 +1,464 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OK금융그룹 e-HR System{% endblock %}</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="OK금융그룹 통합 인사관리 시스템">
+    <meta name="keywords" content="HR, 인사관리, OK금융그룹">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- OK Financial Group Brand CSS -->
+    <style>
+        :root {
+            --primary-color: #FF6B00;
+            --primary-hover: #E55A00;
+            --primary-light: #FFF4ED;
+            --primary-lighter: #FFEDE5;
+            --primary-dark: #CC5500;
+            
+            --accent-color: #FFAA00;
+            --accent-hover: #E69900;
+            --accent-light: #FFF8E6;
+            
+            --brand-brown: #55474A;
+            --brand-gray: #6B7280;
+            --brand-light-gray: #F3F4F6;
+            
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --error-color: #EF4444;
+            --info-color: #3B82F6;
+            
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --text-muted: #9CA3AF;
+            
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F9FAFB;
+            --bg-tertiary: #F3F4F6;
+            
+            --border-color: #E5E7EB;
+            --border-light: #F3F4F6;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        
+        h1 { font-size: 2.25rem; }
+        h2 { font-size: 1.875rem; }
+        h3 { font-size: 1.5rem; }
+        h4 { font-size: 1.25rem; }
+        h5 { font-size: 1.125rem; }
+        h6 { font-size: 1rem; }
+        
+        p {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            font-weight: 500;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .btn-primary {
+            color: #fff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            color: #fff;
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            text-decoration: none;
+        }
+        
+        .btn-secondary {
+            color: #fff;
+            background-color: var(--brand-gray);
+            border-color: var(--brand-gray);
+        }
+        
+        .btn-secondary:hover {
+            color: #fff;
+            background-color: #4B5563;
+            border-color: #4B5563;
+            text-decoration: none;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+        }
+        
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.125rem;
+            border-radius: 0.5rem;
+        }
+        
+        /* Cards */
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: var(--bg-primary);
+            background-clip: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .card-header {
+            padding: 1rem;
+            margin-bottom: 0;
+            background-color: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            border-top-left-radius: calc(0.5rem - 1px);
+            border-top-right-radius: calc(0.5rem - 1px);
+        }
+        
+        .card-body {
+            flex: 1 1 auto;
+            padding: 1rem;
+        }
+        
+        .card-title {
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        /* Forms */
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            background-image: none;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-control:focus {
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            border-color: var(--primary-color);
+            outline: 0;
+            box-shadow: 0 0 0 0.125rem rgba(255, 107, 0, 0.25);
+        }
+        
+        .form-label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        /* Utilities */
+        .container {
+            width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        
+        @media (min-width: 576px) {
+            .container { max-width: 540px; }
+        }
+        
+        @media (min-width: 768px) {
+            .container { max-width: 720px; }
+        }
+        
+        @media (min-width: 992px) {
+            .container { max-width: 960px; }
+        }
+        
+        @media (min-width: 1200px) {
+            .container { max-width: 1140px; }
+        }
+        
+        .container-fluid {
+            width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        
+        /* Text utilities */
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        
+        .text-primary { color: var(--primary-color); }
+        .text-secondary { color: var(--text-secondary); }
+        .text-muted { color: var(--text-muted); }
+        .text-success { color: var(--success-color); }
+        .text-warning { color: var(--warning-color); }
+        .text-danger { color: var(--error-color); }
+        
+        /* Spacing utilities */
+        .m-0 { margin: 0; }
+        .m-1 { margin: 0.25rem; }
+        .m-2 { margin: 0.5rem; }
+        .m-3 { margin: 1rem; }
+        .m-4 { margin: 1.5rem; }
+        .m-5 { margin: 3rem; }
+        
+        .mb-0 { margin-bottom: 0; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .mb-5 { margin-bottom: 3rem; }
+        
+        .mt-0 { margin-top: 0; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 1rem; }
+        .mt-4 { margin-top: 1.5rem; }
+        .mt-5 { margin-top: 3rem; }
+        
+        .p-0 { padding: 0; }
+        .p-1 { padding: 0.25rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 1rem; }
+        .p-4 { padding: 1.5rem; }
+        .p-5 { padding: 3rem; }
+        
+        /* Display utilities */
+        .d-none { display: none; }
+        .d-inline { display: inline; }
+        .d-inline-block { display: inline-block; }
+        .d-block { display: block; }
+        .d-flex { display: flex; }
+        .d-grid { display: grid; }
+        
+        /* Flex utilities */
+        .justify-content-start { justify-content: flex-start; }
+        .justify-content-end { justify-content: flex-end; }
+        .justify-content-center { justify-content: center; }
+        .justify-content-between { justify-content: space-between; }
+        .justify-content-around { justify-content: space-around; }
+        
+        .align-items-start { align-items: flex-start; }
+        .align-items-end { align-items: flex-end; }
+        .align-items-center { align-items: center; }
+        .align-items-baseline { align-items: baseline; }
+        .align-items-stretch { align-items: stretch; }
+        
+        /* Grid utilities */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -15px;
+            margin-left: -15px;
+        }
+        
+        .col, .col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
+        .col-7, .col-8, .col-9, .col-10, .col-11, .col-12,
+        .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6,
+        .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
+            position: relative;
+            width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+        
+        .col { flex: 1 0 0%; }
+        .col-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+        .col-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+        .col-3 { flex: 0 0 25%; max-width: 25%; }
+        .col-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+        .col-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+        .col-6 { flex: 0 0 50%; max-width: 50%; }
+        .col-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+        .col-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+        .col-9 { flex: 0 0 75%; max-width: 75%; }
+        .col-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+        .col-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+        .col-12 { flex: 0 0 100%; max-width: 100%; }
+        
+        /* Responsive columns for medium screens and up */
+        @media (min-width: 768px) {
+            .col-md-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+            .col-md-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+            .col-md-3 { flex: 0 0 25%; max-width: 25%; }
+            .col-md-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+            .col-md-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+            .col-md-6 { flex: 0 0 50%; max-width: 50%; }
+            .col-md-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+            .col-md-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+            .col-md-9 { flex: 0 0 75%; max-width: 75%; }
+            .col-md-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+            .col-md-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+            .col-md-12 { flex: 0 0 100%; max-width: 100%; }
+        }
+        
+        /* Alert components */
+        .alert {
+            position: relative;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.375rem;
+        }
+        
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
+        /* Table utilities */
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            vertical-align: top;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+        }
+        
+        .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+    </style>
+    
+    <!-- Extra CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- JavaScript -->
+    <script>
+        // Common utility functions
+        window.showAlert = function(message, type = 'info') {
+            const alertClass = `alert-${type}`;
+            const alert = document.createElement('div');
+            alert.className = `alert ${alertClass}`;
+            alert.textContent = message;
+            
+            // Insert at top of main content
+            const main = document.querySelector('main');
+            main.insertBefore(alert, main.firstChild);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        };
+        
+        // Form validation helper
+        window.validateForm = function(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+            
+            return isValid;
+        };
+    </script>
+    
+    <!-- Extra JS -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

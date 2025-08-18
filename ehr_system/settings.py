@@ -201,8 +201,13 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-# WhiteNoise 설정
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WhiteNoise 설정 - 캐싱 문제 해결을 위해 압축 비활성화
+if os.getenv('RAILWAY_ENVIRONMENT'):
+    # Railway 환경에서는 캐싱 문제 해결을 위해 간단한 설정 사용
+    STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+else:
+    # 로컬 환경에서는 압축 사용
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = "/media/"

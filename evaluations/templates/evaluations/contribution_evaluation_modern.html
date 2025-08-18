@@ -1,52 +1,238 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}기여도 평가 - {{ employee.name }}{% endblock %}
+{% block title %}기여도 평가 - {{ employee.name }} | OK금융그룹{% endblock %}
 
 {% block extra_css %}
 <style>
-    .evaluation-card {
-        background: linear-gradient(135deg, white 0%, #FFF4ED 100%);
-        border: 1px solid rgba(255, 107, 0, 0.1);
+    * {
+        box-sizing: border-box;
     }
     
-    .scoring-table td {
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+    
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .evaluation-header {
+        background: linear-gradient(135deg, #FF6B00 0%, #E55A00 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(255, 107, 0, 0.2);
+    }
+    
+    .evaluation-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .evaluation-header .subtitle {
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+    
+    .card-modern {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
         transition: all 0.3s ease;
     }
     
-    .scoring-table td:hover {
-        background: rgba(255, 107, 0, 0.05);
+    .card-modern:hover {
         transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     }
     
-    .task-card {
+    .card-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .card-header h3 {
+        margin: 0;
+        color: #1a202c;
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .task-item {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
     }
     
-    .task-card:hover {
+    .task-item:hover {
         border-left-color: #FF6B00;
-        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.15);
+        background: #fff;
+        transform: translateX(4px);
+        box-shadow: 0 4px 15px rgba(255, 107, 0, 0.1);
     }
     
-    .score-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-label {
+        display: block;
         font-weight: 600;
-        font-size: 0.875rem;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
     }
     
-    .score-4 { background-color: #10B981; color: white; }
-    .score-3 { background-color: #F59E0B; color: white; }
-    .score-2 { background-color: #3B82F6; color: white; }
-    .score-1 { background-color: #6B7280; color: white; }
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-control:focus {
+        border-color: #FF6B00;
+        box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+        outline: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #FF6B00 0%, #E55A00 100%);
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #E55A00 0%, #CC5500 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 0, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-1px);
+    }
+    
+    .score-display {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        text-align: center;
+        margin: 1rem 0;
+    }
+    
+    .score-display .score-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    
+    .score-display .score-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .grid-2, .grid-3 {
+            grid-template-columns: 1fr;
+        }
+        
+        .container-modern {
+            padding: 1rem;
+        }
+        
+        .evaluation-header {
+            padding: 1.5rem;
+        }
+        
+        .evaluation-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+    
+    .alert-info {
+        background: #dbeafe;
+        border: 1px solid #93c5fd;
+        color: #1e40af;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .text-muted {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-white to-brand-gray/10 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="container-modern">
+    <!-- Header -->
+    <div class="evaluation-header">
+        <h1>🎯 기여도 평가</h1>
+        <div class="subtitle">{{ employee.name }} ({{ employee.employee_id }}) | {{ employee.department }} {{ employee.position }}</div>
+    </div>
         <!-- Header -->
         <div class="mb-8">
             <nav class="flex mb-4" aria-label="Breadcrumb">

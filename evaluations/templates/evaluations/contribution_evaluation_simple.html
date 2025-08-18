@@ -1,0 +1,418 @@
+{% extends 'base_clean.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 - {{ employee.name }} | OK금융그룹{% endblock %}
+
+<!-- Cache Busting Comment: v2024-08-18-16:20 -->
+
+{% block extra_css %}
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    
+    body {
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%) !important;
+    }
+    
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .evaluation-header {
+        background: linear-gradient(135deg, #FF6B00 0%, #E55A00 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(255, 107, 0, 0.2);
+    }
+    
+    .evaluation-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .evaluation-header .subtitle {
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+    
+    .card-modern {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .card-header h3 {
+        margin: 0;
+        color: #1a202c;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .task-item {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #FF6B00;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        background: white;
+    }
+    
+    .form-control:focus {
+        border-color: #FF6B00;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #FF6B00 0%, #E55A00 100%);
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #E55A00 0%, #CC5500 100%);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-secondary:hover {
+        background: #4b5563;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .score-display {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        text-align: center;
+        margin: 1rem 0;
+    }
+    
+    .score-display .score-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    
+    .score-display .score-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .alert-info {
+        background: #dbeafe;
+        border: 1px solid #93c5fd;
+        color: #1e40af;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .breadcrumb {
+        background: rgba(255, 255, 255, 0.8);
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .breadcrumb a {
+        color: #6b7280;
+        text-decoration: none;
+    }
+    
+    .breadcrumb a:hover {
+        color: #FF6B00;
+    }
+    
+    .current-score {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 0.5rem;
+    }
+    
+    .scoring-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+    }
+    
+    .scoring-table th,
+    .scoring-table td {
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem;
+        text-align: center;
+    }
+    
+    .scoring-table th {
+        background: #f8fafc;
+        font-weight: 600;
+    }
+    
+    .score-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: white;
+    }
+    
+    .score-4 { background-color: #10B981; }
+    .score-3 { background-color: #F59E0B; }
+    .score-2 { background-color: #3B82F6; }
+    .score-1 { background-color: #6B7280; }
+    
+    @media (max-width: 768px) {
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+        
+        .container-modern {
+            padding: 1rem;
+        }
+        
+        .evaluation-header {
+            padding: 1.5rem;
+        }
+        
+        .evaluation-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-modern">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="{% url 'evaluations:dashboard' %}">평가관리</a> /
+        <a href="{% url 'evaluations:contribution_employees' %}">기여도 평가</a> /
+        <strong>{{ employee.name }}</strong>
+    </div>
+
+    <!-- Header -->
+    <div class="evaluation-header">
+        <h1>🎯 기여도 평가</h1>
+        <div class="subtitle">{{ employee.name }} ({{ employee.employee_id }}) | {{ employee.department }} {{ employee.position }}</div>
+        
+        {% if evaluation.total_score %}
+        <div class="current-score">
+            <div class="score-value">{{ evaluation.total_score|floatformat:1 }}</div>
+            <div class="score-label">현재 점수</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- 평가 기준표 -->
+        <div class="card-modern">
+            <div class="card-header">
+                <h3>📊 평가 기준표</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert-info">
+                    <strong>기여범위별 점수</strong> - 업무의 기여범위와 방법에 따라 점수가 결정됩니다.
+                </div>
+                
+                <table class="scoring-table">
+                    <thead>
+                        <tr>
+                            <th>기여범위</th>
+                            <th>총괄</th>
+                            <th>리딩</th>
+                            <th>실무</th>
+                            <th>지원</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>전략적</strong></td>
+                            <td><span class="score-badge score-4">4.0</span></td>
+                            <td><span class="score-badge score-4">4.0</span></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>상호적</strong></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>개별적</strong></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 업무 목록 -->
+        <div class="card-modern">
+            <div class="card-header">
+                <h3>📝 업무 목록</h3>
+            </div>
+            <div class="card-body">
+                {% if tasks %}
+                    {% for task in tasks %}
+                    <div class="task-item">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">업무명</label>
+                                <input type="text" name="task_{{ task.id }}_title" value="{{ task.title }}" class="form-control" placeholder="업무명을 입력하세요">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">가중치 (%)</label>
+                                <input type="number" name="task_{{ task.id }}_weight" value="{{ task.weight }}" min="0" max="100" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">업무 설명</label>
+                            <textarea name="task_{{ task.id }}_description" class="form-control" rows="2" placeholder="업무 내용을 자세히 설명하세요">{{ task.description }}</textarea>
+                        </div>
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">기여 방법</label>
+                                <select name="task_{{ task.id }}_method" class="form-control">
+                                    <option value="총괄" {% if task.contribution_method == '총괄' %}selected{% endif %}>총괄</option>
+                                    <option value="리딩" {% if task.contribution_method == '리딩' %}selected{% endif %}>리딩</option>
+                                    <option value="실무" {% if task.contribution_method == '실무' %}selected{% endif %}>실무</option>
+                                    <option value="지원" {% if task.contribution_method == '지원' %}selected{% endif %}>지원</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">기여 범위</label>
+                                <select name="task_{{ task.id }}_scope" class="form-control">
+                                    <option value="전략적" {% if task.contribution_scope == '전략적' %}selected{% endif %}>전략적</option>
+                                    <option value="상호적" {% if task.contribution_scope == '상호적' %}selected{% endif %}>상호적</option>
+                                    <option value="개별적" {% if task.contribution_scope == '개별적' %}selected{% endif %}>개별적</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">목표값</label>
+                                <input type="number" name="task_{{ task.id }}_target" value="{{ task.target_value }}" step="0.01" class="form-control" placeholder="목표값">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">실제값</label>
+                                <input type="number" name="task_{{ task.id }}_actual" value="{{ task.actual_value }}" step="0.01" class="form-control" placeholder="실제값">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">단위</label>
+                            <input type="text" name="task_{{ task.id }}_unit" value="{{ task.target_unit }}" class="form-control" placeholder="예: 건, %, 원, 시간">
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert-info">
+                        등록된 업무가 없습니다. 업무를 추가하여 평가를 시작하세요.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 종합 의견 -->
+        <div class="card-modern">
+            <div class="card-header">
+                <h3>💭 종합 의견</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">평가 의견</label>
+                    <textarea name="comments" class="form-control" rows="4" placeholder="평가에 대한 종합적인 의견을 작성하세요">{{ evaluation.comments }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <button type="submit" class="btn-primary" style="margin-right: 1rem;">
+                💾 평가 저장
+            </button>
+            <a href="{% url 'evaluations:contribution_employees' %}" class="btn-secondary">
+                ↩️ 목록으로
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
