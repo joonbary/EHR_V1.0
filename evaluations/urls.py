@@ -100,5 +100,10 @@ urlpatterns = [
     path('api/', include([
         path('calculate-score/', views.calculate_score_ajax, name='calculate_score_ajax'),
         path('process/<int:period_id>/', views_advanced.ProcessEvaluationView.as_view(), name='process_evaluation'),
+        # AI 피드백 및 분석 API
+        path('generate-feedback/', 'evaluations.api_views.generate_ai_feedback', name='generate_ai_feedback'),
+        path('employee/<int:employee_id>/summary/', 'evaluations.api_views.get_evaluation_summary', name='evaluation_summary'),
+        path('create-notification/', 'evaluations.api_views.create_evaluation_notification', name='create_notification'),
+        path('analytics/', 'evaluations.api_views.get_evaluation_analytics', name='evaluation_analytics_data'),
     ])),
 ] 

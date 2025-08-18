@@ -54,6 +54,8 @@
       "Bash(python:*)",
       "Bash(for dir in ai_*)",
       "Bash(done)",
+      "WebFetch(domain:github.com)",
+      "Bash(del:*)",
       "WebFetch(domain:github.com)"
     ],
     "deny": []

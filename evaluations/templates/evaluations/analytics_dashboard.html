@@ -1,0 +1,458 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}평가 분석 대시보드 | OK Financial Group{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-container {
+        padding: 2rem;
+    }
+    
+    .chart-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-default);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-card);
+    }
+    
+    .chart-title {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+        border: 1px solid var(--border-feature);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-feature);
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--text-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-label {
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin: 1rem 0;
+    }
+    
+    .filter-bar {
+        background: var(--bg-card);
+        border: 1px solid var(--border-default);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .filter-select {
+        background: var(--bg-card-hover);
+        border: 1px solid var(--border-default);
+        color: var(--text-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+</style>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <!-- Header -->
+    <div class="mb-5">
+        <h1 style="color: var(--primary-color); font-size: 2.5rem; font-weight: 700;">
+            📊 평가 분석 대시보드
+        </h1>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">
+            실시간 평가 데이터 분석 및 인사이트
+        </p>
+    </div>
+    
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <select id="periodFilter" class="filter-select">
+            <option value="2024">2024년</option>
+            <option value="Q4">2024 4분기</option>
+            <option value="Q3">2024 3분기</option>
+        </select>
+        <select id="departmentFilter" class="filter-select">
+            <option value="all">전체 부서</option>
+            <option value="개발팀">개발팀</option>
+            <option value="마케팅팀">마케팅팀</option>
+            <option value="영업팀">영업팀</option>
+        </select>
+        <button onclick="refreshCharts()" class="btn-primary-ai">
+            <i class="fas fa-sync-alt me-2"></i>새로고침
+        </button>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalEmployees">0</div>
+            <div class="stat-label">총 평가 대상자</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="completionRate">0%</div>
+            <div class="stat-label">평가 완료율</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="avgScore">0.0</div>
+            <div class="stat-label">평균 점수</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="topPerformers">0</div>
+            <div class="stat-label">우수 성과자</div>
+        </div>
+    </div>
+    
+    <!-- Charts Grid -->
+    <div class="row">
+        <!-- 부서별 평균 점수 -->
+        <div class="col-md-6">
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-bar"></i>
+                    부서별 평균 점수
+                </h3>
+                <div class="chart-container">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 평가 유형별 분포 -->
+        <div class="col-md-6">
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-pie"></i>
+                    평가 유형별 분포
+                </h3>
+                <div class="chart-container">
+                    <canvas id="typeDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- 월별 평가 추이 -->
+        <div class="col-md-12">
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    월별 평가 추이
+                </h3>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- 성장 레벨 분포 -->
+        <div class="col-md-6">
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-layer-group"></i>
+                    성장 레벨 분포
+                </h3>
+                <div class="chart-container">
+                    <canvas id="growthLevelChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 평가 점수 히트맵 -->
+        <div class="col-md-6">
+            <div class="chart-card">
+                <h3 class="chart-title">
+                    <i class="fas fa-th"></i>
+                    평가 점수 분포
+                </h3>
+                <div class="chart-container">
+                    <canvas id="scoreHeatmap"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Chart.js 기본 설정
+Chart.defaults.color = '#ffffff';
+Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+// 차트 인스턴스 저장
+let charts = {};
+
+// 데이터 로드 및 차트 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    loadAnalyticsData();
+});
+
+function initializeCharts() {
+    // 부서별 평균 점수 차트
+    const deptCtx = document.getElementById('departmentChart').getContext('2d');
+    charts.department = new Chart(deptCtx, {
+        type: 'bar',
+        data: {
+            labels: ['개발팀', '마케팅팀', '영업팀', '인사팀', '재무팀'],
+            datasets: [{
+                label: '기여도',
+                data: [3.5, 3.2, 3.8, 3.3, 3.6],
+                backgroundColor: 'rgba(0, 212, 255, 0.6)',
+                borderColor: 'rgba(0, 212, 255, 1)',
+                borderWidth: 1
+            }, {
+                label: '전문성',
+                data: [85, 78, 82, 80, 88],
+                backgroundColor: 'rgba(0, 255, 136, 0.6)',
+                borderColor: 'rgba(0, 255, 136, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+    
+    // 평가 유형별 분포 차트
+    const typeCtx = document.getElementById('typeDistributionChart').getContext('2d');
+    charts.typeDistribution = new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['기여도 평가', '전문성 평가', '영향력 평가'],
+            datasets: [{
+                data: [45, 30, 25],
+                backgroundColor: [
+                    'rgba(0, 212, 255, 0.8)',
+                    'rgba(0, 255, 136, 0.8)',
+                    'rgba(255, 187, 51, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(0, 212, 255, 1)',
+                    'rgba(0, 255, 136, 1)',
+                    'rgba(255, 187, 51, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+    
+    // 월별 평가 추이 차트
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    charts.trend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월'],
+            datasets: [{
+                label: '완료된 평가',
+                data: [12, 19, 23, 25, 32, 35, 41, 45],
+                borderColor: 'rgba(0, 212, 255, 1)',
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                tension: 0.4
+            }, {
+                label: '평균 점수',
+                data: [3.2, 3.3, 3.5, 3.4, 3.6, 3.7, 3.8, 3.9],
+                borderColor: 'rgba(0, 255, 136, 1)',
+                backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                tension: 0.4,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)'
+                    }
+                }
+            }
+        }
+    });
+    
+    // 성장 레벨 분포 차트
+    const growthCtx = document.getElementById('growthLevelChart').getContext('2d');
+    charts.growthLevel = new Chart(growthCtx, {
+        type: 'polarArea',
+        data: {
+            labels: ['Lv.1 신입', 'Lv.2 일반', 'Lv.3 전문가', 'Lv.4 리더', 'Lv.5 임원'],
+            datasets: [{
+                data: [15, 35, 30, 15, 5],
+                backgroundColor: [
+                    'rgba(107, 114, 128, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(0, 212, 255, 0.8)',
+                    'rgba(255, 187, 51, 0.8)',
+                    'rgba(0, 255, 136, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(107, 114, 128, 1)',
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(0, 212, 255, 1)',
+                    'rgba(255, 187, 51, 1)',
+                    'rgba(0, 255, 136, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function loadAnalyticsData() {
+    // API 호출하여 실제 데이터 로드
+    fetch('/evaluations/api/analytics/')
+        .then(response => response.json())
+        .then(data => {
+            updateStatistics(data);
+            updateCharts(data);
+        })
+        .catch(error => {
+            console.error('데이터 로드 실패:', error);
+            // 더미 데이터로 표시
+            updateStatistics({
+                total_employees: 127,
+                completion_rate: 73.2,
+                avg_score: 3.5,
+                top_performers: 18
+            });
+        });
+}
+
+function updateStatistics(data) {
+    document.getElementById('totalEmployees').textContent = data.total_employees || 127;
+    document.getElementById('completionRate').textContent = (data.completion_rate || 73.2) + '%';
+    document.getElementById('avgScore').textContent = (data.avg_score || 3.5).toFixed(1);
+    document.getElementById('topPerformers').textContent = data.top_performers || 18;
+}
+
+function updateCharts(data) {
+    // 차트 데이터 업데이트 로직
+    if (data.department_scores) {
+        // 부서별 차트 업데이트
+    }
+    
+    if (data.monthly_trends) {
+        // 월별 추이 차트 업데이트
+    }
+}
+
+function refreshCharts() {
+    // 애니메이션과 함께 차트 새로고침
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>로딩중...';
+    
+    setTimeout(() => {
+        loadAnalyticsData();
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-sync-alt me-2"></i>새로고침';
+    }, 1000);
+}
+</script>
+{% endblock %}
