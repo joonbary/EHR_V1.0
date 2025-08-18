@@ -5,7 +5,7 @@
     "buildCommand": "pip install -r requirements.txt"
   },
   "deploy": {
-    "startCommand": "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn ehr_system.wsgi:application --bind 0.0.0.0:$PORT",
+    "startCommand": "python smart_migrate.py && python manage.py collectstatic --noinput && gunicorn ehr_system.wsgi:application --bind 0.0.0.0:$PORT",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   },

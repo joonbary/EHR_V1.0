@@ -1,0 +1,30 @@
+# Railway에서 실행할 명령어들
+
+# 1. Railway CLI로 접속하여 Django shell 실행
+railway run python manage.py shell
+
+# 2. Django shell에서 다음 명령 실행:
+from django.db import connection
+cursor = connection.cursor()
+
+# 모든 테이블 삭제
+cursor.execute("""
+    DO $$ 
+    DECLARE
+        r RECORD;
+    BEGIN
+        FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') 
+        LOOP
+            EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+        END LOOP;
+    END $$;
+""")
+
+exit()
+
+# 3. 마이그레이션 다시 실행
+railway run python manage.py migrate
+
+# 또는 한 번에 실행:
+railway run python manage.py flush --no-input
+railway run python manage.py migrate

@@ -1,0 +1,11 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "python railway_complete_reset.py && python manage.py collectstatic --noinput && gunicorn ehr_system.wsgi:application --bind 0.0.0.0:$PORT"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[env]
+DJANGO_SETTINGS_MODULE = "ehr_system.settings"
+RAILWAY_ENVIRONMENT = "production"
