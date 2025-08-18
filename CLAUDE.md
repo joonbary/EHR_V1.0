@@ -61,7 +61,40 @@ run_frontend.bat
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000/api
 - Admin Panel: http://localhost:8000/admin
-- Contribution Evaluation: http://localhost:3000/evaluations/contribution
+
+### Main Pages
+- Home Dashboard: http://localhost:8000/
+- Employee Management: http://localhost:8000/employees/
+
+### Organization Charts
+- Basic Organization Chart: http://localhost:8000/employees/org-chart/
+- Advanced Organization Management: http://localhost:8000/organization/chart/
+- Hierarchical Organization: http://localhost:8000/employees/hierarchy-org/
+
+### Performance Evaluation
+- Evaluation Dashboard: http://localhost:8000/evaluations/
+- Contribution Evaluation Guide: http://localhost:8000/evaluations/contribution/guide/
+- Contribution Employee List: http://localhost:8000/evaluations/contribution/employees/
+- Expertise Evaluation Guide: http://localhost:8000/evaluations/expertise/guide/
+- Expertise Employee List: http://localhost:8000/evaluations/expertise/employees/
+- Impact Evaluation Guide: http://localhost:8000/evaluations/impact/guide/
+- Impact Employee List: http://localhost:8000/evaluations/impact/employees/
+- Comprehensive Evaluation: http://localhost:8000/evaluations/comprehensive/
+- Calibration: http://localhost:8000/evaluations/calibration/
+- My Evaluations: http://localhost:8000/evaluations/my/
+- Evaluator Dashboard: http://localhost:8000/evaluations/evaluator/
+- HR Admin Dashboard: http://localhost:8000/evaluations/hr-admin/
+
+### AI Services
+- AI QuickWin Hub: http://localhost:8000/ai-quickwin/
+- AIRISS Dashboard: http://localhost:8000/airiss/
+- AI Coaching: http://localhost:8000/ai-coaching/
+- Team Optimizer: http://localhost:8000/ai-team-optimizer/
+- Executive Insights: http://localhost:8000/ai-insights/
+- Prediction Analytics: http://localhost:8000/ai-predictions/
+- AI Interviewer: http://localhost:8000/ai-interviewer/
+- AI Chatbot: http://localhost:8000/ai-quickwin/chatbot/
+- Leader Assistant: http://localhost:8000/ai-quickwin/leader-assistant/
 
 ## Environment Variables (.env)
 - `SECRET_KEY`: Django secret key
@@ -136,6 +169,44 @@ run_frontend.bat
 
 ## Contact & Support
 For issues or questions about this project, refer to the README.md or contact the development team.
+
+## Recent Updates
+
+### 2025.01.18 - UI/UX Improvements
+**Revolutionary Template & Sidebar Enhancement:**
+- **Revolutionary Template Applied**
+  - Applied dark theme with cyan (#00d4ff) accents across all pages
+  - Organization chart pages now use Revolutionary template
+  - Consistent design system throughout the application
+  
+- **Sidebar Navigation Overhaul**
+  - Complete restructuring of sidebar menu for better organization
+  - **Expandable Performance Evaluation Menu**:
+    - Contribution Evaluation (Guide, Employee Evaluations)
+    - Expertise Evaluation (Guide, Employee Evaluations)
+    - Impact Evaluation (Guide, Employee Evaluations)
+    - Comprehensive Evaluation & Calibration
+    - Role-based Views (My Evaluation, Evaluator, HR Admin)
+  - **Enhanced Organization Chart Menu**:
+    - Basic Organization Chart
+    - Advanced Organization Management (NEW badge)
+    - Hierarchical Organization View
+  - **AI Services Menu** with expandable submenu
+  - State persistence for expanded/collapsed sections
+  - Auto-highlight for current page
+  - Font Awesome icons integration
+  
+- **API Improvements**
+  - Enhanced error handling for AI feedback generation
+  - Fallback feedback when AI service unavailable
+  - Better null/undefined handling in evaluation APIs
+
+**Files Modified:**
+- `templates/base_revolutionary.html` - Integrated new sidebar
+- `templates/sidebar_revolutionary.html` - New comprehensive sidebar component
+- `employees/templates/employees/organization_chart.html` - Revolutionary theme
+- `organization/templates/organization/organization_chart_revolutionary.html` - Revolutionary theme
+- `evaluations/api_views.py` - Enhanced error handling
 
 ## Changelog
 
