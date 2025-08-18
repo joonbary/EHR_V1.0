@@ -181,25 +181,38 @@ def position_detail(request, position_id):
 
 def organization_chart(request):
     """고급 조직도 (React 기반)"""
-    from .models_enhanced import OrgUnit, OrgScenario
-    
-    # 기본 통계 정보
-    total_units = OrgUnit.objects.count()
-    total_scenarios = OrgScenario.objects.count()
-    
-    # 회사별 조직 수
-    company_stats = {}
-    for company in ['OK저축은행', 'OK캐피탈', 'OK금융그룹']:
-        company_stats[company] = OrgUnit.objects.filter(company=company).count()
-    
-    # 최근 시나리오
-    recent_scenarios = OrgScenario.objects.order_by('-created_at')[:5]
+    try:
+        from .models_enhanced import OrgUnit, OrgScenario
+        
+        # 기본 통계 정보
+        total_units = OrgUnit.objects.count()
+        total_scenarios = OrgScenario.objects.count()
+        
+        # 회사별 조직 수
+        company_stats = {}
+        for company in ['OK저축은행', 'OK캐피탈', 'OK금융그룹']:
+            company_stats[company] = OrgUnit.objects.filter(company=company).count()
+        
+        # 최근 시나리오
+        recent_scenarios = OrgScenario.objects.order_by('-created_at')[:5]
+        
+        enhanced_stats = {
+            'total_units': total_units,
+            'total_scenarios': total_scenarios,
+            'company_stats': company_stats,
+            'recent_scenarios': recent_scenarios,
+        }
+    except ImportError:
+        # models_enhanced가 없으면 빈 데이터
+        enhanced_stats = {
+            'total_units': 0,
+            'total_scenarios': 0,
+            'company_stats': {},
+            'recent_scenarios': [],
+        }
     
     context = {
-        'total_units': total_units,
-        'total_scenarios': total_scenarios,
-        'company_stats': company_stats,
-        'recent_scenarios': recent_scenarios,
+        **enhanced_stats,
         
         # 기존 호환성을 위한 데이터
         'current_chart': OrganizationChart.objects.filter(is_active=True).first(),
