@@ -1,0 +1,604 @@
+<!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
+<aside class="sidebar-wrapper" id="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <span class="logo-icon">🏢</span>
+            OK Financial HRM
+        </div>
+        <div class="sidebar-subtitle">차세대 AI 인사시스템</div>
+    </div>
+    
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+        <!-- Main Dashboard -->
+        <div class="nav-section">
+            <div class="nav-section-title">
+                <i class="fas fa-home"></i> 메인
+            </div>
+            <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">통합 대시보드</span>
+            </a>
+        </div>
+        
+        <!-- Employee Management -->
+        <div class="nav-section">
+            <div class="nav-section-title">
+                <i class="fas fa-users"></i> 인사관리
+            </div>
+            <a href="{% url 'employees:employee_management' %}" class="nav-item {% if 'employee_list' in request.resolver_match.url_name %}active{% endif %}">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">직원 정보 관리</span>
+            </a>
+            <div class="nav-subsection">
+                <a href="{% url 'employees:employee_list' %}" class="nav-subitem">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">직원 목록</span>
+                </a>
+                <a href="{% url 'employees:bulk_upload' %}" class="nav-subitem">
+                    <span class="nav-icon">📤</span>
+                    <span class="nav-text">대량 업로드</span>
+                </a>
+                <a href="{% url 'employees:hr_dashboard' %}" class="nav-subitem">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">인력 현황</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Organization Chart -->
+        <div class="nav-section">
+            <div class="nav-section-title">
+                <i class="fas fa-sitemap"></i> 조직도
+            </div>
+            <a href="{% url 'employees:organization_chart' %}" class="nav-item">
+                <span class="nav-icon">🏢</span>
+                <span class="nav-text">기본 조직도</span>
+            </a>
+            <a href="{% url 'organization:chart' %}" class="nav-item">
+                <span class="nav-icon">🔄</span>
+                <span class="nav-text">고급 조직도 관리</span>
+                <span class="badge-new">NEW</span>
+            </a>
+            <a href="{% url 'employees:hierarchy_organization' %}" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">계층별 조직도</span>
+            </a>
+        </div>
+        
+        <!-- Performance Evaluation - Expanded -->
+        <div class="nav-section expandable">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                <i class="fas fa-chart-line"></i> 성과평가
+                <i class="fas fa-chevron-down section-arrow"></i>
+            </div>
+            <div class="nav-section-content">
+                <a href="{% url 'evaluations:dashboard' %}" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">평가 대시보드</span>
+                </a>
+                
+                <!-- 3대 평가 -->
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">기여도 평가</div>
+                    <a href="{% url 'evaluations:contribution_guide' %}" class="nav-subitem">
+                        <span class="nav-icon">📖</span>
+                        <span class="nav-text">평가 가이드</span>
+                    </a>
+                    <a href="{% url 'evaluations:contribution_employees' %}" class="nav-subitem">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-text">직원별 평가</span>
+                    </a>
+                </div>
+                
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">전문성 평가</div>
+                    <a href="{% url 'evaluations:expertise_guide' %}" class="nav-subitem">
+                        <span class="nav-icon">📖</span>
+                        <span class="nav-text">평가 가이드</span>
+                    </a>
+                    <a href="{% url 'evaluations:expertise_employees' %}" class="nav-subitem">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">직원별 평가</span>
+                    </a>
+                </div>
+                
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">영향력 평가</div>
+                    <a href="{% url 'evaluations:impact_guide' %}" class="nav-subitem">
+                        <span class="nav-icon">📖</span>
+                        <span class="nav-text">평가 가이드</span>
+                    </a>
+                    <a href="{% url 'evaluations:impact_employees' %}" class="nav-subitem">
+                        <span class="nav-icon">⚡</span>
+                        <span class="nav-text">직원별 평가</span>
+                    </a>
+                </div>
+                
+                <!-- 종합 평가 -->
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">종합 평가</div>
+                    <a href="{% url 'evaluations:comprehensive_list' %}" class="nav-subitem">
+                        <span class="nav-icon">📑</span>
+                        <span class="nav-text">종합 평가 관리</span>
+                    </a>
+                    <a href="{% url 'evaluations:calibration_list' %}" class="nav-subitem">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-text">캘리브레이션</span>
+                    </a>
+                </div>
+                
+                <!-- 평가자별 화면 -->
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">역할별 화면</div>
+                    <a href="{% url 'evaluations:my_evaluations' %}" class="nav-subitem">
+                        <span class="nav-icon">👤</span>
+                        <span class="nav-text">내 평가</span>
+                    </a>
+                    <a href="{% url 'evaluations:evaluator_dashboard' %}" class="nav-subitem">
+                        <span class="nav-icon">✍️</span>
+                        <span class="nav-text">평가자 화면</span>
+                    </a>
+                    <a href="{% url 'evaluations:hr_admin_dashboard' %}" class="nav-subitem">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">HR 관리자</span>
+                    </a>
+                </div>
+                
+                <!-- 분석 -->
+                <a href="{% url 'evaluations:analytics_dashboard' %}" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">평가 분석</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- AI Services - Expanded -->
+        <div class="nav-section expandable">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                <i class="fas fa-robot"></i> AI 서비스
+                <i class="fas fa-chevron-down section-arrow"></i>
+            </div>
+            <div class="nav-section-content">
+                <a href="{% url 'ai_quickwin:dashboard' %}" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-text">AI 통합 허브</span>
+                </a>
+                <a href="{% url 'airiss:dashboard' %}" class="nav-item">
+                    <span class="nav-icon">🧠</span>
+                    <span class="nav-text">AIRISS 분석</span>
+                </a>
+                <a href="{% url 'ai_coaching:dashboard' %}" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">AI 코칭</span>
+                </a>
+                <a href="{% url 'ai_team_optimizer:dashboard' %}" class="nav-item">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-text">팀 최적화</span>
+                </a>
+                <a href="{% url 'ai_insights:executive_dashboard' %}" class="nav-item">
+                    <span class="nav-icon">💡</span>
+                    <span class="nav-text">경영진 인사이트</span>
+                </a>
+                <a href="{% url 'ai_predictions:turnover_dashboard' %}" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">예측 분석</span>
+                </a>
+                <a href="{% url 'ai_interviewer:interview_dashboard' %}" class="nav-item">
+                    <span class="nav-icon">🎤</span>
+                    <span class="nav-text">AI 면접</span>
+                </a>
+                
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">AI 어시스턴트</div>
+                    <a href="{% url 'ai_quickwin:chatbot' %}" class="nav-subitem">
+                        <span class="nav-icon">💬</span>
+                        <span class="nav-text">챗봇</span>
+                    </a>
+                    <a href="{% url 'ai_quickwin:leader_assistant' %}" class="nav-subitem">
+                        <span class="nav-icon">👑</span>
+                        <span class="nav-text">리더십 AI</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- HR Operations -->
+        <div class="nav-section">
+            <div class="nav-section-title">
+                <i class="fas fa-briefcase"></i> HR 운영
+            </div>
+            <a href="{% url 'recruitment:dashboard' %}" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">채용 관리</span>
+            </a>
+            <a href="{% url 'compensation:dashboard' %}" class="nav-item">
+                <span class="nav-icon">💰</span>
+                <span class="nav-text">보상 관리</span>
+            </a>
+            <a href="{% url 'trainings:training_list' %}" class="nav-item">
+                <span class="nav-icon">📚</span>
+                <span class="nav-text">교육 훈련</span>
+            </a>
+        </div>
+        
+        <!-- Analytics -->
+        <div class="nav-section">
+            <div class="nav-section-title">
+                <i class="fas fa-chart-bar"></i> 분석 센터
+            </div>
+            <a href="{% url 'leader_kpi_dashboard' %}" class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">경영진 KPI</span>
+            </a>
+            <a href="{% url 'workforce_comp_dashboard' %}" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">인력 구성</span>
+            </a>
+            <a href="{% url 'skillmap_dashboard' %}" class="nav-item">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-text">스킬맵</span>
+            </a>
+        </div>
+        
+        <!-- System Settings -->
+        <div class="nav-section">
+            <div class="nav-section-title">
+                <i class="fas fa-cog"></i> 시스템
+            </div>
+            <a href="{% url 'permissions:dashboard' %}" class="nav-item">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-text">권한 관리</span>
+            </a>
+            <a href="{% url 'reports:dashboard' %}" class="nav-item">
+                <span class="nav-icon">📑</span>
+                <span class="nav-text">리포트</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+        <div class="user-info">
+            {% if user.is_authenticated %}
+                <span class="user-name">{{ user.username }}</span>
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</aside>
+
+<style>
+/* Enhanced Sidebar Styles */
+.sidebar-wrapper {
+    width: 280px;
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.98), rgba(10, 15, 27, 0.98));
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(0, 212, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    text-align: center;
+}
+
+.sidebar-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.logo-icon {
+    font-size: 1.8rem;
+}
+
+.sidebar-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.25rem;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+}
+
+.nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(0, 212, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: default;
+}
+
+.nav-section.expandable .nav-section-title {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-section.expandable .nav-section-title:hover {
+    color: #00d4ff;
+}
+
+.section-arrow {
+    transition: transform 0.3s ease;
+    font-size: 0.7rem;
+}
+
+.nav-section.collapsed .section-arrow {
+    transform: rotate(-90deg);
+}
+
+.nav-section.collapsed .nav-section-content {
+    display: none;
+}
+
+.nav-section-content {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.nav-item:hover {
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.05);
+}
+
+.nav-item:hover::before {
+    transform: translateX(0);
+}
+
+.nav-item.active {
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.1);
+}
+
+.nav-item.active::before {
+    transform: translateX(0);
+}
+
+.nav-subsection {
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+}
+
+.nav-subsection-title {
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.nav-subitem {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.nav-subitem:hover {
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.05);
+    padding-left: 1.25rem;
+}
+
+.nav-icon {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.nav-text {
+    font-size: 0.9rem;
+}
+
+.badge-new {
+    margin-left: auto;
+    background: linear-gradient(135deg, #ff6b6b, #ff4757);
+    color: white;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 10px;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.sidebar-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-name {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.logout-btn {
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
+}
+
+.logout-btn:hover {
+    color: #ff4757;
+}
+
+/* Collapsed State */
+.sidebar-wrapper.collapsed {
+    width: 70px;
+}
+
+.sidebar-wrapper.collapsed .sidebar-logo {
+    font-size: 1.5rem;
+}
+
+.sidebar-wrapper.collapsed .sidebar-subtitle,
+.sidebar-wrapper.collapsed .nav-text,
+.sidebar-wrapper.collapsed .nav-section-title i:not(.fa-chevron-down),
+.sidebar-wrapper.collapsed .nav-subsection,
+.sidebar-wrapper.collapsed .badge-new,
+.sidebar-wrapper.collapsed .user-name {
+    display: none;
+}
+
+.sidebar-wrapper.collapsed .nav-icon {
+    margin-right: 0;
+    font-size: 1.3rem;
+}
+
+.sidebar-wrapper.collapsed .nav-item,
+.sidebar-wrapper.collapsed .nav-subitem {
+    justify-content: center;
+}
+
+/* Scrollbar Styling */
+.sidebar-wrapper::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-wrapper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 255, 0.3);
+    border-radius: 2px;
+}
+
+.sidebar-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 212, 255, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .sidebar-wrapper {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar-wrapper {
+        position: fixed;
+        left: -280px;
+        height: 100vh;
+        z-index: 1000;
+    }
+    
+    .sidebar-wrapper.active {
+        left: 0;
+    }
+}
+</style>
+
+<script>
+// Toggle expandable sections
+function toggleSection(element) {
+    const section = element.closest('.nav-section');
+    section.classList.toggle('collapsed');
+    
+    // Save state to localStorage
+    const sectionTitle = element.textContent.trim();
+    const isCollapsed = section.classList.contains('collapsed');
+    localStorage.setItem(`sidebar-section-${sectionTitle}`, isCollapsed);
+}
+
+// Restore section states on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.nav-section.expandable');
+    sections.forEach(section => {
+        const title = section.querySelector('.nav-section-title').textContent.trim();
+        const isCollapsed = localStorage.getItem(`sidebar-section-${title}`) === 'true';
+        if (isCollapsed) {
+            section.classList.add('collapsed');
+        }
+    });
+    
+    // Highlight active menu based on current URL
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('.nav-item, .nav-subitem');
+    navItems.forEach(item => {
+        if (item.getAttribute('href') === currentPath) {
+            item.classList.add('active');
+            // Expand parent section if collapsed
+            const parentSection = item.closest('.nav-section.expandable');
+            if (parentSection && parentSection.classList.contains('collapsed')) {
+                parentSection.classList.remove('collapsed');
+            }
+        }
+    });
+});
+</script>
