@@ -97,7 +97,7 @@ body {
 
 /* 혁신적 사이드바 - 랜딩페이지 스타일 */
 .sidebar-wrapper {
-    width: 320px;
+    width: 240px;
     background: linear-gradient(180deg, rgba(10, 15, 27, 0.95), rgba(26, 31, 46, 0.95));
     backdrop-filter: blur(20px);
     border-right: 1px solid var(--border-feature);

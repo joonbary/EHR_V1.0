@@ -3,12 +3,7 @@
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="sidebar-logo">
-            <div class="logo-icon">🏢</div>
-            <div class="logo-name">OK</div>
-        </div>
-        <div class="sidebar-info">
-            <div class="info-company">금융그룹</div>
-            <div class="info-system">AI HRM</div>
+            <div class="logo-icon">💼</div>
         </div>
     </div>
     
@@ -292,47 +287,32 @@
 }
 
 .sidebar-header {
-    padding: 1rem;
+    padding: 1.5rem;
     border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-    background: rgba(0, 0, 0, 0.2);
+    text-align: center;
 }
 
 .sidebar-logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
 }
 
 .logo-icon {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
+    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+    animation: pulse 2s infinite;
 }
 
-.logo-name {
-    font-size: 1.8rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, #00d4ff, #0099cc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -1px;
-}
-
-.sidebar-info {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.info-company {
-    font-weight: 500;
-}
-
-.info-system {
-    font-weight: 300;
-    color: rgba(0, 212, 255, 0.7);
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.8));
+    }
 }
 
 .sidebar-nav {
@@ -526,8 +506,6 @@
     max-width: 70px;
 }
 
-.sidebar-wrapper.collapsed .logo-name,
-.sidebar-wrapper.collapsed .sidebar-info,
 .sidebar-wrapper.collapsed .nav-text,
 .sidebar-wrapper.collapsed .nav-section-title,
 .sidebar-wrapper.collapsed .nav-subsection,
@@ -537,7 +515,7 @@
 }
 
 .sidebar-wrapper.collapsed .logo-icon {
-    font-size: 1.8rem;
+    font-size: 2rem;
 }
 
 .sidebar-wrapper.collapsed .nav-icon {
