@@ -1,8 +1,17 @@
 <!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
 <aside class="sidebar-wrapper" id="sidebar">
+    <!-- Auto-hide Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebarHover()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
     <!-- Sidebar Header -->
-    <div style="padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
-        <div style="font-size: 24px; font-weight: bold; color: #00d4ff;">HRM</div>
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <span class="logo-icon">💼</span>
+            <span class="logo-text">OK금융</span>
+        </div>
+        <div class="sidebar-subtitle">AI HRM System</div>
     </div>
     
     <!-- Navigation Menu -->
@@ -268,19 +277,97 @@
 </aside>
 
 <style>
-/* Enhanced Sidebar Styles - Simplified */
+/* Enhanced Sidebar Styles with Auto-hide */
 .sidebar-wrapper {
-    width: 200px !important;
-    min-width: 200px !important;
-    max-width: 200px !important;
-    background: #1a1f2e !important;
+    width: 260px !important;
+    min-width: 260px !important;
+    max-width: 260px !important;
+    background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%) !important;
     border-right: 1px solid rgba(0, 212, 255, 0.2);
     display: flex;
     flex-direction: column;
     height: 100vh;
-    position: relative;
+    position: fixed;
+    left: 0;
+    top: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    transition: transform 0.3s ease, width 0.3s ease;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Auto-hide functionality */
+.sidebar-wrapper.auto-hide {
+    transform: translateX(-210px);
+}
+
+.sidebar-wrapper.auto-hide:hover {
+    transform: translateX(0);
+}
+
+/* Toggle Button */
+.sidebar-toggle {
+    position: absolute;
+    right: -40px;
+    top: 20px;
+    width: 35px;
+    height: 35px;
+    background: #00d4ff;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    color: #000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.sidebar-toggle:hover {
+    background: #00a8cc;
+    width: 40px;
+}
+
+.sidebar-wrapper.auto-hide .sidebar-toggle {
+    right: -40px;
+    background: rgba(0, 212, 255, 0.8);
+    color: #fff;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.logo-icon {
+    font-size: 1.8rem;
+}
+
+.logo-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #00d4ff;
+    letter-spacing: -0.5px;
+}
+
+.sidebar-subtitle {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .sidebar-nav {
@@ -525,6 +612,34 @@
 </style>
 
 <script>
+// Toggle auto-hide functionality
+function toggleSidebarHover() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('auto-hide');
+    
+    // Save preference to localStorage
+    const isAutoHide = sidebar.classList.contains('auto-hide');
+    localStorage.setItem('sidebar-auto-hide', isAutoHide);
+    
+    // Adjust main content
+    adjustMainContent();
+}
+
+// Adjust main content based on sidebar state
+function adjustMainContent() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.querySelector('.content-wrapper');
+    if (!content) return;
+    
+    if (sidebar.classList.contains('auto-hide')) {
+        content.style.marginLeft = '50px';
+        content.style.width = 'calc(100% - 50px)';
+    } else {
+        content.style.marginLeft = '260px';
+        content.style.width = 'calc(100% - 260px)';
+    }
+}
+
 // Toggle expandable sections
 function toggleSection(element) {
     const section = element.closest('.nav-section');
@@ -538,6 +653,15 @@ function toggleSection(element) {
 
 // Restore section states on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Restore auto-hide preference
+    const isAutoHide = localStorage.getItem('sidebar-auto-hide') === 'true';
+    const sidebar = document.getElementById('sidebar');
+    if (isAutoHide) {
+        sidebar.classList.add('auto-hide');
+    }
+    adjustMainContent();
+    
+    // Restore expandable sections state
     const sections = document.querySelectorAll('.nav-section.expandable');
     sections.forEach(section => {
         const title = section.querySelector('.nav-section-title').textContent.trim();

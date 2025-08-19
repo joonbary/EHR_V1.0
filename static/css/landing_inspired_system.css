@@ -119,14 +119,17 @@ body {
 /* 메인 콘텐츠 영역 */
 .content-wrapper {
     flex: 1;
-    margin-left: 320px;
-    transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
     background: var(--bg-main-gradient);
+    padding: 0;
 }
 
 .content-wrapper.expanded {
-    margin-left: 0;
+    margin-left: 50px;
+    width: calc(100% - 50px);
 }
 
 /* ===============================================
