@@ -664,58 +664,49 @@ window.simpleToggle = function() {
     }
 };
 
-// 극도로 단순화된 버전 - display none/block 사용
+// 완전히 단순화된 토글 함수
 function toggleSidebarHover() {
     console.log('Toggle clicked');
     
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
+    const toggleIcon = document.getElementById('toggleIcon');
     
     if (!sidebar) {
         alert('사이드바를 찾을 수 없습니다!');
         return;
     }
     
-    // display 속성으로 직접 제어
-    if (sidebar.style.display === 'none' || sidebar.style.display === '') {
-        // 숨겨진 상태 확인을 위해 computed style 체크
-        const computedStyle = window.getComputedStyle(sidebar);
-        const isHidden = computedStyle.display === 'none' || 
-                         computedStyle.left === '-260px' || 
-                         computedStyle.left === '-220px' ||
-                         sidebar.getAttribute('data-hidden') === 'true';
+    // data-hidden 속성으로 상태 확인
+    const isHidden = sidebar.getAttribute('data-hidden') === 'true';
+    
+    if (isHidden) {
+        // 숨겨진 상태 -> 보이기
+        console.log('Showing sidebar');
+        sidebar.style.display = 'block';
+        sidebar.style.position = 'fixed';
+        sidebar.style.left = '0px';
+        sidebar.style.width = '260px';
+        sidebar.style.height = '100vh';
+        sidebar.style.top = '0';
+        sidebar.style.zIndex = '1000';
+        sidebar.setAttribute('data-hidden', 'false');
         
-        if (isHidden) {
-            // 보이기
-            console.log('Showing sidebar');
-            sidebar.style.display = 'block';
-            sidebar.style.position = 'fixed';
-            sidebar.style.left = '0px';
-            sidebar.style.width = '260px';
-            sidebar.setAttribute('data-hidden', 'false');
-            
-            if (content) {
-                content.style.marginLeft = '260px';
-                content.style.width = 'calc(100% - 260px)';
-            }
-            
-            localStorage.setItem('sidebar-auto-hide', 'false');
-        } else {
-            // 숨기기
-            console.log('Hiding sidebar');
-            sidebar.style.display = 'none';
-            sidebar.setAttribute('data-hidden', 'true');
-            
-            if (content) {
-                content.style.marginLeft = '0px';
-                content.style.width = '100%';
-            }
-            
-            localStorage.setItem('sidebar-auto-hide', 'true');
+        if (content) {
+            content.style.marginLeft = '260px';
+            content.style.width = 'calc(100% - 260px)';
         }
+        
+        if (toggleIcon) {
+            toggleIcon.className = 'fas fa-chevron-left';
+        }
+        
+        localStorage.setItem('sidebar-auto-hide', 'false');
+        alert('사이드바 보이기');
+        
     } else {
-        // 보이는 상태면 숨기기
-        console.log('Hiding sidebar (was visible)');
+        // 보이는 상태 -> 숨기기
+        console.log('Hiding sidebar');
         sidebar.style.display = 'none';
         sidebar.setAttribute('data-hidden', 'true');
         
@@ -724,8 +715,15 @@ function toggleSidebarHover() {
             content.style.width = '100%';
         }
         
+        if (toggleIcon) {
+            toggleIcon.className = 'fas fa-chevron-right';
+        }
+        
         localStorage.setItem('sidebar-auto-hide', 'true');
+        alert('사이드바 숨기기');
     }
+    
+    console.log('Final state - hidden:', sidebar.getAttribute('data-hidden'));
 }
 
 // Hover handlers for auto-hide sidebar - 최종 버전
@@ -789,11 +787,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Toggle button found');
     }
     
-    // 사이드바 확인
+    // 사이드바 초기화
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
+    const toggleIcon = document.getElementById('toggleIcon');
     
     if (sidebar) {
+        // 기본적으로 보이는 상태로 시작
+        sidebar.setAttribute('data-hidden', 'false');
+        sidebar.style.display = 'block';
+        
         const isAutoHide = localStorage.getItem('sidebar-auto-hide') === 'true';
         console.log('Auto-hide preference:', isAutoHide);
         
@@ -805,6 +808,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 content.style.marginLeft = '0px';
                 content.style.width = '100%';
             }
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-chevron-right';
+            }
         } else {
             // 보이기
             sidebar.style.display = 'block';
@@ -812,6 +818,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (content) {
                 content.style.marginLeft = '260px';
                 content.style.width = 'calc(100% - 260px)';
+            }
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-chevron-left';
             }
         }
     }
