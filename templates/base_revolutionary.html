@@ -86,6 +86,7 @@
             <!-- Revolutionary Page Content -->
             <div class="page-content">
                 <!-- Page Header Section -->
+                {% block page_header_section %}
                 <div class="page-header animate-fadeInUp">
                     <h1 class="page-title animate-glow">
                         {% block content_title %}{% endblock %}
@@ -96,6 +97,7 @@
                     </p>
                     {% endblock %}
                 </div>
+                {% endblock %}
                 
                 <!-- Main Content -->
                 <div class="animate-slideInLeft">

@@ -274,7 +274,7 @@
 <style>
 /* Enhanced Sidebar Styles */
 .sidebar-wrapper {
-    width: 280px;
+    width: 300px;
     background: linear-gradient(135deg, rgba(26, 31, 46, 0.98), rgba(10, 15, 27, 0.98));
     backdrop-filter: blur(20px);
     border-right: 1px solid rgba(0, 212, 255, 0.1);
@@ -292,16 +292,18 @@
 }
 
 .sidebar-logo {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    padding: 0 0.5rem;
 }
 
 .logo-icon {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
+    flex-shrink: 0;
 }
 
 .logo-text {
@@ -309,8 +311,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    letter-spacing: -0.5px;
 }
 
 .sidebar-subtitle {
@@ -553,14 +554,14 @@
 /* Responsive */
 @media (max-width: 1200px) {
     .sidebar-wrapper {
-        width: 250px;
+        width: 280px;
     }
 }
 
 @media (max-width: 768px) {
     .sidebar-wrapper {
         position: fixed;
-        left: -280px;
+        left: -300px;
         height: 100vh;
         z-index: 1000;
     }
