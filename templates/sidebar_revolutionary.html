@@ -8,7 +8,7 @@
         </div>
         <div class="sidebar-subtitle">AI HRM System</div>
         <!-- Toggle Button Inside Header - 더 눈에 띄게 -->
-        <button class="sidebar-toggle-btn" onclick="toggleSidebarHover()" title="사이드바 자동숨김 토글" style="display: flex !important;">
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="사이드바 자동숨김 토글" style="display: flex !important;">
             <i class="fas fa-chevron-left" id="toggleIcon"></i>
         </button>
     </div>
@@ -296,14 +296,19 @@
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Auto-hide functionality */
+/* Auto-hide functionality - 완전 재작성 */
+.sidebar-wrapper {
+    transition: transform 0.3s ease, left 0.3s ease !important;
+}
+
 .sidebar-wrapper.auto-hide {
     transform: translateX(-220px) !important;
-    transition: transform 0.3s ease !important;
+    left: -220px !important;
 }
 
 .sidebar-wrapper.auto-hide:hover {
-    transform: translateX(0) !important;
+    transform: translateX(220px) !important;
+    left: 0 !important;
 }
 
 /* Adjust main content when sidebar is hidden */
@@ -643,53 +648,74 @@ body.sidebar-hidden .content-wrapper {
 // Debug logging
 console.log('Sidebar script loaded');
 
-// Toggle auto-hide functionality - 완전 재구현
+// Toggle auto-hide functionality - 단순화 버전
 function toggleSidebarHover() {
-    console.log('🔄 Toggle button clicked');
+    console.log('🔄 Toggle button clicked at:', new Date().toISOString());
     
     const sidebar = document.getElementById('sidebar');
     const toggleIcon = document.getElementById('toggleIcon');
     const body = document.body;
+    const content = document.querySelector('.content-wrapper');
     
     if (!sidebar) {
         console.error('❌ Sidebar element not found');
+        alert('사이드바를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
         return;
     }
     
     // Toggle the class
-    sidebar.classList.toggle('auto-hide');
-    const isAutoHide = sidebar.classList.contains('auto-hide');
-    console.log('📌 Auto-hide state:', isAutoHide);
+    const hasAutoHide = sidebar.classList.contains('auto-hide');
     
-    // Update body class for content adjustment
-    if (isAutoHide) {
-        body.classList.add('sidebar-hidden');
-        console.log('✅ Added sidebar-hidden class to body');
-    } else {
+    if (hasAutoHide) {
+        // 자동숨김 해제
+        console.log('📂 Showing sidebar...');
+        sidebar.classList.remove('auto-hide');
         body.classList.remove('sidebar-hidden');
-        console.log('✅ Removed sidebar-hidden class from body');
+        sidebar.style.left = '0px';
+        sidebar.style.transform = 'translateX(0)';
+        
+        if (content) {
+            content.style.marginLeft = '260px';
+            content.style.width = 'calc(100% - 260px)';
+        }
+        
+        if (toggleIcon) {
+            toggleIcon.className = 'fas fa-chevron-left';
+        }
+        
+        localStorage.setItem('sidebar-auto-hide', 'false');
+        console.log('✅ Sidebar shown');
+        
+    } else {
+        // 자동숨김 활성화
+        console.log('📦 Hiding sidebar...');
+        sidebar.classList.add('auto-hide');
+        body.classList.add('sidebar-hidden');
+        sidebar.style.left = '-220px';
+        sidebar.style.transform = 'translateX(-220px)';
+        
+        if (content) {
+            content.style.marginLeft = '40px';
+            content.style.width = 'calc(100% - 40px)';
+        }
+        
+        if (toggleIcon) {
+            toggleIcon.className = 'fas fa-chevron-right';
+        }
+        
+        localStorage.setItem('sidebar-auto-hide', 'true');
+        console.log('✅ Sidebar hidden');
     }
     
-    // Update icon with smooth transition
-    if (toggleIcon) {
-        toggleIcon.className = isAutoHide ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
-        console.log('🔄 Icon updated:', toggleIcon.className);
-    }
-    
-    // Save preference to localStorage
-    try {
-        localStorage.setItem('sidebar-auto-hide', isAutoHide);
-        console.log('💾 Saved to localStorage:', isAutoHide);
-    } catch (e) {
-        console.error('❌ localStorage error:', e);
-    }
-    
-    // Force CSS update
-    sidebar.style.transform = isAutoHide ? 'translateX(-220px)' : 'translateX(0)';
-    console.log('🎨 Applied direct transform:', sidebar.style.transform);
+    console.log('📊 Final state:', {
+        hasAutoHide: sidebar.classList.contains('auto-hide'),
+        sidebarLeft: sidebar.style.left,
+        sidebarTransform: sidebar.style.transform,
+        bodyClasses: body.className
+    });
 }
 
-// Hover handlers for auto-hide sidebar
+// Hover handlers for auto-hide sidebar - 개선된 버전
 function setupSidebarHoverHandlers() {
     const sidebar = document.getElementById('sidebar');
     
@@ -700,14 +726,16 @@ function setupSidebarHoverHandlers() {
     
     sidebar.addEventListener('mouseenter', function() {
         if (this.classList.contains('auto-hide')) {
-            console.log('🖱️ Mouse entered sidebar - showing');
+            console.log('🖱️ Mouse entered sidebar - showing temporarily');
+            this.style.left = '0px';
             this.style.transform = 'translateX(0)';
         }
     });
     
     sidebar.addEventListener('mouseleave', function() {
         if (this.classList.contains('auto-hide')) {
-            console.log('🖱️ Mouse left sidebar - hiding');
+            console.log('🖱️ Mouse left sidebar - hiding again');
+            this.style.left = '-220px';
             this.style.transform = 'translateX(-220px)';
         }
     });
@@ -745,6 +773,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup hover handlers first
     setupSidebarHoverHandlers();
     
+    // Add event listener to toggle button - 중요!
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
+    if (toggleBtn) {
+        console.log('🔘 Adding click listener to toggle button');
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ Toggle button clicked via event listener');
+            toggleSidebarHover();
+        });
+        
+        // 두 번째 방법으로도 추가 (호환성을 위해)
+        toggleBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ Toggle button clicked via onclick');
+            toggleSidebarHover();
+            return false;
+        };
+    } else {
+        console.error('❌ Toggle button not found!');
+    }
+    
     // Restore auto-hide preference
     const sidebar = document.getElementById('sidebar');
     const toggleIcon = document.getElementById('toggleIcon');
@@ -761,7 +812,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isAutoHide) {
         sidebar.classList.add('auto-hide');
         body.classList.add('sidebar-hidden');
+        sidebar.style.left = '-220px';
         sidebar.style.transform = 'translateX(-220px)';
+        
+        const content = document.querySelector('.content-wrapper');
+        if (content) {
+            content.style.marginLeft = '40px';
+            content.style.width = 'calc(100% - 40px)';
+        }
         
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-chevron-right';
