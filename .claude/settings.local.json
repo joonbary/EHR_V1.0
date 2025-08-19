@@ -56,7 +56,8 @@
       "Bash(done)",
       "WebFetch(domain:github.com)",
       "Bash(del:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:ehrv10-production.up.railway.app)"
     ],
     "deny": []
   }

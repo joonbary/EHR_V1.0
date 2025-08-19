@@ -1,5 +1,5 @@
 <!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
-<aside class="sidebar-wrapper" id="sidebar">
+<aside class="sidebar-wrapper" id="sidebar" style="position: fixed; left: 0; transition: all 0.3s ease;">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="sidebar-logo">
@@ -648,14 +648,14 @@ body.sidebar-hidden .content-wrapper {
 // Debug logging
 console.log('Sidebar script loaded');
 
-// Toggle auto-hide functionality - 단순화 버전
+// Toggle auto-hide functionality - 최종 버전
 function toggleSidebarHover() {
     console.log('🔄 Toggle button clicked at:', new Date().toISOString());
     
     const sidebar = document.getElementById('sidebar');
     const toggleIcon = document.getElementById('toggleIcon');
     const body = document.body;
-    const content = document.querySelector('.content-wrapper');
+    const content = document.querySelector('.content-wrapper') || document.getElementById('content');
     
     if (!sidebar) {
         console.error('❌ Sidebar element not found');
@@ -663,20 +663,22 @@ function toggleSidebarHover() {
         return;
     }
     
-    // Toggle the class
-    const hasAutoHide = sidebar.classList.contains('auto-hide');
+    // 현재 상태 확인
+    const isHidden = sidebar.getAttribute('data-hidden') === 'true';
     
-    if (hasAutoHide) {
-        // 자동숨김 해제
+    if (isHidden) {
+        // 보이기
         console.log('📂 Showing sidebar...');
-        sidebar.classList.remove('auto-hide');
-        body.classList.remove('sidebar-hidden');
+        sidebar.setAttribute('data-hidden', 'false');
+        sidebar.style.position = 'fixed';
         sidebar.style.left = '0px';
         sidebar.style.transform = 'translateX(0)';
+        sidebar.style.transition = 'all 0.3s ease';
         
         if (content) {
             content.style.marginLeft = '260px';
             content.style.width = 'calc(100% - 260px)';
+            content.style.transition = 'all 0.3s ease';
         }
         
         if (toggleIcon) {
@@ -684,19 +686,21 @@ function toggleSidebarHover() {
         }
         
         localStorage.setItem('sidebar-auto-hide', 'false');
-        console.log('✅ Sidebar shown');
+        console.log('✅ Sidebar shown successfully');
         
     } else {
-        // 자동숨김 활성화
+        // 숨기기
         console.log('📦 Hiding sidebar...');
-        sidebar.classList.add('auto-hide');
-        body.classList.add('sidebar-hidden');
-        sidebar.style.left = '-220px';
-        sidebar.style.transform = 'translateX(-220px)';
+        sidebar.setAttribute('data-hidden', 'true');
+        sidebar.style.position = 'fixed';
+        sidebar.style.left = '-260px';
+        sidebar.style.transform = 'translateX(0)';
+        sidebar.style.transition = 'all 0.3s ease';
         
         if (content) {
-            content.style.marginLeft = '40px';
-            content.style.width = 'calc(100% - 40px)';
+            content.style.marginLeft = '0px';
+            content.style.width = '100%';
+            content.style.transition = 'all 0.3s ease';
         }
         
         if (toggleIcon) {
@@ -704,18 +708,17 @@ function toggleSidebarHover() {
         }
         
         localStorage.setItem('sidebar-auto-hide', 'true');
-        console.log('✅ Sidebar hidden');
+        console.log('✅ Sidebar hidden successfully');
     }
     
     console.log('📊 Final state:', {
-        hasAutoHide: sidebar.classList.contains('auto-hide'),
+        isHidden: sidebar.getAttribute('data-hidden'),
         sidebarLeft: sidebar.style.left,
-        sidebarTransform: sidebar.style.transform,
-        bodyClasses: body.className
+        contentMargin: content ? content.style.marginLeft : 'N/A'
     });
 }
 
-// Hover handlers for auto-hide sidebar - 개선된 버전
+// Hover handlers for auto-hide sidebar - 최종 버전
 function setupSidebarHoverHandlers() {
     const sidebar = document.getElementById('sidebar');
     
@@ -725,18 +728,18 @@ function setupSidebarHoverHandlers() {
     }
     
     sidebar.addEventListener('mouseenter', function() {
-        if (this.classList.contains('auto-hide')) {
-            console.log('🖱️ Mouse entered sidebar - showing temporarily');
+        if (this.getAttribute('data-hidden') === 'true') {
+            console.log('🖱️ Mouse entered - showing sidebar temporarily');
             this.style.left = '0px';
-            this.style.transform = 'translateX(0)';
+            this.style.transition = 'all 0.3s ease';
         }
     });
     
     sidebar.addEventListener('mouseleave', function() {
-        if (this.classList.contains('auto-hide')) {
-            console.log('🖱️ Mouse left sidebar - hiding again');
-            this.style.left = '-220px';
-            this.style.transform = 'translateX(-220px)';
+        if (this.getAttribute('data-hidden') === 'true') {
+            console.log('🖱️ Mouse left - hiding sidebar again');
+            this.style.left = '-260px';
+            this.style.transition = 'all 0.3s ease';
         }
     });
     
@@ -809,16 +812,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const isAutoHide = localStorage.getItem('sidebar-auto-hide') === 'true';
     console.log('📂 Restored auto-hide preference:', isAutoHide);
     
+    const content = document.querySelector('.content-wrapper') || document.getElementById('content');
+    
     if (isAutoHide) {
-        sidebar.classList.add('auto-hide');
-        body.classList.add('sidebar-hidden');
-        sidebar.style.left = '-220px';
-        sidebar.style.transform = 'translateX(-220px)';
+        // 숨김 상태로 초기화
+        sidebar.setAttribute('data-hidden', 'true');
+        sidebar.style.position = 'fixed';
+        sidebar.style.left = '-260px';
+        sidebar.style.transform = 'translateX(0)';
+        sidebar.style.transition = 'all 0.3s ease';
         
-        const content = document.querySelector('.content-wrapper');
         if (content) {
-            content.style.marginLeft = '40px';
-            content.style.width = 'calc(100% - 40px)';
+            content.style.marginLeft = '0px';
+            content.style.width = '100%';
+            content.style.transition = 'all 0.3s ease';
         }
         
         if (toggleIcon) {
@@ -826,6 +833,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         console.log('✅ Auto-hide state restored');
+    } else {
+        // 보임 상태로 초기화
+        sidebar.setAttribute('data-hidden', 'false');
+        sidebar.style.position = 'fixed';
+        sidebar.style.left = '0px';
+        sidebar.style.transform = 'translateX(0)';
+        
+        if (content) {
+            content.style.marginLeft = '260px';
+            content.style.width = 'calc(100% - 260px)';
+        }
     }
     
     // Restore expandable sections state
