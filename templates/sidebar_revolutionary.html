@@ -1,10 +1,5 @@
 <!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
 <aside class="sidebar-wrapper" id="sidebar">
-    <!-- Auto-hide Toggle Button -->
-    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebarHover()">
-        <i class="fas fa-bars"></i>
-    </button>
-    
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="sidebar-logo">
@@ -12,6 +7,10 @@
             <span class="logo-text">OK금융</span>
         </div>
         <div class="sidebar-subtitle">AI HRM System</div>
+        <!-- Toggle Button Inside Header -->
+        <button class="sidebar-toggle-btn" onclick="toggleSidebarHover()" title="자동숨김 토글">
+            <i class="fas fa-chevron-left" id="toggleIcon"></i>
+        </button>
     </div>
     
     <!-- Navigation Menu -->
@@ -299,7 +298,7 @@
 
 /* Auto-hide functionality */
 .sidebar-wrapper.auto-hide {
-    transform: translateX(-210px);
+    transform: translateX(-220px);
 }
 
 .sidebar-wrapper.auto-hide:hover {
@@ -307,33 +306,52 @@
 }
 
 /* Toggle Button */
-.sidebar-toggle {
+.sidebar-toggle-btn {
     position: absolute;
-    right: -40px;
-    top: 20px;
-    width: 35px;
-    height: 35px;
-    background: #00d4ff;
-    border: none;
-    border-radius: 0 5px 5px 0;
-    color: #000;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background: rgba(0, 212, 255, 0.2);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 50%;
+    color: #00d4ff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    z-index: 1001;
+    z-index: 10;
 }
 
-.sidebar-toggle:hover {
-    background: #00a8cc;
-    width: 40px;
+.sidebar-toggle-btn:hover {
+    background: rgba(0, 212, 255, 0.3);
+    border-color: #00d4ff;
+    transform: translateY(-50%) scale(1.1);
 }
 
-.sidebar-wrapper.auto-hide .sidebar-toggle {
+.sidebar-toggle-btn i {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-wrapper.auto-hide .sidebar-toggle-btn i {
+    transform: rotate(180deg);
+}
+
+/* Show indicator when auto-hide is active */
+.sidebar-wrapper.auto-hide::after {
+    content: '';
+    position: absolute;
     right: -40px;
-    background: rgba(0, 212, 255, 0.8);
-    color: #fff;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 60px;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1));
+    border-radius: 0 10px 10px 0;
+    pointer-events: none;
 }
 
 /* Sidebar Header */
@@ -342,6 +360,7 @@
     border-bottom: 1px solid rgba(0, 212, 255, 0.1);
     text-align: center;
     background: rgba(0, 0, 0, 0.3);
+    position: relative;
 }
 
 .sidebar-logo {
@@ -615,7 +634,16 @@
 // Toggle auto-hide functionality
 function toggleSidebarHover() {
     const sidebar = document.getElementById('sidebar');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
     sidebar.classList.toggle('auto-hide');
+    
+    // Update icon
+    if (sidebar.classList.contains('auto-hide')) {
+        toggleIcon.className = 'fas fa-chevron-right';
+    } else {
+        toggleIcon.className = 'fas fa-chevron-left';
+    }
     
     // Save preference to localStorage
     const isAutoHide = sidebar.classList.contains('auto-hide');
@@ -632,11 +660,13 @@ function adjustMainContent() {
     if (!content) return;
     
     if (sidebar.classList.contains('auto-hide')) {
-        content.style.marginLeft = '50px';
-        content.style.width = 'calc(100% - 50px)';
+        content.style.marginLeft = '40px';
+        content.style.width = 'calc(100% - 40px)';
+        content.style.transition = 'all 0.3s ease';
     } else {
         content.style.marginLeft = '260px';
         content.style.width = 'calc(100% - 260px)';
+        content.style.transition = 'all 0.3s ease';
     }
 }
 
@@ -656,8 +686,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Restore auto-hide preference
     const isAutoHide = localStorage.getItem('sidebar-auto-hide') === 'true';
     const sidebar = document.getElementById('sidebar');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
     if (isAutoHide) {
         sidebar.classList.add('auto-hide');
+        if (toggleIcon) {
+            toggleIcon.className = 'fas fa-chevron-right';
+        }
     }
     adjustMainContent();
     
