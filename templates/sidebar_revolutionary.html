@@ -298,11 +298,19 @@
 
 /* Auto-hide functionality */
 .sidebar-wrapper.auto-hide {
-    transform: translateX(-220px);
+    transform: translateX(-220px) !important;
+    transition: transform 0.3s ease !important;
 }
 
 .sidebar-wrapper.auto-hide:hover {
-    transform: translateX(0);
+    transform: translateX(0) !important;
+}
+
+/* Adjust main content when sidebar is hidden */
+body.sidebar-hidden .content-wrapper {
+    margin-left: 40px !important;
+    width: calc(100% - 40px) !important;
+    transition: all 0.3s ease !important;
 }
 
 /* Toggle Button */
@@ -631,44 +639,83 @@
 </style>
 
 <script>
-// Toggle auto-hide functionality
+// Debug logging
+console.log('Sidebar script loaded');
+
+// Toggle auto-hide functionality - 완전 재구현
 function toggleSidebarHover() {
+    console.log('🔄 Toggle button clicked');
+    
     const sidebar = document.getElementById('sidebar');
     const toggleIcon = document.getElementById('toggleIcon');
+    const body = document.body;
     
+    if (!sidebar) {
+        console.error('❌ Sidebar element not found');
+        return;
+    }
+    
+    // Toggle the class
     sidebar.classList.toggle('auto-hide');
+    const isAutoHide = sidebar.classList.contains('auto-hide');
+    console.log('📌 Auto-hide state:', isAutoHide);
     
-    // Update icon
-    if (sidebar.classList.contains('auto-hide')) {
-        toggleIcon.className = 'fas fa-chevron-right';
+    // Update body class for content adjustment
+    if (isAutoHide) {
+        body.classList.add('sidebar-hidden');
+        console.log('✅ Added sidebar-hidden class to body');
     } else {
-        toggleIcon.className = 'fas fa-chevron-left';
+        body.classList.remove('sidebar-hidden');
+        console.log('✅ Removed sidebar-hidden class from body');
+    }
+    
+    // Update icon with smooth transition
+    if (toggleIcon) {
+        toggleIcon.className = isAutoHide ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+        console.log('🔄 Icon updated:', toggleIcon.className);
     }
     
     // Save preference to localStorage
-    const isAutoHide = sidebar.classList.contains('auto-hide');
-    localStorage.setItem('sidebar-auto-hide', isAutoHide);
+    try {
+        localStorage.setItem('sidebar-auto-hide', isAutoHide);
+        console.log('💾 Saved to localStorage:', isAutoHide);
+    } catch (e) {
+        console.error('❌ localStorage error:', e);
+    }
     
-    // Adjust main content
-    adjustMainContent();
+    // Force CSS update
+    sidebar.style.transform = isAutoHide ? 'translateX(-220px)' : 'translateX(0)';
+    console.log('🎨 Applied direct transform:', sidebar.style.transform);
 }
 
-// Adjust main content based on sidebar state
-function adjustMainContent() {
+// Hover handlers for auto-hide sidebar
+function setupSidebarHoverHandlers() {
     const sidebar = document.getElementById('sidebar');
-    const content = document.querySelector('.content-wrapper');
-    if (!content) return;
     
-    if (sidebar.classList.contains('auto-hide')) {
-        content.style.marginLeft = '40px';
-        content.style.width = 'calc(100% - 40px)';
-        content.style.transition = 'all 0.3s ease';
-    } else {
-        content.style.marginLeft = '260px';
-        content.style.width = 'calc(100% - 260px)';
-        content.style.transition = 'all 0.3s ease';
+    if (!sidebar) {
+        console.error('❌ Sidebar not found for hover handlers');
+        return;
     }
+    
+    sidebar.addEventListener('mouseenter', function() {
+        if (this.classList.contains('auto-hide')) {
+            console.log('🖱️ Mouse entered sidebar - showing');
+            this.style.transform = 'translateX(0)';
+        }
+    });
+    
+    sidebar.addEventListener('mouseleave', function() {
+        if (this.classList.contains('auto-hide')) {
+            console.log('🖱️ Mouse left sidebar - hiding');
+            this.style.transform = 'translateX(-220px)';
+        }
+    });
+    
+    console.log('✅ Hover handlers setup complete');
 }
+
+// Global function for easier debugging
+window.toggleSidebar = toggleSidebarHover;
 
 // Toggle expandable sections
 function toggleSection(element) {
@@ -683,18 +730,35 @@ function toggleSection(element) {
 
 // Restore section states on page load
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM loaded, initializing sidebar');
+    
+    // Setup hover handlers first
+    setupSidebarHoverHandlers();
+    
     // Restore auto-hide preference
-    const isAutoHide = localStorage.getItem('sidebar-auto-hide') === 'true';
     const sidebar = document.getElementById('sidebar');
     const toggleIcon = document.getElementById('toggleIcon');
+    const body = document.body;
+    
+    if (!sidebar) {
+        console.error('❌ Sidebar not found on page load');
+        return;
+    }
+    
+    const isAutoHide = localStorage.getItem('sidebar-auto-hide') === 'true';
+    console.log('📂 Restored auto-hide preference:', isAutoHide);
     
     if (isAutoHide) {
         sidebar.classList.add('auto-hide');
+        body.classList.add('sidebar-hidden');
+        sidebar.style.transform = 'translateX(-220px)';
+        
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-chevron-right';
         }
+        
+        console.log('✅ Auto-hide state restored');
     }
-    adjustMainContent();
     
     // Restore expandable sections state
     const sections = document.querySelectorAll('.nav-section.expandable');
@@ -719,5 +783,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    
+    console.log('🎉 Sidebar initialization complete');
 });
 </script>
