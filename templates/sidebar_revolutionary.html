@@ -3,10 +3,13 @@
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="sidebar-logo">
-            <span class="logo-text">OK</span>
+            <div class="logo-icon">🏢</div>
+            <div class="logo-name">OK</div>
         </div>
-        <div class="sidebar-subtitle">OK금융그룹</div>
-        <div class="sidebar-description">차세대 AI 인사시스템</div>
+        <div class="sidebar-info">
+            <div class="info-company">금융그룹</div>
+            <div class="info-system">AI HRM</div>
+        </div>
     </div>
     
     <!-- Navigation Menu -->
@@ -274,7 +277,9 @@
 <style>
 /* Enhanced Sidebar Styles */
 .sidebar-wrapper {
-    width: 280px;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
     background: linear-gradient(135deg, rgba(26, 31, 46, 0.98), rgba(10, 15, 27, 0.98));
     backdrop-filter: blur(20px);
     border-right: 1px solid rgba(0, 212, 255, 0.1);
@@ -283,38 +288,51 @@
     transition: all 0.3s ease;
     overflow-y: auto;
     overflow-x: hidden;
+    flex-shrink: 0;
 }
 
 .sidebar-header {
-    padding: 2rem 1rem 1.5rem;
+    padding: 1rem;
     border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-    text-align: center;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .sidebar-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
 }
 
-.logo-text {
-    font-size: 2.5rem;
+.logo-icon {
+    font-size: 1.5rem;
+}
+
+.logo-name {
+    font-size: 1.8rem;
     font-weight: 900;
     background: linear-gradient(135deg, #00d4ff, #0099cc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    letter-spacing: -2px;
+    letter-spacing: -1px;
 }
 
-.sidebar-subtitle {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.9);
+.sidebar-info {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.info-company {
     font-weight: 500;
-    margin-bottom: 0.3rem;
 }
 
-.sidebar-description {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.5);
+.info-system {
     font-weight: 300;
+    color: rgba(0, 212, 255, 0.7);
 }
 
 .sidebar-nav {
@@ -504,20 +522,22 @@
 /* Collapsed State */
 .sidebar-wrapper.collapsed {
     width: 70px;
+    min-width: 70px;
+    max-width: 70px;
 }
 
-.sidebar-wrapper.collapsed .sidebar-subtitle,
-.sidebar-wrapper.collapsed .sidebar-description,
+.sidebar-wrapper.collapsed .logo-name,
+.sidebar-wrapper.collapsed .sidebar-info,
 .sidebar-wrapper.collapsed .nav-text,
-.sidebar-wrapper.collapsed .nav-section-title i:not(.fa-chevron-down),
+.sidebar-wrapper.collapsed .nav-section-title,
 .sidebar-wrapper.collapsed .nav-subsection,
 .sidebar-wrapper.collapsed .badge-new,
 .sidebar-wrapper.collapsed .user-name {
     display: none;
 }
 
-.sidebar-wrapper.collapsed .logo-text {
-    font-size: 2rem;
+.sidebar-wrapper.collapsed .logo-icon {
+    font-size: 1.8rem;
 }
 
 .sidebar-wrapper.collapsed .nav-icon {
@@ -551,22 +571,16 @@
 /* Responsive */
 @media (max-width: 1200px) {
     .sidebar-wrapper {
-        width: 260px;
-    }
-    
-    .logo-text {
-        font-size: 2.2rem;
-    }
-    
-    .sidebar-subtitle {
-        font-size: 0.85rem;
+        width: 220px;
+        min-width: 220px;
+        max-width: 220px;
     }
 }
 
 @media (max-width: 768px) {
     .sidebar-wrapper {
         position: fixed;
-        left: -280px;
+        left: -240px;
         height: 100vh;
         z-index: 1000;
     }
