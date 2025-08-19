@@ -3,11 +3,13 @@
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="sidebar-brand">
-            <div class="brand-logo">
-                <span class="brand-ok">OK</span>
-                <span class="brand-fg">금융그룹</span>
+            <div class="brand-main">
+                <span class="brand-highlight">OK</span>
+                <span class="brand-text">Financial</span>
             </div>
-            <div class="brand-subtitle">차세대 AI 인사시스템</div>
+            <div class="brand-sub">Group</div>
+            <div class="brand-divider"></div>
+            <div class="brand-desc">차세대 AI 인사시스템</div>
         </div>
     </div>
     
@@ -288,7 +290,7 @@
 }
 
 .sidebar-header {
-    padding: 1.5rem 1rem;
+    padding: 1.2rem 0.8rem;
     border-bottom: 1px solid rgba(0, 212, 255, 0.1);
     text-align: center;
 }
@@ -297,35 +299,52 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
 }
 
-.brand-logo {
+.brand-main {
     display: flex;
-    align-items: baseline;
-    gap: 0.3rem;
-    font-weight: 700;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.1rem;
 }
 
-.brand-ok {
-    font-size: 1.8rem;
+.brand-highlight {
+    font-size: 1.75rem;
+    font-weight: 900;
     background: linear-gradient(135deg, #00d4ff, #0099cc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-weight: 900;
     letter-spacing: -1px;
+    line-height: 1;
 }
 
-.brand-fg {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
+.brand-text {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 600;
+    letter-spacing: -0.3px;
 }
 
-.brand-subtitle {
-    font-size: 0.75rem;
+.brand-sub {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+    margin-top: -0.2rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.brand-divider {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+    margin: 0.5rem 0;
+}
+
+.brand-desc {
+    font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
 .sidebar-nav {
@@ -517,8 +536,10 @@
     width: 70px;
 }
 
-.sidebar-wrapper.collapsed .brand-fg,
-.sidebar-wrapper.collapsed .brand-subtitle,
+.sidebar-wrapper.collapsed .brand-text,
+.sidebar-wrapper.collapsed .brand-sub,
+.sidebar-wrapper.collapsed .brand-divider,
+.sidebar-wrapper.collapsed .brand-desc,
 .sidebar-wrapper.collapsed .nav-text,
 .sidebar-wrapper.collapsed .nav-section-title i:not(.fa-chevron-down),
 .sidebar-wrapper.collapsed .nav-subsection,
@@ -527,8 +548,8 @@
     display: none;
 }
 
-.sidebar-wrapper.collapsed .brand-ok {
-    font-size: 2.2rem;
+.sidebar-wrapper.collapsed .brand-highlight {
+    font-size: 2rem;
 }
 
 .sidebar-wrapper.collapsed .nav-icon {
@@ -565,12 +586,16 @@
         width: 260px;
     }
     
-    .brand-ok {
+    .brand-highlight {
         font-size: 1.6rem;
     }
     
-    .brand-fg {
-        font-size: 0.9rem;
+    .brand-text {
+        font-size: 0.85rem;
+    }
+    
+    .brand-sub {
+        font-size: 0.75rem;
     }
 }
 
