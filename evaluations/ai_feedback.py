@@ -17,25 +17,17 @@ try:
     api_key = os.getenv('OPENAI_API_KEY')
     if api_key:
         try:
-            # OpenAI 클라이언트 생성 (proxies 인자 제거)
+            # OpenAI 클라이언트 생성 - 새 버전 API만 지원
             client = OpenAI(api_key=api_key)
             logger.info("OpenAI 클라이언트 초기화 성공")
-        except TypeError as e:
-            # 구버전 호환성을 위한 폴백
-            logger.warning(f"OpenAI 클라이언트 초기화 오류: {str(e)}")
-            try:
-                import openai
-                openai.api_key = api_key
-                client = None  # 구버전 API 사용
-                OPENAI_AVAILABLE = True
-                logger.info("OpenAI 구버전 API 사용")
-            except Exception as e2:
-                logger.error(f"OpenAI 초기화 실패: {str(e2)}")
-                client = None
-                OPENAI_AVAILABLE = False
+        except Exception as e:
+            logger.error(f"OpenAI 클라이언트 초기화 실패: {str(e)}")
+            client = None
+            OPENAI_AVAILABLE = False
     else:
         client = None
         logger.warning("OpenAI API 키가 설정되지 않았습니다.")
+        OPENAI_AVAILABLE = False
 except ImportError:
     OPENAI_AVAILABLE = False
     client = None
@@ -78,18 +70,9 @@ class AIFeedbackGenerator:
                 )
                 feedback = response.choices[0].message.content.strip()
             else:
-                # 구버전 API 폴백
-                import openai
-                response = openai.ChatCompletion.create(
-                    model=self.model,
-                    messages=[
-                        {"role": "system", "content": "당신은 전문적인 HR 평가자입니다. 건설적이고 구체적인 피드백을 한국어로 제공하세요."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    max_tokens=self.max_tokens,
-                    temperature=self.temperature
-                )
-                feedback = response.choices[0].message.content.strip()
+                # 클라이언트가 없으면 폴백 메시지 반환
+                logger.warning("OpenAI 클라이언트를 사용할 수 없습니다.")
+                return self._generate_fallback_feedback(evaluation_data, "contribution")
             
             return feedback
             
