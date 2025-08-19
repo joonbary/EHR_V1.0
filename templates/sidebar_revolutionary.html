@@ -2,15 +2,11 @@
 <aside class="sidebar-wrapper" id="sidebar">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
-        <div class="sidebar-brand">
-            <div class="brand-main">
-                <span class="brand-highlight">OK</span>
-                <span class="brand-text">Financial</span>
-            </div>
-            <div class="brand-sub">Group</div>
-            <div class="brand-divider"></div>
-            <div class="brand-desc">차세대 AI 인사시스템</div>
+        <div class="sidebar-logo">
+            <span class="logo-text">OK</span>
         </div>
+        <div class="sidebar-subtitle">OK금융그룹</div>
+        <div class="sidebar-description">차세대 AI 인사시스템</div>
     </div>
     
     <!-- Navigation Menu -->
@@ -290,61 +286,35 @@
 }
 
 .sidebar-header {
-    padding: 1.2rem 0.8rem;
+    padding: 2rem 1rem 1.5rem;
     border-bottom: 1px solid rgba(0, 212, 255, 0.1);
     text-align: center;
 }
 
-.sidebar-brand {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.sidebar-logo {
+    margin-bottom: 0.5rem;
 }
 
-.brand-main {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-bottom: 0.1rem;
-}
-
-.brand-highlight {
-    font-size: 1.75rem;
+.logo-text {
+    font-size: 2.5rem;
     font-weight: 900;
     background: linear-gradient(135deg, #00d4ff, #0099cc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    letter-spacing: -1px;
-    line-height: 1;
+    letter-spacing: -2px;
 }
 
-.brand-text {
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: 600;
-    letter-spacing: -0.3px;
+.sidebar-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    margin-bottom: 0.3rem;
 }
 
-.brand-sub {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 400;
-    margin-top: -0.2rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.brand-divider {
-    width: 40px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
-    margin: 0.5rem 0;
-}
-
-.brand-desc {
+.sidebar-description {
     font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.3px;
+    font-weight: 300;
 }
 
 .sidebar-nav {
@@ -536,10 +506,8 @@
     width: 70px;
 }
 
-.sidebar-wrapper.collapsed .brand-text,
-.sidebar-wrapper.collapsed .brand-sub,
-.sidebar-wrapper.collapsed .brand-divider,
-.sidebar-wrapper.collapsed .brand-desc,
+.sidebar-wrapper.collapsed .sidebar-subtitle,
+.sidebar-wrapper.collapsed .sidebar-description,
 .sidebar-wrapper.collapsed .nav-text,
 .sidebar-wrapper.collapsed .nav-section-title i:not(.fa-chevron-down),
 .sidebar-wrapper.collapsed .nav-subsection,
@@ -548,7 +516,7 @@
     display: none;
 }
 
-.sidebar-wrapper.collapsed .brand-highlight {
+.sidebar-wrapper.collapsed .logo-text {
     font-size: 2rem;
 }
 
@@ -586,16 +554,12 @@
         width: 260px;
     }
     
-    .brand-highlight {
-        font-size: 1.6rem;
+    .logo-text {
+        font-size: 2.2rem;
     }
     
-    .brand-text {
+    .sidebar-subtitle {
         font-size: 0.85rem;
-    }
-    
-    .brand-sub {
-        font-size: 0.75rem;
     }
 }
 
