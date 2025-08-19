@@ -1,10 +1,8 @@
 <!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
 <aside class="sidebar-wrapper" id="sidebar">
     <!-- Sidebar Header -->
-    <div class="sidebar-header">
-        <div class="sidebar-logo">
-            <div class="logo-icon">💼</div>
-        </div>
+    <div style="padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div style="font-size: 24px; font-weight: bold; color: #00d4ff;">HRM</div>
     </div>
     
     <!-- Navigation Menu -->
@@ -270,49 +268,19 @@
 </aside>
 
 <style>
-/* Enhanced Sidebar Styles */
+/* Enhanced Sidebar Styles - Simplified */
 .sidebar-wrapper {
-    width: 240px;
-    min-width: 240px;
-    max-width: 240px;
-    background: linear-gradient(135deg, rgba(26, 31, 46, 0.98), rgba(10, 15, 27, 0.98));
-    backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(0, 212, 255, 0.1);
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+    background: #1a1f2e !important;
+    border-right: 1px solid rgba(0, 212, 255, 0.2);
     display: flex;
     flex-direction: column;
-    transition: all 0.3s ease;
+    height: 100vh;
+    position: relative;
     overflow-y: auto;
     overflow-x: hidden;
-    flex-shrink: 0;
-}
-
-.sidebar-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-    text-align: center;
-}
-
-.sidebar-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.logo-icon {
-    font-size: 2.5rem;
-    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
-    }
-    50% {
-        transform: scale(1.05);
-        filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.8));
-    }
 }
 
 .sidebar-nav {
@@ -501,9 +469,9 @@
 
 /* Collapsed State */
 .sidebar-wrapper.collapsed {
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
 }
 
 .sidebar-wrapper.collapsed .nav-text,
@@ -512,10 +480,6 @@
 .sidebar-wrapper.collapsed .badge-new,
 .sidebar-wrapper.collapsed .user-name {
     display: none;
-}
-
-.sidebar-wrapper.collapsed .logo-icon {
-    font-size: 2rem;
 }
 
 .sidebar-wrapper.collapsed .nav-icon {
@@ -547,19 +511,10 @@
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-    .sidebar-wrapper {
-        width: 220px;
-        min-width: 220px;
-        max-width: 220px;
-    }
-}
-
 @media (max-width: 768px) {
     .sidebar-wrapper {
         position: fixed;
-        left: -240px;
-        height: 100vh;
+        left: -200px;
         z-index: 1000;
     }
     
