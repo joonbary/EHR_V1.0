@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sidebar Toggle Test</title>
+    <style>
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: #333;
+            color: white;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .sidebar.hidden {
+            left: -260px;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .content.expanded {
+            margin-left: 0;
+        }
+        .toggle-btn {
+            position: fixed;
+            left: 270px;
+            top: 10px;
+            z-index: 1000;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <h2>Sidebar</h2>
+        <p>Menu items here</p>
+    </div>
+    
+    <div class="content" id="content">
+        <button class="toggle-btn" onclick="toggleSidebar()">Toggle Sidebar</button>
+        <h1>Main Content</h1>
+        <p>Content goes here</p>
+    </div>
+
+    <script>
+        let isHidden = false;
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            isHidden = !isHidden;
+            
+            if (isHidden) {
+                sidebar.classList.add('hidden');
+                content.classList.add('expanded');
+                console.log('Sidebar hidden');
+            } else {
+                sidebar.classList.remove('hidden');
+                content.classList.remove('expanded');
+                console.log('Sidebar shown');
+            }
+        }
+    </script>
+</body>
+</html>

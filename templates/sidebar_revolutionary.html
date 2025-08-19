@@ -664,32 +664,40 @@ window.simpleToggle = function() {
     }
 };
 
-// 완전히 단순화된 토글 함수
+// 체계적으로 재작성된 토글 함수
 function toggleSidebarHover() {
-    console.log('Toggle clicked');
+    console.log('=== Toggle Start ===');
     
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
     const toggleIcon = document.getElementById('toggleIcon');
     
     if (!sidebar) {
-        alert('사이드바를 찾을 수 없습니다!');
+        console.error('Sidebar not found!');
         return;
     }
     
-    // data-hidden 속성으로 상태 확인
-    const isHidden = sidebar.getAttribute('data-hidden') === 'true';
+    // 현재 display 상태로 판단 (가장 확실한 방법)
+    const computedStyle = window.getComputedStyle(sidebar);
+    const isCurrentlyHidden = computedStyle.display === 'none';
     
-    if (isHidden) {
+    console.log('Current state - hidden:', isCurrentlyHidden);
+    console.log('Current display:', computedStyle.display);
+    
+    if (isCurrentlyHidden) {
         // 숨겨진 상태 -> 보이기
-        console.log('Showing sidebar');
-        sidebar.style.display = 'block';
-        sidebar.style.position = 'fixed';
-        sidebar.style.left = '0px';
-        sidebar.style.width = '260px';
-        sidebar.style.height = '100vh';
-        sidebar.style.top = '0';
-        sidebar.style.zIndex = '1000';
+        console.log('Action: Showing sidebar');
+        
+        // 강제로 모든 스타일 재설정
+        sidebar.style.cssText = `
+            display: block !important;
+            position: fixed !important;
+            left: 0px !important;
+            top: 0 !important;
+            width: 260px !important;
+            height: 100vh !important;
+            z-index: 1000 !important;
+        `;
         sidebar.setAttribute('data-hidden', 'false');
         
         if (content) {
@@ -701,12 +709,12 @@ function toggleSidebarHover() {
             toggleIcon.className = 'fas fa-chevron-left';
         }
         
-        localStorage.setItem('sidebar-auto-hide', 'false');
-        console.log('Sidebar is now visible');
+        console.log('✅ Sidebar should now be visible');
         
     } else {
         // 보이는 상태 -> 숨기기
-        console.log('Hiding sidebar');
+        console.log('Action: Hiding sidebar');
+        
         sidebar.style.display = 'none';
         sidebar.setAttribute('data-hidden', 'true');
         
@@ -719,11 +727,13 @@ function toggleSidebarHover() {
             toggleIcon.className = 'fas fa-chevron-right';
         }
         
-        localStorage.setItem('sidebar-auto-hide', 'true');
-        console.log('Sidebar is now hidden');
+        console.log('✅ Sidebar should now be hidden');
     }
     
-    console.log('Final state - hidden:', sidebar.getAttribute('data-hidden'));
+    // 최종 상태 확인
+    const finalStyle = window.getComputedStyle(sidebar);
+    console.log('Final display:', finalStyle.display);
+    console.log('=== Toggle End ===');
 }
 
 // Hover handlers for auto-hide sidebar - 최종 버전
@@ -754,16 +764,52 @@ function setupSidebarHoverHandlers() {
     console.log('✅ Hover handlers setup complete');
 }
 
-// Global function for easier debugging
+// Global functions for debugging
 window.toggleSidebar = toggleSidebarHover;
-window.testSidebar = function() {
-    console.log('🧪 Testing sidebar elements:');
-    console.log('- Sidebar element:', document.getElementById('sidebar'));
-    console.log('- Toggle icon:', document.getElementById('toggleIcon'));
-    console.log('- Body element:', document.body);
-    console.log('- Content wrapper:', document.querySelector('.content-wrapper'));
-    console.log('- Current classes on sidebar:', document.getElementById('sidebar')?.className);
-    console.log('- Current classes on body:', document.body.className);
+
+// 디버그 함수 - 현재 상태 확인
+window.debugSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) {
+        console.error('Sidebar not found!');
+        return;
+    }
+    
+    const computed = window.getComputedStyle(sidebar);
+    console.log('=== SIDEBAR DEBUG INFO ===');
+    console.log('Display:', computed.display);
+    console.log('Position:', computed.position);
+    console.log('Left:', computed.left);
+    console.log('Width:', computed.width);
+    console.log('Data-hidden:', sidebar.getAttribute('data-hidden'));
+    console.log('Inline styles:', sidebar.style.cssText);
+    console.log('=========================');
+};
+
+// 강제로 보이기
+window.showSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.style.cssText = `
+            display: block !important;
+            position: fixed !important;
+            left: 0px !important;
+            top: 0 !important;
+            width: 260px !important;
+            height: 100vh !important;
+            z-index: 1000 !important;
+        `;
+        console.log('Sidebar forced to show');
+    }
+};
+
+// 강제로 숨기기
+window.hideSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.style.display = 'none';
+        console.log('Sidebar forced to hide');
+    }
 };
 
 // Toggle expandable sections
@@ -787,16 +833,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Toggle button found');
     }
     
-    // 사이드바 초기화 - 항상 보이는 상태로 시작
+    // 사이드바 초기화 - 기본값 설정만
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
     const toggleIcon = document.getElementById('toggleIcon');
     
     if (sidebar) {
-        // localStorage 초기화 (문제 해결을 위해)
-        localStorage.removeItem('sidebar-auto-hide');
-        
-        // 항상 보이는 상태로 설정
+        // 기본적으로 보이는 상태로 설정 (localStorage는 건드리지 않음)
         sidebar.style.display = 'block';
         sidebar.style.position = 'fixed';
         sidebar.style.left = '0px';
@@ -815,9 +858,9 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleIcon.className = 'fas fa-chevron-left';
         }
         
-        console.log('Sidebar initialized - visible by default');
+        console.log('✅ Sidebar initialized successfully');
     } else {
-        console.error('Sidebar element not found!');
+        console.error('❌ Sidebar element not found!');
     }
     
     // Restore expandable sections state
