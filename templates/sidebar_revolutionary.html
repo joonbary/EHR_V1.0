@@ -7,8 +7,8 @@
             <span class="logo-text">OK금융</span>
         </div>
         <div class="sidebar-subtitle">AI HRM System</div>
-        <!-- Toggle Button Inside Header - 직접 onclick 추가 -->
-        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="alert('버튼 클릭됨!'); toggleSidebarHover(); return false;" title="사이드바 자동숨김 토글" style="display: flex !important; z-index: 9999;">
+        <!-- Toggle Button Inside Header -->
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebarHover(); return false;" title="사이드바 자동숨김 토글" style="display: flex !important; z-index: 9999;">
             <i class="fas fa-chevron-left" id="toggleIcon"></i>
         </button>
     </div>
@@ -702,7 +702,7 @@ function toggleSidebarHover() {
         }
         
         localStorage.setItem('sidebar-auto-hide', 'false');
-        alert('사이드바 보이기');
+        console.log('Sidebar is now visible');
         
     } else {
         // 보이는 상태 -> 숨기기
@@ -720,7 +720,7 @@ function toggleSidebarHover() {
         }
         
         localStorage.setItem('sidebar-auto-hide', 'true');
-        alert('사이드바 숨기기');
+        console.log('Sidebar is now hidden');
     }
     
     console.log('Final state - hidden:', sidebar.getAttribute('data-hidden'));
@@ -787,42 +787,37 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Toggle button found');
     }
     
-    // 사이드바 초기화
+    // 사이드바 초기화 - 항상 보이는 상태로 시작
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
     const toggleIcon = document.getElementById('toggleIcon');
     
     if (sidebar) {
-        // 기본적으로 보이는 상태로 시작
-        sidebar.setAttribute('data-hidden', 'false');
+        // localStorage 초기화 (문제 해결을 위해)
+        localStorage.removeItem('sidebar-auto-hide');
+        
+        // 항상 보이는 상태로 설정
         sidebar.style.display = 'block';
+        sidebar.style.position = 'fixed';
+        sidebar.style.left = '0px';
+        sidebar.style.top = '0';
+        sidebar.style.width = '260px';
+        sidebar.style.height = '100vh';
+        sidebar.style.zIndex = '1000';
+        sidebar.setAttribute('data-hidden', 'false');
         
-        const isAutoHide = localStorage.getItem('sidebar-auto-hide') === 'true';
-        console.log('Auto-hide preference:', isAutoHide);
-        
-        if (isAutoHide) {
-            // 숨기기
-            sidebar.style.display = 'none';
-            sidebar.setAttribute('data-hidden', 'true');
-            if (content) {
-                content.style.marginLeft = '0px';
-                content.style.width = '100%';
-            }
-            if (toggleIcon) {
-                toggleIcon.className = 'fas fa-chevron-right';
-            }
-        } else {
-            // 보이기
-            sidebar.style.display = 'block';
-            sidebar.setAttribute('data-hidden', 'false');
-            if (content) {
-                content.style.marginLeft = '260px';
-                content.style.width = 'calc(100% - 260px)';
-            }
-            if (toggleIcon) {
-                toggleIcon.className = 'fas fa-chevron-left';
-            }
+        if (content) {
+            content.style.marginLeft = '260px';
+            content.style.width = 'calc(100% - 260px)';
         }
+        
+        if (toggleIcon) {
+            toggleIcon.className = 'fas fa-chevron-left';
+        }
+        
+        console.log('Sidebar initialized - visible by default');
+    } else {
+        console.error('Sidebar element not found!');
     }
     
     // Restore expandable sections state
