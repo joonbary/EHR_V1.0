@@ -16,7 +16,23 @@ try:
     OPENAI_AVAILABLE = True
     api_key = os.getenv('OPENAI_API_KEY')
     if api_key:
-        client = OpenAI(api_key=api_key)
+        try:
+            # OpenAI 클라이언트 생성 (proxies 인자 제거)
+            client = OpenAI(api_key=api_key)
+            logger.info("OpenAI 클라이언트 초기화 성공")
+        except TypeError as e:
+            # 구버전 호환성을 위한 폴백
+            logger.warning(f"OpenAI 클라이언트 초기화 오류: {str(e)}")
+            try:
+                import openai
+                openai.api_key = api_key
+                client = None  # 구버전 API 사용
+                OPENAI_AVAILABLE = True
+                logger.info("OpenAI 구버전 API 사용")
+            except Exception as e2:
+                logger.error(f"OpenAI 초기화 실패: {str(e2)}")
+                client = None
+                OPENAI_AVAILABLE = False
     else:
         client = None
         logger.warning("OpenAI API 키가 설정되지 않았습니다.")
@@ -24,6 +40,10 @@ except ImportError:
     OPENAI_AVAILABLE = False
     client = None
     logger.warning("OpenAI 패키지가 설치되지 않았습니다. pip install openai를 실행하세요.")
+except Exception as e:
+    OPENAI_AVAILABLE = False
+    client = None
+    logger.error(f"OpenAI 초기화 중 예상치 못한 오류: {str(e)}")
 
 
 class AIFeedbackGenerator:
@@ -41,26 +61,36 @@ class AIFeedbackGenerator:
         if not OPENAI_AVAILABLE:
             return self._generate_fallback_feedback(evaluation_data, "contribution")
             
-        if not self.client:
-            logger.warning("OpenAI 클라이언트가 초기화되지 않았습니다.")
-            return self._generate_fallback_feedback(evaluation_data, "contribution")
-        
         try:
             # 프롬프트 구성
             prompt = self._build_contribution_prompt(evaluation_data)
             
-            # OpenAI API 호출 (새로운 버전)
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "당신은 전문적인 HR 평가자입니다. 건설적이고 구체적인 피드백을 한국어로 제공하세요."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=self.max_tokens,
-                temperature=self.temperature
-            )
+            if self.client:
+                # 새로운 버전 API 사용
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": "당신은 전문적인 HR 평가자입니다. 건설적이고 구체적인 피드백을 한국어로 제공하세요."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature
+                )
+                feedback = response.choices[0].message.content.strip()
+            else:
+                # 구버전 API 폴백
+                import openai
+                response = openai.ChatCompletion.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": "당신은 전문적인 HR 평가자입니다. 건설적이고 구체적인 피드백을 한국어로 제공하세요."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature
+                )
+                feedback = response.choices[0].message.content.strip()
             
-            feedback = response.choices[0].message.content.strip()
             return feedback
             
         except Exception as e:
@@ -73,14 +103,12 @@ class AIFeedbackGenerator:
         if not OPENAI_AVAILABLE:
             return self._generate_fallback_feedback(evaluation_data, "expertise")
             
-        if not self.client:
-            return self._generate_fallback_feedback(evaluation_data, "expertise")
-        
         try:
             prompt = self._build_expertise_prompt(evaluation_data)
             
-            response = self.client.chat.completions.create(
-                model=self.model,
+            if self.client:
+                response = self.client.chat.completions.create(
+                    model=self.model,
                 messages=[
                     {"role": "system", "content": "당신은 전문성 개발 컨설턴트입니다. 역량 개발을 위한 구체적인 조언을 한국어로 제공하세요."},
                     {"role": "user", "content": prompt}
