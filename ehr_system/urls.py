@@ -27,6 +27,7 @@ urlpatterns = [
     path('compensation/', include('compensation.urls')),
     path('promotions/', include('promotions.urls')),
     path('selfservice/', include('selfservice.urls')),
+    path('permissions/', include('permissions.urls')),
     
     # 경영진 대시보드 - 실제 View 함수 사용
     path('leader-kpi-dashboard/', leader_kpi_dashboard, name='leader_kpi_dashboard'),
