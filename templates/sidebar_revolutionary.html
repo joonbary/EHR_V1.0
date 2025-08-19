@@ -4,7 +4,7 @@
     <div class="sidebar-header">
         <div class="sidebar-logo">
             <span class="logo-icon">🏢</span>
-            OK Financial HRM
+            <span class="logo-text">OK금융그룹</span>
         </div>
         <div class="sidebar-subtitle">차세대 AI 인사시스템</div>
     </div>
@@ -292,11 +292,8 @@
 }
 
 .sidebar-logo {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #00d4ff, #0099cc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -304,7 +301,16 @@
 }
 
 .logo-icon {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+}
+
+.logo-text {
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sidebar-subtitle {
@@ -502,10 +508,7 @@
     width: 70px;
 }
 
-.sidebar-wrapper.collapsed .sidebar-logo {
-    font-size: 1.5rem;
-}
-
+.sidebar-wrapper.collapsed .logo-text,
 .sidebar-wrapper.collapsed .sidebar-subtitle,
 .sidebar-wrapper.collapsed .nav-text,
 .sidebar-wrapper.collapsed .nav-section-title i:not(.fa-chevron-down),
@@ -513,6 +516,10 @@
 .sidebar-wrapper.collapsed .badge-new,
 .sidebar-wrapper.collapsed .user-name {
     display: none;
+}
+
+.sidebar-wrapper.collapsed .logo-icon {
+    font-size: 2rem;
 }
 
 .sidebar-wrapper.collapsed .nav-icon {
