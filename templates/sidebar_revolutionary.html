@@ -7,8 +7,8 @@
             <span class="logo-text">OK금융</span>
         </div>
         <div class="sidebar-subtitle">AI HRM System</div>
-        <!-- Toggle Button Inside Header -->
-        <button class="sidebar-toggle-btn" onclick="toggleSidebarHover()" title="자동숨김 토글">
+        <!-- Toggle Button Inside Header - 더 눈에 띄게 -->
+        <button class="sidebar-toggle-btn" onclick="toggleSidebarHover()" title="사이드바 자동숨김 토글" style="display: flex !important;">
             <i class="fas fa-chevron-left" id="toggleIcon"></i>
         </button>
     </div>
@@ -313,30 +313,31 @@ body.sidebar-hidden .content-wrapper {
     transition: all 0.3s ease !important;
 }
 
-/* Toggle Button */
+/* Toggle Button - 더 눈에 띄게 개선 */
 .sidebar-toggle-btn {
     position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 30px;
-    height: 30px;
-    background: rgba(0, 212, 255, 0.2);
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    right: 8px;
+    top: 15px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 212, 255, 0.3) !important;
+    border: 2px solid rgba(0, 212, 255, 0.5) !important;
     border-radius: 50%;
-    color: #00d4ff;
+    color: #00d4ff !important;
     cursor: pointer;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    z-index: 10;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
 }
 
 .sidebar-toggle-btn:hover {
-    background: rgba(0, 212, 255, 0.3);
-    border-color: #00d4ff;
-    transform: translateY(-50%) scale(1.1);
+    background: rgba(0, 212, 255, 0.5) !important;
+    border-color: #00d4ff !important;
+    transform: scale(1.15) !important;
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.5) !important;
 }
 
 .sidebar-toggle-btn i {
@@ -716,6 +717,15 @@ function setupSidebarHoverHandlers() {
 
 // Global function for easier debugging
 window.toggleSidebar = toggleSidebarHover;
+window.testSidebar = function() {
+    console.log('🧪 Testing sidebar elements:');
+    console.log('- Sidebar element:', document.getElementById('sidebar'));
+    console.log('- Toggle icon:', document.getElementById('toggleIcon'));
+    console.log('- Body element:', document.body);
+    console.log('- Content wrapper:', document.querySelector('.content-wrapper'));
+    console.log('- Current classes on sidebar:', document.getElementById('sidebar')?.className);
+    console.log('- Current classes on body:', document.body.className);
+};
 
 // Toggle expandable sections
 function toggleSection(element) {
