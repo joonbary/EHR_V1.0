@@ -15,11 +15,35 @@ try:
     from openai import OpenAI
     OPENAI_AVAILABLE = True
     api_key = os.getenv('OPENAI_API_KEY')
+    
+    # HTTP(S)_PROXY 환경변수 임시 제거
+    old_http_proxy = os.environ.pop('HTTP_PROXY', None)
+    old_https_proxy = os.environ.pop('HTTPS_PROXY', None)
+    old_http_proxy_lower = os.environ.pop('http_proxy', None)
+    old_https_proxy_lower = os.environ.pop('https_proxy', None)
+    
     if api_key:
         try:
-            # OpenAI 클라이언트 생성 - 새 버전 API만 지원
+            # OpenAI 클라이언트 생성 - proxies 관련 환경변수 제거 후
             client = OpenAI(api_key=api_key)
             logger.info("OpenAI 클라이언트 초기화 성공")
+            OPENAI_AVAILABLE = True
+        except TypeError as e:
+            if 'proxies' in str(e):
+                # proxies 인자 문제면 다른 방법 시도
+                logger.warning(f"OpenAI proxies 문제: {str(e)}")
+                try:
+                    # 기본 설정만으로 초기화
+                    import openai
+                    client = OpenAI(api_key=api_key)
+                    OPENAI_AVAILABLE = True
+                except:
+                    client = None
+                    OPENAI_AVAILABLE = False
+            else:
+                logger.error(f"OpenAI 클라이언트 초기화 실패: {str(e)}")
+                client = None
+                OPENAI_AVAILABLE = False
         except Exception as e:
             logger.error(f"OpenAI 클라이언트 초기화 실패: {str(e)}")
             client = None
@@ -28,6 +52,17 @@ try:
         client = None
         logger.warning("OpenAI API 키가 설정되지 않았습니다.")
         OPENAI_AVAILABLE = False
+    
+    # 환경변수 복원
+    if old_http_proxy:
+        os.environ['HTTP_PROXY'] = old_http_proxy
+    if old_https_proxy:
+        os.environ['HTTPS_PROXY'] = old_https_proxy
+    if old_http_proxy_lower:
+        os.environ['http_proxy'] = old_http_proxy_lower
+    if old_https_proxy_lower:
+        os.environ['https_proxy'] = old_https_proxy_lower
+        
 except ImportError:
     OPENAI_AVAILABLE = False
     client = None
