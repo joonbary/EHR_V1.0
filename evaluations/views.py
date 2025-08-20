@@ -1534,12 +1534,17 @@ def calibration_list(request):
     try:
         sessions = CalibrationSession.objects.all().order_by('-session_date')
         
+        # 디버깅: 세션 개수 출력
+        print(f"DEBUG: Found {sessions.count()} calibration sessions")
+        
         context = {
             'sessions': sessions,
+            'debug_info': f"세션 개수: {sessions.count()}"
         }
         
         return render(request, 'evaluations/calibration_list.html', context)
     except Exception as e:
+        print(f"ERROR: {str(e)}")
         messages.error(request, f'Calibration 세션 로딩 중 오류가 발생했습니다: {str(e)}')
         return render(request, 'evaluations/calibration_list.html', {'sessions': []})
 

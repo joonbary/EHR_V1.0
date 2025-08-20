@@ -1,14 +1,22 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}Calibration Sessions - OK금융그룹 eHR{% endblock %}
+{% block title %}Calibration Sessions - 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Calibration Center{% endblock %}
+{% block content_title %}Calibration Sessions{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    평가 일관성과 공정성을 위한 Calibration 세션 관리 센터
+</p>
+{% endblock %}
 
 {% block extra_css %}
 <style>
-    .calibration-container {
-        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
-        min-height: 100vh;
+    .revolutionary-container {
         padding: 2rem 0;
+        min-height: 100vh;
     }
 
     .session-card {
@@ -181,10 +189,15 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">Calibration Sessions</h1>
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        
+        <!-- 디버그 정보 -->
+        {% if debug_info %}
+        <div class="alert alert-info">
+            {{ debug_info }}
+        </div>
+        {% endif %}
         
         {% if sessions %}
             {% for session in sessions %}
@@ -243,7 +256,6 @@
         <a href="{% url 'evaluations:create_calibration_session' %}" class="create-session-btn" title="새 세션 생성">
             <i class="fas fa-plus"></i>
         </a>
-        </div>
     </div>
 </div>
 {% endblock %}
