@@ -1,0 +1,414 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}새 Calibration Session 생성 - 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}새 Calibration Session{% endblock %}
+{% block content_title %}Calibration Session 생성{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    평가 일관성과 공정성 확보를 위한 새로운 Calibration 세션을 생성합니다
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .revolutionary-container {
+        padding: 2rem 0;
+        min-height: 100vh;
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .form-container:hover::before {
+        left: 100%;
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #00d4ff;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        resize: vertical;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-textarea {
+        min-height: 120px;
+    }
+
+    .form-help {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 0.5rem;
+    }
+
+    .participants-section {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .participants-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .participant-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .participant-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.2);
+    }
+
+    .participant-checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: #00d4ff;
+    }
+
+    .participant-info {
+        flex: 1;
+    }
+
+    .participant-name {
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.25rem;
+    }
+
+    .participant-details {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .btn-calibration {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-calibration:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border: 1px solid;
+    }
+
+    .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+    }
+
+    .alert-warning {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: #fcd34d;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 2rem;
+        }
+
+        .participants-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-calibration {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if not active_period %}
+            <div class="alert alert-warning">
+                <strong>알림:</strong> 활성화된 평가 기간이 없습니다. 먼저 평가 기간을 설정해주세요.
+            </div>
+        {% endif %}
+
+        <div class="form-container">
+            <form method="post" id="calibrationForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="session_name" class="form-label">세션명</label>
+                    <input 
+                        type="text" 
+                        id="session_name" 
+                        name="session_name" 
+                        class="form-input"
+                        placeholder="예: Q4 리더십 Calibration"
+                        required
+                    >
+                    <div class="form-help">
+                        Calibration 세션의 목적과 대상을 명확히 나타내는 이름을 입력하세요.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="session_date" class="form-label">세션 날짜</label>
+                    <input 
+                        type="date" 
+                        id="session_date" 
+                        name="session_date" 
+                        class="form-input"
+                        required
+                    >
+                    <div class="form-help">
+                        Calibration 세션을 진행할 예정 날짜를 선택하세요.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="department" class="form-label">대상 부서 (선택)</label>
+                    <select id="department" name="department" class="form-select">
+                        <option value="">전체 부서</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">인사</option>
+                        <option value="FINANCE">재무</option>
+                        <option value="MARKETING">마케팅</option>
+                        <option value="SALES">영업</option>
+                        <option value="OPERATIONS">운영</option>
+                    </select>
+                    <div class="form-help">
+                        특정 부서를 대상으로 하는 경우 선택하세요.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="agenda" class="form-label">안건</label>
+                    <textarea 
+                        id="agenda" 
+                        name="agenda" 
+                        class="form-textarea"
+                        placeholder="세션의 주요 안건과 목표를 입력하세요..."
+                    ></textarea>
+                    <div class="form-help">
+                        세션에서 다룰 주요 안건과 논의 사항을 상세히 기록하세요.
+                    </div>
+                </div>
+
+                {% if potential_participants %}
+                <div class="form-group">
+                    <label class="form-label">참여자 선택</label>
+                    <div class="participants-section">
+                        <div class="form-help">
+                            Calibration 세션에 참여할 구성원을 선택하세요.
+                        </div>
+                        <div class="participants-grid">
+                            {% for participant in potential_participants %}
+                            <div class="participant-item">
+                                <input 
+                                    type="checkbox" 
+                                    id="participant_{{ participant.id }}"
+                                    name="participants"
+                                    value="{{ participant.id }}"
+                                    class="participant-checkbox"
+                                >
+                                <div class="participant-info">
+                                    <div class="participant-name">{{ participant.name }}</div>
+                                    <div class="participant-details">
+                                        {{ participant.department }} | {{ participant.new_position }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <a href="{% url 'evaluations:calibration_list' %}" class="btn-calibration btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        취소
+                    </a>
+                    <button type="submit" class="btn-calibration btn-primary">
+                        <i class="fas fa-plus"></i>
+                        세션 생성
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today
+    const dateInput = document.getElementById('session_date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    
+    // Form validation
+    const form = document.getElementById('calibrationForm');
+    form.addEventListener('submit', function(e) {
+        const sessionName = document.getElementById('session_name').value.trim();
+        const sessionDate = document.getElementById('session_date').value;
+        
+        if (!sessionName) {
+            e.preventDefault();
+            alert('세션명을 입력해주세요.');
+            document.getElementById('session_name').focus();
+            return;
+        }
+        
+        if (!sessionDate) {
+            e.preventDefault();
+            alert('세션 날짜를 선택해주세요.');
+            document.getElementById('session_date').focus();
+            return;
+        }
+        
+        // Check if selected date is in the past
+        const selectedDate = new Date(sessionDate);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        
+        if (selectedDate < currentDate) {
+            const confirmed = confirm('선택한 날짜가 과거입니다. 계속 진행하시겠습니까?');
+            if (!confirmed) {
+                e.preventDefault();
+                return;
+            }
+        }
+    });
+    
+    // Smooth animations
+    const formContainer = document.querySelector('.form-container');
+    formContainer.style.opacity = '0';
+    formContainer.style.transform = 'translateY(30px)';
+    
+    setTimeout(() => {
+        formContainer.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        formContainer.style.opacity = '1';
+        formContainer.style.transform = 'translateY(0)';
+    }, 100);
+});
+</script>
+{% endblock %}

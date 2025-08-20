@@ -1483,50 +1483,67 @@ def calibration_session(request, session_id):
 
 def create_calibration_session(request):
     """Calibration Session 생성"""
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    if not active_period:
-        messages.error(request, "활성화된 평가 기간이 없습니다.")
-        return redirect('evaluations:dashboard')
-    
-    if request.method == 'POST':
-        try:
-            session = CalibrationSession.objects.create(
-                evaluation_period=active_period,
-                session_name=request.POST['session_name'],
-                session_date=request.POST['session_date'],
-                facilitator=Employee.objects.filter(employment_status='재직').first(),
-                agenda=request.POST.get('agenda', ''),
-                s_grade_ratio=request.POST.get('s_grade_ratio', 10),
-                a_grade_ratio=request.POST.get('a_grade_ratio', 30),
-                b_grade_ratio=request.POST.get('b_grade_ratio', 50),
-                c_grade_ratio=request.POST.get('c_grade_ratio', 10),
-            )
-            
-            # 참여자 추가
-            participant_ids = request.POST.getlist('participants')
-            if participant_ids:
-                participants = Employee.objects.filter(id__in=participant_ids)
-                session.participants.set(participants)
-            
-            messages.success(request, "Calibration Session이 생성되었습니다.")
-            return redirect('evaluations:calibration_session', session_id=session.id)
-            
-        except Exception as e:
-            messages.error(request, f"Calibration Session 생성 중 오류가 발생했습니다: {str(e)}")
-    
-    # 참여 가능한 직원들 (관리자급)
-    potential_participants = Employee.objects.filter(
-        employment_status='재직',
-        position__in=['부장', '차장', '과장']  # 실제 조직에 맞게 수정
-    )
-    
-    context = {
-        'active_period': active_period,
-        'potential_participants': potential_participants,
-    }
-    
-    return render(request, 'evaluations/create_calibration_session.html', context)
+    try:
+        active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+        
+        if not active_period:
+            messages.warning(request, "활성화된 평가 기간이 없습니다.")
+            # 대신 템플릿으로 이동하여 경고 표시
+        
+        if request.method == 'POST':
+            try:
+                # 필수 필드 검증
+                session_name = request.POST.get('session_name', '').strip()
+                session_date = request.POST.get('session_date', '')
+                
+                if not session_name:
+                    messages.error(request, "세션명을 입력해주세요.")
+                elif not session_date:
+                    messages.error(request, "세션 날짜를 선택해주세요.")
+                elif not active_period:
+                    messages.error(request, "활성화된 평가 기간이 없어서 세션을 생성할 수 없습니다.")
+                else:
+                    session = CalibrationSession.objects.create(
+                        evaluation_period=active_period,
+                        session_name=session_name,
+                        session_date=session_date,
+                        facilitator=Employee.objects.filter(employment_status='재직').first(),
+                        agenda=request.POST.get('agenda', ''),
+                        department=request.POST.get('department', '') or None,
+                        s_grade_ratio=request.POST.get('s_grade_ratio', 10),
+                        a_grade_ratio=request.POST.get('a_grade_ratio', 30),
+                        b_grade_ratio=request.POST.get('b_grade_ratio', 50),
+                        c_grade_ratio=request.POST.get('c_grade_ratio', 10),
+                    )
+                    
+                    # 참여자 추가
+                    participant_ids = request.POST.getlist('participants')
+                    if participant_ids:
+                        participants = Employee.objects.filter(id__in=participant_ids)
+                        session.participants.set(participants)
+                    
+                    messages.success(request, f"'{session_name}' Calibration Session이 생성되었습니다.")
+                    return redirect('evaluations:calibration_list')
+                    
+            except Exception as e:
+                messages.error(request, f"Calibration Session 생성 중 오류가 발생했습니다: {str(e)}")
+        
+        # 참여 가능한 직원들 (관리자급)
+        potential_participants = Employee.objects.filter(
+            employment_status='재직',
+            new_position__in=['부장', '차장', '과장', '팀장', '본부장']  # 실제 조직에 맞게 수정
+        )[:20]  # 최대 20명으로 제한
+        
+        context = {
+            'active_period': active_period,
+            'potential_participants': potential_participants,
+        }
+        
+        return render(request, 'evaluations/create_calibration_session.html', context)
+        
+    except Exception as e:
+        messages.error(request, f"페이지 로딩 중 오류가 발생했습니다: {str(e)}")
+        return redirect('evaluations:calibration_list')
 
 
 def calibration_list(request):
