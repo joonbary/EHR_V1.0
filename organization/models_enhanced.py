@@ -3,12 +3,18 @@ Enhanced Organization Models for Advanced Org Chart Management
 """
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.db import transaction
 import uuid
 import json
+
+# Django 3.1+ has JSONField for all databases
+try:
+    from django.db.models import JSONField
+except ImportError:
+    # For older Django versions, use TextField with JSON serialization
+    from django.contrib.postgres.fields import JSONField
 
 
 class OrgUnit(models.Model):

@@ -180,48 +180,64 @@ def position_detail(request, position_id):
 
 
 def organization_chart(request):
-    """고급 조직도 (React 기반)"""
+    """조직도 뷰 - 간소화된 버전"""
+    # 기본 컨텍스트 데이터
+    context = {
+        'total_units': 0,
+        'total_scenarios': 0,
+        'company_stats': {},
+        'recent_scenarios': [],
+        'current_chart': None,
+        'total_departments': 0,
+        'total_employees': 0,
+    }
+    
+    # Enhanced 모델 시도 (있으면 사용)
     try:
         from .models_enhanced import OrgUnit, OrgScenario
         
-        # 기본 통계 정보
-        total_units = OrgUnit.objects.count()
-        total_scenarios = OrgScenario.objects.count()
-        
-        # 회사별 조직 수
-        company_stats = {}
-        for company in ['OK저축은행', 'OK캐피탈', 'OK금융그룹']:
-            company_stats[company] = OrgUnit.objects.filter(company=company).count()
-        
-        # 최근 시나리오
-        recent_scenarios = OrgScenario.objects.order_by('-created_at')[:5]
-        
-        enhanced_stats = {
-            'total_units': total_units,
-            'total_scenarios': total_scenarios,
-            'company_stats': company_stats,
-            'recent_scenarios': recent_scenarios,
-        }
-    except ImportError:
-        # models_enhanced가 없으면 빈 데이터
-        enhanced_stats = {
-            'total_units': 0,
-            'total_scenarios': 0,
-            'company_stats': {},
-            'recent_scenarios': [],
-        }
+        # 마이그레이션이 실행되었는지 확인
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='organization_orgunit';")
+            if cursor.fetchone():
+                # 테이블이 존재하면 데이터 가져오기
+                context['total_units'] = OrgUnit.objects.count()
+                context['total_scenarios'] = OrgScenario.objects.count()
+                
+                # 회사별 조직 수
+                company_stats = {}
+                for company in ['OK저축은행', 'OK캐피탈', 'OK금융그룹']:
+                    company_stats[company] = OrgUnit.objects.filter(company=company).count()
+                context['company_stats'] = company_stats
+                
+                # 최근 시나리오
+                context['recent_scenarios'] = list(OrgScenario.objects.order_by('-created_at')[:5])
+    except (ImportError, Exception) as e:
+        # Enhanced 모델이 없거나 에러 발생시 무시
+        print(f"Enhanced models skipped: {e}")
     
-    context = {
-        **enhanced_stats,
-        
-        # 기존 호환성을 위한 데이터
-        'current_chart': OrganizationChart.objects.filter(is_active=True).first(),
-        'total_departments': Department.objects.filter(is_active=True).count(),
-        'total_employees': Employee.objects.filter(employment_status='재직').count(),
-    }
+    # 기본 모델 데이터
+    try:
+        # 테이블 존재 확인
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='organization_department';")
+            if cursor.fetchone():
+                context['total_departments'] = Department.objects.filter(is_active=True).count()
+                
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='employees_employee';")
+            if cursor.fetchone():
+                context['total_employees'] = Employee.objects.filter(employment_status='재직').count()
+                
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='organization_organizationchart';")
+            if cursor.fetchone():
+                context['current_chart'] = OrganizationChart.objects.filter(is_active=True).first()
+    except Exception as e:
+        print(f"Basic models error (ignored): {e}")
     
-    # Revolutionary 템플릿 강제 사용
-    return render(request, 'organization/organization_chart_revolutionary.html', context)
+    # 템플릿 렌더링
+    return render(request, 'organization/organization_chart.html', context)
 
 
 def transfer_list(request):
