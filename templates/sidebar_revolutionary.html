@@ -324,7 +324,7 @@
 /* 토글 버튼 스타일 */
 .sidebar-toggle-btn {
     position: fixed !important;
-    left: 270px;
+    left: 270px !important;
     top: 20px;
     width: 40px;
     height: 40px;
@@ -333,18 +333,25 @@
     border-radius: 50%;
     color: #000 !important;
     font-size: 20px;
+    font-weight: bold;
     cursor: pointer;
     z-index: 10000 !important;
-    transition: left 0.3s ease, transform 0.3s ease;
+    transition: left 0.3s ease !important;
     box-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);
     display: flex !important;
     align-items: center;
     justify-content: center;
 }
 
-/* 자동숨김 상태일 때 버튼 위치 - 반드시 왼쪽으로 */
+/* 자동숨김 상태일 때 버튼 위치 - CSS로만 처리 */
 .sidebar-toggle-btn.btn-shifted {
-    left: 30px !important;
+    left: 20px !important;
+    animation: slideToLeft 0.3s ease forwards;
+}
+
+@keyframes slideToLeft {
+    from { left: 270px; }
+    to { left: 20px; }
 }
 
 .sidebar-toggle-btn:hover {
@@ -388,11 +395,12 @@
 }
 
 .logo-text {
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: 1.8rem;
+    font-weight: 800;
     color: #00d4ff;
     letter-spacing: -0.5px;
     white-space: nowrap;
+    text-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);
 }
 
 .sidebar-subtitle {
@@ -663,7 +671,7 @@ window.simpleToggle = function() {
     }
 };
 
-// 간단한 자동숨김 토글 함수 - 클래스 충돌 해결
+// 간단한 자동숨김 토글 함수 - CSS 위주로 처리
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
@@ -679,10 +687,7 @@ function toggleSidebar() {
         // 자동숨김 해제 (항상 보이기)
         sidebar.classList.remove('sidebar-auto-hide');
         if (content) content.classList.remove('expanded');
-        
-        // 버튼 위치와 스타일 변경
         toggleBtn.classList.remove('btn-shifted');
-        toggleBtn.style.setProperty('left', '270px', 'important');
         toggleBtn.innerHTML = '◀';
         
         console.log('사이드바 항상 보이기 모드');
@@ -690,10 +695,7 @@ function toggleSidebar() {
         // 자동숨김 활성화
         sidebar.classList.add('sidebar-auto-hide');
         if (content) content.classList.add('expanded');
-        
-        // 버튼 위치와 스타일 변경
         toggleBtn.classList.add('btn-shifted');
-        toggleBtn.style.setProperty('left', '30px', 'important');
         toggleBtn.innerHTML = '☰';
         
         console.log('자동숨김 모드 활성화');
@@ -703,8 +705,8 @@ function toggleSidebar() {
     localStorage.setItem('sidebar-auto-hide', sidebar.classList.contains('sidebar-auto-hide'));
     
     // 디버그 정보
-    console.log('버튼 위치:', toggleBtn.style.left);
     console.log('사이드바 클래스:', sidebar.className);
+    console.log('버튼 클래스:', toggleBtn.className);
 }
 
 // Hover handlers for auto-hide sidebar - 최종 버전
@@ -804,12 +806,15 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Toggle button found');
     }
     
-    // 사이드바 초기화 - 간단한 상태 복원 (클래스 충돌 해결)
+    // 사이드바 초기화 - CSS 기반 위치 제어
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
     const toggleBtn = document.getElementById('sidebarToggle');
     
     if (sidebar && toggleBtn) {
+        // 인라인 스타일 제거 (CSS로만 처리)
+        toggleBtn.style.removeProperty('left');
+        
         // 저장된 상태 확인 (기본값: 자동숨김)
         const autoHide = localStorage.getItem('sidebar-auto-hide') !== 'false';
         
@@ -817,21 +822,17 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.classList.add('sidebar-auto-hide');
             if (content) content.classList.add('expanded');
             toggleBtn.classList.add('btn-shifted');
-            // 명시적으로 스타일 설정
-            toggleBtn.style.setProperty('left', '30px', 'important');
             toggleBtn.innerHTML = '☰';
         } else {
             sidebar.classList.remove('sidebar-auto-hide');
             if (content) content.classList.remove('expanded');
             toggleBtn.classList.remove('btn-shifted');
-            // 명시적으로 스타일 설정
-            toggleBtn.style.setProperty('left', '270px', 'important');
             toggleBtn.innerHTML = '◀';
         }
         
         console.log('사이드바 초기화 완료:', autoHide ? '자동숨김' : '항상보임');
-        console.log('버튼 위치:', toggleBtn.style.left);
         console.log('사이드바 클래스:', sidebar.className);
+        console.log('버튼 클래스:', toggleBtn.className);
     } else {
         console.error('❌ Sidebar or toggle button not found!');
     }
