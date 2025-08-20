@@ -1,6 +1,6 @@
-<!-- Toggle Button Outside Sidebar -->
-<button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebarHover(); return false;" title="사이드바 자동숨김 토글">
-    <i class="fas fa-chevron-left" id="toggleIcon"></i>
+<!-- 간단한 자동숨김 토글 버튼 -->
+<button id="sidebarToggle" class="sidebar-toggle-btn" onclick="toggleSidebar()">
+    <span id="toggleIcon">☰</span>
 </button>
 
 <!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
@@ -297,92 +297,60 @@
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Auto-hide functionality - 마우스 호버 자동숨김 */
+/* 간단한 자동숨김 기능 */
 .sidebar-wrapper {
     transition: transform 0.3s ease !important;
 }
 
-/* 자동숨김 활성화 상태 */
+/* 자동숨김 상태 - 20px만 보이게 */
 .sidebar-wrapper.auto-hide {
-    transform: translateX(-240px) !important; /* 20px 남겨서 호버 영역 확보 */
+    transform: translateX(-240px) !important;
 }
 
-/* 자동숨김 상태에서 호버시 */
+/* 자동숨김 상태에서 호버하면 전체 보이기 */
 .sidebar-wrapper.auto-hide:hover {
     transform: translateX(0) !important;
 }
 
-/* 수동으로 완전히 숨긴 상태 */
-.sidebar-wrapper.hidden {
-    transform: translateX(-260px) !important;
-}
-
-/* 호버 영역 인디케이터 */
-.sidebar-wrapper.auto-hide::after {
-    content: '';
-    position: absolute;
-    right: -20px;
-    top: 0;
-    width: 20px;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), transparent);
-    cursor: pointer;
-}
-
-/* Adjust main content when sidebar is auto-hidden */
+/* 컨텐츠 영역 조정 */
 .content-wrapper {
     transition: margin-left 0.3s ease !important;
 }
 
-.content-wrapper.auto-expanded {
+.content-wrapper.expanded {
     margin-left: 20px !important;
     width: calc(100% - 20px) !important;
 }
 
-.content-wrapper.expanded {
-    margin-left: 0 !important;
-    width: 100% !important;
-}
-
-/* Toggle Button - 사이드바 밖에 위치, 항상 보임 */
+/* 토글 버튼 스타일 */
 .sidebar-toggle-btn {
     position: fixed !important;
     left: 270px;
     top: 20px;
-    width: 36px;
-    height: 36px;
-    background: rgba(0, 212, 255, 0.3) !important;
-    border: 2px solid rgba(0, 212, 255, 0.5) !important;
+    width: 40px;
+    height: 40px;
+    background: #00d4ff !important;
+    border: none !important;
     border-radius: 50%;
-    color: #00d4ff !important;
+    color: #000 !important;
+    font-size: 20px;
     cursor: pointer;
+    z-index: 10000 !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);
     display: flex !important;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
-    z-index: 10000 !important;
-    box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
 }
 
-/* 사이드바가 숨겨졌을 때 버튼 위치 조정 */
+/* 자동숨김 상태일 때 버튼 위치 */
 .sidebar-toggle-btn.shifted {
-    left: 10px !important;
+    left: 30px !important;
 }
 
 .sidebar-toggle-btn:hover {
-    background: rgba(0, 212, 255, 0.5) !important;
-    border-color: #00d4ff !important;
-    transform: scale(1.15) !important;
-    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.5) !important;
-}
-
-.sidebar-toggle-btn i {
-    font-size: 14px;
-    transition: transform 0.3s ease;
-}
-
-.sidebar-wrapper.hidden ~ .sidebar-toggle-btn i {
-    transform: rotate(180deg);
+    transform: scale(1.1) !important;
+    background: #0099cc !important;
 }
 
 /* Show indicator when auto-hide is active */
@@ -695,76 +663,33 @@ window.simpleToggle = function() {
     }
 };
 
-// 자동숨김 토글 함수 - 3가지 모드 지원
-function toggleSidebarHover() {
-    console.log('=== Toggle Start ===');
-    
+// 간단한 자동숨김 토글 함수
+function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
-    const toggleBtn = document.getElementById('sidebarToggleBtn');
-    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleBtn = document.getElementById('sidebarToggle');
     
-    if (!sidebar) {
-        console.error('Sidebar not found!');
-        return;
-    }
-    
-    // 현재 상태 확인
-    const isAutoHide = sidebar.classList.contains('auto-hide');
-    const isHidden = sidebar.classList.contains('hidden');
-    
-    if (isHidden) {
-        // 완전 숨김 -> 자동숨김 모드
-        sidebar.classList.remove('hidden');
-        sidebar.classList.add('auto-hide');
-        if (content) {
-            content.classList.remove('expanded');
-            content.classList.add('auto-expanded');
-        }
-        if (toggleBtn) {
-            toggleBtn.classList.remove('shifted');
-            toggleBtn.style.left = '30px';
-        }
-        if (toggleIcon) {
-            toggleIcon.className = 'fas fa-bars';
-        }
-        console.log('✅ Auto-hide mode enabled');
-        
-    } else if (isAutoHide) {
-        // 자동숨김 -> 일반 모드
+    // 자동숨김 모드 토글
+    if (sidebar.classList.contains('auto-hide')) {
+        // 자동숨김 해제 (항상 보이기)
         sidebar.classList.remove('auto-hide');
-        if (content) {
-            content.classList.remove('auto-expanded');
-        }
-        if (toggleBtn) {
-            toggleBtn.style.left = '270px';
-        }
-        if (toggleIcon) {
-            toggleIcon.className = 'fas fa-chevron-left';
-        }
-        console.log('✅ Normal mode (always visible)');
+        if (content) content.classList.remove('expanded');
+        toggleBtn.classList.remove('shifted');
+        toggleBtn.innerHTML = '<span>◀</span>';
         
+        console.log('사이드바 항상 보이기 모드');
     } else {
-        // 일반 모드 -> 완전 숨김
-        sidebar.classList.add('hidden');
-        if (content) {
-            content.classList.add('expanded');
-        }
-        if (toggleBtn) {
-            toggleBtn.classList.add('shifted');
-            toggleBtn.style.left = '10px';
-        }
-        if (toggleIcon) {
-            toggleIcon.className = 'fas fa-chevron-right';
-        }
-        console.log('✅ Fully hidden');
+        // 자동숨김 활성화
+        sidebar.classList.add('auto-hide');
+        if (content) content.classList.add('expanded');
+        toggleBtn.classList.add('shifted');
+        toggleBtn.innerHTML = '<span>☰</span>';
+        
+        console.log('자동숨김 모드 활성화');
     }
     
     // 상태 저장
-    const state = isHidden ? 'auto-hide' : (isAutoHide ? 'normal' : 'hidden');
-    localStorage.setItem('sidebar-state', state);
-    
-    console.log('=== Toggle End ===');
+    localStorage.setItem('sidebar-auto-hide', sidebar.classList.contains('auto-hide'));
 }
 
 // Hover handlers for auto-hide sidebar - 최종 버전
@@ -864,65 +789,25 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Toggle button found');
     }
     
-    // 사이드바 초기화 - 저장된 상태 복원
+    // 사이드바 초기화 - 간단한 상태 복원
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
-    const toggleBtn = document.getElementById('sidebarToggleBtn');
-    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleBtn = document.getElementById('sidebarToggle');
     
     if (sidebar) {
-        // 인라인 스타일 제거하고 클래스로 관리
-        sidebar.removeAttribute('style');
+        // 저장된 상태 확인 (기본값: 자동숨김)
+        const autoHide = localStorage.getItem('sidebar-auto-hide') !== 'false';
         
-        // 저장된 상태 복원 (기본값: auto-hide)
-        const savedState = localStorage.getItem('sidebar-state') || 'auto-hide';
-        
-        if (savedState === 'auto-hide') {
+        if (autoHide) {
             sidebar.classList.add('auto-hide');
-            sidebar.classList.remove('hidden');
-            if (content) {
-                content.classList.add('auto-expanded');
-                content.classList.remove('expanded');
-            }
-            if (toggleBtn) {
-                toggleBtn.style.left = '30px';
-            }
-            if (toggleIcon) {
-                toggleIcon.className = 'fas fa-bars';
-            }
-            console.log('✅ Sidebar initialized in auto-hide mode');
-            
-        } else if (savedState === 'hidden') {
-            sidebar.classList.add('hidden');
-            sidebar.classList.remove('auto-hide');
-            if (content) {
-                content.classList.add('expanded');
-                content.classList.remove('auto-expanded');
-            }
-            if (toggleBtn) {
-                toggleBtn.classList.add('shifted');
-                toggleBtn.style.left = '10px';
-            }
-            if (toggleIcon) {
-                toggleIcon.className = 'fas fa-chevron-right';
-            }
-            console.log('✅ Sidebar initialized in hidden mode');
-            
+            if (content) content.classList.add('expanded');
+            toggleBtn.classList.add('shifted');
+            toggleBtn.innerHTML = '<span>☰</span>';
         } else {
-            // normal mode
-            sidebar.classList.remove('hidden', 'auto-hide');
-            if (content) {
-                content.classList.remove('expanded', 'auto-expanded');
-            }
-            if (toggleBtn) {
-                toggleBtn.classList.remove('shifted');
-                toggleBtn.style.left = '270px';
-            }
-            if (toggleIcon) {
-                toggleIcon.className = 'fas fa-chevron-left';
-            }
-            console.log('✅ Sidebar initialized in normal mode');
+            toggleBtn.innerHTML = '<span>◀</span>';
         }
+        
+        console.log('사이드바 초기화 완료:', autoHide ? '자동숨김' : '항상보임');
     } else {
         console.error('❌ Sidebar element not found!');
     }

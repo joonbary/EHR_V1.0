@@ -1,0 +1,160 @@
+<!-- 간단한 자동숨김 사이드바 -->
+
+<!-- 토글 버튼 (사이드바 밖에 위치) -->
+<button id="sidebarToggle" class="sidebar-toggle-btn" onclick="toggleSidebar()">
+    <span id="toggleIcon">☰</span>
+</button>
+
+<!-- 사이드바 -->
+<aside id="sidebar" class="sidebar-wrapper">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <span class="logo-icon">💼</span>
+            <span class="logo-text">OK금융</span>
+        </div>
+        <div class="sidebar-subtitle">AI HRM System</div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        {% include 'sidebar_menu_items.html' %}
+    </nav>
+</aside>
+
+<style>
+/* 사이드바 기본 스타일 */
+.sidebar-wrapper {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%);
+    border-right: 1px solid rgba(0, 212, 255, 0.2);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+/* 자동숨김 상태 - 20px만 보이게 */
+.sidebar-wrapper.auto-hide {
+    transform: translateX(-240px);
+}
+
+/* 자동숨김 상태에서 호버하면 전체 보이기 */
+.sidebar-wrapper.auto-hide:hover {
+    transform: translateX(0);
+}
+
+/* 토글 버튼 */
+.sidebar-toggle-btn {
+    position: fixed;
+    left: 270px;
+    top: 20px;
+    width: 40px;
+    height: 40px;
+    background: #00d4ff;
+    border: none;
+    border-radius: 50%;
+    color: #000;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1001;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);
+}
+
+/* 자동숨김 상태일 때 버튼 위치 */
+.sidebar-toggle-btn.shifted {
+    left: 30px;
+}
+
+.sidebar-toggle-btn:hover {
+    transform: scale(1.1);
+    background: #0099cc;
+}
+
+/* 사이드바 헤더 */
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #00d4ff;
+}
+
+.sidebar-subtitle {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 5px;
+}
+
+/* 컨텐츠 영역 조정 */
+.content-wrapper {
+    margin-left: 260px;
+    transition: margin-left 0.3s ease;
+}
+
+.content-wrapper.expanded {
+    margin-left: 20px;
+}
+</style>
+
+<script>
+// 간단한 자동숨김 토글
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.querySelector('.content-wrapper');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    
+    // 자동숨김 모드 토글
+    if (sidebar.classList.contains('auto-hide')) {
+        // 자동숨김 해제 (항상 보이기)
+        sidebar.classList.remove('auto-hide');
+        if (content) content.classList.remove('expanded');
+        toggleBtn.classList.remove('shifted');
+        toggleBtn.innerHTML = '<span>◀</span>';
+        
+        console.log('사이드바 항상 보이기 모드');
+    } else {
+        // 자동숨김 활성화
+        sidebar.classList.add('auto-hide');
+        if (content) content.classList.add('expanded');
+        toggleBtn.classList.add('shifted');
+        toggleBtn.innerHTML = '<span>☰</span>';
+        
+        console.log('자동숨김 모드 활성화');
+    }
+    
+    // 상태 저장
+    localStorage.setItem('sidebar-auto-hide', sidebar.classList.contains('auto-hide'));
+}
+
+// 페이지 로드시 상태 복원
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.querySelector('.content-wrapper');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    
+    // 저장된 상태 확인 (기본값: 자동숨김)
+    const autoHide = localStorage.getItem('sidebar-auto-hide') !== 'false';
+    
+    if (autoHide) {
+        sidebar.classList.add('auto-hide');
+        if (content) content.classList.add('expanded');
+        toggleBtn.classList.add('shifted');
+        toggleBtn.innerHTML = '<span>☰</span>';
+    } else {
+        toggleBtn.innerHTML = '<span>◀</span>';
+    }
+    
+    console.log('사이드바 초기화 완료:', autoHide ? '자동숨김' : '항상보임');
+});
+</script>
