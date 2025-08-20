@@ -48,6 +48,19 @@
         .text-muted {
             color: rgba(255, 255, 255, 0.8) !important;
         }
+        
+        /* Main content area default style */
+        .content-wrapper {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        .content-wrapper.expanded {
+            margin-left: 20px !important;
+            width: calc(100% - 20px) !important;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}

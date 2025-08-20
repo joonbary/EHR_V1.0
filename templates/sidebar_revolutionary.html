@@ -313,11 +313,14 @@
 
 /* 컨텐츠 영역 조정 */
 .content-wrapper {
+    margin-left: 260px !important;  /* 기본값: 사이드바 너비만큼 */
     transition: margin-left 0.3s ease !important;
+    width: calc(100% - 260px) !important;
+    position: relative;
 }
 
 .content-wrapper.expanded {
-    margin-left: 20px !important;
+    margin-left: 20px !important;  /* 사이드바 숨김시: 20px만 남김 */
     width: calc(100% - 20px) !important;
 }
 
@@ -668,7 +671,7 @@ window.simpleToggle = function() {
 // 토글 함수 - 완전히 새로 작성
 window.toggleSidebar = function() {
     const sidebar = document.getElementById('sidebar');
-    const content = document.querySelector('.content-wrapper');
+    const content = document.querySelector('.content-wrapper') || document.getElementById('content');
     const toggleBtn = document.getElementById('sidebarToggle');
     
     if (!sidebar || !toggleBtn) {
@@ -681,7 +684,12 @@ window.toggleSidebar = function() {
     if (sidebar.classList.contains('sidebar-auto-hide')) {
         // 자동숨김 해제 (항상 보이기)
         sidebar.classList.remove('sidebar-auto-hide');
-        if (content) content.classList.remove('expanded');
+        if (content) {
+            content.classList.remove('expanded');
+            // 명시적으로 margin 설정
+            content.style.marginLeft = '260px';
+            content.style.width = 'calc(100% - 260px)';
+        }
         toggleBtn.classList.remove('btn-shifted');
         toggleBtn.innerHTML = '◀';
         toggleBtn.style.left = '270px';  // 명시적으로 위치 설정
@@ -690,7 +698,12 @@ window.toggleSidebar = function() {
     } else {
         // 자동숨김 활성화 (마우스 호버시 나타남)
         sidebar.classList.add('sidebar-auto-hide');
-        if (content) content.classList.add('expanded');
+        if (content) {
+            content.classList.add('expanded');
+            // 명시적으로 margin 설정
+            content.style.marginLeft = '20px';
+            content.style.width = 'calc(100% - 20px)';
+        }
         toggleBtn.classList.add('btn-shifted');
         toggleBtn.innerHTML = '☰';
         toggleBtn.style.left = '30px';  // 명시적으로 위치 설정
@@ -801,7 +814,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 사이드바 초기화
     const sidebar = document.getElementById('sidebar');
-    const content = document.querySelector('.content-wrapper');
+    const content = document.querySelector('.content-wrapper') || document.getElementById('content');
     const toggleBtn = document.getElementById('sidebarToggle');
     
     if (sidebar && toggleBtn) {
@@ -816,13 +829,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (autoHide) {
             sidebar.classList.add('sidebar-auto-hide');
-            if (content) content.classList.add('expanded');
+            if (content) {
+                content.classList.add('expanded');
+                content.style.marginLeft = '20px';
+                content.style.width = 'calc(100% - 20px)';
+            }
             toggleBtn.classList.add('btn-shifted');
             toggleBtn.innerHTML = '☰';
             toggleBtn.style.left = '30px';  // 명시적으로 설정
         } else {
             sidebar.classList.remove('sidebar-auto-hide');
-            if (content) content.classList.remove('expanded');
+            if (content) {
+                content.classList.remove('expanded');
+                content.style.marginLeft = '260px';
+                content.style.width = 'calc(100% - 260px)';
+            }
             toggleBtn.classList.remove('btn-shifted');
             toggleBtn.innerHTML = '◀';
             toggleBtn.style.left = '270px';  // 명시적으로 설정
