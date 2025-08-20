@@ -336,16 +336,16 @@
     font-size: 20px;
     cursor: pointer;
     z-index: 10000 !important;
-    transition: all 0.3s ease;
+    transition: left 0.3s ease, transform 0.3s ease;
     box-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);
     display: flex !important;
     align-items: center;
     justify-content: center;
 }
 
-/* 자동숨김 상태일 때 버튼 위치 */
+/* 자동숨김 상태일 때 버튼 위치 - 왼쪽 끝으로 이동 */
 .sidebar-toggle-btn.shifted {
-    left: 30px !important;
+    left: 10px !important;
 }
 
 .sidebar-toggle-btn:hover {
@@ -367,13 +367,17 @@
     pointer-events: none;
 }
 
-/* Sidebar Header */
+/* Sidebar Header - 로고 공간 확보 */
 .sidebar-header {
-    padding: 1.5rem 1rem;
+    padding: 2rem 1rem 1.5rem 1rem;
+    min-height: 100px;
     border-bottom: 1px solid rgba(0, 212, 255, 0.1);
     text-align: center;
     background: rgba(0, 0, 0, 0.3);
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .sidebar-logo {
@@ -381,18 +385,20 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
+    min-height: 40px;
 }
 
 .logo-icon {
-    font-size: 1.8rem;
+    font-size: 2rem;
 }
 
 .logo-text {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: #00d4ff;
     letter-spacing: -0.5px;
+    white-space: nowrap;
 }
 
 .sidebar-subtitle {
@@ -675,6 +681,8 @@ function toggleSidebar() {
         sidebar.classList.remove('auto-hide');
         if (content) content.classList.remove('expanded');
         toggleBtn.classList.remove('shifted');
+        // 버튼을 사이드바 오른쪽으로 이동
+        toggleBtn.style.left = '270px';
         toggleBtn.innerHTML = '<span>◀</span>';
         
         console.log('사이드바 항상 보이기 모드');
@@ -683,6 +691,8 @@ function toggleSidebar() {
         sidebar.classList.add('auto-hide');
         if (content) content.classList.add('expanded');
         toggleBtn.classList.add('shifted');
+        // 버튼을 화면 왼쪽 끝으로 이동
+        toggleBtn.style.left = '10px';
         toggleBtn.innerHTML = '<span>☰</span>';
         
         console.log('자동숨김 모드 활성화');
@@ -794,7 +804,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const content = document.querySelector('.content-wrapper');
     const toggleBtn = document.getElementById('sidebarToggle');
     
-    if (sidebar) {
+    if (sidebar && toggleBtn) {
         // 저장된 상태 확인 (기본값: 자동숨김)
         const autoHide = localStorage.getItem('sidebar-auto-hide') !== 'false';
         
@@ -802,14 +812,16 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.classList.add('auto-hide');
             if (content) content.classList.add('expanded');
             toggleBtn.classList.add('shifted');
+            toggleBtn.style.left = '10px';
             toggleBtn.innerHTML = '<span>☰</span>';
         } else {
+            toggleBtn.style.left = '270px';
             toggleBtn.innerHTML = '<span>◀</span>';
         }
         
         console.log('사이드바 초기화 완료:', autoHide ? '자동숨김' : '항상보임');
     } else {
-        console.error('❌ Sidebar element not found!');
+        console.error('❌ Sidebar or toggle button not found!');
     }
     
     // Restore expandable sections state
