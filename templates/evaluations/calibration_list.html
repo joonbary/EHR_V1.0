@@ -1,0 +1,284 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}Calibration Sessions - 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Calibration Center{% endblock %}
+{% block content_title %}Calibration Sessions{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    평가 일관성과 공정성을 위한 Calibration 세션 관리 센터
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}?v=3">
+<style>
+    .calibration-container {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .session-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .session-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .session-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.4);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+    }
+
+    .session-card:hover::before {
+        left: 100%;
+    }
+
+    .session-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .session-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #00d4ff;
+        margin: 0;
+    }
+
+    .session-date {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+    }
+
+    .session-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .info-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .session-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .btn-calibration {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-calibration:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+
+    .create-session-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+
+    .create-session-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+        opacity: 0.3;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .empty-subtitle {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="calibration-container">
+    <div class="container-fluid px-4">
+        
+        {% if sessions %}
+            {% for session in sessions %}
+            <div class="session-card">
+                <div class="session-header">
+                    <h3 class="session-title">{{ session.session_name }}</h3>
+                    <div class="session-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        {{ session.session_date|date:"Y년 m월 d일" }}
+                    </div>
+                </div>
+
+                <div class="session-info">
+                    <div class="info-item">
+                        <div class="info-value">{{ session.participants.count }}</div>
+                        <div class="info-label">참여자</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-value">{{ session.evaluations.count }}</div>
+                        <div class="info-label">평가 건수</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-value">{{ session.get_status_display|default:"진행중" }}</div>
+                        <div class="info-label">상태</div>
+                    </div>
+                </div>
+
+                <div class="session-actions">
+                    <a href="{% url 'evaluations:calibration_session' session.id %}" class="btn-calibration btn-primary">
+                        <i class="fas fa-eye"></i>
+                        세션 보기
+                    </a>
+                    {% if session.evaluation_period %}
+                    <a href="{% url 'evaluations:calibration_dashboard' session.evaluation_period.id %}" class="btn-calibration btn-secondary">
+                        <i class="fas fa-chart-line"></i>
+                        대시보드
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3 class="empty-title">등록된 Calibration 세션이 없습니다</h3>
+                <p class="empty-subtitle">
+                    평가 일관성을 위한 첫 번째 Calibration 세션을 생성해보세요.<br>
+                    공정하고 객관적인 평가 시스템의 첫걸음입니다.
+                </p>
+            </div>
+        {% endif %}
+
+        <!-- Floating Action Button -->
+        <a href="{% url 'evaluations:create_calibration_session' %}" class="create-session-btn" title="새 세션 생성">
+            <i class="fas fa-plus"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scroll animation for session cards
+    const cards = document.querySelectorAll('.session-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '50px'
+    });
+
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(50px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}
