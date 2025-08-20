@@ -115,19 +115,7 @@
     
     <!-- Revolutionary Custom Scripts -->
     <script>
-        // Enhanced Sidebar Toggle with Landing-style Animation
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const content = document.getElementById('content');
-            
-            sidebar.classList.toggle('collapsed');
-            content.classList.toggle('expanded');
-            
-            // Add landing-style animation effect
-            sidebar.style.transform = sidebar.classList.contains('collapsed') 
-                ? 'translateX(-320px)' 
-                : 'translateX(0)';
-        }
+        // Remove conflicting toggleSidebar function - using the one from sidebar_revolutionary.html instead
         
         // Auto-hide sidebar on mobile with smooth transition
         function handleResize() {
