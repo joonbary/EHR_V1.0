@@ -1,3 +1,8 @@
+<!-- Toggle Button Outside Sidebar -->
+<button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebarHover(); return false;" title="사이드바 자동숨김 토글">
+    <i class="fas fa-chevron-left" id="toggleIcon"></i>
+</button>
+
 <!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
 <aside class="sidebar-wrapper" id="sidebar">
     <!-- Sidebar Header -->
@@ -7,10 +12,6 @@
             <span class="logo-text">OK금융</span>
         </div>
         <div class="sidebar-subtitle">AI HRM System</div>
-        <!-- Toggle Button Inside Header -->
-        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebarHover(); return false;" title="사이드바 자동숨김 토글" style="display: flex !important; z-index: 9999;">
-            <i class="fas fa-chevron-left" id="toggleIcon"></i>
-        </button>
     </div>
     
     <!-- Navigation Menu -->
@@ -315,13 +316,13 @@
     width: 100% !important;
 }
 
-/* Toggle Button - 더 눈에 띄게 개선 */
+/* Toggle Button - 사이드바 밖에 위치, 항상 보임 */
 .sidebar-toggle-btn {
-    position: absolute;
-    right: 8px;
-    top: 15px;
-    width: 32px;
-    height: 32px;
+    position: fixed !important;
+    left: 270px;
+    top: 20px;
+    width: 36px;
+    height: 36px;
     background: rgba(0, 212, 255, 0.3) !important;
     border: 2px solid rgba(0, 212, 255, 0.5) !important;
     border-radius: 50%;
@@ -331,8 +332,13 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    z-index: 100;
+    z-index: 10000 !important;
     box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+}
+
+/* 사이드바가 숨겨졌을 때 버튼 위치 조정 */
+.sidebar-toggle-btn.shifted {
+    left: 10px !important;
 }
 
 .sidebar-toggle-btn:hover {
@@ -343,11 +349,11 @@
 }
 
 .sidebar-toggle-btn i {
-    font-size: 12px;
+    font-size: 14px;
     transition: transform 0.3s ease;
 }
 
-.sidebar-wrapper.auto-hide .sidebar-toggle-btn i {
+.sidebar-wrapper.hidden ~ .sidebar-toggle-btn i {
     transform: rotate(180deg);
 }
 
@@ -661,12 +667,13 @@ window.simpleToggle = function() {
     }
 };
 
-// 테스트 완료된 토글 함수 - Transform 방식
+// 테스트 완료된 토글 함수 - Transform 방식 + 버튼 위치 조정
 function toggleSidebarHover() {
     console.log('=== Toggle Start ===');
     
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
     const toggleIcon = document.getElementById('toggleIcon');
     
     if (!sidebar) {
@@ -681,6 +688,9 @@ function toggleSidebarHover() {
         if (content) {
             content.classList.remove('expanded');
         }
+        if (toggleBtn) {
+            toggleBtn.classList.remove('shifted');
+        }
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-chevron-left';
         }
@@ -691,6 +701,9 @@ function toggleSidebarHover() {
         sidebar.classList.add('hidden');
         if (content) {
             content.classList.add('expanded');
+        }
+        if (toggleBtn) {
+            toggleBtn.classList.add('shifted');
         }
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-chevron-right';
