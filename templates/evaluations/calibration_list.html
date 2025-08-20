@@ -1,19 +1,9 @@
-{% extends 'base_revolutionary.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Calibration Sessions - 혁신적 HRM 시스템{% endblock %}
-
-{% block page_header %}Calibration Center{% endblock %}
-{% block content_title %}Calibration Sessions{% endblock %}
-
-{% block page_subtitle %}
-<p class="page-subtitle">
-    평가 일관성과 공정성을 위한 Calibration 세션 관리 센터
-</p>
-{% endblock %}
+{% block title %}Calibration Sessions - OK금융그룹 eHR{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/landing_inspired_system.css' %}?v=3">
 <style>
     .calibration-container {
         background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
@@ -191,8 +181,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="calibration-container">
-    <div class="container-fluid px-4">
+<div class="container-fluid px-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Calibration Sessions</h1>
         
         {% if sessions %}
             {% for session in sessions %}
@@ -207,15 +199,15 @@
 
                 <div class="session-info">
                     <div class="info-item">
-                        <div class="info-value">{{ session.participants.count }}</div>
+                        <div class="info-value">{{ session.participants.count|default:0 }}</div>
                         <div class="info-label">참여자</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-value">{{ session.evaluations.count }}</div>
+                        <div class="info-value">{{ session.evaluations.count|default:0 }}</div>
                         <div class="info-label">평가 건수</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-value">{{ session.get_status_display|default:"진행중" }}</div>
+                        <div class="info-value">진행중</div>
                         <div class="info-label">상태</div>
                     </div>
                 </div>
@@ -251,6 +243,7 @@
         <a href="{% url 'evaluations:create_calibration_session' %}" class="create-session-btn" title="새 세션 생성">
             <i class="fas fa-plus"></i>
         </a>
+        </div>
     </div>
 </div>
 {% endblock %}

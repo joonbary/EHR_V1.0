@@ -1531,13 +1531,17 @@ def create_calibration_session(request):
 
 def calibration_list(request):
     """Calibration Session 목록"""
-    sessions = CalibrationSession.objects.all().order_by('-session_date')
-    
-    context = {
-        'sessions': sessions,
-    }
-    
-    return render(request, 'evaluations/calibration_list.html', context)
+    try:
+        sessions = CalibrationSession.objects.all().order_by('-session_date')
+        
+        context = {
+            'sessions': sessions,
+        }
+        
+        return render(request, 'evaluations/calibration_list.html', context)
+    except Exception as e:
+        messages.error(request, f'Calibration 세션 로딩 중 오류가 발생했습니다: {str(e)}')
+        return render(request, 'evaluations/calibration_list.html', {'sessions': []})
 
 
 def comprehensive_list(request):
