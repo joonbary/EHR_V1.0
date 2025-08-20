@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>사이드바 디버그 테스트</title>
+    <style>
+        body {
+            margin: 0;
+            background: #1a1f2e;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* 사이드바 */
+        #sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1f2e, #0a0f1b);
+            border-right: 2px solid #00d4ff;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        /* 자동숨김 상태 */
+        #sidebar.auto-hide {
+            transform: translateX(-240px);
+        }
+        
+        /* 호버시 나타나기 */
+        #sidebar.auto-hide:hover {
+            transform: translateX(0);
+        }
+        
+        /* 토글 버튼 */
+        #toggleBtn {
+            position: fixed;
+            left: 270px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 50%;
+            color: #000;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+            transition: left 0.3s ease;
+        }
+        
+        /* 버튼 이동 */
+        #toggleBtn.shifted {
+            left: 30px;
+        }
+        
+        /* 컨텐츠 */
+        #content {
+            margin-left: 260px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        #content.expanded {
+            margin-left: 20px;
+        }
+        
+        .status {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <button id="toggleBtn" onclick="doToggle()">☰</button>
+    
+    <div id="sidebar">
+        <div style="padding: 20px;">
+            <h2>OK금융그룹</h2>
+            <p>AI HRM System</p>
+        </div>
+    </div>
+    
+    <div id="content">
+        <h1>디버그 테스트</h1>
+        
+        <div class="status">
+            <h3>상태 체크</h3>
+            <p>사이드바 클래스: <span id="sidebarClass">-</span></p>
+            <p>버튼 클래스: <span id="btnClass">-</span></p>
+            <p>버튼 위치: <span id="btnLeft">-</span></p>
+            <p>자동숨김 상태: <span id="autoHideStatus">-</span></p>
+            
+            <h3>테스트 버튼</h3>
+            <button onclick="testAutoHide()">자동숨김 테스트</button>
+            <button onclick="testButtonMove()">버튼 이동 테스트</button>
+            <button onclick="resetAll()">초기화</button>
+        </div>
+    </div>
+    
+    <script>
+        // 상태 업데이트
+        function updateStatus() {
+            const sidebar = document.getElementById('sidebar');
+            const btn = document.getElementById('toggleBtn');
+            
+            document.getElementById('sidebarClass').textContent = sidebar.className || '없음';
+            document.getElementById('btnClass').textContent = btn.className || '없음';
+            document.getElementById('btnLeft').textContent = btn.style.left || getComputedStyle(btn).left;
+            document.getElementById('autoHideStatus').textContent = sidebar.classList.contains('auto-hide') ? '활성' : '비활성';
+        }
+        
+        // 메인 토글 함수
+        function doToggle() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const btn = document.getElementById('toggleBtn');
+            
+            if (sidebar.classList.contains('auto-hide')) {
+                // 자동숨김 해제
+                sidebar.classList.remove('auto-hide');
+                content.classList.remove('expanded');
+                btn.classList.remove('shifted');
+                btn.style.left = '270px';
+                btn.textContent = '◀';
+            } else {
+                // 자동숨김 활성화
+                sidebar.classList.add('auto-hide');
+                content.classList.add('expanded');
+                btn.classList.add('shifted');
+                btn.style.left = '30px';
+                btn.textContent = '☰';
+            }
+            
+            updateStatus();
+        }
+        
+        // 자동숨김 테스트
+        function testAutoHide() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('auto-hide');
+            updateStatus();
+        }
+        
+        // 버튼 이동 테스트
+        function testButtonMove() {
+            const btn = document.getElementById('toggleBtn');
+            if (btn.style.left === '30px') {
+                btn.style.left = '270px';
+            } else {
+                btn.style.left = '30px';
+            }
+            updateStatus();
+        }
+        
+        // 초기화
+        function resetAll() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const btn = document.getElementById('toggleBtn');
+            
+            sidebar.classList.remove('auto-hide');
+            content.classList.remove('expanded');
+            btn.classList.remove('shifted');
+            btn.style.left = '270px';
+            btn.textContent = '◀';
+            
+            updateStatus();
+        }
+        
+        // 초기 상태
+        setInterval(updateStatus, 1000);
+        updateStatus();
+    </script>
+</body>
+</html>

@@ -8,7 +8,6 @@
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="sidebar-logo">
-            <span class="logo-icon">💼</span>
             <span class="logo-text">OK금융그룹</span>
         </div>
         <div class="sidebar-subtitle">AI HRM System</div>
@@ -303,12 +302,12 @@
 }
 
 /* 자동숨김 상태 - 20px만 보이게 */
-.sidebar-wrapper.auto-hide {
+.sidebar-wrapper.sidebar-auto-hide {
     transform: translateX(-240px) !important;
 }
 
 /* 자동숨김 상태에서 호버하면 전체 보이기 */
-.sidebar-wrapper.auto-hide:hover {
+.sidebar-wrapper.sidebar-auto-hide:hover {
     transform: translateX(0) !important;
 }
 
@@ -344,9 +343,8 @@
 }
 
 /* 자동숨김 상태일 때 버튼 위치 - 반드시 왼쪽으로 */
-.sidebar-toggle-btn.shifted {
-    left: 10px !important;
-    transition: left 0.3s ease !important;
+.sidebar-toggle-btn.btn-shifted {
+    left: 30px !important;
 }
 
 .sidebar-toggle-btn:hover {
@@ -385,13 +383,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
     margin-bottom: 0.8rem;
     min-height: 40px;
-}
-
-.logo-icon {
-    font-size: 1.8rem;
 }
 
 .logo-text {
@@ -670,7 +663,7 @@ window.simpleToggle = function() {
     }
 };
 
-// 간단한 자동숨김 토글 함수
+// 간단한 자동숨김 토글 함수 - 클래스 충돌 해결
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
@@ -681,33 +674,37 @@ function toggleSidebar() {
         return;
     }
     
-    // 자동숨김 모드 토글
-    if (sidebar.classList.contains('auto-hide')) {
+    // 자동숨김 모드 토글 (sidebar-auto-hide 클래스 사용)
+    if (sidebar.classList.contains('sidebar-auto-hide')) {
         // 자동숨김 해제 (항상 보이기)
-        sidebar.classList.remove('auto-hide');
+        sidebar.classList.remove('sidebar-auto-hide');
         if (content) content.classList.remove('expanded');
         
         // 버튼 위치와 스타일 변경
-        toggleBtn.classList.remove('shifted');
-        toggleBtn.style.left = '270px';
-        toggleBtn.innerHTML = '<span>◀</span>';
+        toggleBtn.classList.remove('btn-shifted');
+        toggleBtn.style.setProperty('left', '270px', 'important');
+        toggleBtn.innerHTML = '◀';
         
         console.log('사이드바 항상 보이기 모드');
     } else {
         // 자동숨김 활성화
-        sidebar.classList.add('auto-hide');
+        sidebar.classList.add('sidebar-auto-hide');
         if (content) content.classList.add('expanded');
         
         // 버튼 위치와 스타일 변경
-        toggleBtn.classList.add('shifted');
-        toggleBtn.style.left = '10px';
-        toggleBtn.innerHTML = '<span>☰</span>';
+        toggleBtn.classList.add('btn-shifted');
+        toggleBtn.style.setProperty('left', '30px', 'important');
+        toggleBtn.innerHTML = '☰';
         
         console.log('자동숨김 모드 활성화');
     }
     
     // 상태 저장
-    localStorage.setItem('sidebar-auto-hide', sidebar.classList.contains('auto-hide'));
+    localStorage.setItem('sidebar-auto-hide', sidebar.classList.contains('sidebar-auto-hide'));
+    
+    // 디버그 정보
+    console.log('버튼 위치:', toggleBtn.style.left);
+    console.log('사이드바 클래스:', sidebar.className);
 }
 
 // Hover handlers for auto-hide sidebar - 최종 버전
@@ -807,7 +804,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Toggle button found');
     }
     
-    // 사이드바 초기화 - 간단한 상태 복원
+    // 사이드바 초기화 - 간단한 상태 복원 (클래스 충돌 해결)
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
     const toggleBtn = document.getElementById('sidebarToggle');
@@ -817,23 +814,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const autoHide = localStorage.getItem('sidebar-auto-hide') !== 'false';
         
         if (autoHide) {
-            sidebar.classList.add('auto-hide');
+            sidebar.classList.add('sidebar-auto-hide');
             if (content) content.classList.add('expanded');
-            toggleBtn.classList.add('shifted');
+            toggleBtn.classList.add('btn-shifted');
             // 명시적으로 스타일 설정
-            toggleBtn.style.setProperty('left', '10px', 'important');
-            toggleBtn.innerHTML = '<span>☰</span>';
+            toggleBtn.style.setProperty('left', '30px', 'important');
+            toggleBtn.innerHTML = '☰';
         } else {
-            sidebar.classList.remove('auto-hide');
+            sidebar.classList.remove('sidebar-auto-hide');
             if (content) content.classList.remove('expanded');
-            toggleBtn.classList.remove('shifted');
+            toggleBtn.classList.remove('btn-shifted');
             // 명시적으로 스타일 설정
             toggleBtn.style.setProperty('left', '270px', 'important');
-            toggleBtn.innerHTML = '<span>◀</span>';
+            toggleBtn.innerHTML = '◀';
         }
         
         console.log('사이드바 초기화 완료:', autoHide ? '자동숨김' : '항상보임');
         console.log('버튼 위치:', toggleBtn.style.left);
+        console.log('사이드바 클래스:', sidebar.className);
     } else {
         console.error('❌ Sidebar or toggle button not found!');
     }
