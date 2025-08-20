@@ -297,18 +297,46 @@
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Auto-hide functionality - 테스트 완료된 방식 */
+/* Auto-hide functionality - 마우스 호버 자동숨김 */
 .sidebar-wrapper {
     transition: transform 0.3s ease !important;
 }
 
+/* 자동숨김 활성화 상태 */
+.sidebar-wrapper.auto-hide {
+    transform: translateX(-240px) !important; /* 20px 남겨서 호버 영역 확보 */
+}
+
+/* 자동숨김 상태에서 호버시 */
+.sidebar-wrapper.auto-hide:hover {
+    transform: translateX(0) !important;
+}
+
+/* 수동으로 완전히 숨긴 상태 */
 .sidebar-wrapper.hidden {
     transform: translateX(-260px) !important;
 }
 
-/* Adjust main content when sidebar is hidden */
+/* 호버 영역 인디케이터 */
+.sidebar-wrapper.auto-hide::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), transparent);
+    cursor: pointer;
+}
+
+/* Adjust main content when sidebar is auto-hidden */
 .content-wrapper {
     transition: margin-left 0.3s ease !important;
+}
+
+.content-wrapper.auto-expanded {
+    margin-left: 20px !important;
+    width: calc(100% - 20px) !important;
 }
 
 .content-wrapper.expanded {
@@ -667,7 +695,7 @@ window.simpleToggle = function() {
     }
 };
 
-// 테스트 완료된 토글 함수 - Transform 방식 + 버튼 위치 조정
+// 자동숨김 토글 함수 - 3가지 모드 지원
 function toggleSidebarHover() {
     console.log('=== Toggle Start ===');
     
@@ -681,35 +709,60 @@ function toggleSidebarHover() {
         return;
     }
     
-    // 클래스 기반 토글 (테스트 페이지에서 검증된 방식)
-    if (sidebar.classList.contains('hidden')) {
-        // 보이기
+    // 현재 상태 확인
+    const isAutoHide = sidebar.classList.contains('auto-hide');
+    const isHidden = sidebar.classList.contains('hidden');
+    
+    if (isHidden) {
+        // 완전 숨김 -> 자동숨김 모드
         sidebar.classList.remove('hidden');
+        sidebar.classList.add('auto-hide');
         if (content) {
             content.classList.remove('expanded');
+            content.classList.add('auto-expanded');
         }
         if (toggleBtn) {
             toggleBtn.classList.remove('shifted');
+            toggleBtn.style.left = '30px';
+        }
+        if (toggleIcon) {
+            toggleIcon.className = 'fas fa-bars';
+        }
+        console.log('✅ Auto-hide mode enabled');
+        
+    } else if (isAutoHide) {
+        // 자동숨김 -> 일반 모드
+        sidebar.classList.remove('auto-hide');
+        if (content) {
+            content.classList.remove('auto-expanded');
+        }
+        if (toggleBtn) {
+            toggleBtn.style.left = '270px';
         }
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-chevron-left';
         }
-        console.log('✅ Sidebar shown');
+        console.log('✅ Normal mode (always visible)');
         
     } else {
-        // 숨기기
+        // 일반 모드 -> 완전 숨김
         sidebar.classList.add('hidden');
         if (content) {
             content.classList.add('expanded');
         }
         if (toggleBtn) {
             toggleBtn.classList.add('shifted');
+            toggleBtn.style.left = '10px';
         }
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-chevron-right';
         }
-        console.log('✅ Sidebar hidden');
+        console.log('✅ Fully hidden');
     }
+    
+    // 상태 저장
+    const state = isHidden ? 'auto-hide' : (isAutoHide ? 'normal' : 'hidden');
+    localStorage.setItem('sidebar-state', state);
     
     console.log('=== Toggle End ===');
 }
@@ -811,27 +864,65 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Toggle button found');
     }
     
-    // 사이드바 초기화 - 클래스 기반 초기화
+    // 사이드바 초기화 - 저장된 상태 복원
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
     const toggleIcon = document.getElementById('toggleIcon');
     
     if (sidebar) {
         // 인라인 스타일 제거하고 클래스로 관리
         sidebar.removeAttribute('style');
         
-        // 기본적으로 보이는 상태로 설정
-        sidebar.classList.remove('hidden');
+        // 저장된 상태 복원 (기본값: auto-hide)
+        const savedState = localStorage.getItem('sidebar-state') || 'auto-hide';
         
-        if (content) {
-            content.classList.remove('expanded');
+        if (savedState === 'auto-hide') {
+            sidebar.classList.add('auto-hide');
+            sidebar.classList.remove('hidden');
+            if (content) {
+                content.classList.add('auto-expanded');
+                content.classList.remove('expanded');
+            }
+            if (toggleBtn) {
+                toggleBtn.style.left = '30px';
+            }
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-bars';
+            }
+            console.log('✅ Sidebar initialized in auto-hide mode');
+            
+        } else if (savedState === 'hidden') {
+            sidebar.classList.add('hidden');
+            sidebar.classList.remove('auto-hide');
+            if (content) {
+                content.classList.add('expanded');
+                content.classList.remove('auto-expanded');
+            }
+            if (toggleBtn) {
+                toggleBtn.classList.add('shifted');
+                toggleBtn.style.left = '10px';
+            }
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-chevron-right';
+            }
+            console.log('✅ Sidebar initialized in hidden mode');
+            
+        } else {
+            // normal mode
+            sidebar.classList.remove('hidden', 'auto-hide');
+            if (content) {
+                content.classList.remove('expanded', 'auto-expanded');
+            }
+            if (toggleBtn) {
+                toggleBtn.classList.remove('shifted');
+                toggleBtn.style.left = '270px';
+            }
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-chevron-left';
+            }
+            console.log('✅ Sidebar initialized in normal mode');
         }
-        
-        if (toggleIcon) {
-            toggleIcon.className = 'fas fa-chevron-left';
-        }
-        
-        console.log('✅ Sidebar initialized successfully');
     } else {
         console.error('❌ Sidebar element not found!');
     }
