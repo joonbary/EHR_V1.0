@@ -458,8 +458,8 @@ def organization_chart(request):
     return render(request, 'employees/organization_chart.html')
 
 def hierarchy_organization_view(request):
-    """계층별 조직도 페이지"""
-    return render(request, 'employees/hierarchy_organization.html')
+    """계층별 조직도 페이지 (Revolutionary Design)"""
+    return render(request, 'employees/hierarchy_organization_revolutionary.html')
 
 def hierarchy_organization_api(request):
     """계층별 조직 데이터 API"""

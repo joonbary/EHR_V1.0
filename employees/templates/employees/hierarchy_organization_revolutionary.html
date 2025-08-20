@@ -1,0 +1,712 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}계층별 조직도 - OK Financial Group AI HRM{% endblock %}
+
+{% block page_header %}Hierarchy Organization{% endblock %}
+
+{% block content %}
+<div class="revolutionary-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1 class="hero-title gradient-text">계층별 조직도</h1>
+        <p class="hero-subtitle">AI 기반 조직 구조 분석 및 시각화</p>
+    </div>
+
+    <!-- Controls Section -->
+    <div class="controls-section">
+        <div class="control-group">
+            <label class="control-label">조직 레벨</label>
+            <select id="levelSelect" class="control-select">
+                <option value="all">전체 조직</option>
+                <option value="executive">임원급</option>
+                <option value="department">부서장급</option>
+                <option value="team">팀장급</option>
+                <option value="member">팀원</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">부서 필터</label>
+            <input type="text" id="departmentFilter" class="control-input" placeholder="부서명 검색...">
+        </div>
+
+        <div class="control-group">
+            <button class="btn-revolutionary btn-primary" onclick="refreshHierarchy()">
+                <i class="fas fa-sync-alt"></i> 새로고침
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value" id="totalEmployees">0</div>
+            <div class="stat-label">전체 직원</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-value" id="totalDepartments">0</div>
+            <div class="stat-label">부서 수</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👔</div>
+            <div class="stat-value" id="totalExecutives">0</div>
+            <div class="stat-label">임원</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value" id="avgTeamSize">0</div>
+            <div class="stat-label">평균 팀 규모</div>
+        </div>
+    </div>
+
+    <!-- Hierarchy Visualization -->
+    <div class="hierarchy-visualization">
+        <div class="visualization-header">
+            <h2 class="section-title">조직 구조</h2>
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="tree">
+                    <i class="fas fa-sitemap"></i> 트리뷰
+                </button>
+                <button class="view-btn" data-view="cards">
+                    <i class="fas fa-th"></i> 카드뷰
+                </button>
+                <button class="view-btn" data-view="list">
+                    <i class="fas fa-list"></i> 리스트뷰
+                </button>
+            </div>
+        </div>
+
+        <!-- Tree View -->
+        <div id="treeView" class="view-container active">
+            <div class="tree-canvas" id="hierarchyTree">
+                <!-- D3.js or similar visualization will be rendered here -->
+                <div class="loading-indicator">
+                    <div class="spinner"></div>
+                    <p>조직도를 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards View -->
+        <div id="cardsView" class="view-container">
+            <div class="cards-grid" id="hierarchyCards">
+                <!-- Cards will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- List View -->
+        <div id="listView" class="view-container">
+            <div class="list-table">
+                <table class="revolutionary-table">
+                    <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>직급</th>
+                            <th>부서</th>
+                            <th>직무</th>
+                            <th>성장레벨</th>
+                            <th>이메일</th>
+                            <th>액션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hierarchyList">
+                        <!-- Rows will be dynamically generated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Detail Modal -->
+    <div id="employeeModal" class="modal-revolutionary">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-header">
+                <h2 class="modal-title">직원 상세 정보</h2>
+            </div>
+            <div class="modal-body" id="employeeDetails">
+                <!-- Employee details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Revolutionary Hierarchy Styles */
+.revolutionary-container {
+    padding: 2rem;
+    min-height: calc(100vh - 80px);
+}
+
+.hero-section {
+    text-align: center;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+    border-radius: 30px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.controls-section {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.control-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.control-select,
+.control-input {
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.control-select:focus,
+.control-input:focus {
+    outline: none;
+    border-color: #00d4ff;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(0, 212, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+}
+
+.stat-card:hover::before {
+    left: 100%;
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #00d4ff;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hierarchy-visualization {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+}
+
+.visualization-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #00d4ff;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 1rem;
+}
+
+.view-btn {
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-btn.active,
+.view-btn:hover {
+    background: linear-gradient(135deg, #00d4ff, #0099ff);
+    border-color: #00d4ff;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+}
+
+.view-container {
+    display: none;
+    min-height: 500px;
+}
+
+.view-container.active {
+    display: block;
+}
+
+.tree-canvas {
+    width: 100%;
+    height: 600px;
+    position: relative;
+    overflow: auto;
+}
+
+.loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 212, 255, 0.2);
+    border-top: 3px solid #00d4ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.revolutionary-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
+.revolutionary-table th {
+    padding: 1rem;
+    text-align: left;
+    color: #00d4ff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.revolutionary-table td {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.revolutionary-table tr:hover td {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(0, 212, 255, 0.2);
+}
+
+.btn-revolutionary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00d4ff, #0099ff);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+}
+
+/* Modal Styles */
+.modal-revolutionary {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.modal-content {
+    position: relative;
+    background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%);
+    margin: 5% auto;
+    padding: 2rem;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 20px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3);
+}
+
+.modal-close {
+    position: absolute;
+    right: 2rem;
+    top: 2rem;
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: #00d4ff;
+}
+
+.modal-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.modal-title {
+    font-size: 1.8rem;
+    color: #00d4ff;
+    font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .controls-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .control-group {
+        width: 100%;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+}
+</style>
+
+<script>
+// Hierarchy Organization JavaScript
+let currentView = 'tree';
+let hierarchyData = [];
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadHierarchyData();
+    setupEventListeners();
+    updateStats();
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    // Level select
+    document.getElementById('levelSelect').addEventListener('change', function() {
+        loadHierarchyData(this.value);
+    });
+    
+    // Department filter
+    document.getElementById('departmentFilter').addEventListener('input', function() {
+        filterByDepartment(this.value);
+    });
+    
+    // View toggle buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            switchView(this.dataset.view);
+        });
+    });
+    
+    // Modal close
+    document.querySelector('.modal-close').addEventListener('click', function() {
+        closeModal();
+    });
+}
+
+// Load hierarchy data
+async function loadHierarchyData(level = 'all') {
+    try {
+        const response = await fetch(`/employees/api/hierarchy-data/?level=${level}`);
+        const data = await response.json();
+        hierarchyData = data;
+        renderCurrentView();
+        updateStats();
+    } catch (error) {
+        console.error('Error loading hierarchy data:', error);
+        showNotification('데이터 로드 실패', 'error');
+    }
+}
+
+// Render current view
+function renderCurrentView() {
+    switch(currentView) {
+        case 'tree':
+            renderTreeView();
+            break;
+        case 'cards':
+            renderCardsView();
+            break;
+        case 'list':
+            renderListView();
+            break;
+    }
+}
+
+// Render tree view
+function renderTreeView() {
+    const container = document.getElementById('hierarchyTree');
+    container.innerHTML = '<div class="tree-content">트리 뷰 렌더링 중...</div>';
+    // TODO: Implement D3.js tree visualization
+}
+
+// Render cards view
+function renderCardsView() {
+    const container = document.getElementById('hierarchyCards');
+    let html = '';
+    
+    hierarchyData.forEach(item => {
+        html += `
+            <div class="employee-card" onclick="showEmployeeDetails(${item.id})">
+                <div class="card-header">
+                    <h3>${item.name}</h3>
+                    <span class="position-badge">${item.position}</span>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-building"></i> ${item.department}</p>
+                    <p><i class="fas fa-briefcase"></i> ${item.job_type}</p>
+                    <p><i class="fas fa-chart-line"></i> Level ${item.level}</p>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html || '<p>데이터가 없습니다.</p>';
+}
+
+// Render list view
+function renderListView() {
+    const container = document.getElementById('hierarchyList');
+    let html = '';
+    
+    hierarchyData.forEach(item => {
+        html += `
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.position}</td>
+                <td>${item.department}</td>
+                <td>${item.job_type}</td>
+                <td>${item.level}</td>
+                <td>${item.email}</td>
+                <td>
+                    <button class="btn-action" onclick="showEmployeeDetails(${item.id})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    container.innerHTML = html || '<tr><td colspan="7">데이터가 없습니다.</td></tr>';
+}
+
+// Switch view
+function switchView(view) {
+    currentView = view;
+    
+    // Update buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`.view-btn[data-view="${view}"]`).classList.add('active');
+    
+    // Update containers
+    document.querySelectorAll('.view-container').forEach(container => {
+        container.classList.remove('active');
+    });
+    document.getElementById(`${view}View`).classList.add('active');
+    
+    renderCurrentView();
+}
+
+// Filter by department
+function filterByDepartment(department) {
+    if (!department) {
+        renderCurrentView();
+        return;
+    }
+    
+    const filtered = hierarchyData.filter(item => 
+        item.department.toLowerCase().includes(department.toLowerCase())
+    );
+    
+    // Temporarily update data and re-render
+    const temp = hierarchyData;
+    hierarchyData = filtered;
+    renderCurrentView();
+    hierarchyData = temp;
+}
+
+// Update statistics
+function updateStats() {
+    document.getElementById('totalEmployees').textContent = hierarchyData.length;
+    
+    const departments = new Set(hierarchyData.map(item => item.department));
+    document.getElementById('totalDepartments').textContent = departments.size;
+    
+    const executives = hierarchyData.filter(item => 
+        ['회장', '부사장', '사장', '전무', '상무'].includes(item.position)
+    );
+    document.getElementById('totalExecutives').textContent = executives.length;
+    
+    const avgTeam = departments.size > 0 ? Math.round(hierarchyData.length / departments.size) : 0;
+    document.getElementById('avgTeamSize').textContent = avgTeam;
+}
+
+// Show employee details
+function showEmployeeDetails(employeeId) {
+    const employee = hierarchyData.find(item => item.id === employeeId);
+    if (!employee) return;
+    
+    const modal = document.getElementById('employeeModal');
+    const details = document.getElementById('employeeDetails');
+    
+    details.innerHTML = `
+        <div class="employee-detail">
+            <h3>${employee.name}</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>직급</label>
+                    <span>${employee.position}</span>
+                </div>
+                <div class="detail-item">
+                    <label>부서</label>
+                    <span>${employee.department}</span>
+                </div>
+                <div class="detail-item">
+                    <label>직무</label>
+                    <span>${employee.job_type}</span>
+                </div>
+                <div class="detail-item">
+                    <label>성장레벨</label>
+                    <span>Level ${employee.level}</span>
+                </div>
+                <div class="detail-item">
+                    <label>이메일</label>
+                    <span>${employee.email}</span>
+                </div>
+                <div class="detail-item">
+                    <label>연락처</label>
+                    <span>${employee.phone}</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'block';
+}
+
+// Close modal
+function closeModal() {
+    document.getElementById('employeeModal').style.display = 'none';
+}
+
+// Refresh hierarchy
+function refreshHierarchy() {
+    const level = document.getElementById('levelSelect').value;
+    loadHierarchyData(level);
+    showNotification('데이터를 새로고침했습니다', 'success');
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // TODO: Implement notification system
+    console.log(`${type}: ${message}`);
+}
+</script>
+{% endblock %}
