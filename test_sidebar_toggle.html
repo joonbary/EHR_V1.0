@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사이드바 토글 테스트</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #1a1f2e;
+            color: white;
+        }
+        
+        /* 사이드바 기본 스타일 */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%);
+            border-right: 2px solid #00d4ff;
+            padding: 20px;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        /* 숨김 상태 - transform 사용 */
+        .sidebar.hidden {
+            transform: translateX(-260px);
+        }
+        
+        /* 컨텐츠 영역 */
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .content.expanded {
+            margin-left: 0;
+        }
+        
+        /* 토글 버튼 */
+        .toggle-btn {
+            position: fixed;
+            left: 270px;
+            top: 20px;
+            z-index: 1001;
+            padding: 10px 20px;
+            background: #00d4ff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.shifted {
+            left: 10px;
+        }
+        
+        .toggle-btn:hover {
+            background: #0099cc;
+            transform: scale(1.05);
+        }
+        
+        /* 상태 표시 */
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #00d4ff;
+        }
+        
+        .test-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #00d4ff;
+        }
+        
+        .test-buttons button {
+            display: block;
+            width: 200px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #333;
+            color: white;
+            border: 1px solid #666;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .test-buttons button:hover {
+            background: #444;
+            border-color: #00d4ff;
+        }
+        
+        .log {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 400px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px;
+        }
+        
+        .log-entry.success {
+            color: #00ff00;
+        }
+        
+        .log-entry.error {
+            color: #ff0000;
+        }
+        
+        .log-entry.info {
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 사이드바 -->
+    <div class="sidebar" id="sidebar">
+        <h2>사이드바</h2>
+        <p>메뉴 항목 1</p>
+        <p>메뉴 항목 2</p>
+        <p>메뉴 항목 3</p>
+        <hr>
+        <p>현재 상태: <span id="sidebarState">보임</span></p>
+    </div>
+    
+    <!-- 메인 컨텐츠 -->
+    <div class="content" id="content">
+        <button class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()">
+            사이드바 토글
+        </button>
+        
+        <h1>사이드바 토글 테스트 페이지</h1>
+        <p>이 페이지는 사이드바 토글 기능을 테스트하기 위한 독립적인 페이지입니다.</p>
+        
+        <!-- 상태 표시 -->
+        <div class="status">
+            <h3>현재 상태</h3>
+            <p>사이드바: <span id="statusSidebar">보임</span></p>
+            <p>Transform: <span id="statusTransform">none</span></p>
+            <p>Display: <span id="statusDisplay">block</span></p>
+            <p>클래스: <span id="statusClass">없음</span></p>
+        </div>
+        
+        <!-- 테스트 버튼들 -->
+        <div class="test-buttons">
+            <h3>테스트 방법</h3>
+            <button onclick="testMethod1()">방법 1: Transform</button>
+            <button onclick="testMethod2()">방법 2: Display</button>
+            <button onclick="testMethod3()">방법 3: Left Position</button>
+            <button onclick="testMethod4()">방법 4: Visibility</button>
+            <button onclick="resetAll()">초기화</button>
+        </div>
+        
+        <!-- 로그 -->
+        <div class="log" id="log">
+            <div class="log-entry info">테스트 시작...</div>
+        </div>
+    </div>
+
+    <script>
+        // 로그 함수
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // 상태 업데이트
+        function updateStatus() {
+            const sidebar = document.getElementById('sidebar');
+            const computed = window.getComputedStyle(sidebar);
+            
+            document.getElementById('statusTransform').textContent = computed.transform;
+            document.getElementById('statusDisplay').textContent = computed.display;
+            document.getElementById('statusClass').textContent = sidebar.className || '없음';
+            
+            const isHidden = sidebar.classList.contains('hidden') || 
+                           computed.display === 'none' ||
+                           computed.transform !== 'none';
+            
+            document.getElementById('statusSidebar').textContent = isHidden ? '숨김' : '보임';
+            document.getElementById('sidebarState').textContent = isHidden ? '숨김' : '보임';
+        }
+        
+        // 메인 토글 함수 - Transform 방식
+        function toggleSidebar() {
+            addLog('토글 시작', 'info');
+            
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const toggleBtn = document.getElementById('toggleBtn');
+            
+            if (sidebar.classList.contains('hidden')) {
+                // 보이기
+                sidebar.classList.remove('hidden');
+                content.classList.remove('expanded');
+                toggleBtn.classList.remove('shifted');
+                addLog('사이드바 보이기', 'success');
+            } else {
+                // 숨기기
+                sidebar.classList.add('hidden');
+                content.classList.add('expanded');
+                toggleBtn.classList.add('shifted');
+                addLog('사이드바 숨기기', 'success');
+            }
+            
+            updateStatus();
+        }
+        
+        // 테스트 방법 1: Transform
+        function testMethod1() {
+            addLog('테스트 방법 1: Transform 사용', 'info');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (sidebar.style.transform === 'translateX(-260px)') {
+                sidebar.style.transform = 'translateX(0)';
+                addLog('Transform: translateX(0)', 'success');
+            } else {
+                sidebar.style.transform = 'translateX(-260px)';
+                addLog('Transform: translateX(-260px)', 'success');
+            }
+            
+            updateStatus();
+        }
+        
+        // 테스트 방법 2: Display
+        function testMethod2() {
+            addLog('테스트 방법 2: Display 사용', 'info');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (sidebar.style.display === 'none') {
+                sidebar.style.display = 'block';
+                addLog('Display: block', 'success');
+            } else {
+                sidebar.style.display = 'none';
+                addLog('Display: none', 'success');
+            }
+            
+            updateStatus();
+        }
+        
+        // 테스트 방법 3: Left Position
+        function testMethod3() {
+            addLog('테스트 방법 3: Left Position 사용', 'info');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (sidebar.style.left === '-260px') {
+                sidebar.style.left = '0px';
+                addLog('Left: 0px', 'success');
+            } else {
+                sidebar.style.left = '-260px';
+                addLog('Left: -260px', 'success');
+            }
+            
+            updateStatus();
+        }
+        
+        // 테스트 방법 4: Visibility
+        function testMethod4() {
+            addLog('테스트 방법 4: Visibility 사용', 'info');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (sidebar.style.visibility === 'hidden') {
+                sidebar.style.visibility = 'visible';
+                addLog('Visibility: visible', 'success');
+            } else {
+                sidebar.style.visibility = 'hidden';
+                addLog('Visibility: hidden', 'success');
+            }
+            
+            updateStatus();
+        }
+        
+        // 초기화
+        function resetAll() {
+            addLog('모든 스타일 초기화', 'info');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const toggleBtn = document.getElementById('toggleBtn');
+            
+            // 모든 인라인 스타일 제거
+            sidebar.removeAttribute('style');
+            
+            // 클래스 제거
+            sidebar.classList.remove('hidden');
+            content.classList.remove('expanded');
+            toggleBtn.classList.remove('shifted');
+            
+            addLog('초기화 완료', 'success');
+            updateStatus();
+        }
+        
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('페이지 로드 완료', 'success');
+            updateStatus();
+            
+            // 5초마다 상태 업데이트
+            setInterval(updateStatus, 5000);
+        });
+        
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                toggleSidebar();
+                addLog('ESC 키로 토글', 'info');
+            }
+        });
+    </script>
+</body>
+</html>

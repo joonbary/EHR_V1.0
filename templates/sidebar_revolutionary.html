@@ -1,5 +1,5 @@
 <!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
-<aside class="sidebar-wrapper" id="sidebar" style="position: fixed; left: 0; transition: all 0.3s ease;">
+<aside class="sidebar-wrapper" id="sidebar">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="sidebar-logo">
@@ -296,26 +296,23 @@
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Auto-hide functionality - 완전 재작성 */
+/* Auto-hide functionality - 테스트 완료된 방식 */
 .sidebar-wrapper {
-    transition: transform 0.3s ease, left 0.3s ease !important;
+    transition: transform 0.3s ease !important;
 }
 
-.sidebar-wrapper.auto-hide {
-    transform: translateX(-220px) !important;
-    left: -220px !important;
-}
-
-.sidebar-wrapper.auto-hide:hover {
-    transform: translateX(220px) !important;
-    left: 0 !important;
+.sidebar-wrapper.hidden {
+    transform: translateX(-260px) !important;
 }
 
 /* Adjust main content when sidebar is hidden */
-body.sidebar-hidden .content-wrapper {
-    margin-left: 40px !important;
-    width: calc(100% - 40px) !important;
-    transition: all 0.3s ease !important;
+.content-wrapper {
+    transition: margin-left 0.3s ease !important;
+}
+
+.content-wrapper.expanded {
+    margin-left: 0 !important;
+    width: 100% !important;
 }
 
 /* Toggle Button - 더 눈에 띄게 개선 */
@@ -664,7 +661,7 @@ window.simpleToggle = function() {
     }
 };
 
-// 체계적으로 재작성된 토글 함수
+// 테스트 완료된 토글 함수 - Transform 방식
 function toggleSidebarHover() {
     console.log('=== Toggle Start ===');
     
@@ -677,62 +674,30 @@ function toggleSidebarHover() {
         return;
     }
     
-    // 현재 display 상태로 판단 (가장 확실한 방법)
-    const computedStyle = window.getComputedStyle(sidebar);
-    const isCurrentlyHidden = computedStyle.display === 'none';
-    
-    console.log('Current state - hidden:', isCurrentlyHidden);
-    console.log('Current display:', computedStyle.display);
-    
-    if (isCurrentlyHidden) {
-        // 숨겨진 상태 -> 보이기
-        console.log('Action: Showing sidebar');
-        
-        // 강제로 모든 스타일 재설정
-        sidebar.style.cssText = `
-            display: block !important;
-            position: fixed !important;
-            left: 0px !important;
-            top: 0 !important;
-            width: 260px !important;
-            height: 100vh !important;
-            z-index: 1000 !important;
-        `;
-        sidebar.setAttribute('data-hidden', 'false');
-        
+    // 클래스 기반 토글 (테스트 페이지에서 검증된 방식)
+    if (sidebar.classList.contains('hidden')) {
+        // 보이기
+        sidebar.classList.remove('hidden');
         if (content) {
-            content.style.marginLeft = '260px';
-            content.style.width = 'calc(100% - 260px)';
+            content.classList.remove('expanded');
         }
-        
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-chevron-left';
         }
-        
-        console.log('✅ Sidebar should now be visible');
+        console.log('✅ Sidebar shown');
         
     } else {
-        // 보이는 상태 -> 숨기기
-        console.log('Action: Hiding sidebar');
-        
-        sidebar.style.display = 'none';
-        sidebar.setAttribute('data-hidden', 'true');
-        
+        // 숨기기
+        sidebar.classList.add('hidden');
         if (content) {
-            content.style.marginLeft = '0px';
-            content.style.width = '100%';
+            content.classList.add('expanded');
         }
-        
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-chevron-right';
         }
-        
-        console.log('✅ Sidebar should now be hidden');
+        console.log('✅ Sidebar hidden');
     }
     
-    // 최종 상태 확인
-    const finalStyle = window.getComputedStyle(sidebar);
-    console.log('Final display:', finalStyle.display);
     console.log('=== Toggle End ===');
 }
 
@@ -833,25 +798,20 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Toggle button found');
     }
     
-    // 사이드바 초기화 - 기본값 설정만
+    // 사이드바 초기화 - 클래스 기반 초기화
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
     const toggleIcon = document.getElementById('toggleIcon');
     
     if (sidebar) {
-        // 기본적으로 보이는 상태로 설정 (localStorage는 건드리지 않음)
-        sidebar.style.display = 'block';
-        sidebar.style.position = 'fixed';
-        sidebar.style.left = '0px';
-        sidebar.style.top = '0';
-        sidebar.style.width = '260px';
-        sidebar.style.height = '100vh';
-        sidebar.style.zIndex = '1000';
-        sidebar.setAttribute('data-hidden', 'false');
+        // 인라인 스타일 제거하고 클래스로 관리
+        sidebar.removeAttribute('style');
+        
+        // 기본적으로 보이는 상태로 설정
+        sidebar.classList.remove('hidden');
         
         if (content) {
-            content.style.marginLeft = '260px';
-            content.style.width = 'calc(100% - 260px)';
+            content.classList.remove('expanded');
         }
         
         if (toggleIcon) {
