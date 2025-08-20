@@ -1,0 +1,148 @@
+<!-- 심플하고 확실하게 작동하는 사이드바 -->
+
+<style>
+/* 토글 버튼 - 사이드바 밖에 독립적으로 위치 */
+#mainToggleBtn {
+    position: fixed;
+    left: 270px;
+    top: 20px;
+    width: 40px;
+    height: 40px;
+    background: #00d4ff;
+    border: none;
+    border-radius: 50%;
+    color: #000;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10001;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);
+}
+
+#mainToggleBtn:hover {
+    transform: scale(1.1);
+    background: #0099cc;
+}
+
+/* 사이드바 */
+#mainSidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1b 100%);
+    border-right: 1px solid rgba(0, 212, 255, 0.2);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+/* 사이드바 헤더 */
+.sidebar-header {
+    padding: 2rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.logo-text {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #00d4ff;
+    text-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);
+}
+
+.sidebar-subtitle {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.5rem;
+}
+
+/* 컨텐츠 영역 */
+.main-content {
+    margin-left: 260px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+/* 숨김 상태 */
+.sidebar-hidden {
+    transform: translateX(-240px);
+}
+
+.sidebar-hidden:hover {
+    transform: translateX(0);
+}
+
+.content-expanded {
+    margin-left: 20px;
+}
+
+.btn-moved {
+    left: 30px !important;
+}
+</style>
+
+<!-- 토글 버튼 -->
+<button id="mainToggleBtn">☰</button>
+
+<!-- 사이드바 -->
+<aside id="mainSidebar">
+    <div class="sidebar-header">
+        <div class="logo-text">OK금융그룹</div>
+        <div class="sidebar-subtitle">AI HRM System</div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <!-- 메뉴 아이템들 -->
+        {% include 'sidebar_menu_items.html' ignore missing %}
+    </nav>
+</aside>
+
+<script>
+// 단순하고 확실한 토글 함수
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('mainSidebar');
+    const content = document.querySelector('.content-wrapper, .main-content');
+    const btn = document.getElementById('mainToggleBtn');
+    
+    // 초기 상태 설정
+    const savedState = localStorage.getItem('sidebar-state');
+    if (savedState === 'hidden') {
+        sidebar.classList.add('sidebar-hidden');
+        if (content) content.classList.add('content-expanded');
+        btn.classList.add('btn-moved');
+        btn.innerHTML = '☰';
+        btn.style.left = '30px';
+    } else {
+        btn.innerHTML = '◀';
+        btn.style.left = '270px';
+    }
+    
+    // 토글 버튼 클릭 이벤트
+    btn.addEventListener('click', function() {
+        if (sidebar.classList.contains('sidebar-hidden')) {
+            // 보이기
+            sidebar.classList.remove('sidebar-hidden');
+            if (content) content.classList.remove('content-expanded');
+            btn.classList.remove('btn-moved');
+            btn.innerHTML = '◀';
+            btn.style.left = '270px';
+            localStorage.setItem('sidebar-state', 'visible');
+            console.log('사이드바 보이기');
+        } else {
+            // 숨기기 (호버시 나타남)
+            sidebar.classList.add('sidebar-hidden');
+            if (content) content.classList.add('content-expanded');
+            btn.classList.add('btn-moved');
+            btn.innerHTML = '☰';
+            btn.style.left = '30px';
+            localStorage.setItem('sidebar-state', 'hidden');
+            console.log('사이드바 숨기기 (호버시 나타남)');
+        }
+    });
+    
+    console.log('사이드바 초기화 완료');
+});
+</script>
