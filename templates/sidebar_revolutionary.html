@@ -1,7 +1,4 @@
-<!-- 토글 버튼 (사이드바 밖에 독립적으로 위치) -->
-<button id="sidebarToggle" class="sidebar-toggle-btn">
-    <span id="toggleIcon">☰</span>
-</button>
+<!-- 토글 버튼 제거됨 - 자동 숨김/펼침 기능 사용 -->
 
 <!-- Enhanced Revolutionary Sidebar with Full Menu Structure -->
 <aside class="sidebar-wrapper" id="sidebar">
@@ -291,70 +288,37 @@
     top: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    transition: transform 0.3s ease, width 0.3s ease;
+    transition: transform 0.3s ease;
     z-index: 1000;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* 간단한 자동숨김 기능 */
+/* 자동 숨김 - 기본적으로 숨겨짐, 마우스 호버시 나타남 */
 .sidebar-wrapper {
-    transition: transform 0.3s ease !important;
+    transform: translateX(-240px);  /* 기본값: 숨김 */
 }
 
-/* 자동숨김 상태 - 20px만 보이게 */
-.sidebar-wrapper.sidebar-auto-hide {
-    transform: translateX(-240px) !important;
+/* 마우스 호버시 나타남 */
+.sidebar-wrapper:hover {
+    transform: translateX(0);
 }
 
-/* 자동숨김 상태에서 호버하면 전체 보이기 */
-.sidebar-wrapper.sidebar-auto-hide:hover {
-    transform: translateX(0) !important;
-}
-
-/* 컨텐츠 영역 조정 */
+/* 컨텐츠 영역 조정 - 사이드바가 기본적으로 숨겨짐 */
 .content-wrapper {
-    margin-left: 260px !important;  /* 기본값: 사이드바 너비만큼 */
+    margin-left: 20px !important;  /* 기본값: 사이드바 숨김 상태 */
     transition: margin-left 0.3s ease !important;
-    width: calc(100% - 260px) !important;
+    width: calc(100% - 20px) !important;
     position: relative;
 }
 
-.content-wrapper.expanded {
-    margin-left: 20px !important;  /* 사이드바 숨김시: 20px만 남김 */
-    width: calc(100% - 20px) !important;
+/* 사이드바 호버시 컨텐츠 이동 */
+.sidebar-wrapper:hover ~ .content-wrapper,
+.sidebar-wrapper:hover + main.content-wrapper {
+    margin-left: 260px !important;
+    width: calc(100% - 260px) !important;
 }
 
-/* 토글 버튼 스타일 */
-.sidebar-toggle-btn {
-    position: fixed !important;
-    left: 270px;
-    top: 20px;
-    width: 40px;
-    height: 40px;
-    background: #00d4ff !important;
-    border: none !important;
-    border-radius: 50%;
-    color: #000 !important;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 10000 !important;
-    transition: left 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-}
-
-/* 자동숨김 상태일 때 버튼 위치 */
-.sidebar-toggle-btn.btn-shifted {
-    left: 30px !important;
-}
-
-.sidebar-toggle-btn:hover {
-    transform: scale(1.1) !important;
-    background: #0099cc !important;
-}
+/* 토글 버튼 관련 스타일 제거됨 */
 
 /* Show indicator when auto-hide is active */
 .sidebar-wrapper.auto-hide::after {
@@ -650,151 +614,27 @@
 
 <script>
 // Debug logging
-console.log('Sidebar script loaded');
+console.log('Sidebar auto-hide loaded');
 
-// 가장 단순한 버전 - 테스트용
-window.simpleToggle = function() {
+// 디버그 함수
+window.debugSidebar = function() {
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper');
     
-    if (sidebar.style.display === 'none') {
-        sidebar.style.display = 'block';
-        if (content) content.style.marginLeft = '260px';
-        alert('사이드바 보이기');
-    } else {
-        sidebar.style.display = 'none';
-        if (content) content.style.marginLeft = '0px';
-        alert('사이드바 숨기기');
-    }
-};
-
-// 토글 함수 - 완전히 새로 작성
-window.toggleSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
-    const content = document.querySelector('.content-wrapper') || document.getElementById('content');
-    const toggleBtn = document.getElementById('sidebarToggle');
-    
-    if (!sidebar || !toggleBtn) {
-        console.error('Required elements not found');
-        alert('요소를 찾을 수 없음');
-        return;
-    }
-    
-    // 자동숨김 모드 토글
-    if (sidebar.classList.contains('sidebar-auto-hide')) {
-        // 자동숨김 해제 (항상 보이기)
-        sidebar.classList.remove('sidebar-auto-hide');
-        if (content) {
-            content.classList.remove('expanded');
-            // 명시적으로 margin 설정
-            content.style.marginLeft = '260px';
-            content.style.width = 'calc(100% - 260px)';
-        }
-        toggleBtn.classList.remove('btn-shifted');
-        toggleBtn.innerHTML = '◀';
-        toggleBtn.style.left = '270px';  // 명시적으로 위치 설정
-        
-        console.log('✅ 사이드바 항상 보이기 모드');
-    } else {
-        // 자동숨김 활성화 (마우스 호버시 나타남)
-        sidebar.classList.add('sidebar-auto-hide');
-        if (content) {
-            content.classList.add('expanded');
-            // 명시적으로 margin 설정
-            content.style.marginLeft = '20px';
-            content.style.width = 'calc(100% - 20px)';
-        }
-        toggleBtn.classList.add('btn-shifted');
-        toggleBtn.innerHTML = '☰';
-        toggleBtn.style.left = '30px';  // 명시적으로 위치 설정
-        
-        console.log('✅ 자동숨김 모드 활성화 - 마우스 호버시 사이드바 나타남');
-    }
-    
-    // 상태 저장
-    localStorage.setItem('sidebar-auto-hide', sidebar.classList.contains('sidebar-auto-hide'));
-    
-    // 디버그 정보
-    console.log('사이드바 클래스:', sidebar.className);
-    console.log('버튼 클래스:', toggleBtn.className);
-    console.log('버튼 위치:', toggleBtn.style.left);
-    
-    return false; // 기본 동작 방지
-}
-
-// Hover handlers for auto-hide sidebar - 최종 버전
-function setupSidebarHoverHandlers() {
-    const sidebar = document.getElementById('sidebar');
-    
-    if (!sidebar) {
-        console.error('❌ Sidebar not found for hover handlers');
-        return;
-    }
-    
-    sidebar.addEventListener('mouseenter', function() {
-        if (this.getAttribute('data-hidden') === 'true') {
-            console.log('🖱️ Mouse entered - showing sidebar temporarily');
-            this.style.left = '0px';
-            this.style.transition = 'all 0.3s ease';
-        }
-    });
-    
-    sidebar.addEventListener('mouseleave', function() {
-        if (this.getAttribute('data-hidden') === 'true') {
-            console.log('🖱️ Mouse left - hiding sidebar again');
-            this.style.left = '-260px';
-            this.style.transition = 'all 0.3s ease';
-        }
-    });
-    
-    console.log('✅ Hover handlers setup complete');
-}
-
-// toggleSidebar는 이미 window에 정의됨
-
-// 디버그 함수 - 현재 상태 확인
-window.debugSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
     if (!sidebar) {
         console.error('Sidebar not found!');
         return;
     }
     
-    const computed = window.getComputedStyle(sidebar);
+    const sidebarComputed = window.getComputedStyle(sidebar);
+    const contentComputed = content ? window.getComputedStyle(content) : null;
+    
     console.log('=== SIDEBAR DEBUG INFO ===');
-    console.log('Display:', computed.display);
-    console.log('Position:', computed.position);
-    console.log('Left:', computed.left);
-    console.log('Width:', computed.width);
-    console.log('Data-hidden:', sidebar.getAttribute('data-hidden'));
-    console.log('Inline styles:', sidebar.style.cssText);
+    console.log('Sidebar Transform:', sidebarComputed.transform);
+    console.log('Sidebar Width:', sidebarComputed.width);
+    console.log('Content Margin-Left:', contentComputed ? contentComputed.marginLeft : 'N/A');
+    console.log('Content Width:', contentComputed ? contentComputed.width : 'N/A');
     console.log('=========================');
-};
-
-// 강제로 보이기
-window.showSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.style.cssText = `
-            display: block !important;
-            position: fixed !important;
-            left: 0px !important;
-            top: 0 !important;
-            width: 260px !important;
-            height: 100vh !important;
-            z-index: 1000 !important;
-        `;
-        console.log('Sidebar forced to show');
-    }
-};
-
-// 강제로 숨기기
-window.hideSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.style.display = 'none';
-        console.log('Sidebar forced to hide');
-    }
 };
 
 // Toggle expandable sections
@@ -810,50 +650,34 @@ function toggleSection(element) {
 
 // Restore section states on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
+    console.log('DOM loaded - Auto-hide sidebar enabled');
     
-    // 사이드바 초기화
+    // 사이드바와 컨텐츠 요소 확인
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-wrapper') || document.getElementById('content');
-    const toggleBtn = document.getElementById('sidebarToggle');
     
-    if (sidebar && toggleBtn) {
-        // 버튼에 이벤트 리스너 추가
-        toggleBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.toggleSidebar();
-        });
+    if (sidebar && content) {
+        console.log('✅ 사이드바 자동 숨김/펼침 기능 활성화');
+        console.log('✅ 마우스를 사이드바 영역에 가져가면 자동으로 나타납니다');
         
-        // 저장된 상태 확인 (기본값: 자동숨김)
-        const autoHide = localStorage.getItem('sidebar-auto-hide') !== 'false';
-        
-        if (autoHide) {
-            sidebar.classList.add('sidebar-auto-hide');
+        // 동적 컨텐츠 조정을 위한 이벤트 리스너
+        sidebar.addEventListener('mouseenter', function() {
+            document.body.classList.add('sidebar-hover-active');
             if (content) {
-                content.classList.add('expanded');
-                content.style.marginLeft = '20px';
-                content.style.width = 'calc(100% - 20px)';
-            }
-            toggleBtn.classList.add('btn-shifted');
-            toggleBtn.innerHTML = '☰';
-            toggleBtn.style.left = '30px';  // 명시적으로 설정
-        } else {
-            sidebar.classList.remove('sidebar-auto-hide');
-            if (content) {
-                content.classList.remove('expanded');
                 content.style.marginLeft = '260px';
                 content.style.width = 'calc(100% - 260px)';
             }
-            toggleBtn.classList.remove('btn-shifted');
-            toggleBtn.innerHTML = '◀';
-            toggleBtn.style.left = '270px';  // 명시적으로 설정
-        }
+            console.log('Sidebar hover - content expanded');
+        });
         
-        console.log('✅ 사이드바 초기화 완료:', autoHide ? '자동숨김' : '항상보임');
-        console.log('✅ 버튼 이벤트 리스너 추가됨');
-        console.log('버튼 위치:', toggleBtn.style.left);
-    } else {
-        console.error('❌ Sidebar or toggle button not found!');
+        sidebar.addEventListener('mouseleave', function() {
+            document.body.classList.remove('sidebar-hover-active');
+            if (content) {
+                content.style.marginLeft = '20px';
+                content.style.width = 'calc(100% - 20px)';
+            }
+            console.log('Sidebar leave - content collapsed');
+        });
     }
     
     // Restore expandable sections state

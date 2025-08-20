@@ -17,6 +17,9 @@
     <!-- Theme System -->
     <link rel="stylesheet" href="{% static 'css/theme-system.css' %}">
     
+    <!-- Sidebar Auto-hide System -->
+    <link rel="stylesheet" href="{% static 'css/sidebar-autohide.css' %}">
+    
     <!-- Tailwind CSS for Utility Classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -49,17 +52,12 @@
             color: rgba(255, 255, 255, 0.8) !important;
         }
         
-        /* Main content area default style */
+        /* Main content area default style - 사이드바 기본 숨김 */
         .content-wrapper {
-            margin-left: 260px;
-            width: calc(100% - 260px);
+            margin-left: 20px;  /* 기본값: 사이드바 숨김 */
+            width: calc(100% - 20px);
             min-height: 100vh;
             transition: all 0.3s ease;
-        }
-        
-        .content-wrapper.expanded {
-            margin-left: 20px !important;
-            width: calc(100% - 20px) !important;
         }
     </style>
     
