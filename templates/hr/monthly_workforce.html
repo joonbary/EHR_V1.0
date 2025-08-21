@@ -223,6 +223,14 @@
     .contract-row { border-left: 4px solid #f59e0b; }
     .other-row { border-left: 4px solid #ef4444; }
     
+    /* 그룹 전체 컬럼 스타일 */
+    .group-total-cell {
+        background: rgba(245, 158, 11, 0.08) !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        border-left: 1px solid rgba(245, 158, 11, 0.2) !important;
+    }
+    
     /* Revolutionary Loading State */
     .loading {
         text-align: center;
@@ -785,8 +793,10 @@ function createTemplateTable(data) {
     groupTotalHeader.className = 'company-header';
     groupTotalHeader.colSpan = 4;
     groupTotalHeader.textContent = '그룹 전체';
-    groupTotalHeader.style.backgroundColor = '#fff3cd';
+    groupTotalHeader.style.background = 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2))';
+    groupTotalHeader.style.color = '#f59e0b';
     groupTotalHeader.style.fontWeight = 'bold';
+    groupTotalHeader.style.borderLeft = '2px solid rgba(245, 158, 11, 0.3)';
     companyHeaderRow.appendChild(groupTotalHeader);
     
     // 직책 헤더 생성
@@ -806,8 +816,10 @@ function createTemplateTable(data) {
         const th = document.createElement('th');
         th.className = 'position-header';
         th.textContent = header;
-        th.style.backgroundColor = '#fff3cd';
-        th.style.fontWeight = 'bold';
+        th.style.background = 'rgba(245, 158, 11, 0.15)';
+        th.style.color = 'rgba(255, 255, 255, 0.95)';
+        th.style.fontWeight = '600';
+        th.style.borderLeft = '1px solid rgba(245, 158, 11, 0.2)';
         positionHeaderRow.appendChild(th);
     });
     
@@ -896,16 +908,24 @@ function createTemplateTable(data) {
         groupTotalCells.forEach((cell, index) => {
             const td = document.createElement('td');
             td.className = 'number-cell';
-            td.style.backgroundColor = '#fff3cd';
-            td.style.fontWeight = 'bold';
+            td.style.background = 'rgba(245, 158, 11, 0.08)';
+            td.style.color = '#ffffff';
+            td.style.fontWeight = '600';
             td.style.textAlign = 'right';
-            td.style.paddingRight = '10px';
+            td.style.paddingRight = '14px';
+            td.style.borderLeft = '1px solid rgba(245, 158, 11, 0.15)';
             
             if (index === 2) { // 증감 컬럼
-                const changeClass = cell.value > 0 ? 'text-green-600' : 
-                                  cell.value < 0 ? 'text-red-600' : 'text-gray-600';
-                td.className += ` ${changeClass}`;
-                td.textContent = (cell.value > 0 ? '+' : '') + cell.value.toLocaleString();
+                if (cell.value > 0) {
+                    td.style.color = '#22c55e';
+                    td.textContent = '+' + cell.value.toLocaleString();
+                } else if (cell.value < 0) {
+                    td.style.color = '#ef4444';
+                    td.textContent = cell.value.toLocaleString();
+                } else {
+                    td.style.color = 'rgba(255, 255, 255, 0.7)';
+                    td.textContent = cell.value.toLocaleString();
+                }
             } else {
                 td.textContent = cell.value.toLocaleString();
             }
