@@ -29,11 +29,12 @@
         backdrop-filter: blur(10px);
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         padding: var(--spacing-xl);
+        margin-bottom: var(--spacing-lg);
     }
     
     .revolutionary-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
         background: rgba(255, 255, 255, 0.08);
     }
     
@@ -55,10 +56,12 @@
         background: var(--card-background);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        padding: var(--spacing-lg);
+        padding: 1.5rem;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
+        height: 100%;
+        min-height: 120px;
     }
     
     .stat-card::before {
@@ -77,21 +80,22 @@
     }
     
     .stat-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
         border-color: rgba(0, 212, 255, 0.5);
     }
     
     .stat-value {
-        font-size: clamp(28px, 5vw, 48px);
+        font-size: 2rem;
         font-weight: 700;
         color: var(--primary-color);
-        text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        line-height: 1.2;
     }
     
     /* Page Container */
     .monthly-workforce-container {
-        padding: 0;
+        padding: 2rem 0;
         background: var(--background-gradient);
         min-height: 100vh;
     }
@@ -100,25 +104,27 @@
     .template-table {
         background: var(--card-background);
         border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
         overflow-x: auto;
-        margin-bottom: 20px;
+        margin: 2rem 0;
         border: 1px solid rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        padding: 1rem;
     }
     
     .template-table table {
         width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
-        min-width: 1200px; /* 스크롤 가능 */
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 14px;
+        min-width: 1200px;
     }
     
     .template-table th,
     .template-table td {
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 12px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 14px 12px;
         text-align: center;
         vertical-align: middle;
         white-space: nowrap;
@@ -127,20 +133,22 @@
     
     /* Revolutionary Header Styles */
     .company-header {
-        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
-        font-weight: bold;
-        font-size: 12px;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 153, 255, 0.15));
+        font-weight: 600;
+        font-size: 13px;
         color: var(--primary-color);
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
+        padding: 16px 12px !important;
     }
     
     .position-header {
-        background: rgba(0, 212, 255, 0.1);
-        font-weight: 600;
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.9);
-        letter-spacing: 0.5px;
+        background: rgba(0, 212, 255, 0.08);
+        font-weight: 500;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.85);
+        letter-spacing: 0.3px;
+        padding: 14px 12px !important;
     }
     
     /* Revolutionary Row Headers */
@@ -166,12 +174,13 @@
     /* Revolutionary Number Cells */
     .number-cell {
         text-align: right !important;
-        font-family: 'Inter', monospace;
-        font-weight: 600;
-        padding-right: 10px !important;
-        min-width: 60px;
-        color: var(--text-primary);
+        font-family: 'Inter', 'SF Mono', monospace;
+        font-weight: 500;
+        padding-right: 14px !important;
+        min-width: 70px;
+        color: rgba(255, 255, 255, 0.9);
         transition: all 0.3s ease;
+        font-size: 14px;
     }
     
     .number-cell:hover {
@@ -229,31 +238,49 @@
 
     /* Revolutionary AI Insights Section */
     .ai-insights-section {
-        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        background: var(--card-background);
         border-radius: 20px;
-        padding: var(--spacing-xl);
-        margin: var(--spacing-lg) 0;
+        padding: 2rem;
+        margin: 2rem 0;
         border: 1px solid rgba(0, 212, 255, 0.2);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         position: relative;
-        overflow: hidden;
+        overflow: visible;
     }
     
-    .ai-insights-section::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
-        animation: rotate 20s linear infinite;
+    /* Removed rotating background for better performance */
+    
+    
+    /* AI Insight Cards */
+    .ai-insight-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(0, 212, 255, 0.15);
+        border-radius: 15px;
+        padding: 1.25rem;
+        height: 100%;
+        transition: all 0.3s ease;
     }
     
-    @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+    .ai-insight-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.15);
+    }
+    
+    /* Grid System Improvements */
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    @media (max-width: 1024px) {
+        .insights-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
     }
     
     /* Revolutionary Buttons */
@@ -323,8 +350,10 @@
     .ai-insights-header {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 20px;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
     }
     
     .ai-icon {
@@ -416,38 +445,38 @@
         </div>
     </div>
     
-    <!-- 요약 카드 섹션 -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" id="summaryCards" style="display: none;">
-        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
-            <div class="flex items-center justify-between">
+    <!-- Revolutionary Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" id="summaryCards" style="display: none;">
+        <div class="stat-card">
+            <div class="flex items-center justify-between h-full">
                 <div>
-                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">현재 인원</h4>
-                    <div class="text-3xl font-bold text-white mt-2" id="currentTotal">0</div>
+                    <h4 class="text-sm font-medium mb-2" style="color: var(--text-secondary);">현재 인원</h4>
+                    <div class="stat-value" id="currentTotal">0</div>
                 </div>
-                <div class="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl">
-                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                <div class="p-3 rounded-xl" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));">
+                    <i data-lucide="users" class="w-6 h-6" style="color: var(--primary-color);"></i>
                 </div>
             </div>
         </div>
-        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
-            <div class="flex items-center justify-between">
+        <div class="stat-card">
+            <div class="flex items-center justify-between h-full">
                 <div>
-                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">전월 인원</h4>
-                    <div class="text-3xl font-bold text-white mt-2" id="previousTotal">0</div>
+                    <h4 class="text-sm font-medium mb-2" style="color: var(--text-secondary);">전월 인원</h4>
+                    <div class="stat-value" id="previousTotal">0</div>
                 </div>
-                <div class="p-3 bg-gray-100 dark:bg-gray-900/20 rounded-xl">
-                    <i data-lucide="user-check" class="w-6 h-6 text-gray-600"></i>
+                <div class="p-3 rounded-xl" style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(79, 70, 229, 0.2));">
+                    <i data-lucide="user-check" class="w-6 h-6" style="color: #9333ea;"></i>
                 </div>
             </div>
         </div>
-        <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover-lift">
-            <div class="flex items-center justify-between">
+        <div class="stat-card">
+            <div class="flex items-center justify-between h-full">
                 <div>
-                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">증감</h4>
-                    <div class="text-3xl font-bold mt-2" id="changeTotal">0</div>
+                    <h4 class="text-sm font-medium mb-2" style="color: var(--text-secondary);">증감</h4>
+                    <div class="stat-value" id="changeTotal">0</div>
                 </div>
-                <div class="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
-                    <i data-lucide="trending-up" class="w-6 h-6 text-green-600"></i>
+                <div class="p-3 rounded-xl" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));">
+                    <i data-lucide="trending-up" class="w-6 h-6" style="color: #22c55e;"></i>
                 </div>
             </div>
         </div>
@@ -460,19 +489,19 @@
                 <i data-lucide="sparkles" class="w-6 h-6"></i>
             </div>
             <div>
-                <h3 class="text-xl font-bold text-white">AI 경영 인사이트</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">실시간 인력 데이터 기반 분석</p>
+                <h3 class="text-2xl font-bold" style="color: var(--primary-color); text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);">AI 경영 인사이트</h3>
+                <p class="text-sm" style="color: var(--text-secondary); opacity: 0.8;">실시간 인력 데이터 기반 분석</p>
             </div>
         </div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div class="revolutionary-card" style="padding: 1.5rem;"
+        <div class="insights-grid">
+            <div class="ai-insight-card">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="trending-up" class="w-5 h-5 inline mr-2 text-green-600"></i>
                         인력 규모 분석
                     </h4>
-                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">핵심</span>
+                    <span class="px-3 py-1 text-xs font-medium rounded-full" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">핵심</span>
                 </div>
                 <p class="text-sm mb-3" style="color: var(--text-secondary);">
                     OK금융그룹 전체 <strong id="totalEmployees">1,898명</strong>의 직원이 7개 계열사에 분포. 
@@ -490,13 +519,13 @@
                 </div>
             </div>
             
-            <div class="revolutionary-card" style="padding: 1.5rem;"
+            <div class="ai-insight-card">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="users" class="w-5 h-5 inline mr-2 text-blue-600"></i>
                         조직 구조 최적화
                     </h4>
-                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">분석</span>
+                    <span class="px-3 py-1 text-xs font-medium rounded-full" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);">분석</span>
                 </div>
                 <p class="text-sm mb-3" style="color: var(--text-secondary);">
                     관리직(부장급) 평균 관리 범위가 <strong id="managementSpan">48.7명</strong>으로 
@@ -514,7 +543,7 @@
                 </div>
             </div>
             
-            <div class="revolutionary-card" style="padding: 1.5rem;"
+            <div class="ai-insight-card">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="building-2" class="w-5 h-5 inline mr-2 text-purple-600"></i>
@@ -538,7 +567,7 @@
                 </div>
             </div>
             
-            <div class="revolutionary-card" style="padding: 1.5rem;"
+            <div class="ai-insight-card">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="target" class="w-5 h-5 inline mr-2 text-orange-600"></i>
@@ -562,7 +591,7 @@
                 </div>
             </div>
             
-            <div class="revolutionary-card" style="padding: 1.5rem;"
+            <div class="ai-insight-card">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="trending-down" class="w-5 h-5 inline mr-2 text-red-600"></i>
@@ -582,7 +611,7 @@
                 </div>
             </div>
             
-            <div class="revolutionary-card" style="padding: 1.5rem;"
+            <div class="ai-insight-card">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="lightbulb" class="w-5 h-5 inline mr-2 text-indigo-600"></i>
