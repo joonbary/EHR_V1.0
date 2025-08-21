@@ -278,6 +278,79 @@
         position: relative;
     }
     
+    /* Enhanced Button Styles for Revolutionary Design */
+    .btn-revolutionary {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 1;
+    }
+    
+    .btn-revolutionary.btn-primary {
+        background: linear-gradient(135deg, #00d4ff, #0099ff) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        padding: 1rem 1.5rem !important;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4) !important;
+        border: 2px solid rgba(0, 212, 255, 0.5) !important;
+        border-radius: 12px !important;
+    }
+    
+    .btn-revolutionary.btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s ease;
+        z-index: -1;
+    }
+    
+    .btn-revolutionary.btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 30px rgba(0, 212, 255, 0.6) !important;
+        border-color: #00d4ff !important;
+        filter: brightness(1.2);
+    }
+    
+    .btn-revolutionary.btn-primary:hover::before {
+        left: 100%;
+    }
+    
+    .btn-revolutionary.btn-secondary {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #00d4ff !important;
+        border: 2px solid rgba(0, 212, 255, 0.3) !important;
+        padding: 1rem 1.5rem !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+    }
+    
+    .btn-revolutionary.btn-secondary:hover {
+        background: rgba(0, 212, 255, 0.2) !important;
+        border-color: #00d4ff !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4) !important;
+    }
+    
+    /* Tab Link Enhancements */
+    .btn-revolutionary span {
+        display: inline-block;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        margin-left: 0.5rem;
+    }
+    
+    .btn-revolutionary i {
+        font-size: 1.125rem;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
         .stats-grid {
@@ -301,6 +374,13 @@
         .data-table td {
             padding: 0.5rem;
         }
+        
+        .btn-revolutionary.btn-primary {
+            width: 100%;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+        }
     }
 </style>
 {% endblock %}
@@ -312,15 +392,15 @@
         <div class="flex flex-wrap items-center justify-end gap-3">
             <a href="{% url 'employees:outsourced_dashboard' %}" class="btn-revolutionary btn-primary">
                 <i class="fas fa-users"></i>
-                외주인력 현황관리
+                <span>외주인력 현황관리</span>
             </a>
             <a href="{% url 'employees:monthly_workforce' %}" class="btn-revolutionary btn-primary">
                 <i class="fas fa-calendar-alt"></i>
-                월간 인력현황
+                <span>월간 인력현황</span>
             </a>
             <a href="{% url 'employees:overseas_workforce' %}" class="btn-revolutionary btn-primary">
                 <i class="fas fa-globe"></i>
-                월간 해외인력현황
+                <span>월간 해외인력현황</span>
             </a>
             <button class="btn-revolutionary btn-secondary" onclick="downloadReport()">
                 <i class="fas fa-download"></i>
