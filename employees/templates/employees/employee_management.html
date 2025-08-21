@@ -1,12 +1,21 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}직원 관리 - OK금융그룹 e-HR{% endblock %}
+{% block title %}직원 관리 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Employee Management Center{% endblock %}
+{% block content_title %}직원 관리{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    AI 기반 인재 분석으로 최적의 인력 배치와 육성 전략을 수립합니다
+</p>
+{% endblock %}
 
 {% block extra_css %}
 <style>
     /* Modal 스타일 */
-    .modal {
+    .modal-revolutionary {
         display: none;
         position: fixed;
         z-index: 1000;
@@ -14,37 +23,35 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        backdrop-filter: blur(4px);
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
     }
     
-    .modal.show {
+    .modal-revolutionary.show {
         display: flex;
         align-items: center;
         justify-content: center;
     }
     
-    .modal-content {
-        background: white;
-        border-radius: 1rem;
+    .modal-content-revolutionary {
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
         max-width: 90vw;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    }
-    
-    .dark .modal-content {
-        background: #1f2937;
+        box-shadow: 0 25px 50px rgba(0, 212, 255, 0.2);
     }
     
     /* 로딩 스피너 */
-    .loading {
+    .loading-revolutionary {
         display: inline-block;
         width: 20px;
         height: 20px;
-        border: 3px solid #f3f3f3;
+        border: 3px solid rgba(0, 212, 255, 0.2);
         border-radius: 50%;
-        border-top-color: #FF6B00;
+        border-top-color: #00d4ff;
         animation: spin 1s ease-in-out infinite;
     }
     
@@ -53,20 +60,27 @@
     }
     
     /* 필터 태그 */
-    .filter-tag {
+    .filter-tag-revolutionary {
         display: inline-flex;
-        items-center;
-        padding: 0.25rem 0.75rem;
-        background: #FF6B00;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
         color: white;
-        border-radius: 1rem;
+        border-radius: 25px;
         font-size: 0.875rem;
         margin: 0.25rem;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        transition: all 0.3s ease;
     }
     
-    .filter-tag button {
+    .filter-tag-revolutionary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+    }
+    
+    .filter-tag-revolutionary button {
         margin-left: 0.5rem;
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         border: none;
         border-radius: 50%;
         width: 20px;
@@ -75,208 +89,391 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-tag-revolutionary button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
     }
     
     /* 카드 호버 효과 */
-    .employee-card {
+    .employee-card-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
     }
     
-    .employee-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(255, 107, 0, 0.15);
+    .employee-card-revolutionary:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.4);
+        box-shadow: 0 15px 35px rgba(0, 212, 255, 0.2);
     }
     
     /* 상태 배지 */
-    .status-badge {
+    .status-badge-revolutionary {
         padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
+        border-radius: 15px;
         font-size: 0.75rem;
         font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
-    .status-active { background: #10B981; color: white; }
-    .status-inactive { background: #EF4444; color: white; }
-    .status-leave { background: #F59E0B; color: white; }
+    .status-active { 
+        background: rgba(16, 185, 129, 0.2); 
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .status-inactive { 
+        background: rgba(239, 68, 68, 0.2); 
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .status-leave { 
+        background: rgba(245, 158, 11, 0.2); 
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    
+    .filter-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-container-revolutionary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.3);
+    }
+    
+    .form-control-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: white;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .form-control-revolutionary:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .form-control-revolutionary::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .form-select-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: white;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        cursor: pointer;
+    }
+    
+    .form-select-revolutionary:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .form-label-revolutionary {
+        color: #00d4ff;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .table-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .table-revolutionary thead {
+        background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .table-revolutionary th {
+        color: #00d4ff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .table-revolutionary td {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .table-revolutionary tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table-revolutionary tbody tr:hover {
+        background: rgba(0, 212, 255, 0.05);
+    }
+    
+    .empty-state-revolutionary {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state-revolutionary i {
+        font-size: 5rem;
+        color: rgba(0, 212, 255, 0.3);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state-revolutionary h3 {
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state-revolutionary p {
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 2rem;
+    }
+    
+    .pagination-revolutionary {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+    
+    .pagination-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        background: rgba(255, 255, 255, 0.02);
+        color: #00d4ff;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination-btn:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        transform: translateY(-2px);
+    }
+    
+    .pagination-btn.active {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        border-color: transparent;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- 페이지 헤더 -->
-<div class="mb-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-4xl font-bold gradient-text mb-2">직원 관리</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-300">AI 기반 인재 분석으로 최적의 인력 배치와 육성 전략을 수립합니다</p>
-        </div>
-        <div class="flex items-center space-x-3">
-            <button id="refreshBtn" class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors" aria-label="새로고침">
-                <i data-lucide="refresh-cw" class="w-5 h-5 inline mr-2"></i>
+<div class="revolutionary-container">
+    <!-- 액션 버튼 -->
+    <div class="container-fluid px-4 mb-6">
+        <div class="flex items-center justify-end gap-3">
+            <button id="refreshBtn" class="btn-revolutionary btn-secondary" aria-label="새로고침">
+                <i class="fas fa-sync-alt"></i>
                 새로고침
             </button>
-            <a href="{% url 'employees:employee_bulk_upload' %}" class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors" aria-label="일괄 등록">
-                <i data-lucide="upload" class="w-5 h-5 inline mr-2"></i>
+            <a href="{% url 'employees:employee_bulk_upload' %}" class="btn-revolutionary btn-secondary" aria-label="일괄 등록">
+                <i class="fas fa-upload"></i>
                 일괄 등록
             </a>
-            <button id="addEmployeeBtn" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-glow transition-all hover-lift" aria-label="새 직원 등록">
-                <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+            <button id="addEmployeeBtn" class="btn-revolutionary btn-primary" aria-label="새 직원 등록">
+                <i class="fas fa-plus"></i>
                 새 직원 등록
             </button>
         </div>
     </div>
-</div>
 
-<!-- 필터 및 검색 영역 -->
-<div class="glass dark:glass-dark rounded-2xl p-6 mb-8 border border-gray-200/50 dark:border-gray-700/50">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <!-- 검색 -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">검색</label>
-            <div class="relative">
-                <input type="text" id="searchInput" placeholder="이름, 이메일, 직무로 검색..." class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all">
-                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+    <!-- 필터 및 검색 영역 -->
+    <div class="container-fluid px-4 mb-6">
+        <div class="filter-container-revolutionary">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- 검색 -->
+                <div>
+                    <label class="form-label-revolutionary">검색</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" 
+                               placeholder="이름, 이메일, 직무로 검색..." 
+                               class="form-control-revolutionary pl-10">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-300"></i>
+                    </div>
+                </div>
+                
+                <!-- 부서 필터 -->
+                <div>
+                    <label class="form-label-revolutionary">부서</label>
+                    <select id="departmentFilter" class="form-select-revolutionary">
+                        <option value="">전체 부서</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">인사</option>
+                        <option value="FINANCE">재무</option>
+                        <option value="MARKETING">마케팅</option>
+                        <option value="SALES">영업</option>
+                        <option value="OPERATIONS">운영</option>
+                    </select>
+                </div>
+                
+                <!-- 직급 필터 -->
+                <div>
+                    <label class="form-label-revolutionary">직급</label>
+                    <select id="positionFilter" class="form-select-revolutionary">
+                        <option value="">전체 직급</option>
+                        <option value="사원">사원</option>
+                        <option value="선임">선임</option>
+                        <option value="주임">주임</option>
+                        <option value="대리">대리</option>
+                        <option value="과장">과장</option>
+                        <option value="차장">차장</option>
+                        <option value="부장">부장</option>
+                    </select>
+                </div>
+                
+                <!-- 재직상태 필터 -->
+                <div>
+                    <label class="form-label-revolutionary">재직상태</label>
+                    <select id="statusFilter" class="form-select-revolutionary">
+                        <option value="">전체</option>
+                        <option value="재직">재직</option>
+                        <option value="휴직">휴직</option>
+                        <option value="파견">파견</option>
+                        <option value="퇴직">퇴직</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 활성 필터 표시 -->
+            <div id="activeFilters" class="flex flex-wrap items-center mb-4"></div>
+            
+            <!-- 액션 버튼 -->
+            <div class="flex items-center justify-between pt-4 border-t border-white/10">
+                <div class="flex items-center gap-3">
+                    <button id="clearFiltersBtn" class="btn-revolutionary btn-secondary">
+                        <i class="fas fa-times-circle"></i>
+                        필터 초기화
+                    </button>
+                    <span id="resultCount" class="text-sm text-gray-400">0명</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="viewToggle" class="p-2 rounded-lg hover:bg-white/10 transition-colors" title="보기 방식 변경">
+                        <i class="fas fa-th text-cyan-300"></i>
+                    </button>
+                    <a href="{% url 'employees:employee_download_template' %}" class="btn-revolutionary btn-secondary" title="템플릿 다운로드">
+                        <i class="fas fa-file-download"></i>
+                        템플릿
+                    </a>
+                    <button id="exportBtn" class="btn-revolutionary btn-secondary">
+                        <i class="fas fa-download"></i>
+                        내보내기
+                    </button>
+                </div>
             </div>
         </div>
-        
-        <!-- 부서 필터 -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">부서</label>
-            <select id="departmentFilter" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
-                <option value="">전체 부서</option>
-                <option value="IT">IT</option>
-                <option value="HR">인사</option>
-                <option value="FINANCE">재무</option>
-                <option value="MARKETING">마케팅</option>
-                <option value="SALES">영업</option>
-                <option value="OPERATIONS">운영</option>
-            </select>
-        </div>
-        
-        <!-- 직급 필터 -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">직급</label>
-            <select id="positionFilter" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
-                <option value="">전체 직급</option>
-                <option value="사원">사원</option>
-                <option value="선임">선임</option>
-                <option value="주임">주임</option>
-                <option value="대리">대리</option>
-                <option value="과장">과장</option>
-                <option value="차장">차장</option>
-                <option value="부장">부장</option>
-            </select>
-        </div>
-        
-        <!-- 재직상태 필터 -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">재직상태</label>
-            <select id="statusFilter" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
-                <option value="">전체</option>
-                <option value="재직">재직</option>
-                <option value="휴직">휴직</option>
-                <option value="파견">파견</option>
-                <option value="퇴직">퇴직</option>
-            </select>
+    </div>
+
+    <!-- 로딩 상태 -->
+    <div id="loadingState" class="flex items-center justify-center py-12">
+        <div class="text-center">
+            <div class="loading-revolutionary mb-4"></div>
+            <p class="text-gray-400">직원 목록을 불러오는 중...</p>
         </div>
     </div>
-    
-    <!-- 활성 필터 표시 -->
-    <div id="activeFilters" class="flex flex-wrap items-center"></div>
-    
-    <!-- 액션 버튼 -->
-    <div class="flex items-center justify-between pt-4 border-t border-gray-200/30 dark:border-gray-700/30">
-        <div class="flex items-center space-x-3">
-            <button id="clearFiltersBtn" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                <i data-lucide="x-circle" class="w-4 h-4 inline mr-1"></i>
-                필터 초기화
-            </button>
-            <span id="resultCount" class="text-sm text-gray-500 dark:text-gray-400">0명</span>
+
+    <!-- 직원 목록 (카드 뷰) -->
+    <div id="employeeGrid" class="container-fluid px-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
+            <!-- 직원 카드들이 여기에 동적으로 추가됩니다 -->
         </div>
-        <div class="flex items-center space-x-2">
-            <button id="viewToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="보기 방식 변경">
-                <i data-lucide="grid" class="w-5 h-5"></i>
-            </button>
-            <div class="flex items-center space-x-2">
-                <a href="{% url 'employees:employee_download_template' %}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors" title="템플릿 다운로드">
-                    <i data-lucide="file-down" class="w-4 h-4 inline mr-1"></i>
-                    템플릿
-                </a>
-                <button id="exportBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                    <i data-lucide="download" class="w-4 h-4 inline mr-1"></i>
-                    내보내기
-                </button>
+    </div>
+
+    <!-- 직원 목록 (테이블 뷰) -->
+    <div id="employeeTable" class="container-fluid px-4 mb-6">
+        <div class="table-revolutionary hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left">이름</th>
+                            <th class="text-left">부서</th>
+                            <th class="text-left">직급</th>
+                            <th class="text-left">직무</th>
+                            <th class="text-left">레벨</th>
+                            <th class="text-left">상태</th>
+                            <th class="text-left">액션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody">
+                        <!-- 테이블 행들이 여기에 동적으로 추가됩니다 -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-</div>
 
-<!-- 로딩 상태 -->
-<div id="loadingState" class="flex items-center justify-center py-12">
-    <div class="text-center">
-        <div class="loading mb-4"></div>
-        <p class="text-gray-500 dark:text-gray-400">직원 목록을 불러오는 중...</p>
+    <!-- 빈 상태 -->
+    <div id="emptyState" class="container-fluid px-4 hidden">
+        <div class="empty-state-revolutionary">
+            <i class="fas fa-users"></i>
+            <h3>직원이 없습니다</h3>
+            <p>조건에 맞는 직원을 찾을 수 없습니다.</p>
+            <button id="addFirstEmployeeBtn" class="btn-revolutionary btn-primary">
+                <i class="fas fa-plus"></i>
+                첫 번째 직원 등록하기
+            </button>
+        </div>
     </div>
-</div>
 
-<!-- 직원 목록 (카드 뷰) -->
-<div id="employeeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
-    <!-- 직원 카드들이 여기에 동적으로 추가됩니다 -->
-</div>
-
-<!-- 직원 목록 (테이블 뷰) -->
-<div id="employeeTable" class="glass dark:glass-dark rounded-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50 dark:bg-gray-800/50">
-                <tr>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">이름</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">부서</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">직급</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">직무</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">레벨</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">상태</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">액션</th>
-                </tr>
-            </thead>
-            <tbody id="employeeTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
-                <!-- 테이블 행들이 여기에 동적으로 추가됩니다 -->
-            </tbody>
-        </table>
+    <!-- 페이지네이션 -->
+    <div id="pagination" class="container-fluid px-4">
+        <div class="pagination-revolutionary hidden">
+            <!-- 페이지네이션 버튼들이 여기에 동적으로 추가됩니다 -->
+        </div>
     </div>
-</div>
-
-<!-- 빈 상태 -->
-<div id="emptyState" class="text-center py-12 hidden">
-    <div class="max-w-md mx-auto">
-        <i data-lucide="users-x" class="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-4"></i>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">직원이 없습니다</h3>
-        <p class="text-gray-500 dark:text-gray-400 mb-6">조건에 맞는 직원을 찾을 수 없습니다.</p>
-        <button id="addFirstEmployeeBtn" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-glow transition-all">
-            첫 번째 직원 등록하기
-        </button>
-    </div>
-</div>
-
-<!-- 페이지네이션 -->
-<div id="pagination" class="flex items-center justify-center mt-8 space-x-2 hidden">
-    <!-- 페이지네이션 버튼들이 여기에 동적으로 추가됩니다 -->
 </div>
 
 <!-- 직원 상세 모달 -->
-<div id="employeeDetailModal" class="modal" role="dialog" aria-labelledby="employeeDetailTitle" aria-hidden="true">
-    <div class="modal-content w-full max-w-4xl">
+<div id="employeeDetailModal" class="modal-revolutionary" role="dialog" aria-labelledby="employeeDetailTitle" aria-hidden="true">
+    <div class="modal-content-revolutionary w-full max-w-4xl">
         <div class="p-8">
             <!-- 모달 헤더 -->
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 id="employeeDetailTitle" class="text-2xl font-bold text-gray-900 dark:text-white">직원 상세 정보</h2>
-                <div class="flex items-center space-x-2">
-                    <button id="editEmployeeBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                <h2 id="employeeDetailTitle" class="text-2xl font-bold text-white">직원 상세 정보</h2>
+                <div class="flex items-center gap-2">
+                    <button id="editEmployeeBtn" class="btn-revolutionary btn-primary">
+                        <i class="fas fa-edit"></i>
                         수정
                     </button>
-                    <button id="closeDetailModal" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" aria-label="닫기">
-                        <i data-lucide="x" class="w-6 h-6"></i>
+                    <button id="closeDetailModal" class="p-2 text-gray-400 hover:text-white transition-colors" aria-label="닫기">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
             </div>
@@ -290,14 +487,14 @@
 </div>
 
 <!-- 직원 등록/수정 모달 -->
-<div id="employeeFormModal" class="modal" role="dialog" aria-labelledby="employeeFormTitle" aria-hidden="true">
-    <div class="modal-content w-full max-w-2xl">
+<div id="employeeFormModal" class="modal-revolutionary" role="dialog" aria-labelledby="employeeFormTitle" aria-hidden="true">
+    <div class="modal-content-revolutionary w-full max-w-2xl">
         <div class="p-8">
             <!-- 모달 헤더 -->
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 id="employeeFormTitle" class="text-2xl font-bold text-gray-900 dark:text-white">새 직원 등록</h2>
-                <button id="closeFormModal" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" aria-label="닫기">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                <h2 id="employeeFormTitle" class="text-2xl font-bold text-white">새 직원 등록</h2>
+                <button id="closeFormModal" class="p-2 text-gray-400 hover:text-white transition-colors" aria-label="닫기">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
@@ -307,20 +504,19 @@
                     <!-- 직원 등록/수정 폼이 여기에 동적으로 추가됩니다 -->
                 </div>
                 
-                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" id="cancelFormBtn" class="px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 rounded-xl hover:border-gray-300 transition-colors">
+                <div class="flex items-center justify-end gap-3 pt-6 border-t border-white/10">
+                    <button type="button" id="cancelFormBtn" class="btn-revolutionary btn-secondary">
                         취소
                     </button>
-                    <button type="submit" id="submitFormBtn" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-glow transition-all">
+                    <button type="submit" id="submitFormBtn" class="btn-revolutionary btn-primary">
                         <span class="btn-text">등록</span>
-                        <div class="loading hidden ml-2"></div>
+                        <div class="loading-revolutionary hidden ml-2"></div>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}

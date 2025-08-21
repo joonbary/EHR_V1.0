@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}평가자 대시보드 - OK금융그룹 e-HR{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <!-- 브레드크럼 -->
+        <nav class="breadcrumb">
+            <ul class="breadcrumb-list">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'home' %}" class="breadcrumb-link">홈</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'evaluations:dashboard' %}" class="breadcrumb-link">평가관리</a>
+                </li>
+                <li class="breadcrumb-item">평가자 대시보드</li>
+            </ul>
+        </nav>
+
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-user-tie"></i>
+                    평가자 대시보드
+                </h1>
+                <p class="page-description">{{ evaluator.name }}님이 평가해야 할 직원들의 평가 진행 현황입니다</p>
+            </div>
+        </div>
+
+        {% if active_period %}
+        <!-- 평가 기간 정보 -->
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle"></i>
+            <strong>{{ active_period.year }}년 {{ active_period.get_period_type_display }}</strong> 평가가 진행 중입니다.
+            ({{ active_period.start_date|date:"Y.m.d" }} ~ {{ active_period.end_date|date:"Y.m.d" }})
+        </div>
+
+        <!-- 평가 진행 현황 요약 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card bg-primary-gradient">
+                    <div class="stat-card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ total_count }}</h3>
+                            <p class="stat-label">평가 대상자</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-success-gradient">
+                    <div class="stat-card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ completed_count }}</h3>
+                            <p class="stat-label">평가 완료</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-warning-gradient">
+                    <div class="stat-card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ total_count|add:"-"|add:completed_count }}</h3>
+                            <p class="stat-label">평가 대기</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-info-gradient">
+                    <div class="stat-card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">
+                                {% if total_count > 0 %}
+                                    {% widthratio completed_count total_count 100 %}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h3>
+                            <p class="stat-label">진행률</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 평가 대상자 목록 -->
+        <div class="card">
+            <div class="card-header">
+                <h3>평가 대상자 목록</h3>
+            </div>
+            <div class="card-body">
+                {% if evaluation_status %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>직원 정보</th>
+                                    <th class="text-center">기여도 평가</th>
+                                    <th class="text-center">전문성 평가</th>
+                                    <th class="text-center">영향력 평가</th>
+                                    <th class="text-center">평가 상태</th>
+                                    <th class="text-center">작업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for status in evaluation_status %}
+                                <tr>
+                                    <td>
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="employee-name mb-0">{{ status.employee.name }}</h6>
+                                                <p class="employee-detail mb-0">
+                                                    {{ status.employee.department }} · {{ status.employee.position }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if status.contribution %}
+                                            <span class="status-badge status-completed">
+                                                <i class="fas fa-check"></i> 완료
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-times"></i> 미완료
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if status.expertise %}
+                                            <span class="status-badge status-completed">
+                                                <i class="fas fa-check"></i> 완료
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-times"></i> 미완료
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if status.impact %}
+                                            <span class="status-badge status-completed">
+                                                <i class="fas fa-check"></i> 완료
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-times"></i> 미완료
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if status.completed %}
+                                            <span class="overall-status overall-completed">
+                                                <i class="fas fa-check-circle"></i> 평가 완료
+                                            </span>
+                                        {% else %}
+                                            <span class="overall-status overall-in-progress">
+                                                <i class="fas fa-spinner"></i> 진행 중
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'evaluations:evaluate_employee' status.employee.id %}" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                            평가하기
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">평가할 직원이 없습니다</h4>
+                        <p class="text-muted">귀하가 평가해야 할 직원이 지정되지 않았습니다.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <!-- 활성 평가 기간이 없을 때 -->
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            현재 진행 중인 평가 기간이 없습니다.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* 통계 카드 스타일 */
+.stat-card {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    color: white;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card-body {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-info {
+    text-align: right;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* 그라데이션 배경 */
+.bg-primary-gradient {
+    background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-orange-hover) 100%);
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+}
+
+.bg-warning-gradient {
+    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+}
+
+.bg-info-gradient {
+    background: linear-gradient(135deg, var(--info) 0%, #1d4ed8 100%);
+}
+
+/* 직원 정보 스타일 */
+.employee-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.employee-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--gray-100);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+}
+
+.employee-name {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.employee-detail {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+/* 상태 배지 스타일 */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-completed {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.status-pending {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
+/* 전체 상태 스타일 */
+.overall-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.overall-completed {
+    color: var(--success);
+}
+
+.overall-in-progress {
+    color: var(--warning);
+}
+
+.overall-in-progress i {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 템플릿 태그 대체 스타일 */
+.stat-value::after {
+    content: attr(data-value);
+}
+</style>
+{% endblock %}

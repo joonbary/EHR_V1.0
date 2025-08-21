@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}인사담당자 평가관리 - OK금융그룹 e-HR{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <!-- 브레드크럼 -->
+        <nav class="breadcrumb">
+            <ul class="breadcrumb-list">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'home' %}" class="breadcrumb-link">홈</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'evaluations:dashboard' %}" class="breadcrumb-link">평가관리</a>
+                </li>
+                <li class="breadcrumb-item">인사담당자 대시보드</li>
+            </ul>
+        </nav>
+
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-user-shield"></i>
+                    인사담당자 평가관리
+                </h1>
+                <p class="page-description">전사 평가 프로세스를 관리하고 진행 현황을 모니터링합니다</p>
+            </div>
+            <div class="page-header-actions">
+                <a href="{% url 'evaluations:period_management' %}" class="btn btn-primary">
+                    <i class="fas fa-calendar-plus"></i>
+                    평가기간 관리
+                </a>
+                <a href="{% url 'evaluations:evaluation_statistics' %}" class="btn btn-secondary">
+                    <i class="fas fa-chart-bar"></i>
+                    통계 분석
+                </a>
+            </div>
+        </div>
+
+        {% if active_period %}
+        <!-- 현재 평가 기간 정보 -->
+        <div class="alert alert-info mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-info-circle"></i>
+                    <strong>{{ active_period.year }}년 {{ active_period.get_period_type_display }}</strong> 평가가 진행 중입니다.
+                    ({{ active_period.start_date|date:"Y.m.d" }} ~ {{ active_period.end_date|date:"Y.m.d" }})
+                </div>
+                <span class="badge badge-primary">{{ active_period.get_status_display }}</span>
+            </div>
+        </div>
+
+        <!-- 평가 진행 현황 요약 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="stat-icon bg-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ total_employees }}</h3>
+                            <p class="stat-label">전체 평가 대상자</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="stat-icon bg-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ comprehensive_count }}</h3>
+                            <p class="stat-label">종합평가 완료</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="stat-icon bg-warning">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">
+                                {% if total_employees > 0 %}
+                                    {% widthratio comprehensive_count total_employees 100 %}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h3>
+                            <p class="stat-label">전체 진행률</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="stat-icon bg-info">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value">{{ total_employees|add:"-"|add:comprehensive_count|default:"0" }}</h3>
+                            <p class="stat-label">평가 대기</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 평가 항목별 진행 현황 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>평가 항목별 진행 현황</h3>
+            </div>
+            <div class="card-body">
+                <div class="evaluation-progress-items">
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span class="progress-label">기여도 평가</span>
+                            <span class="progress-count">{{ contribution_count }} / {{ total_employees }}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" 
+                                 style="width: {% if total_employees > 0 %}{% widthratio contribution_count total_employees 100 %}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span class="progress-label">전문성 평가</span>
+                            <span class="progress-count">{{ expertise_count }} / {{ total_employees }}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" 
+                                 style="width: {% if total_employees > 0 %}{% widthratio expertise_count total_employees 100 %}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span class="progress-label">영향력 평가</span>
+                            <span class="progress-count">{{ impact_count }} / {{ total_employees }}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" 
+                                 style="width: {% if total_employees > 0 %}{% widthratio impact_count total_employees 100 %}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 부서별 평가 진행률 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>부서별 평가 진행률</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>부서명</th>
+                                <th class="text-center">대상 인원</th>
+                                <th class="text-center">평가 완료</th>
+                                <th class="text-center">진행률</th>
+                                <th>진행 상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dept in department_stats %}
+                            <tr>
+                                <td>
+                                    <strong>{{ dept.department }}</strong>
+                                </td>
+                                <td class="text-center">{{ dept.total }}명</td>
+                                <td class="text-center">{{ dept.evaluated }}명</td>
+                                <td class="text-center">{{ dept.progress }}%</td>
+                                <td>
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar {% if dept.progress >= 80 %}bg-success{% elif dept.progress >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             style="width: {{ dept.progress }}%">
+                                            {{ dept.progress }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">부서별 데이터가 없습니다.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 등급 분포 -->
+        {% if grade_distribution %}
+        <div class="card">
+            <div class="card-header">
+                <h3>평가 등급 분포</h3>
+            </div>
+            <div class="card-body">
+                <div class="grade-distribution">
+                    <canvas id="gradeChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- 활성 평가 기간이 없을 때 -->
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            현재 활성화된 평가 기간이 없습니다. 
+            <a href="{% url 'evaluations:period_management' %}" class="alert-link">평가 기간을 생성</a>하세요.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* 통계 카드 스타일 */
+.stat-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card-body {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-icon.bg-primary {
+    background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-orange-hover) 100%);
+}
+
+.stat-icon.bg-success {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+}
+
+.stat-icon.bg-warning {
+    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+}
+
+.stat-icon.bg-info {
+    background: linear-gradient(135deg, var(--info) 0%, #1d4ed8 100%);
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin: 0;
+}
+
+/* 진행률 스타일 */
+.evaluation-progress-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.progress-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.progress-label {
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.progress-count {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.progress {
+    height: 8px;
+    background-color: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
+}
+
+/* 등급 분포 차트 */
+.grade-distribution {
+    padding: 2rem;
+}
+</style>
+
+{% if grade_distribution %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('gradeChart').getContext('2d');
+    const gradeData = {{ grade_distribution|safe }};
+    
+    const labels = gradeData.map(item => item.final_grade + '등급');
+    const data = gradeData.map(item => item.count);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '인원 수',
+                data: data,
+                backgroundColor: [
+                    '#FFD700',  // S
+                    '#4CAF50',  // A+
+                    '#2196F3',  // A
+                    '#03A9F4',  // B+
+                    '#00BCD4',  // B
+                    '#FF9800',  // C
+                    '#F44336'   // D
+                ],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + '명';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

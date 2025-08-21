@@ -1,427 +1,612 @@
-{% extends "base.html" %}
+{% extends "base_revolutionary.html" %}
 {% load static %}
 
-{% block title %}대시보드 - OK금융그룹 e-HR{% endblock %}
+{% block title %}대시보드 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Executive Dashboard System{% endblock %}
+{% block content_title %}대시보드{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    OK금융그룹 e-HR 시스템에 오신 것을 환영합니다
+</p>
+{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* 그라디언트 배경 */
-    .gradient-bg {
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+    .dashboard-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 25px;
+        padding: 2rem;
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
     }
-    
-    .gradient-bg-subtle {
-        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+
+    .dashboard-container-revolutionary::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: pulse 10s ease-in-out infinite;
     }
-    
-    /* 글래스모피즘 효과 */
-    .glass {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
     }
-    
-    .glass-dark {
-        background: rgba(26, 26, 26, 0.95);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    
-    /* 호버 애니메이션 */
-    .hover-lift {
+
+    /* 통계 카드 */
+    .stat-card-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
-    
-    .hover-lift:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+
+    .stat-card-revolutionary:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        border-color: rgba(0, 212, 255, 0.4);
     }
-    
-    /* 그라디언트 텍스트 */
-    .gradient-text {
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+
+    .stat-icon-revolutionary {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+    }
+
+    .stat-value-revolutionary {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    
-    .shadow-glow {
-        box-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
+
+    .stat-label-revolutionary {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-trend-revolutionary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .stat-trend-revolutionary.up {
+        background: rgba(0, 255, 136, 0.1);
+        color: #00ff88;
+    }
+
+    .stat-trend-revolutionary.down {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .stat-trend-revolutionary.neutral {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+
+    /* 빠른 메뉴 */
+    .quick-menu-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .menu-item-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .menu-item-revolutionary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: all 0.5s ease;
+    }
+
+    .menu-item-revolutionary:hover::before {
+        left: 100%;
+    }
+
+    .menu-item-revolutionary:hover {
+        transform: translateX(5px);
+        background: rgba(0, 212, 255, 0.05);
+        border-color: #00d4ff;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.2);
+    }
+
+    .menu-icon-revolutionary {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* 차트 위젯 */
+    .chart-widget-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .chart-title-revolutionary {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    /* 차트 바 */
+    .chart-bar-revolutionary {
+        background: linear-gradient(to top, var(--bar-color-start), var(--bar-color-end));
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s ease;
+        position: relative;
+        box-shadow: 0 -5px 20px var(--bar-shadow);
+    }
+
+    .chart-bar-revolutionary:hover {
+        transform: scaleY(1.05);
+        filter: brightness(1.2);
+    }
+
+    /* 도넛 차트 */
+    .donut-chart-revolutionary {
+        filter: drop-shadow(0 5px 15px rgba(0, 212, 255, 0.2));
+    }
+
+    /* 라인 차트 */
+    .line-chart-revolutionary {
+        stroke: url(#revolutionaryGradient);
+        stroke-width: 3;
+        fill: none;
+        filter: drop-shadow(0 3px 10px rgba(0, 212, 255, 0.3));
+    }
+
+    .chart-point-revolutionary {
+        fill: #00d4ff;
+        filter: drop-shadow(0 2px 5px rgba(0, 212, 255, 0.5));
+    }
+
+    /* 반응형 그리드 */
+    @media (max-width: 1024px) {
+        .dashboard-container-revolutionary {
+            padding: 1.5rem;
+        }
+
+        .stat-card-revolutionary {
+            padding: 1.25rem;
+        }
+
+        .stat-value-revolutionary {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container-revolutionary {
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .menu-item-revolutionary {
+            padding: 1rem;
+        }
+
+        .menu-icon-revolutionary {
+            width: 40px;
+            height: 40px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- 페이지 헤더 (sticky 고정) -->
-<div class="sticky top-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 mb-8">
-    <div class="container mx-auto px-6 py-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-4xl font-bold gradient-text mb-2" role="banner">
-                    대시보드
-                </h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300">OK금융그룹 e-HR 시스템에 오신 것을 환영합니다</p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors shadow-sm" aria-label="리포트 다운로드">
-                    <i data-lucide="download" class="w-5 h-5 inline mr-2"></i>
-                    리포트 다운로드
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        <!-- 통계 카드 섹션 -->
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-white mb-4" style="border-bottom: 1px solid rgba(0, 212, 255, 0.2); padding-bottom: 0.75rem;">주요 통계</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <!-- 전체 직원 -->
+                <div class="stat-card-revolutionary">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon-revolutionary" style="background: linear-gradient(135deg, #00d4ff, #0099ff);">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                        <div class="stat-trend-revolutionary up">
+                            <i class="fas fa-arrow-up text-xs"></i>
+                            <span>2.5%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary">{{ stats.total_employees|default:"1,234" }}</div>
+                        <div class="stat-label-revolutionary">전체 직원</div>
+                    </div>
+                </div>
 
-<!-- 통계 카드 섹션 -->
-<div class="container mx-auto px-6 mb-8">
-    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">주요 통계</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-    <div class="glass dark:glass-dark rounded-2xl p-4 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm" role="article" aria-labelledby="total-employees-title">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center shadow-glow" aria-hidden="true">
-                <i data-lucide="users" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="flex items-center space-x-1 text-green-600 bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-lg" aria-label="증가율 2.5%">
-                <i data-lucide="trending-up" class="w-4 h-4"></i>
-                <span class="text-sm font-medium">2.5%</span>
-            </div>
-        </div>
-        <div class="space-y-1">
-            <h3 id="total-employees-title" class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_employees|default:"0" }}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">전체 직원</p>
-        </div>
-    </div>
-    
-    <div class="glass dark:glass-dark rounded-2xl p-4 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm" role="article" aria-labelledby="total-departments-title">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center" aria-hidden="true">
-                <i data-lucide="building-2" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="flex items-center space-x-1 text-purple-600 bg-purple-100 dark:bg-purple-900/20 px-2 py-1 rounded-lg" aria-label="증가 1">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span class="text-sm font-medium">1</span>
-            </div>
-        </div>
-        <div class="space-y-1">
-            <h3 id="total-departments-title" class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_departments|default:"0" }}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">부서</p>
-        </div>
-    </div>
-    
-    <div class="glass dark:glass-dark rounded-2xl p-4 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm" role="article" aria-labelledby="total-job-roles-title">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center" aria-hidden="true">
-                <i data-lucide="briefcase" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="flex items-center space-x-1 text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 px-2 py-1 rounded-lg" aria-label="변동없음">
-                <i data-lucide="minus" class="w-4 h-4"></i>
-                <span class="text-sm font-medium">0</span>
-            </div>
-        </div>
-        <div class="space-y-1">
-            <h3 id="total-job-roles-title" class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_job_roles|default:"0" }}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">직무</p>
-        </div>
-    </div>
-    
-    <div class="glass dark:glass-dark rounded-2xl p-4 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm" role="article" aria-labelledby="completed-profiles-title">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center" aria-hidden="true">
-                <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="flex items-center space-x-1 text-green-600 bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-lg" aria-label="증가 12">
-                <i data-lucide="trending-up" class="w-4 h-4"></i>
-                <span class="text-sm font-medium">12</span>
-            </div>
-        </div>
-        <div class="space-y-1">
-            <h3 id="completed-profiles-title" class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.completed_profiles|default:"0" }}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">직무기술서</p>
-        </div>
-    </div>
-    
-    <div class="glass dark:glass-dark rounded-2xl p-4 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm" role="article" aria-labelledby="pending-evaluations-title">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center" aria-hidden="true">
-                <i data-lucide="chart-line" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="flex items-center space-x-1 text-red-600 bg-red-100 dark:bg-red-900/20 px-2 py-1 rounded-lg" aria-label="감소 3">
-                <i data-lucide="trending-down" class="w-4 h-4"></i>
-                <span class="text-sm font-medium">3</span>
-            </div>
-        </div>
-        <div class="space-y-1">
-            <h3 id="pending-evaluations-title" class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.pending_evaluations|default:"0" }}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">진행중 평가</p>
-        </div>
-    </div>
-    
-    <div class="glass dark:glass-dark rounded-2xl p-4 hover-lift border border-gray-200/50 dark:border-gray-700/50 shadow-sm" role="article" aria-labelledby="recent-hires-title">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center" aria-hidden="true">
-                <i data-lucide="user-plus" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="flex items-center space-x-1 text-green-600 bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-lg" aria-label="증가 5">
-                <i data-lucide="trending-up" class="w-4 h-4"></i>
-                <span class="text-sm font-medium">5</span>
-            </div>
-        </div>
-        <div class="space-y-1">
-            <h3 id="recent-hires-title" class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.recent_hires|default:"0" }}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">신규 입사자</p>
-        </div>
-    </div>
-    </div>
-</div>
+                <!-- 부서 -->
+                <div class="stat-card-revolutionary">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon-revolutionary" style="background: linear-gradient(135deg, #a855f7, #7c3aed);">
+                            <i class="fas fa-building text-white text-xl"></i>
+                        </div>
+                        <div class="stat-trend-revolutionary up">
+                            <i class="fas fa-plus text-xs"></i>
+                            <span>1</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary">{{ stats.total_departments|default:"42" }}</div>
+                        <div class="stat-label-revolutionary">부서</div>
+                    </div>
+                </div>
 
-<!-- 대시보드 메인 콘텐츠 -->
-<div class="container mx-auto px-6">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- 빠른 메뉴 섹션 (lg:col-span-4) -->
-        <div class="lg:col-span-4">
-            <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <h2 class="text-xl font-bold gradient-text mb-6 border-b border-gray-200/30 dark:border-gray-700/30 pb-3">빠른 메뉴</h2>
-                <div class="grid grid-cols-1 gap-3">
-        <a href="{% url 'job_profiles:hierarchy' %}" class="group p-6 bg-gradient-bg-subtle rounded-xl hover-lift transition-all border border-primary/10 hover:border-primary/30">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center group-hover:shadow-glow transition-all">
-                    <i data-lucide="sitemap" class="w-6 h-6 text-white"></i>
-                </div>
-                <div>
-                    <span class="font-semibold text-gray-900 dark:text-white block">직무체계도</span>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">전체 조직 구조 확인</span>
-                </div>
-            </div>
-        </a>
-        
-        <a href="{% url 'employees:employee_management' %}" class="group p-6 bg-white dark:bg-gray-800 rounded-xl hover-lift transition-all border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-700">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-purple-500/30 transition-all">
-                    <i data-lucide="users" class="w-6 h-6 text-white"></i>
-                </div>
-                <div>
-                    <span class="font-semibold text-gray-900 dark:text-white block">직원 목록</span>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">전체 직원 현황</span>
-                </div>
-            </div>
-        </a>
-        
-        <a href="{% url 'evaluations:dashboard' %}" class="group p-6 bg-white dark:bg-gray-800 rounded-xl hover-lift transition-all border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
-                    <i data-lucide="chart-line" class="w-6 h-6 text-white"></i>
-                </div>
-                <div>
-                    <span class="font-semibold text-gray-900 dark:text-white block">평가 관리</span>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">성과 평가 진행</span>
-                </div>
-            </div>
-        </a>
-        
-                <a href="{% url 'compensation:dashboard' %}" class="group p-4 bg-white dark:bg-gray-800 rounded-xl hover-lift transition-all border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-700 focus:ring-2 focus:ring-green-500/50" aria-label="보상 관리">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-green-500/30 transition-all" aria-hidden="true">
-                            <i data-lucide="dollar-sign" class="w-5 h-5 text-white"></i>
+                <!-- 직무 -->
+                <div class="stat-card-revolutionary">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon-revolutionary" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                            <i class="fas fa-briefcase text-white text-xl"></i>
                         </div>
-                        <div>
-                            <span class="font-semibold text-gray-900 dark:text-white block text-sm">보상 관리</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">급여 및 보상 체계</span>
+                        <div class="stat-trend-revolutionary neutral">
+                            <i class="fas fa-minus text-xs"></i>
+                            <span>0</span>
                         </div>
                     </div>
-                </a>
-        
-                <a href="{% url 'promotions:dashboard' %}" class="group p-4 bg-white dark:bg-gray-800 rounded-xl hover-lift transition-all border border-gray-200 dark:border-gray-700 hover:border-yellow-300 dark:hover:border-yellow-700 focus:ring-2 focus:ring-yellow-500/50" aria-label="승진 관리">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-yellow-500/30 transition-all" aria-hidden="true">
-                            <i data-lucide="award" class="w-5 h-5 text-white"></i>
-                        </div>
-                        <div>
-                            <span class="font-semibold text-gray-900 dark:text-white block text-sm">승진 관리</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">승진 및 인사 발령</span>
-                        </div>
-                    </div>
-                </a>
-        
-                <a href="{% url 'selfservice:dashboard' %}" class="group p-4 bg-white dark:bg-gray-800 rounded-xl hover-lift transition-all border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 focus:ring-2 focus:ring-indigo-500/50" aria-label="내 정보">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-all" aria-hidden="true">
-                            <i data-lucide="user" class="w-5 h-5 text-white"></i>
-                        </div>
-                        <div>
-                            <span class="font-semibold text-gray-900 dark:text-white block text-sm">내 정보</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">개인 프로필 및 설정</span>
-                        </div>
-                    </div>
-                </a>
-                
-                <a href="{% url 'recruitment:dashboard' %}" class="group p-4 bg-white dark:bg-gray-800 rounded-xl hover-lift transition-all border border-gray-200 dark:border-gray-700 hover:border-pink-300 dark:hover:border-pink-700 focus:ring-2 focus:ring-pink-500/50" aria-label="채용 관리">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-pink-500/30 transition-all" aria-hidden="true">
-                            <i data-lucide="user-plus" class="w-5 h-5 text-white"></i>
-                        </div>
-                        <div>
-                            <span class="font-semibold text-gray-900 dark:text-white block text-sm">채용 관리</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">채용공고 및 지원자</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 차트 위젯 섹션 (lg:col-span-8) -->
-    <div class="lg:col-span-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- 평가등급 분포 차트 -->
-            <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200/30 dark:border-gray-700/30 pb-2">평가등급 분포</h3>
-                <div class="h-64 p-4">
-                    <div class="flex items-end justify-between h-full gap-3">
-                        <div class="flex flex-col items-center flex-1 h-full">
-                            <div class="flex-1 w-full flex items-end">
-                                <div class="w-full bg-gradient-to-t from-red-500 to-red-400 rounded-t-lg" style="height: 25%"></div>
-                            </div>
-                            <span class="text-xs text-gray-600 dark:text-gray-400 mt-2">미흡</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">5</span>
-                        </div>
-                        <div class="flex flex-col items-center flex-1 h-full">
-                            <div class="flex-1 w-full flex items-end">
-                                <div class="w-full bg-gradient-to-t from-yellow-500 to-yellow-400 rounded-t-lg" style="height: 45%"></div>
-                            </div>
-                            <span class="text-xs text-gray-600 dark:text-gray-400 mt-2">보통</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">12</span>
-                        </div>
-                        <div class="flex flex-col items-center flex-1 h-full">
-                            <div class="flex-1 w-full flex items-end">
-                                <div class="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg" style="height: 80%"></div>
-                            </div>
-                            <span class="text-xs text-gray-600 dark:text-gray-400 mt-2">우수</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">28</span>
-                        </div>
-                        <div class="flex flex-col items-center flex-1 h-full">
-                            <div class="flex-1 w-full flex items-end">
-                                <div class="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg" style="height: 60%"></div>
-                            </div>
-                            <span class="text-xs text-gray-600 dark:text-gray-400 mt-2">최우수</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">18</span>
-                        </div>
+                    <div>
+                        <div class="stat-value-revolutionary">{{ stats.total_job_roles|default:"186" }}</div>
+                        <div class="stat-label-revolutionary">직무</div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- 고성과자 비율 차트 -->
-            <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200/30 dark:border-gray-700/30 pb-2">고성과자 비율</h3>
-                <div class="h-64 flex items-center justify-center">
-                    <div class="relative">
-                        <!-- 도넛 차트 -->
-                        <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
-                            <!-- 배경 원 -->
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="12" class="text-gray-200 dark:text-gray-700"/>
-                            <!-- 고성과자 비율 (72%) -->
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="url(#gradient1)" stroke-width="12" 
-                                    stroke-dasharray="181 70" stroke-linecap="round" class="drop-shadow-lg"/>
-                            <defs>
-                                <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" style="stop-color:#10B981"/>
-                                    <stop offset="100%" style="stop-color:#059669"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <!-- 중앙 텍스트 -->
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span class="text-3xl font-bold text-gray-900 dark:text-white">72%</span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">고성과자</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- 범례 -->
-                <div class="flex justify-center space-x-6 mt-4">
-                    <div class="flex items-center">
-                        <div class="w-3 h-3 bg-gradient-to-r from-green-500 to-green-600 rounded-full mr-2"></div>
-                        <span class="text-sm text-gray-600 dark:text-gray-400">고성과자 (46명)</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded-full mr-2"></div>
-                        <span class="text-sm text-gray-600 dark:text-gray-400">일반 (18명)</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 월별 인력 이동 추이 차트 -->
-            <div class="md:col-span-2">
-                <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200/30 dark:border-gray-700/30 pb-2">월별 인력 이동 추이</h3>
-                    <div class="h-64 p-4">
-                        <svg class="w-full h-full" viewBox="0 0 800 200">
-                            <!-- 그리드 라인 -->
-                            <defs>
-                                <pattern id="grid" width="80" height="40" patternUnits="userSpaceOnUse">
-                                    <path d="M 80 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.5" class="text-gray-200 dark:text-gray-700" opacity="0.5"/>
-                                </pattern>
-                                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" style="stop-color:#3B82F6"/>
-                                    <stop offset="50%" style="stop-color:#8B5CF6"/>
-                                    <stop offset="100%" style="stop-color:#EC4899"/>
-                                </linearGradient>
-                            </defs>
-                            <rect width="100%" height="100%" fill="url(#grid)"/>
-                            
-                            <!-- 라인 차트 -->
-                            <polyline fill="none" stroke="url(#lineGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
-                                      points="80,120 160,80 240,100 320,60 400,90 480,40 560,70 640,30 720,50"/>
-                            
-                            <!-- 데이터 포인트 -->
-                            <circle cx="80" cy="120" r="4" fill="#3B82F6" class="drop-shadow"/>
-                            <circle cx="160" cy="80" r="4" fill="#3B82F6" class="drop-shadow"/>
-                            <circle cx="240" cy="100" r="4" fill="#8B5CF6" class="drop-shadow"/>
-                            <circle cx="320" cy="60" r="4" fill="#8B5CF6" class="drop-shadow"/>
-                            <circle cx="400" cy="90" r="4" fill="#8B5CF6" class="drop-shadow"/>
-                            <circle cx="480" cy="40" r="4" fill="#EC4899" class="drop-shadow"/>
-                            <circle cx="560" cy="70" r="4" fill="#EC4899" class="drop-shadow"/>
-                            <circle cx="640" cy="30" r="4" fill="#EC4899" class="drop-shadow"/>
-                            <circle cx="720" cy="50" r="4" fill="#EC4899" class="drop-shadow"/>
-                            
-                            <!-- X축 라벨 -->
-                            <text x="80" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">1월</text>
-                            <text x="160" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">2월</text>
-                            <text x="240" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">3월</text>
-                            <text x="320" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">4월</text>
-                            <text x="400" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">5월</text>
-                            <text x="480" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">6월</text>
-                            <text x="560" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">7월</text>
-                            <text x="640" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">8월</text>
-                            <text x="720" y="190" text-anchor="middle" class="text-xs fill-gray-600 dark:fill-gray-400">9월</text>
-                        </svg>
-                    </div>
-                    <!-- 범례 -->
-                    <div class="flex justify-center space-x-6 mt-4">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-pink-500 rounded-full mr-2"></div>
-                            <span class="text-sm text-gray-600 dark:text-gray-400">신규 입사자</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                            <span class="text-sm text-gray-600 dark:text-gray-400">퇴사자</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-    
-</div>
-</div>
 
-{% block extra_js %}
-<script>
-    // Initialize Lucide icons
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-</script>
-{% endblock %}
+                <!-- 직무기술서 -->
+                <div class="stat-card-revolutionary">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon-revolutionary" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                            <i class="fas fa-file-alt text-white text-xl"></i>
+                        </div>
+                        <div class="stat-trend-revolutionary up">
+                            <i class="fas fa-arrow-up text-xs"></i>
+                            <span>12</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary">{{ stats.completed_profiles|default:"156" }}</div>
+                        <div class="stat-label-revolutionary">직무기술서</div>
+                    </div>
+                </div>
+
+                <!-- 진행중 평가 -->
+                <div class="stat-card-revolutionary">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon-revolutionary" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-chart-line text-white text-xl"></i>
+                        </div>
+                        <div class="stat-trend-revolutionary down">
+                            <i class="fas fa-arrow-down text-xs"></i>
+                            <span>3</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary">{{ stats.pending_evaluations|default:"28" }}</div>
+                        <div class="stat-label-revolutionary">진행중 평가</div>
+                    </div>
+                </div>
+
+                <!-- 신규 입사자 -->
+                <div class="stat-card-revolutionary">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon-revolutionary" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+                            <i class="fas fa-user-plus text-white text-xl"></i>
+                        </div>
+                        <div class="stat-trend-revolutionary up">
+                            <i class="fas fa-arrow-up text-xs"></i>
+                            <span>5</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary">{{ stats.recent_hires|default:"15" }}</div>
+                        <div class="stat-label-revolutionary">신규 입사자</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- 빠른 메뉴 섹션 -->
+            <div class="lg:col-span-4">
+                <div class="quick-menu-revolutionary">
+                    <h2 class="text-xl font-bold text-white mb-4" style="border-bottom: 1px solid rgba(0, 212, 255, 0.2); padding-bottom: 0.75rem;">빠른 메뉴</h2>
+                    <div class="space-y-3">
+                        <!-- 직무체계도 -->
+                        <a href="{% url 'job_profiles:hierarchy' %}" class="menu-item-revolutionary">
+                            <div class="menu-icon-revolutionary" style="background: linear-gradient(135deg, #00d4ff, #0099ff);">
+                                <i class="fas fa-sitemap text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">직무체계도</div>
+                                <div class="text-xs" style="color: rgba(255, 255, 255, 0.6);">전체 조직 구조 확인</div>
+                            </div>
+                        </a>
+
+                        <!-- 직원 목록 -->
+                        <a href="{% url 'employees:employee_management' %}" class="menu-item-revolutionary">
+                            <div class="menu-icon-revolutionary" style="background: linear-gradient(135deg, #a855f7, #7c3aed);">
+                                <i class="fas fa-users text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">직원 목록</div>
+                                <div class="text-xs" style="color: rgba(255, 255, 255, 0.6);">전체 직원 현황</div>
+                            </div>
+                        </a>
+
+                        <!-- 평가 관리 -->
+                        <a href="{% url 'evaluations:dashboard' %}" class="menu-item-revolutionary">
+                            <div class="menu-icon-revolutionary" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                                <i class="fas fa-chart-line text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">평가 관리</div>
+                                <div class="text-xs" style="color: rgba(255, 255, 255, 0.6);">성과 평가 진행</div>
+                            </div>
+                        </a>
+
+                        <!-- 보상 관리 -->
+                        <a href="{% url 'compensation:dashboard' %}" class="menu-item-revolutionary">
+                            <div class="menu-icon-revolutionary" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                                <i class="fas fa-dollar-sign text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">보상 관리</div>
+                                <div class="text-xs" style="color: rgba(255, 255, 255, 0.6);">급여 및 보상 체계</div>
+                            </div>
+                        </a>
+
+                        <!-- 승진 관리 -->
+                        <a href="{% url 'promotions:dashboard' %}" class="menu-item-revolutionary">
+                            <div class="menu-icon-revolutionary" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                <i class="fas fa-award text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">승진 관리</div>
+                                <div class="text-xs" style="color: rgba(255, 255, 255, 0.6);">승진 및 인사 발령</div>
+                            </div>
+                        </a>
+
+                        <!-- 내 정보 -->
+                        <a href="{% url 'selfservice:dashboard' %}" class="menu-item-revolutionary">
+                            <div class="menu-icon-revolutionary" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+                                <i class="fas fa-user text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">내 정보</div>
+                                <div class="text-xs" style="color: rgba(255, 255, 255, 0.6);">개인 프로필 및 설정</div>
+                            </div>
+                        </a>
+
+                        <!-- 채용 관리 -->
+                        <a href="{% url 'recruitment:dashboard' %}" class="menu-item-revolutionary">
+                            <div class="menu-icon-revolutionary" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                                <i class="fas fa-user-plus text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">채용 관리</div>
+                                <div class="text-xs" style="color: rgba(255, 255, 255, 0.6);">채용공고 및 지원자</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 차트 위젯 섹션 -->
+            <div class="lg:col-span-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 평가등급 분포 차트 -->
+                    <div class="chart-widget-revolutionary">
+                        <h3 class="chart-title-revolutionary">평가등급 분포</h3>
+                        <div class="h-64 p-4">
+                            <div class="flex items-end justify-between h-full gap-3">
+                                <div class="flex flex-col items-center flex-1 h-full">
+                                    <div class="flex-1 w-full flex items-end">
+                                        <div class="w-full chart-bar-revolutionary" 
+                                             style="height: 25%; 
+                                                    --bar-color-start: #ef4444; 
+                                                    --bar-color-end: #dc2626;
+                                                    --bar-shadow: rgba(239, 68, 68, 0.3);"></div>
+                                    </div>
+                                    <span class="text-xs mt-2" style="color: rgba(255, 255, 255, 0.6);">미흡</span>
+                                    <span class="text-sm font-semibold text-white">5</span>
+                                </div>
+                                <div class="flex flex-col items-center flex-1 h-full">
+                                    <div class="flex-1 w-full flex items-end">
+                                        <div class="w-full chart-bar-revolutionary" 
+                                             style="height: 45%; 
+                                                    --bar-color-start: #f59e0b; 
+                                                    --bar-color-end: #d97706;
+                                                    --bar-shadow: rgba(245, 158, 11, 0.3);"></div>
+                                    </div>
+                                    <span class="text-xs mt-2" style="color: rgba(255, 255, 255, 0.6);">보통</span>
+                                    <span class="text-sm font-semibold text-white">12</span>
+                                </div>
+                                <div class="flex flex-col items-center flex-1 h-full">
+                                    <div class="flex-1 w-full flex items-end">
+                                        <div class="w-full chart-bar-revolutionary" 
+                                             style="height: 80%; 
+                                                    --bar-color-start: #00ff88; 
+                                                    --bar-color-end: #00cc66;
+                                                    --bar-shadow: rgba(0, 255, 136, 0.3);"></div>
+                                    </div>
+                                    <span class="text-xs mt-2" style="color: rgba(255, 255, 255, 0.6);">우수</span>
+                                    <span class="text-sm font-semibold text-white">28</span>
+                                </div>
+                                <div class="flex flex-col items-center flex-1 h-full">
+                                    <div class="flex-1 w-full flex items-end">
+                                        <div class="w-full chart-bar-revolutionary" 
+                                             style="height: 60%; 
+                                                    --bar-color-start: #00d4ff; 
+                                                    --bar-color-end: #0099ff;
+                                                    --bar-shadow: rgba(0, 212, 255, 0.3);"></div>
+                                    </div>
+                                    <span class="text-xs mt-2" style="color: rgba(255, 255, 255, 0.6);">최우수</span>
+                                    <span class="text-sm font-semibold text-white">18</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 고성과자 비율 차트 -->
+                    <div class="chart-widget-revolutionary">
+                        <h3 class="chart-title-revolutionary">고성과자 비율</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <div class="relative">
+                                <svg class="donut-chart-revolutionary w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
+                                    <!-- 배경 원 -->
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0, 212, 255, 0.1)" stroke-width="12"/>
+                                    <!-- 고성과자 비율 -->
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="url(#revolutionaryDonutGradient)" stroke-width="12" 
+                                            stroke-dasharray="181 70" stroke-linecap="round"/>
+                                    <defs>
+                                        <linearGradient id="revolutionaryDonutGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" style="stop-color:#00ff88"/>
+                                            <stop offset="100%" style="stop-color:#00cc66"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <!-- 중앙 텍스트 -->
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span class="text-3xl font-bold text-white">72%</span>
+                                    <span class="text-sm" style="color: rgba(255, 255, 255, 0.6);">고성과자</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 범례 -->
+                        <div class="flex justify-center space-x-6 mt-4">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full mr-2" style="background: linear-gradient(135deg, #00ff88, #00cc66);"></div>
+                                <span class="text-sm" style="color: rgba(255, 255, 255, 0.6);">고성과자 (46명)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full mr-2" style="background: rgba(0, 212, 255, 0.1);"></div>
+                                <span class="text-sm" style="color: rgba(255, 255, 255, 0.6);">일반 (18명)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 월별 인력 이동 추이 차트 -->
+                    <div class="md:col-span-2">
+                        <div class="chart-widget-revolutionary">
+                            <h3 class="chart-title-revolutionary">월별 인력 이동 추이</h3>
+                            <div class="h-64 p-4">
+                                <svg class="w-full h-full" viewBox="0 0 800 200">
+                                    <!-- 그리드 라인 -->
+                                    <defs>
+                                        <pattern id="revolutionaryGrid" width="80" height="40" patternUnits="userSpaceOnUse">
+                                            <path d="M 80 0 L 0 0 0 40" fill="none" stroke="rgba(0, 212, 255, 0.1)" stroke-width="0.5"/>
+                                        </pattern>
+                                        <linearGradient id="revolutionaryGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" style="stop-color:#00d4ff"/>
+                                            <stop offset="50%" style="stop-color:#0099ff"/>
+                                            <stop offset="100%" style="stop-color:#00d4ff"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <rect width="100%" height="100%" fill="url(#revolutionaryGrid)"/>
+                                    
+                                    <!-- 라인 차트 -->
+                                    <polyline class="line-chart-revolutionary"
+                                              points="80,120 160,80 240,100 320,60 400,90 480,40 560,70 640,30 720,50"/>
+                                    
+                                    <!-- 데이터 포인트 -->
+                                    <circle cx="80" cy="120" r="4" class="chart-point-revolutionary"/>
+                                    <circle cx="160" cy="80" r="4" class="chart-point-revolutionary"/>
+                                    <circle cx="240" cy="100" r="4" class="chart-point-revolutionary"/>
+                                    <circle cx="320" cy="60" r="4" class="chart-point-revolutionary"/>
+                                    <circle cx="400" cy="90" r="4" class="chart-point-revolutionary"/>
+                                    <circle cx="480" cy="40" r="4" class="chart-point-revolutionary"/>
+                                    <circle cx="560" cy="70" r="4" class="chart-point-revolutionary"/>
+                                    <circle cx="640" cy="30" r="4" class="chart-point-revolutionary"/>
+                                    <circle cx="720" cy="50" r="4" class="chart-point-revolutionary"/>
+                                    
+                                    <!-- X축 라벨 -->
+                                    <text x="80" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">1월</text>
+                                    <text x="160" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">2월</text>
+                                    <text x="240" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">3월</text>
+                                    <text x="320" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">4월</text>
+                                    <text x="400" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">5월</text>
+                                    <text x="480" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">6월</text>
+                                    <text x="560" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">7월</text>
+                                    <text x="640" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">8월</text>
+                                    <text x="720" y="190" text-anchor="middle" class="text-xs" fill="rgba(255, 255, 255, 0.6)">9월</text>
+                                </svg>
+                            </div>
+                            <!-- 범례 -->
+                            <div class="flex justify-center space-x-6 mt-4">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full mr-2" style="background: linear-gradient(135deg, #00d4ff, #0099ff);"></div>
+                                    <span class="text-sm" style="color: rgba(255, 255, 255, 0.6);">신규 입사자</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full mr-2" style="background: #ef4444;"></div>
+                                    <span class="text-sm" style="color: rgba(255, 255, 255, 0.6);">퇴사자</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,70 +1,273 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}직무기술서 관리{% endblock %}
+{% block title %}직무기술서 관리 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Job Profile Management System{% endblock %}
+{% block content_title %}직무기술서 관리{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    AI 기반 직무기술서 통합 관리 시스템 - 전체 {{ total_count }}개 중 {{ active_count }}개 활성화
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 25px;
+        padding: 2rem;
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .admin-container-revolutionary::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: pulse 10s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    .filter-card-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .admin-table-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .admin-table-revolutionary table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .admin-table-revolutionary th {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #00d4ff;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .admin-table-revolutionary td {
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .admin-table-revolutionary tr:hover td {
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .form-control-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-revolutionary:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-control-revolutionary::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .form-label-revolutionary {
+        color: #00d4ff;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge-revolutionary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-active-revolutionary {
+        background: rgba(0, 255, 136, 0.1);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .status-inactive-revolutionary {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-revolutionary {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 3px 10px rgba(0, 212, 255, 0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-revolutionary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary-revolutionary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary-revolutionary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .pagination-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1rem;
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pagination-revolutionary a,
+    .pagination-revolutionary span {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .pagination-revolutionary a:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+
+    .pagination-revolutionary .current {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <div>
-            <h1>직무기술서 관리</h1>
-            <p class="text-muted">전체 {{ total_count }}개 중 {{ active_count }}개 활성화</p>
-        </div>
-        <div>
-            <a href="{% url 'job_profiles:create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> 새 직무기술서 등록
-            </a>
-        </div>
-    </div>
-    
-    <!-- 검색 필터 -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label for="category" class="form-label">직군</label>
-                        <select name="category" id="category" class="form-select">
-                            <option value="">전체 직군</option>
-                            {% for category in categories %}
-                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
-                                {{ category.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label for="is_active" class="form-label">상태</label>
-                        <select name="is_active" id="is_active" class="form-select">
-                            <option value="">전체</option>
-                            <option value="1" {% if selected_is_active == "1" %}selected{% endif %}>활성화</option>
-                            <option value="0" {% if selected_is_active == "0" %}selected{% endif %}>비활성화</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-5">
-                        <label for="q" class="form-label">검색어</label>
-                        <input type="text" name="q" id="q" class="form-control" 
-                               placeholder="직무명 또는 직무코드로 검색" 
-                               value="{{ search_query }}">
-                    </div>
-                    
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-search"></i> 검색
-                        </button>
-                    </div>
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        <div class="admin-container-revolutionary">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div></div>
+                <div>
+                    <a href="{% url 'job_profiles:create' %}" class="btn-revolutionary">
+                        <i class="fas fa-plus-circle"></i> 새 직무기술서 등록
+                    </a>
                 </div>
-            </form>
-        </div>
-    </div>
+            </div>
     
-    <!-- 직무기술서 목록 테이블 -->
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+            <!-- 검색 필터 -->
+            <div class="filter-card-revolutionary">
+                <form method="get">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="category" class="form-label-revolutionary">직군</label>
+                            <select name="category" id="category" class="form-control-revolutionary">
+                                <option value="">전체 직군</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label for="is_active" class="form-label-revolutionary">상태</label>
+                            <select name="is_active" id="is_active" class="form-control-revolutionary">
+                                <option value="">전체</option>
+                                <option value="1" {% if selected_is_active == "1" %}selected{% endif %}>활성화</option>
+                                <option value="0" {% if selected_is_active == "0" %}selected{% endif %}>비활성화</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-5">
+                            <label for="q" class="form-label-revolutionary">검색어</label>
+                            <input type="text" name="q" id="q" class="form-control-revolutionary" 
+                                   placeholder="직무명 또는 직무코드로 검색" 
+                                   value="{{ search_query }}">
+                        </div>
+                        
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn-revolutionary w-100">
+                                <i class="fas fa-search"></i> 검색
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+    
+            <!-- 직무기술서 목록 테이블 -->
+            <div class="admin-table-revolutionary">
+                <div class="table-responsive">
+                    <table>
                     <thead>
                         <tr>
                             <th>직무코드</th>
@@ -92,14 +295,18 @@
                                 </small>
                             </td>
                             <td>
-                                <span class="badge bg-info">{{ profile.basic_skills|length }}</span>
-                                <span class="badge bg-success">{{ profile.applied_skills|length }}</span>
+                                <span class="status-badge-revolutionary">{{ profile.basic_skills|length }}</span>
+                                <span class="status-badge-revolutionary status-active-revolutionary">{{ profile.applied_skills|length }}</span>
                             </td>
                             <td>
                                 {% if profile.is_active %}
-                                <span class="badge bg-success">활성</span>
+                                <span class="status-badge-revolutionary status-active-revolutionary">
+                                    <i class="fas fa-check"></i> 활성
+                                </span>
                                 {% else %}
-                                <span class="badge bg-secondary">비활성</span>
+                                <span class="status-badge-revolutionary status-inactive-revolutionary">
+                                    <i class="fas fa-times"></i> 비활성
+                                </span>
                                 {% endif %}
                             </td>
                             <td>{{ profile.updated_at|date:"Y-m-d H:i" }}</td>
@@ -136,49 +343,35 @@
             
             <!-- 페이지네이션 -->
             {% if page_obj.has_other_pages %}
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
-                            처음
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
-                            이전
-                        </a>
-                    </li>
+            <div class="pagination-revolutionary">
+                {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                    처음
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                    이전
+                </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="current">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                        {{ num }}
+                    </a>
                     {% endif %}
-                    
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ num }}</span>
-                        </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
-                                {{ num }}
-                            </a>
-                        </li>
-                        {% endif %}
-                    {% endfor %}
-                    
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
-                            다음
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
-                            마지막
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                    다음
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_is_active %}&is_active={{ selected_is_active }}{% endif %}">
+                    마지막
+                </a>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
     </div>

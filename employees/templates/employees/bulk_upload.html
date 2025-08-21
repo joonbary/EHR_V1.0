@@ -1,143 +1,537 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
-{% block title %}직원 일괄 업로드 - OK금융그룹{% endblock %}
+
+{% block title %}직원 일괄 업로드 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Employee Bulk Upload System{% endblock %}
+{% block content_title %}직원 일괄 업로드{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    엑셀 파일을 통해 여러 직원 정보를 한 번에 등록할 수 있습니다
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 25px;
+        padding: 2.5rem;
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-container-revolutionary::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: pulse 10s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    /* 단계별 진행 표시 */
+    .progress-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+    }
+
+    .step-circle-revolutionary {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .step-circle-revolutionary.completed {
+        background: linear-gradient(135deg, #00ff88, #00cc66);
+        box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        color: white;
+    }
+
+    .step-circle-revolutionary.active {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.5);
+        color: white;
+        animation: stepPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes stepPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .step-circle-revolutionary.pending {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(0, 212, 255, 0.2);
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .progress-line-revolutionary {
+        flex: 1;
+        height: 2px;
+        background: rgba(0, 212, 255, 0.1);
+        margin: 0 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .progress-line-revolutionary .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #00d4ff, #0099ff);
+        transition: width 0.5s ease-out;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    /* 드래그 앤 드롭 영역 */
+    .drop-area-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 2px dashed rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        padding: 3rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .drop-area-revolutionary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: #00d4ff;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    }
+
+    .drop-area-revolutionary.dragging {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
+    }
+
+    .upload-icon-revolutionary {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .drop-area-revolutionary:hover .upload-icon-revolutionary {
+        transform: scale(1.1);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 153, 255, 0.3));
+    }
+
+    /* 테이블 스타일 */
+    .preview-table-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 1.5rem 0;
+    }
+
+    .preview-table-revolutionary table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .preview-table-revolutionary th {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #00d4ff;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .preview-table-revolutionary td {
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .preview-table-revolutionary tr:hover td {
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .preview-table-revolutionary .error-cell {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        font-weight: 600;
+        position: relative;
+    }
+
+    .preview-table-revolutionary .error-cell::after {
+        content: '!';
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 20px;
+        height: 20px;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    /* 버튼 스타일 */
+    .btn-revolutionary {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-revolutionary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+    }
+
+    .btn-revolutionary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-secondary-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+        border-radius: 12px;
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-secondary-revolutionary:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #00d4ff;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2);
+    }
+
+    /* 정보 카드 */
+    .info-card-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .info-card-revolutionary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    }
+
+    .info-card-revolutionary h3 {
+        color: #00d4ff;
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* 상태 메시지 */
+    .status-success-revolutionary {
+        background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 204, 102, 0.1));
+        border: 1px solid rgba(0, 255, 136, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .status-error-revolutionary {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .status-warning-revolutionary {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    /* 파일 정보 표시 */
+    .file-info-revolutionary {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .file-icon-revolutionary {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #00ff88, #00cc66);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+    }
+
+    /* 스크롤바 스타일 */
+    .custom-scrollbar-revolutionary::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .custom-scrollbar-revolutionary::-webkit-scrollbar-track {
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    .custom-scrollbar-revolutionary::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        border-radius: 4px;
+    }
+
+    .custom-scrollbar-revolutionary::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #00a8cc, #0077cc);
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 1024px) {
+        .upload-container-revolutionary {
+            padding: 1.5rem;
+        }
+
+        .progress-container-revolutionary {
+            padding: 1.5rem;
+        }
+
+        .step-circle-revolutionary {
+            width: 40px;
+            height: 40px;
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .upload-container-revolutionary {
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .drop-area-revolutionary {
+            padding: 2rem;
+        }
+
+        .btn-revolutionary,
+        .btn-secondary-revolutionary {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-white py-8">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- 헤더 -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">직원 일괄 업로드</h1>
-            <p class="text-gray-600">엑셀 파일을 통해 여러 직원 정보를 한 번에 등록할 수 있습니다.</p>
-        </div>
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
         <!-- 단계별 진행 표시 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="progress-container-revolutionary">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">업로드 진행 단계</h3>
-                <span class="text-sm text-gray-500">총 4단계</span>
+                <h3 class="text-lg font-semibold text-white">업로드 진행 단계</h3>
+                <span class="text-sm" style="color: rgba(255, 255, 255, 0.6);">총 4단계</span>
             </div>
+            
             <div class="flex items-center justify-between">
                 <!-- Step 1 -->
                 <div class="flex items-center flex-1">
-                    <div id="step1-circle" class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold transition-all duration-300">
+                    <div id="step1-circle" class="step-circle-revolutionary active">
                         <i class="fas fa-check hidden" id="step1-check"></i>
                         <span id="step1-number">1</span>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-900" id="step1-title">파일 선택</p>
-                        <p class="text-xs text-gray-500">Excel/CSV 업로드</p>
+                        <p class="text-sm font-medium text-white" id="step1-title">파일 선택</p>
+                        <p class="text-xs" style="color: rgba(255, 255, 255, 0.5);">Excel/CSV 업로드</p>
                     </div>
                 </div>
-                <div class="flex-1 h-1 bg-gray-200 mx-4 rounded-full overflow-hidden">
-                    <div id="progress1-2" class="h-full bg-orange-500 transition-all duration-500" style="width: 0%"></div>
+                
+                <div class="progress-line-revolutionary">
+                    <div id="progress1-2" class="progress-fill" style="width: 0%"></div>
                 </div>
+                
                 <!-- Step 2 -->
                 <div class="flex items-center flex-1">
-                    <div id="step2-circle" class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold transition-all duration-300">
+                    <div id="step2-circle" class="step-circle-revolutionary pending">
                         <i class="fas fa-check hidden" id="step2-check"></i>
                         <span id="step2-number">2</span>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-400" id="step2-title">데이터 미리보기</p>
-                        <p class="text-xs text-gray-400">유효성 검증</p>
+                        <p class="text-sm font-medium" style="color: rgba(255, 255, 255, 0.5);" id="step2-title">데이터 미리보기</p>
+                        <p class="text-xs" style="color: rgba(255, 255, 255, 0.3);">유효성 검증</p>
                     </div>
                 </div>
-                <div class="flex-1 h-1 bg-gray-200 mx-4 rounded-full overflow-hidden">
-                    <div id="progress2-3" class="h-full bg-orange-500 transition-all duration-500" style="width: 0%"></div>
+                
+                <div class="progress-line-revolutionary">
+                    <div id="progress2-3" class="progress-fill" style="width: 0%"></div>
                 </div>
+                
                 <!-- Step 3 -->
                 <div class="flex items-center flex-1">
-                    <div id="step3-circle" class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold transition-all duration-300">
+                    <div id="step3-circle" class="step-circle-revolutionary pending">
                         <i class="fas fa-check hidden" id="step3-check"></i>
                         <span id="step3-number">3</span>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-400" id="step3-title">오류 수정</p>
-                        <p class="text-xs text-gray-400">데이터 정제</p>
+                        <p class="text-sm font-medium" style="color: rgba(255, 255, 255, 0.5);" id="step3-title">오류 수정</p>
+                        <p class="text-xs" style="color: rgba(255, 255, 255, 0.3);">데이터 정제</p>
                     </div>
                 </div>
-                <div class="flex-1 h-1 bg-gray-200 mx-4 rounded-full overflow-hidden">
-                    <div id="progress3-4" class="h-full bg-orange-500 transition-all duration-500" style="width: 0%"></div>
+                
+                <div class="progress-line-revolutionary">
+                    <div id="progress3-4" class="progress-fill" style="width: 0%"></div>
                 </div>
+                
                 <!-- Step 4 -->
                 <div class="flex items-center flex-1">
-                    <div id="step4-circle" class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold transition-all duration-300">
+                    <div id="step4-circle" class="step-circle-revolutionary pending">
                         <i class="fas fa-check hidden" id="step4-check"></i>
                         <span id="step4-number">4</span>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-400" id="step4-title">업로드 완료</p>
-                        <p class="text-xs text-gray-400">결과 확인</p>
+                        <p class="text-sm font-medium" style="color: rgba(255, 255, 255, 0.5);" id="step4-title">업로드 완료</p>
+                        <p class="text-xs" style="color: rgba(255, 255, 255, 0.3);">결과 확인</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- 메인 컨텐츠 영역 -->
             <div class="lg:col-span-2">
                 <!-- 1단계: 파일 선택 -->
-                <div id="step1-content" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6">1단계: 파일 업로드</h2>
+                <div id="step1-content" class="upload-container-revolutionary">
+                    <h2 class="text-xl font-semibold text-white mb-6">1단계: 파일 업로드</h2>
                     
                     <form id="bulk-upload-form" enctype="multipart/form-data">
                         {% csrf_token %}
+                        
                         <!-- 드래그 앤 드롭 영역 -->
-                        <div id="drop-area" class="relative border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-orange-400 hover:bg-orange-50 transition-all duration-300 cursor-pointer group">
+                        <div id="drop-area" class="drop-area-revolutionary">
                             <input type="file" id="file" name="file" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                             
                             <div id="drop-content">
-                                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors">
-                                    <i class="fas fa-cloud-upload-alt text-2xl text-orange-600"></i>
+                                <div class="upload-icon-revolutionary">
+                                    <i class="fas fa-cloud-upload-alt text-3xl" style="color: #00d4ff;"></i>
                                 </div>
-                                <p class="text-lg font-medium text-gray-700 mb-2">파일을 드래그하여 놓으세요</p>
-                                <p class="text-sm text-gray-500 mb-4">또는 클릭하여 파일을 선택하세요</p>
-                                <div class="flex items-center justify-center space-x-2 text-xs text-gray-400">
-                                    <span class="px-2 py-1 bg-gray-100 rounded">XLSX</span>
-                                    <span class="px-2 py-1 bg-gray-100 rounded">XLS</span>
-                                    <span class="px-2 py-1 bg-gray-100 rounded">CSV</span>
+                                <p class="text-lg font-medium text-white mb-2">파일을 드래그하여 놓으세요</p>
+                                <p class="text-sm mb-4" style="color: rgba(255, 255, 255, 0.6);">또는 클릭하여 파일을 선택하세요</p>
+                                <div class="flex items-center justify-center space-x-2">
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3);">XLSX</span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3);">XLS</span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3);">CSV</span>
                                 </div>
                             </div>
                             
                             <!-- 파일 선택 후 표시 -->
                             <div id="file-selected" class="hidden">
-                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-file-excel text-2xl text-green-600"></i>
+                                <div class="file-icon-revolutionary">
+                                    <i class="fas fa-file-excel text-2xl text-white"></i>
                                 </div>
-                                <p class="text-lg font-medium text-gray-700 mb-2" id="file-name"></p>
-                                <p class="text-sm text-gray-500 mb-4" id="file-size"></p>
-                                <button type="button" class="text-sm text-red-600 hover:text-red-700 underline" onclick="removeFile()">파일 제거</button>
+                                <p class="text-lg font-medium text-white mb-2" id="file-name"></p>
+                                <p class="text-sm mb-4" style="color: rgba(255, 255, 255, 0.6);" id="file-size"></p>
+                                <button type="button" class="text-sm" style="color: #ef4444;" onclick="removeFile()">
+                                    <i class="fas fa-times mr-1"></i>파일 제거
+                                </button>
                             </div>
                         </div>
                         
                         <!-- 에러 메시지 -->
-                        <div id="file-error" class="mt-4 hidden">
-                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded">
-                                <div class="flex">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-exclamation-circle text-red-400"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm text-red-700" id="error-message"></p>
-                                    </div>
+                        <div id="file-error" class="status-error-revolutionary hidden">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-400" id="error-message"></p>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- 액션 버튼 -->
                         <div class="mt-6 flex justify-between items-center">
-                            <a href="{% url 'employees:employee_download_template' %}" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-800">
+                            <a href="{% url 'employees:employee_download_template' %}" class="text-sm" style="color: rgba(255, 255, 255, 0.6); transition: color 0.3s;">
                                 <i class="fas fa-download mr-2"></i>
                                 샘플 양식 다운로드
                             </a>
-                            <button type="button" id="btn-preview" class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium" disabled>
+                            <button type="button" id="btn-preview" class="btn-revolutionary" disabled>
                                 다음 단계
-                                <i class="fas fa-arrow-right ml-2"></i>
+                                <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </form>
                 </div>
+
                 <!-- 2단계: 데이터 미리보기 -->
-                <div id="step2-content" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 hidden">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6">2단계: 데이터 미리보기</h2>
+                <div id="step2-content" class="upload-container-revolutionary hidden">
+                    <h2 class="text-xl font-semibold text-white mb-6">2단계: 데이터 미리보기</h2>
                     
                     <!-- 유효성 검증 상태 -->
                     <div id="validation-status" class="mb-6">
@@ -145,25 +539,26 @@
                     </div>
                     
                     <!-- 미리보기 테이블 -->
-                    <div id="preview-table-area" class="overflow-x-auto mb-6">
+                    <div id="preview-table-area" class="preview-table-revolutionary custom-scrollbar-revolutionary" style="max-height: 500px; overflow: auto;">
                         <!-- 동적으로 채워짐 -->
                     </div>
                     
                     <!-- 액션 버튼 -->
-                    <div class="flex justify-between">
-                        <button type="button" onclick="setStep(1)" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
-                            <i class="fas fa-arrow-left mr-2"></i>
+                    <div class="flex justify-between mt-6">
+                        <button type="button" onclick="setStep(1)" class="btn-secondary-revolutionary">
+                            <i class="fas fa-arrow-left"></i>
                             이전 단계
                         </button>
-                        <button type="button" id="btn-to-errors" class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium">
+                        <button type="button" id="btn-to-errors" class="btn-revolutionary">
                             다음 단계
-                            <i class="fas fa-arrow-right ml-2"></i>
+                            <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
+
                 <!-- 3단계: 오류 수정 -->
-                <div id="step3-content" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 hidden">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6">3단계: 오류 확인 및 수정</h2>
+                <div id="step3-content" class="upload-container-revolutionary hidden">
+                    <h2 class="text-xl font-semibold text-white mb-6">3단계: 오류 확인 및 수정</h2>
                     
                     <!-- 오류 요약 -->
                     <div id="error-summary" class="mb-6">
@@ -171,25 +566,26 @@
                     </div>
                     
                     <!-- 오류 테이블 -->
-                    <div id="error-table-area" class="overflow-x-auto mb-6">
+                    <div id="error-table-area" class="preview-table-revolutionary custom-scrollbar-revolutionary" style="max-height: 500px; overflow: auto;">
                         <!-- 동적으로 채워짐 -->
                     </div>
                     
                     <!-- 액션 버튼 -->
-                    <div class="flex justify-between">
-                        <button type="button" onclick="setStep(2)" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
-                            <i class="fas fa-arrow-left mr-2"></i>
+                    <div class="flex justify-between mt-6">
+                        <button type="button" onclick="setStep(2)" class="btn-secondary-revolutionary">
+                            <i class="fas fa-arrow-left"></i>
                             이전 단계
                         </button>
-                        <button type="button" id="btn-save" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium">
-                            <i class="fas fa-save mr-2"></i>
+                        <button type="button" id="btn-save" class="btn-revolutionary" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                            <i class="fas fa-save"></i>
                             최종 업로드
                         </button>
                     </div>
                 </div>
+
                 <!-- 4단계: 업로드 완료 -->
-                <div id="step4-content" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 hidden">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6">4단계: 업로드 완료</h2>
+                <div id="step4-content" class="upload-container-revolutionary hidden">
+                    <h2 class="text-xl font-semibold text-white mb-6">4단계: 업로드 완료</h2>
                     
                     <!-- 결과 표시 영역 -->
                     <div id="result-area" class="mb-6">
@@ -198,145 +594,73 @@
                     
                     <!-- 액션 버튼 -->
                     <div class="flex justify-center space-x-4">
-                        <a href="{% url 'employees:employee_management' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
-                            <i class="fas fa-list mr-2"></i>
+                        <a href="{% url 'employees:employee_management' %}" class="btn-secondary-revolutionary">
+                            <i class="fas fa-list"></i>
                             직원 목록 보기
                         </a>
-                        <button type="button" onclick="location.reload()" class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium">
-                            <i class="fas fa-redo mr-2"></i>
+                        <button type="button" onclick="location.reload()" class="btn-revolutionary">
+                            <i class="fas fa-redo"></i>
                             다시 업로드
                         </button>
                     </div>
                 </div>
             </div>
+
             <!-- 우측 도움말 영역 -->
             <div class="lg:col-span-1">
                 <!-- 업로드 규칙 안내 -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 sticky top-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                        <i class="fas fa-info-circle text-orange-500 mr-2"></i>
+                <div class="info-card-revolutionary sticky top-6">
+                    <h3>
+                        <i class="fas fa-info-circle"></i>
                         업로드 규칙 안내
                     </h3>
                     
                     <div class="space-y-4">
                         <!-- 파일 형식 -->
                         <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">지원 파일 형식</h4>
+                            <h4 class="text-sm font-medium text-white mb-2">지원 파일 형식</h4>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Excel (.xlsx)</span>
-                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Excel (.xls)</span>
-                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">CSV (.csv)</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3);">Excel (.xlsx)</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3);">Excel (.xls)</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);">CSV (.csv)</span>
                             </div>
                         </div>
                         
                         <!-- 필수 항목 -->
                         <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">필수 입력 항목</h4>
-                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
-                                <ul class="text-sm text-yellow-800 space-y-1">
+                            <h4 class="text-sm font-medium text-white mb-2">필수 입력 항목</h4>
+                            <div class="status-warning-revolutionary">
+                                <ul class="text-sm space-y-1" style="color: rgba(245, 158, 11, 0.9);">
                                     <li>• <strong>이름</strong> (한글 또는 영문)</li>
                                     <li>• <strong>이메일</strong> (중복 불가)</li>
                                     <li>• <strong>입사일</strong> (YYYY-MM-DD)</li>
                                 </ul>
                             </div>
-                            <div class="mt-2">
-                                <h5 class="text-xs font-medium text-gray-600 mb-1">신규 확장 필드 (선택사항)</h5>
-                                <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
-                                    <ul class="text-xs text-blue-800 space-y-1">
-                                        <li>• <strong>회사</strong> (OK, OCI, OC, OFI 등)</li>
-                                        <li>• <strong>본부1/본부2</strong> (조직 구조)</li>
-                                        <li>• <strong>최종소속</strong> (부서명)</li>
-                                        <li>• <strong>직급</strong> (사원, 대리, 과장 등)</li>
-                                        <li>• <strong>직책</strong> (팀장, 주임 등)</li>
-                                        <li>• <strong>성별</strong> (M/F)</li>
-                                        <li>• <strong>나이</strong> (숫자)</li>
-                                        <li>• <strong>재직상태</strong> (재직, 휴직, 파견, 퇴직)</li>
-                                        <li>• <strong>직군/계열</strong> (PL, Non-PL)</li>
-                                        <li>• <strong>직종</strong> (IT개발, 경영관리 등)</li>
-                                    </ul>
-                                </div>
-                            </div>
                         </div>
                         
-                        <!-- 엑셀 구조 설명 -->
+                        <!-- 선택 항목 -->
                         <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">엑셀 파일 구조</h4>
-                            <div class="bg-indigo-50 border-l-4 border-indigo-400 p-3 rounded mb-3">
-                                <div class="text-xs text-indigo-800 space-y-1">
-                                    <div><strong>첫 번째 행:</strong> 컬럼 헤더 (필드명)</div>
-                                    <div><strong>두 번째 행부터:</strong> 실제 데이터</div>
-                                    <div><strong>시트명:</strong> 제한 없음 (첫 번째 시트 사용)</div>
-                                </div>
-                            </div>
-                            
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full text-xs">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-2 py-1 text-left text-gray-600">컬럼명</th>
-                                            <th class="px-2 py-1 text-left text-gray-600">필수</th>
-                                            <th class="px-2 py-1 text-left text-gray-600">예시</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">이름</td>
-                                            <td class="px-2 py-1 text-red-600">✓</td>
-                                            <td class="px-2 py-1 text-gray-600">김직원</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">이메일</td>
-                                            <td class="px-2 py-1 text-red-600">✓</td>
-                                            <td class="px-2 py-1 text-gray-600">kim@ok.co.kr</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">입사일</td>
-                                            <td class="px-2 py-1 text-red-600">✓</td>
-                                            <td class="px-2 py-1 text-gray-600">2024-01-15</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">회사</td>
-                                            <td class="px-2 py-1 text-gray-400">○</td>
-                                            <td class="px-2 py-1 text-gray-600">OK</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">본부1</td>
-                                            <td class="px-2 py-1 text-gray-400">○</td>
-                                            <td class="px-2 py-1 text-gray-600">IT본부</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">최종소속</td>
-                                            <td class="px-2 py-1 text-gray-400">○</td>
-                                            <td class="px-2 py-1 text-gray-600">개발팀</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">직급</td>
-                                            <td class="px-2 py-1 text-gray-400">○</td>
-                                            <td class="px-2 py-1 text-gray-600">대리</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">성별</td>
-                                            <td class="px-2 py-1 text-gray-400">○</td>
-                                            <td class="px-2 py-1 text-gray-600">M</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 font-medium">나이</td>
-                                            <td class="px-2 py-1 text-gray-400">○</td>
-                                            <td class="px-2 py-1 text-gray-600">35</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <div class="mt-3 text-xs text-gray-500">
-                                <div><strong>✓</strong> 필수항목 &nbsp;&nbsp; <strong>○</strong> 선택항목</div>
+                            <h4 class="text-sm font-medium text-white mb-2">선택 입력 항목</h4>
+                            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 1rem;">
+                                <ul class="text-xs space-y-1" style="color: rgba(255, 255, 255, 0.7);">
+                                    <li>• <strong>회사</strong> (OK, OCI, OC, OFI 등)</li>
+                                    <li>• <strong>본부1/본부2</strong> (조직 구조)</li>
+                                    <li>• <strong>최종소속</strong> (부서명)</li>
+                                    <li>• <strong>직급</strong> (사원, 대리, 과장 등)</li>
+                                    <li>• <strong>직책</strong> (팀장, 주임 등)</li>
+                                    <li>• <strong>성별</strong> (M/F)</li>
+                                    <li>• <strong>나이</strong> (숫자)</li>
+                                    <li>• <strong>재직상태</strong> (재직, 휴직, 파견, 퇴직)</li>
+                                    <li>• <strong>직군/계열</strong> (PL, Non-PL)</li>
+                                    <li>• <strong>직종</strong> (IT개발, 경영관리 등)</li>
+                                </ul>
                             </div>
                         </div>
                         
                         <!-- 주의사항 -->
                         <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">주의사항</h4>
-                            <ul class="text-sm text-gray-600 space-y-1">
+                            <h4 class="text-sm font-medium text-white mb-2">주의사항</h4>
+                            <ul class="text-sm space-y-1" style="color: rgba(255, 255, 255, 0.6);">
                                 <li>• 최대 파일 크기: 2MB</li>
                                 <li>• 최대 업로드 가능 인원: 1,000명</li>
                                 <li>• 날짜는 YYYY-MM-DD 형식 준수</li>
@@ -350,73 +674,7 @@
     </div>
 </div>
 {% endblock %}
-{% block extra_head %}
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                colors: {
-                    orange: {
-                        50: '#FFF4ED',
-                        100: '#FFE6D5',
-                        200: '#FFCCAA',
-                        300: '#FFAA74',
-                        400: '#FF843D',
-                        500: '#FF6B00',
-                        600: '#E55A00',
-                        700: '#CC5500',
-                        800: '#B34700',
-                        900: '#993D00',
-                    }
-                }
-            }
-        }
-    }
-</script>
 
-<style>
-    .dragging {
-        background-color: #FFF4ED !important;
-        border-color: #FF6B00 !important;
-    }
-    
-    .error-cell {
-        background-color: #FEF3C7;
-        color: #92400E;
-        font-weight: 600;
-    }
-    
-    .table-header {
-        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
-    }
-    
-    .step-active {
-        transform: scale(1.1);
-    }
-    
-    /* Scrollbar styling */
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #FF6B00;
-        border-radius: 4px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #E55A00;
-    }
-</style>
-{% endblock %}
 {% block extra_js %}
 <script>
 // 전역 변수
@@ -445,20 +703,20 @@ function setStep(step) {
         
         if (i < step) {
             // 완료된 단계
-            circle.className = 'w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold transition-all duration-300';
-            title.className = 'text-sm font-medium text-green-600';
+            circle.className = 'step-circle-revolutionary completed';
+            title.style.color = '#00ff88';
             number.classList.add('hidden');
             check.classList.remove('hidden');
         } else if (i === step) {
             // 현재 단계
-            circle.className = 'w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold transition-all duration-300 step-active';
-            title.className = 'text-sm font-medium text-gray-900';
+            circle.className = 'step-circle-revolutionary active';
+            title.style.color = '#ffffff';
             number.classList.remove('hidden');
             check.classList.add('hidden');
         } else {
             // 대기 단계
-            circle.className = 'w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold transition-all duration-300';
-            title.className = 'text-sm font-medium text-gray-400';
+            circle.className = 'step-circle-revolutionary pending';
+            title.style.color = 'rgba(255, 255, 255, 0.5)';
             number.classList.remove('hidden');
             check.classList.add('hidden');
         }
@@ -589,7 +847,7 @@ btnPreview.addEventListener('click', function() {
     })
     .finally(() => {
         btnPreview.disabled = false;
-        btnPreview.innerHTML = '다음 단계<i class="fas fa-arrow-right ml-2"></i>';
+        btnPreview.innerHTML = '다음 단계<i class="fas fa-arrow-right ml-1"></i>';
     });
 });
 
@@ -599,16 +857,16 @@ function renderValidationStatus(errors) {
     
     if (errors.length === 0) {
         statusDiv.innerHTML = `
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="status-success-revolutionary">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                        <i class="fas fa-check-circle text-2xl" style="color: #00ff88;"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-green-800">
+                        <h3 class="text-sm font-medium" style="color: #00ff88;">
                             유효성 검증 통과
                         </h3>
-                        <p class="text-sm text-green-700 mt-1">
+                        <p class="text-sm mt-1" style="color: rgba(0, 255, 136, 0.8);">
                             모든 데이터가 정상입니다. 바로 업로드할 수 있습니다.
                         </p>
                     </div>
@@ -618,16 +876,16 @@ function renderValidationStatus(errors) {
     } else {
         const errorCount = errors.length;
         statusDiv.innerHTML = `
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="status-warning-revolutionary">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+                        <i class="fas fa-exclamation-triangle text-2xl" style="color: #f59e0b;"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800">
+                        <h3 class="text-sm font-medium" style="color: #f59e0b;">
                             수정이 필요한 데이터가 있습니다
                         </h3>
-                        <p class="text-sm text-yellow-700 mt-1">
+                        <p class="text-sm mt-1" style="color: rgba(245, 158, 11, 0.8);">
                             ${errorCount}개 행에서 오류가 발견되었습니다. 다음 단계에서 수정할 수 있습니다.
                         </p>
                     </div>
@@ -640,30 +898,30 @@ function renderValidationStatus(errors) {
 // 미리보기 테이블 렌더링
 function renderPreviewTable(columns, rows, errors) {
     let html = `
-        <table class="min-w-full divide-y divide-gray-200 custom-scrollbar">
-            <thead class="table-header">
+        <table>
+            <thead>
                 <tr>
     `;
     
     columns.forEach(col => {
-        html += `<th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">${col}</th>`;
+        html += `<th>${col}</th>`;
     });
     
     html += `
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody>
     `;
     
     // 최대 10개 행만 표시
     const displayRows = rows.slice(0, 10);
     displayRows.forEach((row, i) => {
         const rowError = errors.find(e => e.row - 2 === i);
-        html += `<tr class="${rowError ? 'bg-yellow-50' : 'hover:bg-gray-50'}">`;
+        html += `<tr>`;
         
         columns.forEach(col => {
             const hasError = rowError && rowError.errors.some(err => err.includes(col));
-            html += `<td class="px-4 py-3 text-sm ${hasError ? 'error-cell' : 'text-gray-900'}">${row[col] || ''}</td>`;
+            html += `<td class="${hasError ? 'error-cell' : ''}">${row[col] || ''}</td>`;
         });
         
         html += `</tr>`;
@@ -676,8 +934,10 @@ function renderPreviewTable(columns, rows, errors) {
     
     if (rows.length > 10) {
         html += `
-            <div class="bg-gray-50 px-4 py-3 text-center text-sm text-gray-600">
-                ${rows.length - 10}개 행이 더 있습니다.
+            <div style="background: rgba(0, 212, 255, 0.05); padding: 1rem; text-align: center; border-top: 1px solid rgba(0, 212, 255, 0.2);">
+                <span style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem;">
+                    ${rows.length - 10}개 행이 더 있습니다.
+                </span>
             </div>
         `;
     }
@@ -699,14 +959,14 @@ function renderErrorSummary(errors) {
     
     if (errors.length === 0) {
         summaryDiv.innerHTML = `
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="status-success-revolutionary">
                 <div class="flex items-center">
-                    <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                    <i class="fas fa-check-circle text-xl mr-3" style="color: #00ff88;"></i>
                     <div>
-                        <h3 class="text-sm font-medium text-green-800">
+                        <h3 class="text-sm font-medium" style="color: #00ff88;">
                             모든 데이터가 정상입니다
                         </h3>
-                        <p class="text-sm text-green-700 mt-1">
+                        <p class="text-sm mt-1" style="color: rgba(0, 255, 136, 0.8);">
                             바로 업로드할 수 있습니다.
                         </p>
                     </div>
@@ -731,17 +991,17 @@ function renderErrorSummary(errors) {
         });
         
         summaryDiv.innerHTML = `
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="status-error-revolutionary">
                 <div class="flex items-start">
-                    <i class="fas fa-exclamation-circle text-red-600 text-xl mr-3 mt-1"></i>
+                    <i class="fas fa-exclamation-circle text-xl mr-3 mt-1" style="color: #ef4444;"></i>
                     <div class="flex-1">
-                        <h3 class="text-sm font-medium text-red-800">
+                        <h3 class="text-sm font-medium" style="color: #ef4444;">
                             수정이 필요한 항목이 ${errors.length}개 있습니다
                         </h3>
-                        <ul class="text-sm text-red-700 mt-2 space-y-1">
+                        <ul class="text-sm mt-2 space-y-1" style="color: rgba(239, 68, 68, 0.8);">
                             ${errorList}
                         </ul>
-                        <p class="text-sm text-red-600 mt-3">
+                        <p class="text-sm mt-3" style="color: rgba(239, 68, 68, 0.6);">
                             아래 테이블에서 오류 항목을 직접 수정하세요.
                         </p>
                     </div>
@@ -751,43 +1011,43 @@ function renderErrorSummary(errors) {
     }
 }
 
-// 오류 테이블 렌더링 (수정 가능)
+// 오류 테이블 렌더링
 function renderErrorTable(columns, rows, errors) {
-    // 오류가 있는 행만 필터링
     const errorRows = errors.length > 0 ? 
         rows.filter((row, i) => errors.some(e => e.row - 2 === i)) : 
         rows;
     
     let html = `
-        <table class="min-w-full divide-y divide-gray-200" id="error-data-table">
-            <thead class="table-header">
+        <table id="error-data-table">
+            <thead>
                 <tr>
     `;
     
     columns.forEach(col => {
-        html += `<th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">${col}</th>`;
+        html += `<th>${col}</th>`;
     });
     
     html += `
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody>
     `;
     
     if (errors.length > 0) {
         errorRows.forEach((row, displayIndex) => {
-            // 원본 데이터에서의 인덱스 찾기
             const originalIndex = rows.indexOf(row);
             const rowError = errors.find(e => e.row - 2 === originalIndex);
             
-            html += `<tr class="bg-yellow-50" data-row-index="${originalIndex}">`;
+            html += `<tr data-row-index="${originalIndex}">`;
             
             columns.forEach(col => {
                 const hasError = rowError && rowError.errors.some(err => err.includes(col));
                 html += `
-                    <td class="px-4 py-3 text-sm ${hasError ? 'error-cell' : 'text-gray-900'}">
+                    <td class="${hasError ? 'error-cell' : ''}">
                         <div contenteditable="true" 
-                             class="focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded px-1"
+                             style="outline: none; padding: 0.25rem; border-radius: 4px;"
+                             onfocus="this.style.background='rgba(0, 212, 255, 0.1)'"
+                             onblur="this.style.background='transparent'"
                              data-column="${col}"
                              data-original="${row[col] || ''}">
                             ${row[col] || ''}
@@ -799,12 +1059,11 @@ function renderErrorTable(columns, rows, errors) {
             html += `</tr>`;
         });
     } else {
-        // 오류가 없으면 모든 데이터 표시 (읽기 전용)
         rows.slice(0, 10).forEach((row, i) => {
-            html += `<tr class="hover:bg-gray-50">`;
+            html += `<tr>`;
             
             columns.forEach(col => {
-                html += `<td class="px-4 py-3 text-sm text-gray-900">${row[col] || ''}</td>`;
+                html += `<td>${row[col] || ''}</td>`;
             });
             
             html += `</tr>`;
@@ -822,11 +1081,9 @@ function renderErrorTable(columns, rows, errors) {
 // 3단계 → 4단계 (최종 업로드)
 const btnSave = document.getElementById('btn-save');
 btnSave.addEventListener('click', function() {
-    // 로딩 표시
     btnSave.disabled = true;
     btnSave.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>업로드 중...';
     
-    // 수정된 데이터 수집
     const updatedData = collectUpdatedData();
     
     fetch(window.location.pathname, {
@@ -861,10 +1118,8 @@ function collectUpdatedData() {
     const table = document.getElementById('error-data-table');
     const columns = Array.from(table.querySelectorAll('thead th')).map(th => th.innerText);
     
-    // 전체 데이터 복사 (full_data가 있으면 사용, 없으면 preview 사용)
     const allRows = previewData.full_data ? [...previewData.full_data] : [...previewData.preview];
     
-    // 수정된 데이터 업데이트
     const editedRows = table.querySelectorAll('tbody tr[data-row-index]');
     editedRows.forEach(tr => {
         const rowIndex = parseInt(tr.dataset.rowIndex);
@@ -891,13 +1146,13 @@ function renderResult(data) {
     // 성공/실패 요약
     html += `
         <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                <div class="text-3xl font-bold text-green-600">${data.success_count || 0}</div>
-                <div class="text-sm text-green-700 mt-1">성공적으로 등록</div>
+            <div class="status-success-revolutionary text-center">
+                <div class="text-3xl font-bold" style="color: #00ff88;">${data.success_count || 0}</div>
+                <div class="text-sm mt-1" style="color: rgba(0, 255, 136, 0.8);">성공적으로 등록</div>
             </div>
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                <div class="text-3xl font-bold text-red-600">${data.fail_count || 0}</div>
-                <div class="text-sm text-red-700 mt-1">등록 실패</div>
+            <div class="status-error-revolutionary text-center">
+                <div class="text-3xl font-bold" style="color: #ef4444;">${data.fail_count || 0}</div>
+                <div class="text-sm mt-1" style="color: rgba(239, 68, 68, 0.8);">등록 실패</div>
             </div>
         </div>
     `;
@@ -905,11 +1160,11 @@ function renderResult(data) {
     // 성공 내역
     if (data.created && data.created.length > 0) {
         html += `
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                <h4 class="text-sm font-medium text-green-800 mb-2">
+            <div class="status-success-revolutionary mb-4">
+                <h4 class="text-sm font-medium mb-2" style="color: #00ff88;">
                     <i class="fas fa-check-circle mr-2"></i>등록 완료된 직원
                 </h4>
-                <div class="text-sm text-green-700">
+                <div class="text-sm" style="color: rgba(0, 255, 136, 0.8);">
                     ${data.created.join(', ')}
                 </div>
             </div>
@@ -919,8 +1174,8 @@ function renderResult(data) {
     // 실패 내역
     if (data.errors && data.errors.length > 0) {
         html += `
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                <h4 class="text-sm font-medium text-red-800 mb-3">
+            <div class="status-error-revolutionary">
+                <h4 class="text-sm font-medium mb-3" style="color: #ef4444;">
                     <i class="fas fa-exclamation-circle mr-2"></i>등록 실패 내역
                 </h4>
                 <div class="space-y-2">
@@ -928,11 +1183,11 @@ function renderResult(data) {
         
         data.errors.forEach(error => {
             html += `
-                <div class="bg-white border border-red-200 rounded p-3">
-                    <div class="text-sm font-medium text-gray-800">
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 1rem;">
+                    <div class="text-sm font-medium text-white">
                         행 ${error.row}: ${error.name} (${error.email})
                     </div>
-                    <div class="text-sm text-red-600 mt-1">
+                    <div class="text-sm mt-1" style="color: rgba(239, 68, 68, 0.8);">
                         ${error.errors.join(', ')}
                     </div>
                 </div>
@@ -949,9 +1204,9 @@ function renderResult(data) {
     if (data.success_count > 0 && data.fail_count === 0) {
         html += `
             <div class="mt-6 text-center">
-                <i class="fas fa-check-circle text-green-500 text-5xl mb-3"></i>
-                <h3 class="text-lg font-semibold text-gray-800">업로드가 완료되었습니다!</h3>
-                <p class="text-gray-600 mt-1">총 ${data.success_count}명의 직원 정보가 성공적으로 등록되었습니다.</p>
+                <i class="fas fa-check-circle text-5xl mb-3" style="color: #00ff88;"></i>
+                <h3 class="text-lg font-semibold text-white">업로드가 완료되었습니다!</h3>
+                <p class="mt-1" style="color: rgba(255, 255, 255, 0.6);">총 ${data.success_count}명의 직원 정보가 성공적으로 등록되었습니다.</p>
             </div>
         `;
     }
@@ -959,4 +1214,4 @@ function renderResult(data) {
     resultArea.innerHTML = html;
 }
 </script>
-{% endblock %} 
+{% endblock %}

@@ -1,0 +1,547 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ employee.name }} - 직원 상세정보 - OK금융그룹 e-HR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .employee-header {
+        background: linear-gradient(135deg, #FF6B00, #FF8533);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .employee-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(50px, -50px);
+    }
+    
+    .profile-section {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .profile-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        object-fit: cover;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+    }
+    
+    .info-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 107, 0, 0.1);
+    }
+    
+    .dark .info-section {
+        background: rgba(31, 41, 55, 0.95);
+        border-color: rgba(107, 114, 128, 0.2);
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .dark .section-header {
+        border-bottom-color: #374151;
+    }
+    
+    .section-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #FF6B00, #FF8533);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .section-title {
+        color: #1f2937;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .dark .section-title {
+        color: #f9fafb;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .info-item {
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border-left: 4px solid #FF6B00;
+        transition: all 0.3s ease;
+    }
+    
+    .info-item:hover {
+        background: #f1f5f9;
+        transform: translateY(-2px);
+    }
+    
+    .dark .info-item {
+        background: #374151;
+    }
+    
+    .dark .info-item:hover {
+        background: #4b5563;
+    }
+    
+    .info-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .dark .info-label {
+        color: #9ca3af;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    .dark .info-value {
+        color: #f9fafb;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+    }
+    
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-inactive { background: #fef2f2; color: #991b1b; }
+    .status-leave { background: #fef3c7; color: #92400e; }
+    .status-dispatch { background: #e0e7ff; color: #3730a3; }
+    
+    .dark .status-active { background: #166534; color: #dcfce7; }
+    .dark .status-inactive { background: #991b1b; color: #fef2f2; }
+    .dark .status-leave { background: #92400e; color: #fef3c7; }
+    .dark .status-dispatch { background: #3730a3; color: #e0e7ff; }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #FF6B00, #FF8533);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #e55a00, #e67700);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 0, 0.3);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #c82333, #bd2130);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+    }
+    
+    .organization-path {
+        background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+        padding: 1rem;
+        border-radius: 12px;
+        border-left: 4px solid #FF6B00;
+        margin: 1rem 0;
+    }
+    
+    .dark .organization-path {
+        background: linear-gradient(90deg, #374151, #4b5563);
+    }
+    
+    .path-item {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #FF6B00;
+        color: white;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        margin: 0.25rem;
+    }
+    
+    .evaluation-section {
+        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        border: 2px solid #0ea5e9;
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+    
+    .dark .evaluation-section {
+        background: linear-gradient(135deg, #1e3a8a, #1e40af);
+        border-color: #3b82f6;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-section {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- 직원 헤더 -->
+    <div class="employee-header">
+        <div class="profile-section">
+            <div class="profile-image">
+                {% if employee.profile_image %}
+                    <img src="{{ employee.profile_image.url }}" alt="{{ employee.name }}" class="profile-image">
+                {% else %}
+                    {{ employee.name|first }}
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <h1 class="text-3xl font-bold mb-2">{{ employee.name }}</h1>
+                <p class="text-xl opacity-90 mb-4">{{ employee.get_full_position }}</p>
+                <div class="flex items-center gap-4 text-sm opacity-80">
+                    <span><i data-lucide="mail" class="w-4 h-4 inline mr-1"></i>{{ employee.email }}</span>
+                    {% if employee.phone %}
+                    <span><i data-lucide="phone" class="w-4 h-4 inline mr-1"></i>{{ employee.phone }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons mt-6">
+            <a href="{% url 'employees:employee_update' employee.pk %}" class="btn btn-primary">
+                <i data-lucide="edit" class="w-4 h-4"></i>
+                수정
+            </a>
+            <a href="{% url 'employees:employee_delete' employee.pk %}" class="btn btn-danger" 
+               onclick="return confirm('정말 삭제하시겠습니까?')">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                삭제
+            </a>
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                목록으로
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 기본 정보 섹션 -->
+        <div class="info-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                </div>
+                <h2 class="section-title">기본 정보</h2>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">이름</span>
+                    <span class="info-value">{{ employee.name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">성별</span>
+                    <span class="info-value">
+                        {% if employee.gender == 'M' %}남성
+                        {% elif employee.gender == 'F' %}여성
+                        {% else %}-{% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">나이</span>
+                    <span class="info-value">{{ employee.age|default:"-" }}세</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">생년월일</span>
+                    <span class="info-value">{{ employee.birth_date|date:"Y년 m월 d일"|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">이메일</span>
+                    <span class="info-value">
+                        <a href="mailto:{{ employee.email }}" class="text-primary hover:underline">
+                            {{ employee.email }}
+                        </a>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">연락처</span>
+                    <span class="info-value">
+                        {% if employee.phone %}
+                            <a href="tel:{{ employee.phone }}" class="text-primary hover:underline">
+                                {{ employee.phone }}
+                            </a>
+                        {% else %}-{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 조직 정보 섹션 -->
+        <div class="info-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i data-lucide="building" class="w-5 h-5"></i>
+                </div>
+                <h2 class="section-title">조직 정보</h2>
+            </div>
+            <div class="organization-path">
+                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">조직 경로</div>
+                <div>{{ employee.get_organization_path }}</div>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">회사</span>
+                    <span class="info-value">{{ employee.company|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">본부1</span>
+                    <span class="info-value">{{ employee.headquarters1|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">본부2</span>
+                    <span class="info-value">{{ employee.headquarters2|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">최종소속</span>
+                    <span class="info-value">{{ employee.final_department|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 인사 정보 섹션 -->
+        <div class="info-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i data-lucide="briefcase" class="w-5 h-5"></i>
+                </div>
+                <h2 class="section-title">인사 정보</h2>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">직급</span>
+                    <span class="info-value">{{ employee.current_position|default:employee.new_position|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">직책</span>
+                    <span class="info-value">{{ employee.responsibility|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">직군/계열</span>
+                    <span class="info-value">{{ employee.job_series|default:employee.job_group|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">직종</span>
+                    <span class="info-value">{{ employee.job_type|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">성장레벨</span>
+                    <span class="info-value">Level {{ employee.growth_level|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">급호</span>
+                    <span class="info-value">{{ employee.salary_grade|default:employee.grade_level|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 입사 정보 섹션 -->
+        <div class="info-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                </div>
+                <h2 class="section-title">입사 정보</h2>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">입사일</span>
+                    <span class="info-value">{{ employee.hire_date|date:"Y년 m월 d일"|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">그룹입사일</span>
+                    <span class="info-value">{{ employee.group_join_date|date:"Y년 m월 d일"|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">경력입사일</span>
+                    <span class="info-value">{{ employee.career_join_date|date:"Y년 m월 d일"|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">신입입사일</span>
+                    <span class="info-value">{{ employee.new_join_date|date:"Y년 m월 d일"|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">근속년수</span>
+                    <span class="info-value">{{ work_period_text|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">재직상태</span>
+                    <span class="info-value">
+                        {% if employee.employment_status == '재직' %}
+                            <span class="status-badge status-active">재직</span>
+                        {% elif employee.employment_status == '휴직' %}
+                            <span class="status-badge status-leave">휴직</span>
+                        {% elif employee.employment_status == '파견' %}
+                            <span class="status-badge status-dispatch">파견</span>
+                        {% elif employee.employment_status == '퇴직' %}
+                            <span class="status-badge status-inactive">퇴직</span>
+                        {% else %}
+                            <span class="status-badge status-active">{{ employee.employment_status|default:"재직" }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 평가 정보 섹션 (있는 경우만 표시) -->
+    {% if employee.final_evaluation or employee.promotion_accumulated_years %}
+    <div class="info-section evaluation-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i data-lucide="star" class="w-5 h-5"></i>
+            </div>
+            <h2 class="section-title">평가 정보</h2>
+        </div>
+        <div class="info-grid">
+            {% if employee.final_evaluation %}
+            <div class="info-item">
+                <span class="info-label">최종평가</span>
+                <span class="info-value">{{ employee.final_evaluation }}</span>
+            </div>
+            {% endif %}
+            {% if employee.promotion_accumulated_years %}
+            <div class="info-item">
+                <span class="info-label">승급누적년수</span>
+                <span class="info-value">{{ employee.promotion_accumulated_years }}년</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 추가 정보 섹션 -->
+    <div class="info-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i data-lucide="info" class="w-5 h-5"></i>
+            </div>
+            <h2 class="section-title">추가 정보</h2>
+        </div>
+        <div class="info-grid">
+            {% if employee.education %}
+            <div class="info-item">
+                <span class="info-label">학력</span>
+                <span class="info-value">{{ employee.education }}</span>
+            </div>
+            {% endif %}
+            {% if employee.marital_status %}
+            <div class="info-item">
+                <span class="info-label">결혼여부</span>
+                <span class="info-value">
+                    {% if employee.marital_status == 'Y' %}기혼
+                    {% elif employee.marital_status == 'N' %}미혼
+                    {% elif employee.marital_status == 'D' %}이혼
+                    {% elif employee.marital_status == 'W' %}사별
+                    {% else %}{{ employee.marital_status }}{% endif %}
+                </span>
+            </div>
+            {% endif %}
+            <div class="info-item">
+                <span class="info-label">등록일</span>
+                <span class="info-value">{{ employee.created_at|date:"Y년 m월 d일 H:i" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">수정일</span>
+                <span class="info-value">{{ employee.updated_at|date:"Y년 m월 d일 H:i" }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

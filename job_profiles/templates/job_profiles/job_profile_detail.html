@@ -1,18 +1,210 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}{{ profile.job_role.name }} - 직무기술서{% endblock %}
+{% block title %}{{ profile.job_role.name }} - 직무기술서 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Job Profile Detail System{% endblock %}
+{% block content_title %}{{ profile.job_role.name }} 직무기술서{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    AI 기반 직무 상세 정보 및 역량 분석 시스템
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 25px;
+        padding: 2rem;
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .detail-container-revolutionary::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: pulse 10s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    .breadcrumb-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-revolutionary a {
+        color: #00d4ff;
+        text-decoration: none;
+    }
+
+    .breadcrumb-revolutionary a:hover {
+        color: white;
+    }
+
+    .detail-card-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .detail-card-header-revolutionary {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
+        padding: 1.5rem;
+        border-radius: 15px 15px 0 0;
+        margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .detail-card-header-revolutionary h2 {
+        color: white;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .detail-card-header-revolutionary small {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+    }
+
+    .info-grid-revolutionary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .info-item-revolutionary strong {
+        color: #00d4ff;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-item-revolutionary p {
+        color: white;
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .skill-badges-revolutionary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .skill-badge-revolutionary {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .section-title-revolutionary {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title-revolutionary i {
+        color: #00d4ff;
+    }
+
+    .btn-revolutionary {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 3px 10px rgba(0, 212, 255, 0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-revolutionary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary-revolutionary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary-revolutionary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'job_profiles:list' %}">직무기술서</a></li>
-            <li class="breadcrumb-item">{{ profile.job_role.job_type.category.name }}</li>
-            <li class="breadcrumb-item">{{ profile.job_role.job_type.name }}</li>
-            <li class="breadcrumb-item active">{{ profile.job_role.name }}</li>
-        </ol>
-    </nav>
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        <div class="detail-container-revolutionary">
+            <nav aria-label="breadcrumb">
+                <div class="breadcrumb-revolutionary">
+                    <a href="{% url 'job_profiles:list' %}">직무기술서</a>
+                    <span style="color: rgba(255, 255, 255, 0.6); margin: 0 0.5rem;"> > </span>
+                    <span style="color: rgba(255, 255, 255, 0.8);">{{ profile.job_role.job_type.category.name }}</span>
+                    <span style="color: rgba(255, 255, 255, 0.6); margin: 0 0.5rem;"> > </span>
+                    <span style="color: rgba(255, 255, 255, 0.8);">{{ profile.job_role.job_type.name }}</span>
+                    <span style="color: rgba(255, 255, 255, 0.6); margin: 0 0.5rem;"> > </span>
+                    <span style="color: white; font-weight: 600;">{{ profile.job_role.name }}</span>
+                </div>
+            </nav>
     
     <div class="row">
         <div class="col-lg-8">

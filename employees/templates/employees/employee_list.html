@@ -1,41 +1,49 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}직원 목록 - OK금융그룹 e-HR{% endblock %}
+{% block title %}직원 목록 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Employee Management System{% endblock %}
+{% block content_title %}직원 목록{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    전체 <span class="text-cyan-300 font-bold">{{ total_count }}명</span>의 직원 중 
+    <span class="text-cyan-300 font-bold">{{ queryset_count }}명</span>을 표시하고 있습니다
+</p>
+{% endblock %}
 
 {% block extra_css %}
 <style>
-    .filter-container {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 107, 0, 0.1);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
+    .filter-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
     }
     
-    .dark .filter-container {
-        background: rgba(31, 41, 55, 0.9);
-        border-color: rgba(107, 114, 128, 0.2);
+    .filter-container-revolutionary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.3);
     }
     
-    .employee-table {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        border-radius: 16px;
+    .employee-table-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-    
-    .dark .employee-table {
-        background: rgba(31, 41, 55, 0.95);
+        box-shadow: 0 10px 40px rgba(0, 212, 255, 0.1);
     }
     
     .table-scroll {
         max-height: 70vh;
         overflow-y: auto;
         scrollbar-width: thin;
-        scrollbar-color: #FF6B00 #f1f5f9;
+        scrollbar-color: #00d4ff rgba(255, 255, 255, 0.1);
     }
     
     .table-scroll::-webkit-scrollbar {
@@ -43,29 +51,35 @@
     }
     
     .table-scroll::-webkit-scrollbar-track {
-        background: #f1f5f9;
+        background: rgba(255, 255, 255, 0.05);
         border-radius: 4px;
     }
     
     .table-scroll::-webkit-scrollbar-thumb {
-        background: #FF6B00;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
         border-radius: 4px;
     }
     
     .table-scroll::-webkit-scrollbar-thumb:hover {
-        background: #e55a00;
+        background: linear-gradient(135deg, #00a8cc, #0077cc);
     }
     
     .filter-tag {
         display: inline-flex;
         align-items: center;
-        padding: 0.375rem 0.75rem;
-        background: linear-gradient(135deg, #FF6B00, #FF8533);
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
         color: white;
-        border-radius: 20px;
+        border-radius: 25px;
         font-size: 0.875rem;
         margin: 0.25rem;
-        box-shadow: 0 2px 8px rgba(255, 107, 0, 0.2);
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .filter-tag:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
     }
     
     .filter-tag .remove-btn {
@@ -79,39 +93,52 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: all 0.3s ease;
     }
     
     .filter-tag .remove-btn:hover {
         background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
     }
     
     .status-badge {
         padding: 0.25rem 0.75rem;
-        border-radius: 12px;
+        border-radius: 15px;
         font-size: 0.75rem;
         font-weight: 600;
-        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
-    .status-active { background: #dcfce7; color: #166534; }
-    .status-inactive { background: #fef2f2; color: #991b1b; }
-    .status-leave { background: #fef3c7; color: #92400e; }
-    .status-dispatch { background: #e0e7ff; color: #3730a3; }
+    .status-active { 
+        background: rgba(16, 185, 129, 0.2); 
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .status-inactive { 
+        background: rgba(239, 68, 68, 0.2); 
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .status-leave { 
+        background: rgba(245, 158, 11, 0.2); 
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .status-dispatch { 
+        background: rgba(59, 130, 246, 0.2); 
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
     
-    .dark .status-active { background: #166534; color: #dcfce7; }
-    .dark .status-inactive { background: #991b1b; color: #fef2f2; }
-    .dark .status-leave { background: #92400e; color: #fef3c7; }
-    .dark .status-dispatch { background: #3730a3; color: #e0e7ff; }
+    .employee-row {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
     
     .employee-row:hover {
-        background: rgba(255, 107, 0, 0.02);
-        transform: translateX(2px);
-        transition: all 0.2s ease;
-    }
-    
-    .dark .employee-row:hover {
-        background: rgba(255, 107, 0, 0.05);
+        background: rgba(0, 212, 255, 0.05);
+        transform: translateX(5px);
     }
     
     .pagination-container {
@@ -124,23 +151,24 @@
     
     .pagination-btn {
         padding: 0.5rem 1rem;
-        border: 1px solid #e5e7eb;
-        background: white;
-        color: #374151;
-        border-radius: 8px;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        background: rgba(255, 255, 255, 0.02);
+        color: #00d4ff;
+        border-radius: 10px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
     }
     
     .pagination-btn:hover {
-        background: #f9fafb;
-        border-color: #FF6B00;
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        transform: translateY(-2px);
     }
     
     .pagination-btn.active {
-        background: #FF6B00;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
         color: white;
-        border-color: #FF6B00;
+        border-color: transparent;
     }
     
     .pagination-btn:disabled {
@@ -148,373 +176,447 @@
         cursor: not-allowed;
     }
     
-    .dark .pagination-btn {
-        background: #374151;
-        color: #d1d5db;
-        border-color: #4b5563;
+    .profile-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        font-weight: 600;
+        border: 2px solid rgba(0, 212, 255, 0.3);
     }
     
-    .dark .pagination-btn:hover {
-        background: #4b5563;
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .action-btn.view { color: #00d4ff; }
+    .action-btn.edit { color: #3b82f6; }
+    .action-btn.delete { color: #ef4444; }
+    
+    .action-btn.view:hover { background: rgba(0, 212, 255, 0.1); }
+    .action-btn.edit:hover { background: rgba(59, 130, 246, 0.1); }
+    .action-btn.delete:hover { background: rgba(239, 68, 68, 0.1); }
+    
+    .form-control-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: white;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .form-control-revolutionary:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .form-control-revolutionary::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .form-select-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: white;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        cursor: pointer;
+    }
+    
+    .form-select-revolutionary:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .form-label-revolutionary {
+        color: #00d4ff;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-    <!-- 페이지 헤더 -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-4xl font-bold gradient-text mb-2">직원 목록</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300">
-                    전체 <span class="font-semibold text-primary">{{ total_count }}명</span>의 직원 중 
-                    <span class="font-semibold text-primary">{{ queryset_count }}명</span> 표시
-                </p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <a href="{% url 'employees:employee_create' %}" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-glow transition-all hover-lift" aria-label="새 직원 등록">
-                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
-                    새 직원 등록
-                </a>
-                <a href="{% url 'employees:employee_bulk_upload' %}" class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors" aria-label="일괄 등록">
-                    <i data-lucide="upload" class="w-5 h-5 inline mr-2"></i>
-                    일괄 등록
-                </a>
-            </div>
+<div class="revolutionary-container">
+    <!-- 액션 버튼 -->
+    <div class="container-fluid px-4 mb-6">
+        <div class="flex items-center justify-end gap-3">
+            <a href="{% url 'employees:employee_create' %}" class="btn-revolutionary btn-primary">
+                <i class="fas fa-plus"></i>
+                새 직원 등록
+            </a>
+            <a href="{% url 'employees:employee_bulk_upload' %}" class="btn-revolutionary btn-secondary">
+                <i class="fas fa-upload"></i>
+                일괄 등록
+            </a>
         </div>
     </div>
 
     <!-- 검색 및 필터 영역 -->
-    <div class="filter-container">
-        <form method="GET" id="filterForm" class="space-y-4">
-            <!-- 검색 바 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">통합 검색</label>
-                    <div class="relative">
-                        <input type="text" 
-                               name="q" 
-                               value="{{ search_query }}" 
-                               placeholder="이름, 이메일, 부서, 직급으로 검색..." 
-                               class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+    <div class="container-fluid px-4 mb-6">
+        <div class="filter-container-revolutionary">
+            <form method="GET" id="filterForm">
+                <!-- 검색 바 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="form-label-revolutionary">통합 검색</label>
+                        <div class="relative">
+                            <input type="text" 
+                                   name="q" 
+                                   value="{{ search_query }}" 
+                                   placeholder="이름, 이메일, 부서, 직급으로 검색..." 
+                                   class="form-control-revolutionary pl-10">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-300"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label-revolutionary">검색 유형</label>
+                        <select name="search_type" class="form-select-revolutionary">
+                            <option value="all" {% if search_type == 'all' %}selected{% endif %}>전체</option>
+                            <option value="name" {% if search_type == 'name' %}selected{% endif %}>이름</option>
+                            <option value="email" {% if search_type == 'email' %}selected{% endif %}>이메일</option>
+                            <option value="department" {% if search_type == 'department' %}selected{% endif %}>부서</option>
+                            <option value="position" {% if search_type == 'position' %}selected{% endif %}>직급</option>
+                        </select>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">검색 유형</label>
-                    <select name="search_type" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
-                        <option value="all" {% if search_type == 'all' %}selected{% endif %}>전체</option>
-                        <option value="name" {% if search_type == 'name' %}selected{% endif %}>이름</option>
-                        <option value="email" {% if search_type == 'email' %}selected{% endif %}>이메일</option>
-                        <option value="department" {% if search_type == 'department' %}selected{% endif %}>부서</option>
-                        <option value="position" {% if search_type == 'position' %}selected{% endif %}>직급</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- 필터 옵션 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">회사</label>
-                    <select name="company" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
-                        <option value="">전체 회사</option>
-                        <option value="OK">OK</option>
-                        <option value="OCI">OCI</option>
-                        <option value="OC">OC</option>
-                        <option value="OFI">OFI</option>
-                        <option value="OKDS">OKDS</option>
-                        <option value="OKH">OKH</option>
-                        <option value="ON">ON</option>
-                        <option value="OKIP">OKIP</option>
-                        <option value="OT">OT</option>
-                        <option value="OKV">OKV</option>
-                        <option value="EX">EX</option>
-                    </select>
+                <!-- 필터 옵션 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="form-label-revolutionary">회사</label>
+                        <select name="company" class="form-select-revolutionary">
+                            <option value="">전체 회사</option>
+                            <option value="OK">OK</option>
+                            <option value="OCI">OCI</option>
+                            <option value="OC">OC</option>
+                            <option value="OFI">OFI</option>
+                            <option value="OKDS">OKDS</option>
+                            <option value="OKH">OKH</option>
+                            <option value="ON">ON</option>
+                            <option value="OKIP">OKIP</option>
+                            <option value="OT">OT</option>
+                            <option value="OKV">OKV</option>
+                            <option value="EX">EX</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label-revolutionary">본부1</label>
+                        <select name="headquarters1" class="form-select-revolutionary">
+                            <option value="">전체 본부</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label-revolutionary">직급</label>
+                        <select name="position" class="form-select-revolutionary">
+                            <option value="">전체 직급</option>
+                            <option value="사원">사원</option>
+                            <option value="선임">선임</option>
+                            <option value="주임">주임</option>
+                            <option value="대리">대리</option>
+                            <option value="과장">과장</option>
+                            <option value="차장">차장</option>
+                            <option value="부부장">부부장</option>
+                            <option value="부장">부장</option>
+                            <option value="팀장">팀장</option>
+                            <option value="지점장">지점장</option>
+                            <option value="본부장">본부장</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label-revolutionary">재직상태</label>
+                        <select name="employment_status" class="form-select-revolutionary">
+                            <option value="">전체</option>
+                            <option value="재직">재직</option>
+                            <option value="휴직">휴직</option>
+                            <option value="파견">파견</option>
+                            <option value="퇴직">퇴직</option>
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">본부1</label>
-                    <select name="headquarters1" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
-                        <option value="">전체 본부</option>
-                        <!-- 동적으로 채워질 수 있도록 -->
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">직급</label>
-                    <select name="position" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
-                        <option value="">전체 직급</option>
-                        <option value="사원">사원</option>
-                        <option value="선임">선임</option>
-                        <option value="주임">주임</option>
-                        <option value="대리">대리</option>
-                        <option value="과장">과장</option>
-                        <option value="차장">차장</option>
-                        <option value="부부장">부부장</option>
-                        <option value="부장">부장</option>
-                        <option value="팀장">팀장</option>
-                        <option value="지점장">지점장</option>
-                        <option value="본부장">본부장</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">재직상태</label>
-                    <select name="employment_status" class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary focus:outline-none">
-                        <option value="">전체</option>
-                        <option value="재직">재직</option>
-                        <option value="휴직">휴직</option>
-                        <option value="파견">파견</option>
-                        <option value="퇴직">퇴직</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- 버튼 영역 -->
-            <div class="flex items-center justify-between pt-4 border-t border-gray-200/30 dark:border-gray-700/30">
-                <div class="flex items-center space-x-3">
-                    <button type="submit" class="px-6 py-2 gradient-bg text-white rounded-lg hover:shadow-glow transition-all">
-                        <i data-lucide="search" class="w-4 h-4 inline mr-1"></i>
-                        검색
-                    </button>
-                    <a href="{% url 'employees:employee_list' %}" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                        <i data-lucide="x-circle" class="w-4 h-4 inline mr-1"></i>
-                        필터 초기화
-                    </a>
+                <!-- 버튼 영역 -->
+                <div class="flex items-center justify-between pt-4 border-t border-white/10">
+                    <div class="flex items-center gap-3">
+                        <button type="submit" class="btn-revolutionary btn-primary">
+                            <i class="fas fa-search"></i>
+                            검색
+                        </button>
+                        <a href="{% url 'employees:employee_list' %}" class="btn-revolutionary btn-secondary">
+                            <i class="fas fa-times-circle"></i>
+                            필터 초기화
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'employees:employee_download_template' %}" class="btn-revolutionary btn-secondary" title="템플릿 다운로드">
+                            <i class="fas fa-file-download"></i>
+                            템플릿
+                        </a>
+                        <button onclick="exportEmployees()" class="btn-revolutionary btn-secondary">
+                            <i class="fas fa-download"></i>
+                            내보내기
+                        </button>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <a href="{% url 'employees:employee_download_template' %}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors" title="템플릿 다운로드">
-                        <i data-lucide="file-down" class="w-4 h-4 inline mr-1"></i>
-                        템플릿
-                    </a>
-                    <button onclick="exportEmployees()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                        <i data-lucide="download" class="w-4 h-4 inline mr-1"></i>
-                        내보내기
-                    </button>
-                </div>
-            </div>
-        </form>
+            </form>
 
-        <!-- 활성 필터 표시 -->
-        {% if search_query or request.GET.company or request.GET.headquarters1 or request.GET.position or request.GET.employment_status %}
-        <div class="mt-4 pt-4 border-t border-gray-200/30 dark:border-gray-700/30">
-            <div class="flex flex-wrap items-center">
-                <span class="text-sm text-gray-600 dark:text-gray-400 mr-2">활성 필터:</span>
-                
-                {% if search_query %}
-                <div class="filter-tag">
-                    검색: "{{ search_query }}"
-                    <button type="button" onclick="removeFilter('q')" class="remove-btn">×</button>
+            <!-- 활성 필터 표시 -->
+            {% if search_query or request.GET.company or request.GET.headquarters1 or request.GET.position or request.GET.employment_status %}
+            <div class="mt-4 pt-4 border-t border-white/10">
+                <div class="flex flex-wrap items-center">
+                    <span class="text-sm text-gray-400 mr-2">활성 필터:</span>
+                    
+                    {% if search_query %}
+                    <div class="filter-tag">
+                        검색: "{{ search_query }}"
+                        <button type="button" onclick="removeFilter('q')" class="remove-btn">×</button>
+                    </div>
+                    {% endif %}
+                    
+                    {% if request.GET.company %}
+                    <div class="filter-tag">
+                        회사: {{ request.GET.company }}
+                        <button type="button" onclick="removeFilter('company')" class="remove-btn">×</button>
+                    </div>
+                    {% endif %}
+                    
+                    {% if request.GET.headquarters1 %}
+                    <div class="filter-tag">
+                        본부: {{ request.GET.headquarters1 }}
+                        <button type="button" onclick="removeFilter('headquarters1')" class="remove-btn">×</button>
+                    </div>
+                    {% endif %}
+                    
+                    {% if request.GET.position %}
+                    <div class="filter-tag">
+                        직급: {{ request.GET.position }}
+                        <button type="button" onclick="removeFilter('position')" class="remove-btn">×</button>
+                    </div>
+                    {% endif %}
+                    
+                    {% if request.GET.employment_status %}
+                    <div class="filter-tag">
+                        상태: {{ request.GET.employment_status }}
+                        <button type="button" onclick="removeFilter('employment_status')" class="remove-btn">×</button>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-                
-                {% if request.GET.company %}
-                <div class="filter-tag">
-                    회사: {{ request.GET.company }}
-                    <button type="button" onclick="removeFilter('company')" class="remove-btn">×</button>
-                </div>
-                {% endif %}
-                
-                {% if request.GET.headquarters1 %}
-                <div class="filter-tag">
-                    본부: {{ request.GET.headquarters1 }}
-                    <button type="button" onclick="removeFilter('headquarters1')" class="remove-btn">×</button>
-                </div>
-                {% endif %}
-                
-                {% if request.GET.position %}
-                <div class="filter-tag">
-                    직급: {{ request.GET.position }}
-                    <button type="button" onclick="removeFilter('position')" class="remove-btn">×</button>
-                </div>
-                {% endif %}
-                
-                {% if request.GET.employment_status %}
-                <div class="filter-tag">
-                    상태: {{ request.GET.employment_status }}
-                    <button type="button" onclick="removeFilter('employment_status')" class="remove-btn">×</button>
-                </div>
-                {% endif %}
             </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 
     <!-- 직원 테이블 -->
-    <div class="employee-table">
-        <div class="table-scroll">
-            <table class="w-full">
-                <thead class="bg-gray-50/80 dark:bg-gray-800/80 sticky top-0 z-10">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            이름
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            회사
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            본부1
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            본부2
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            최종소속
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            직급
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            직책
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            성별
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            나이
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            재직상태
-                        </th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-                            액션
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                    {% for employee in employees %}
-                    <tr class="employee-row hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-all duration-200">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    {% if employee.profile_image %}
-                                        <img class="h-10 w-10 rounded-full object-cover" src="{{ employee.profile_image.url }}" alt="{{ employee.name }}">
-                                    {% else %}
-                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white font-medium">
-                                            {{ employee.name|first }}
-                                        </div>
-                                    {% endif %}
+    <div class="container-fluid px-4 mb-6">
+        <div class="employee-table-revolutionary">
+            <div class="table-scroll">
+                <table class="w-full">
+                    <thead class="bg-black/20 sticky top-0 z-10">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                이름
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                회사
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                본부1
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                본부2
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                최종소속
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                직급
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                직책
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                성별
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                나이
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                재직상태
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-cyan-300 border-b border-white/10">
+                                액션
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                        <tr class="employee-row">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        {% if employee.profile_image %}
+                                            <img class="profile-avatar" src="{{ employee.profile_image.url }}" alt="{{ employee.name }}">
+                                        {% else %}
+                                            <div class="profile-avatar">
+                                                {{ employee.name|first }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-white">{{ employee.name }}</div>
+                                        <div class="text-sm text-gray-400">{{ employee.email }}</div>
+                                    </div>
                                 </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ employee.name }}</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ employee.email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ employee.company|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ employee.headquarters1|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ employee.headquarters2|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ employee.final_department|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ employee.current_position|default:employee.new_position|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ employee.responsibility|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {% if employee.gender == 'M' %}
+                                    <span class="text-blue-400">남성</span>
+                                {% elif employee.gender == 'F' %}
+                                    <span class="text-pink-400">여성</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ employee.age|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if employee.employment_status == '재직' %}
+                                    <span class="status-badge status-active">재직</span>
+                                {% elif employee.employment_status == '휴직' %}
+                                    <span class="status-badge status-leave">휴직</span>
+                                {% elif employee.employment_status == '파견' %}
+                                    <span class="status-badge status-dispatch">파견</span>
+                                {% elif employee.employment_status == '퇴직' %}
+                                    <span class="status-badge status-inactive">퇴직</span>
+                                {% else %}
+                                    <span class="status-badge status-active">{{ employee.employment_status|default:"재직" }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex items-center gap-1">
+                                    <a href="{% url 'employees:employee_detail' employee.pk %}" 
+                                       class="action-btn view" 
+                                       title="상세보기">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'employees:employee_update' employee.pk %}" 
+                                       class="action-btn edit" 
+                                       title="수정">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'employees:employee_delete' employee.pk %}" 
+                                       class="action-btn delete" 
+                                       title="삭제"
+                                       onclick="return confirm('정말 삭제하시겠습니까?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {{ employee.company|default:"-" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {{ employee.headquarters1|default:"-" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {{ employee.headquarters2|default:"-" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {{ employee.final_department|default:"-" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {{ employee.current_position|default:employee.new_position|default:"-" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {{ employee.responsibility|default:"-" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {% if employee.gender == 'M' %}
-                                <span class="text-blue-600 dark:text-blue-400">남성</span>
-                            {% elif employee.gender == 'F' %}
-                                <span class="text-pink-600 dark:text-pink-400">여성</span>
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {{ employee.age|default:"-" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {% if employee.employment_status == '재직' %}
-                                <span class="status-badge status-active">재직</span>
-                            {% elif employee.employment_status == '휴직' %}
-                                <span class="status-badge status-leave">휴직</span>
-                            {% elif employee.employment_status == '파견' %}
-                                <span class="status-badge status-dispatch">파견</span>
-                            {% elif employee.employment_status == '퇴직' %}
-                                <span class="status-badge status-inactive">퇴직</span>
-                            {% else %}
-                                <span class="status-badge status-active">{{ employee.employment_status|default:"재직" }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex items-center space-x-2">
-                                <a href="{% url 'employees:employee_detail' employee.pk %}" 
-                                   class="text-primary hover:text-primary-dark transition-colors" 
-                                   title="상세보기">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </a>
-                                <a href="{% url 'employees:employee_update' employee.pk %}" 
-                                   class="text-blue-600 hover:text-blue-800 transition-colors" 
-                                   title="수정">
-                                    <i data-lucide="edit" class="w-4 h-4"></i>
-                                </a>
-                                <a href="{% url 'employees:employee_delete' employee.pk %}" 
-                                   class="text-red-600 hover:text-red-800 transition-colors" 
-                                   title="삭제"
-                                   onclick="return confirm('정말 삭제하시겠습니까?')">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="11" class="px-6 py-12 text-center">
-                            <div class="text-gray-500 dark:text-gray-400">
-                                <i data-lucide="users-x" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>
-                                <p class="text-lg mb-2">조건에 맞는 직원이 없습니다</p>
-                                <p class="text-sm">검색 조건을 변경하거나 새 직원을 등록해주세요</p>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="11" class="px-6 py-12 text-center">
+                                <div class="text-gray-400">
+                                    <i class="fas fa-users text-5xl mb-4 opacity-50"></i>
+                                    <p class="text-lg mb-2">조건에 맞는 직원이 없습니다</p>
+                                    <p class="text-sm">검색 조건을 변경하거나 새 직원을 등록해주세요</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- 페이지네이션 -->
     {% if is_paginated %}
-    <div class="pagination-container">
-        {% if page_obj.has_previous %}
-            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page=1" class="pagination-btn">
-                <i data-lucide="chevrons-left" class="w-4 h-4"></i>
-            </a>
-            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page={{ page_obj.previous_page_number }}" class="pagination-btn">
-                <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </a>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                <span class="pagination-btn active">{{ num }}</span>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page={{ num }}" class="pagination-btn">{{ num }}</a>
+    <div class="container-fluid px-4">
+        <div class="pagination-container">
+            {% if page_obj.has_previous %}
+                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page=1" class="pagination-btn">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page={{ page_obj.previous_page_number }}" class="pagination-btn">
+                    <i class="fas fa-angle-left"></i>
+                </a>
             {% endif %}
-        {% endfor %}
 
-        {% if page_obj.has_next %}
-            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page={{ page_obj.next_page_number }}" class="pagination-btn">
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="pagination-btn">
-                <i data-lucide="chevrons-right" class="w-4 h-4"></i>
-            </a>
-        {% endif %}
-    </div>
-    
-    <div class="text-center mt-4 text-sm text-gray-500 dark:text-gray-400">
-        {{ page_obj.start_index }}~{{ page_obj.end_index }}명 (전체 {{ page_obj.paginator.count }}명 중 {{ page_obj.number }}/{{ page_obj.paginator.num_pages }} 페이지)
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="pagination-btn active">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page={{ num }}" class="pagination-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page={{ page_obj.next_page_number }}" class="pagination-btn">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_type != 'all' %}search_type={{ search_type }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="pagination-btn">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="text-center mt-4 text-sm text-gray-400">
+            {{ page_obj.start_index }}~{{ page_obj.end_index }}명 (전체 {{ page_obj.paginator.count }}명 중 {{ page_obj.number }}/{{ page_obj.paginator.num_pages }} 페이지)
+        </div>
     </div>
     {% endif %}
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 function removeFilter(filterName) {
     const url = new URL(window.location);
@@ -523,7 +625,6 @@ function removeFilter(filterName) {
 }
 
 function exportEmployees() {
-    // 현재 필터 조건을 유지하면서 내보내기
     const url = new URL(window.location);
     url.pathname = '/employees/export/';
     window.open(url.toString(), '_blank');

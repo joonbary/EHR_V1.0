@@ -1,31 +1,64 @@
-{% extends "base.html" %}
+{% extends "base_revolutionary.html" %}
 {% load static %}
 
-{% block title %}직무 체계도 - OK금융그룹{% endblock %}
+{% block title %}직무 체계도 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Job Hierarchy System{% endblock %}
+{% block content_title %}직무 체계도{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    OK금융그룹의 혁신적인 직무 구조를 AI 기반 시각화로 확인하세요
+</p>
+{% endblock %}
 
 {% block extra_css %}
 <style>
 /* 메인 컨테이너 */
-.hierarchy-container {
-    min-height: calc(100vh - 64px);
-    background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
-    padding: 2rem 1rem;
+.hierarchy-container-revolutionary {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+    margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.hierarchy-container-revolutionary::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+    animation: pulse 10s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(180deg); }
 }
 
 /* 트리맵 스타일 */
 #treemapView {
     min-height: 600px;
-    background: white;
-    border-radius: 1rem;
-    padding: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
 }
 
 .treemap-node {
     position: absolute;
     overflow: hidden;
-    transition: all 0.3s ease;
-    border: 2px solid white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(0, 212, 255, 0.3);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -33,119 +66,116 @@
     justify-content: center;
     text-align: center;
     font-weight: 600;
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
 }
 
 .treemap-node:hover {
     z-index: 10;
-    transform: scale(1.02);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(0, 212, 255, 0.4);
+    border-color: #00d4ff;
 }
 
 .treemap-label {
     font-size: 0.875rem;
     color: white;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     padding: 0.5rem;
     word-wrap: break-word;
+    text-align: center;
 }
 
 .treemap-value {
     font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.9);
     margin-top: 0.25rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* 트리맵 색상 테마 */
-.treemap-it { background: linear-gradient(135deg, #667eea, #764ba2); }
-.treemap-경영 { background: linear-gradient(135deg, #f093fb, #f5576c); }
-.treemap-금융 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-.treemap-영업 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
-.treemap-pl { background: linear-gradient(135deg, #fa709a, #fee140); }
+/* Revolutionary 트리맵 색상 테마 */
+.treemap-it { background: linear-gradient(135deg, rgba(0, 212, 255, 0.8), rgba(0, 153, 255, 0.8)); }
+.treemap-경영 { background: linear-gradient(135deg, rgba(168, 85, 247, 0.8), rgba(124, 58, 237, 0.8)); }
+.treemap-금융 { background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.8)); }
+.treemap-영업 { background: linear-gradient(135deg, rgba(0, 255, 136, 0.8), rgba(0, 204, 102, 0.8)); }
+.treemap-pl { background: linear-gradient(135deg, rgba(245, 158, 11, 0.8), rgba(217, 119, 6, 0.8)); }
 
 /* 헤더 섹션 */
-.header-section {
+.header-section-revolutionary {
     text-align: center;
     margin-bottom: 3rem;
-    animation: fadeInDown 0.8s ease;
-}
-
-.page-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 1rem;
-}
-
-.page-subtitle {
-    font-size: 1.125rem;
-    color: #55474A;
-    opacity: 0.9;
+    position: relative;
+    z-index: 2;
 }
 
 /* 통계 카드 */
-.stats-container {
+.stats-container-revolutionary {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 3rem;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    position: relative;
+    z-index: 2;
 }
 
-.stat-card {
-    background: white;
-    border-radius: 1rem;
+.stat-card-revolutionary {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 20px;
     padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: fadeInUp 0.8s ease;
 }
 
-.stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+.stat-card-revolutionary:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    border-color: rgba(0, 212, 255, 0.4);
 }
 
-.stat-card::before {
+.stat-card-revolutionary::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #FF6B00 0%, #FFAA00 100%);
+    height: 3px;
+    background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%);
 }
 
-.stat-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-    border-radius: 12px;
+.stat-icon-revolutionary {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #00d4ff, #0099ff);
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     margin-bottom: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
 }
 
-.stat-value {
+.stat-value-revolutionary {
     font-size: 2rem;
     font-weight: 700;
-    color: #1A1A1A;
+    background: linear-gradient(135deg, #00d4ff, #0099ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 0.25rem;
 }
 
-.stat-label {
+.stat-label-revolutionary {
     font-size: 0.875rem;
-    color: #55474A;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
 }
 
 /* 필터 섹션 */
@@ -1219,52 +1249,48 @@
 {% endblock %}
 
 {% block content %}
-<div class="hierarchy-container">
-    <!-- 헤더 섹션 -->
-    <div class="header-section">
-        <h1 class="page-title">직무 체계도</h1>
-        <p class="page-subtitle">OK금융그룹의 체계적인 직무 구조를 한눈에 확인하세요</p>
-    </div>
-
-    <!-- 통계 카드 -->
-    <div class="stats-container">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-sitemap"></i>
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        <div class="hierarchy-container-revolutionary">
+            <!-- 통계 카드 -->
+            <div class="stats-container-revolutionary">
+                <div class="stat-card-revolutionary">
+                    <div class="stat-icon-revolutionary">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary" id="categoryCount">0</div>
+                        <div class="stat-label-revolutionary">직군 Categories</div>
+                    </div>
+                </div>
+                <div class="stat-card-revolutionary">
+                    <div class="stat-icon-revolutionary">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary" id="typeCount">0</div>
+                        <div class="stat-label-revolutionary">직종 Job Types</div>
+                    </div>
+                </div>
+                <div class="stat-card-revolutionary">
+                    <div class="stat-icon-revolutionary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary" id="roleCount">0</div>
+                        <div class="stat-label-revolutionary">직무 Job Roles</div>
+                    </div>
+                </div>
+                <div class="stat-card-revolutionary">
+                    <div class="stat-icon-revolutionary">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value-revolutionary" id="profileCount">0</div>
+                        <div class="stat-label-revolutionary">직무기술서 Profiles</div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <div class="stat-value" id="categoryCount">0</div>
-                <div class="stat-label">직군 Categories</div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-briefcase"></i>
-            </div>
-            <div>
-                <div class="stat-value" id="typeCount">0</div>
-                <div class="stat-label">직종 Job Types</div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div>
-                <div class="stat-value" id="roleCount">0</div>
-                <div class="stat-label">직무 Job Roles</div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-file-alt"></i>
-            </div>
-            <div>
-                <div class="stat-value" id="profileCount">0</div>
-                <div class="stat-label">직무기술서 Profiles</div>
-            </div>
-        </div>
-    </div>
 
     <!-- 필터 섹션 -->
     <div class="filter-section">
@@ -1320,6 +1346,7 @@
         </div>
         <div class="modal-body" id="modalBody">
             <!-- 동적으로 생성됨 -->
+            </div>
         </div>
     </div>
 </div>

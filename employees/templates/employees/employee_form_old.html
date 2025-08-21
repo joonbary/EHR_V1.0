@@ -1,0 +1,947 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}직원 정보 수정{% else %}새 직원 등록{% endif %} - OK금융그룹 e-HR
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 107, 0, 0.1);
+    }
+    
+    .dark .form-container {
+        background: rgba(31, 41, 55, 0.95);
+        border-color: rgba(107, 114, 128, 0.2);
+    }
+    
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-radius: 16px;
+        border-left: 4px solid #FF6B00;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .form-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.1), rgba(255, 133, 51, 0.05));
+        border-radius: 50%;
+        transform: translate(30px, -30px);
+    }
+    
+    .dark .form-section {
+        background: linear-gradient(135deg, #374151, #4b5563);
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .section-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #FF6B00, #FF8533);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+    }
+    
+    .section-title {
+        color: #1f2937;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .dark .section-title {
+        color: #f9fafb;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-field {
+        margin-bottom: 1.5rem;
+    }
+    
+    .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .dark .field-label {
+        color: #d1d5db;
+    }
+    
+    .required {
+        color: #ef4444;
+        margin-left: 0.25rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .dark .form-input {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+    
+    .form-input:focus {
+        border-color: #FF6B00;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .form-input:hover {
+        border-color: #FF8533;
+    }
+    
+    .error-message {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .field-help {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
+    
+    .dark .field-help {
+        color: #9ca3af;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid #f1f5f9;
+        flex-wrap: wrap;
+    }
+    
+    .dark .form-actions {
+        border-top-color: #374151;
+    }
+    
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #FF6B00, #FF8533);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #e55a00, #e67700);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 0, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+    }
+    
+    .progress-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+        gap: 1rem;
+    }
+    
+    .progress-step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        background: #d1d5db;
+        position: relative;
+    }
+    
+    .progress-step.active {
+        background: linear-gradient(135deg, #FF6B00, #FF8533);
+    }
+    
+    .progress-step.completed {
+        background: #10b981;
+    }
+    
+    .progress-step::after {
+        content: '';
+        position: absolute;
+        right: -25px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 2px;
+        background: #d1d5db;
+    }
+    
+    .progress-step:last-child::after {
+        display: none;
+    }
+    
+    .character-count {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-align: right;
+        margin-top: 0.5rem;
+    }
+    
+    .dark .character-count {
+        color: #9ca3af;
+    }
+    
+    .form-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        background: #f1f5f9;
+        padding: 0.5rem;
+        border-radius: 12px;
+    }
+    
+    .dark .form-tabs {
+        background: #374151;
+    }
+    
+    .tab-button {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .tab-button.active {
+        background: white;
+        color: #FF6B00;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark .tab-button.active {
+        background: #4b5563;
+        color: #FF8533;
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .progress-indicator {
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- 페이지 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold gradient-text mb-2">
+            {% if form.instance.pk %}직원 정보 수정{% else %}새 직원 등록{% endif %}
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+            {% if form.instance.pk %}
+                {{ form.instance.name }}님의 정보를 수정합니다
+            {% else %}
+                새로운 직원의 정보를 등록합니다
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- 진행 단계 표시 -->
+    <div class="progress-indicator">
+        <div class="progress-step active">1</div>
+        <div class="progress-step">2</div>
+        <div class="progress-step">3</div>
+        <div class="progress-step">4</div>
+    </div>
+
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data" id="employeeForm" novalidate>
+            {% csrf_token %}
+            
+            <!-- 탭 네비게이션 -->
+            <div class="form-tabs">
+                <button type="button" class="tab-button active" data-tab="basic">기본 정보</button>
+                <button type="button" class="tab-button" data-tab="organization">조직 정보</button>
+                <button type="button" class="tab-button" data-tab="hr">인사 정보</button>
+                <button type="button" class="tab-button" data-tab="additional">추가 정보</button>
+            </div>
+
+            <!-- 기본 정보 섹션 -->
+            <div class="form-section" data-section="basic">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i data-lucide="user" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="section-title">기본 정보</h2>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                            이름
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" name="name" value="{{ form.instance.name|default:'' }}" 
+                               class="form-input" placeholder="직원 이름을 입력하세요" required>
+                        {% if form.name.errors %}
+                            <div class="error-message">
+                                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                {% for error in form.name.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            이메일
+                            <span class="required">*</span>
+                        </label>
+                        <input type="email" name="email" value="{{ form.instance.email|default:'' }}" 
+                               class="form-input" placeholder="이메일 주소를 입력하세요" required>
+                        {% if form.email.errors %}
+                            <div class="error-message">
+                                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                {% for error in form.email.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="phone" class="w-4 h-4"></i>
+                            연락처
+                        </label>
+                        <input type="tel" name="phone" value="{{ form.instance.phone|default:'' }}" 
+                               class="form-input" placeholder="010-1234-5678">
+                        {% if form.phone.errors %}
+                            <div class="error-message">
+                                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            성별
+                        </label>
+                        <select name="gender" class="form-input">
+                            <option value="">선택하세요</option>
+                            <option value="M" {% if form.instance.gender == 'M' %}selected{% endif %}>남성</option>
+                            <option value="F" {% if form.instance.gender == 'F' %}selected{% endif %}>여성</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            생년월일
+                        </label>
+                        <input type="date" name="birth_date" value="{{ form.instance.birth_date|date:'Y-m-d' }}" 
+                               class="form-input">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="hash" class="w-4 h-4"></i>
+                            나이
+                        </label>
+                        <input type="number" name="age" value="{{ form.instance.age|default:'' }}" 
+                               class="form-input" placeholder="나이" min="18" max="70">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 조직 정보 섹션 -->
+            <div class="form-section hidden" data-section="organization">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i data-lucide="building" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="section-title">조직 정보</h2>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="building-2" class="w-4 h-4"></i>
+                            회사
+                        </label>
+                        <select name="company" class="form-input">
+                            <option value="">선택하세요</option>
+                            <option value="OK" {% if form.instance.company == 'OK' %}selected{% endif %}>OK</option>
+                            <option value="OCI" {% if form.instance.company == 'OCI' %}selected{% endif %}>OCI</option>
+                            <option value="OC" {% if form.instance.company == 'OC' %}selected{% endif %}>OC</option>
+                            <option value="OFI" {% if form.instance.company == 'OFI' %}selected{% endif %}>OFI</option>
+                            <option value="OKDS" {% if form.instance.company == 'OKDS' %}selected{% endif %}>OKDS</option>
+                            <option value="OKH" {% if form.instance.company == 'OKH' %}selected{% endif %}>OKH</option>
+                            <option value="ON" {% if form.instance.company == 'ON' %}selected{% endif %}>ON</option>
+                            <option value="OKIP" {% if form.instance.company == 'OKIP' %}selected{% endif %}>OKIP</option>
+                            <option value="OT" {% if form.instance.company == 'OT' %}selected{% endif %}>OT</option>
+                            <option value="OKV" {% if form.instance.company == 'OKV' %}selected{% endif %}>OKV</option>
+                            <option value="EX" {% if form.instance.company == 'EX' %}selected{% endif %}>EX</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                            본부1
+                        </label>
+                        <input type="text" name="headquarters1" value="{{ form.instance.headquarters1|default:'' }}" 
+                               class="form-input" placeholder="본부명을 입력하세요">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                            본부2
+                        </label>
+                        <input type="text" name="headquarters2" value="{{ form.instance.headquarters2|default:'' }}" 
+                               class="form-input" placeholder="하위 본부명을 입력하세요">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            최종소속
+                        </label>
+                        <input type="text" name="final_department" value="{{ form.instance.final_department|default:'' }}" 
+                               class="form-input" placeholder="최종 소속 부서를 입력하세요">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="briefcase" class="w-4 h-4"></i>
+                            부서 (기존)
+                        </label>
+                        <select name="department" class="form-input">
+                            <option value="">선택하세요</option>
+                            <option value="IT" {% if form.instance.department == 'IT' %}selected{% endif %}>IT</option>
+                            <option value="HR" {% if form.instance.department == 'HR' %}selected{% endif %}>인사</option>
+                            <option value="FINANCE" {% if form.instance.department == 'FINANCE' %}selected{% endif %}>재무</option>
+                            <option value="MARKETING" {% if form.instance.department == 'MARKETING' %}selected{% endif %}>마케팅</option>
+                            <option value="SALES" {% if form.instance.department == 'SALES' %}selected{% endif %}>영업</option>
+                            <option value="OPERATIONS" {% if form.instance.department == 'OPERATIONS' %}selected{% endif %}>운영</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 인사 정보 섹션 -->
+            <div class="form-section hidden" data-section="hr">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i data-lucide="briefcase" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="section-title">인사 정보</h2>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="award" class="w-4 h-4"></i>
+                            직급
+                        </label>
+                        <select name="current_position" class="form-input">
+                            <option value="">선택하세요</option>
+                            <option value="사원" {% if form.instance.current_position == '사원' or form.instance.new_position == '사원' %}selected{% endif %}>사원</option>
+                            <option value="선임" {% if form.instance.current_position == '선임' or form.instance.new_position == '선임' %}selected{% endif %}>선임</option>
+                            <option value="주임" {% if form.instance.current_position == '주임' or form.instance.new_position == '주임' %}selected{% endif %}>주임</option>
+                            <option value="대리" {% if form.instance.current_position == '대리' or form.instance.new_position == '대리' %}selected{% endif %}>대리</option>
+                            <option value="과장" {% if form.instance.current_position == '과장' or form.instance.new_position == '과장' %}selected{% endif %}>과장</option>
+                            <option value="차장" {% if form.instance.current_position == '차장' or form.instance.new_position == '차장' %}selected{% endif %}>차장</option>
+                            <option value="부부장" {% if form.instance.current_position == '부부장' or form.instance.new_position == '부부장' %}selected{% endif %}>부부장</option>
+                            <option value="부장" {% if form.instance.current_position == '부장' or form.instance.new_position == '부장' %}selected{% endif %}>부장</option>
+                            <option value="팀장" {% if form.instance.current_position == '팀장' or form.instance.new_position == '팀장' %}selected{% endif %}>팀장</option>
+                            <option value="지점장" {% if form.instance.current_position == '지점장' or form.instance.new_position == '지점장' %}selected{% endif %}>지점장</option>
+                            <option value="본부장" {% if form.instance.current_position == '본부장' or form.instance.new_position == '본부장' %}selected{% endif %}>본부장</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="crown" class="w-4 h-4"></i>
+                            직책
+                        </label>
+                        <input type="text" name="responsibility" value="{{ form.instance.responsibility|default:'' }}" 
+                               class="form-input" placeholder="직책을 입력하세요">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="target" class="w-4 h-4"></i>
+                            직군/계열
+                        </label>
+                        <select name="job_group" class="form-input">
+                            <option value="">선택하세요</option>
+                            <option value="PL" {% if form.instance.job_group == 'PL' %}selected{% endif %}>PL직군</option>
+                            <option value="Non-PL" {% if form.instance.job_group == 'Non-PL' %}selected{% endif %}>Non-PL직군</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="tool" class="w-4 h-4"></i>
+                            직종
+                        </label>
+                        <select name="job_type" class="form-input">
+                            <option value="">선택하세요</option>
+                            <option value="고객지원" {% if form.instance.job_type == '고객지원' %}selected{% endif %}>고객지원</option>
+                            <option value="IT기획" {% if form.instance.job_type == 'IT기획' %}selected{% endif %}>IT기획</option>
+                            <option value="IT개발" {% if form.instance.job_type == 'IT개발' %}selected{% endif %}>IT개발</option>
+                            <option value="IT운영" {% if form.instance.job_type == 'IT운영' %}selected{% endif %}>IT운영</option>
+                            <option value="경영관리" {% if form.instance.job_type == '경영관리' %}selected{% endif %}>경영관리</option>
+                            <option value="기업영업" {% if form.instance.job_type == '기업영업' %}selected{% endif %}>기업영업</option>
+                            <option value="기업금융" {% if form.instance.job_type == '기업금융' %}selected{% endif %}>기업금융</option>
+                            <option value="리테일금융" {% if form.instance.job_type == '리테일금융' %}selected{% endif %}>리테일금융</option>
+                            <option value="투자금융" {% if form.instance.job_type == '투자금융' %}selected{% endif %}>투자금융</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
+                            성장레벨
+                        </label>
+                        <select name="growth_level" class="form-input">
+                            <option value="">선택하세요</option>
+                            <option value="1" {% if form.instance.growth_level == 1 %}selected{% endif %}>Level 1</option>
+                            <option value="2" {% if form.instance.growth_level == 2 %}selected{% endif %}>Level 2</option>
+                            <option value="3" {% if form.instance.growth_level == 3 %}selected{% endif %}>Level 3</option>
+                            <option value="4" {% if form.instance.growth_level == 4 %}selected{% endif %}>Level 4</option>
+                            <option value="5" {% if form.instance.growth_level == 5 %}selected{% endif %}>Level 5</option>
+                            <option value="6" {% if form.instance.growth_level == 6 %}selected{% endif %}>Level 6</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            입사일
+                            <span class="required">*</span>
+                        </label>
+                        <input type="date" name="hire_date" value="{{ form.instance.hire_date|date:'Y-m-d' }}" 
+                               class="form-input" required>
+                        {% if form.hire_date.errors %}
+                            <div class="error-message">
+                                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                {% for error in form.hire_date.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 추가 정보 섹션 -->
+            <div class="form-section hidden" data-section="additional">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="section-title">추가 정보</h2>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                            재직상태
+                        </label>
+                        <select name="employment_status" class="form-input">
+                            <option value="재직" {% if form.instance.employment_status == '재직' %}selected{% endif %}>재직</option>
+                            <option value="휴직" {% if form.instance.employment_status == '휴직' %}selected{% endif %}>휴직</option>
+                            <option value="파견" {% if form.instance.employment_status == '파견' %}selected{% endif %}>파견</option>
+                            <option value="퇴직" {% if form.instance.employment_status == '퇴직' %}selected{% endif %}>퇴직</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                            학력
+                        </label>
+                        <input type="text" name="education" value="{{ form.instance.education|default:'' }}" 
+                               class="form-input" placeholder="학력을 입력하세요">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="heart" class="w-4 h-4"></i>
+                            결혼여부
+                        </label>
+                        <select name="marital_status" class="form-input">
+                            <option value="">선택하세요</option>
+                            <option value="Y" {% if form.instance.marital_status == 'Y' %}selected{% endif %}>기혼</option>
+                            <option value="N" {% if form.instance.marital_status == 'N' %}selected{% endif %}>미혼</option>
+                            <option value="D" {% if form.instance.marital_status == 'D' %}selected{% endif %}>이혼</option>
+                            <option value="W" {% if form.instance.marital_status == 'W' %}selected{% endif %}>사별</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            주소
+                        </label>
+                        <input type="text" name="address" value="{{ form.instance.address|default:'' }}" 
+                               class="form-input" placeholder="주소를 입력하세요">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            비상연락처(이름)
+                        </label>
+                        <input type="text" name="emergency_contact" value="{{ form.instance.emergency_contact|default:'' }}" 
+                               class="form-input" placeholder="비상연락처 이름을 입력하세요">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="field-label">
+                            <i data-lucide="phone-call" class="w-4 h-4"></i>
+                            비상연락처(번호)
+                        </label>
+                        <input type="tel" name="emergency_phone" value="{{ form.instance.emergency_phone|default:'' }}" 
+                               class="form-input" placeholder="비상연락처 번호를 입력하세요">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 폼 액션 버튼 -->
+            <div class="form-actions">
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    취소
+                </a>
+                <div class="flex gap-4">
+                    <button type="button" id="prevBtn" class="btn btn-secondary hidden">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                        이전
+                    </button>
+                    <button type="button" id="nextBtn" class="btn btn-primary">
+                        다음
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary hidden">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        {% if form.instance.pk %}수정 완료{% else %}등록 완료{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const sections = document.querySelectorAll('.form-section');
+    const progressSteps = document.querySelectorAll('.progress-step');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    let currentStep = 0;
+    const steps = ['basic', 'organization', 'hr', 'additional'];
+    
+    function showStep(stepIndex) {
+        // 모든 섹션 숨기기
+        sections.forEach(section => section.classList.add('hidden'));
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        progressSteps.forEach(step => step.classList.remove('active', 'completed'));
+        
+        // 현재 섹션 보이기
+        const currentSection = document.querySelector(`[data-section="${steps[stepIndex]}"]`);
+        const currentTab = document.querySelector(`[data-tab="${steps[stepIndex]}"]`);
+        
+        if (currentSection) currentSection.classList.remove('hidden');
+        if (currentTab) currentTab.classList.add('active');
+        
+        // 진행 단계 업데이트
+        for (let i = 0; i < stepIndex; i++) {
+            progressSteps[i].classList.add('completed');
+        }
+        progressSteps[stepIndex].classList.add('active');
+        
+        // 버튼 상태 업데이트
+        prevBtn.classList.toggle('hidden', stepIndex === 0);
+        nextBtn.classList.toggle('hidden', stepIndex === steps.length - 1);
+        submitBtn.classList.toggle('hidden', stepIndex !== steps.length - 1);
+    }
+    
+    // 탭 클릭 이벤트
+    tabButtons.forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+            const tabName = btn.dataset.tab;
+            currentStep = steps.indexOf(tabName);
+            showStep(currentStep);
+        });
+    });
+    
+    // 이전/다음 버튼 이벤트
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    });
+    
+    nextBtn.addEventListener('click', () => {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    });
+    
+    // 초기 상태 설정
+    showStep(0);
+    
+    // 폼 검증
+    const form = document.getElementById('employeeForm');
+    form.addEventListener('submit', function(e) {
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('border-red-500');
+            } else {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('필수 항목을 모두 입력해주세요.');
+        }
+    });
+});
+</script>
+{% endblock %}
+
+<style>
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--ok-orange);
+}
+
+.section-title {
+    color: var(--ok-dark-brown);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--ok-dark-brown);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-control, .form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--ok-orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 140, 0, 0.25);
+}
+
+.form-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--ok-orange);
+    border-color: var(--ok-orange);
+}
+
+.btn-primary:hover {
+    background-color: #e67e00;
+    border-color: #e67e00;
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.page-header {
+    background: white;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.page-header-content {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.page-title h2 {
+    color: var(--ok-dark-brown);
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-title p {
+    margin: 0.5rem 0 0 0;
+    color: #6c757d;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+</style>
+{% endblock %} 

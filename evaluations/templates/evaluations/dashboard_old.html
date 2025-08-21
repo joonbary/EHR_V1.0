@@ -1,0 +1,1729 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 성과평가 대시보드 - 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}AI Performance Center{% endblock %}
+{% block content_title %}AI 성과평가 대시보드{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    머신러닝 기반 다면평가로 공정하고 객관적인 성과 측정을 실현합니다
+</p>
+{% endblock %}
+
+
+{% block content %}
+<div class="revolutionary-container">
+    <!-- 액션 버튼 섹션 -->
+    <div class="container-fluid px-4 mb-8">
+        <div class="flex flex-wrap items-center justify-end gap-3">
+            <a href="{% url 'evaluations:my_evaluations' %}" class="btn-revolutionary btn-primary">
+                <i class="fas fa-user-check"></i>
+                나의 평가
+            </a>
+            <a href="{% url 'evaluations:evaluator_dashboard' %}" class="btn-revolutionary btn-secondary">
+                <i class="fas fa-users"></i>
+                평가자 대시보드
+            </a>
+            <a href="{% url 'evaluations:hr_admin_dashboard' %}" class="btn-revolutionary btn-accent">
+                <i class="fas fa-cog"></i>
+                평가 관리
+            </a>
+        </div>
+    </div>
+
+<!-- 통계 카드 섹션 -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-lg transition-shadow duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center">
+                <i class="fas fa-users text-white text-xl"></i>
+            </div>
+            <span class="text-green-600 text-sm font-medium flex items-center">
+                <i class="fas fa-arrow-up mr-1"></i>
+                100%
+            </span>
+        </div>
+        <div class="space-y-1">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_employees|floatformat:0 }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">평가 대상자</p>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-lg transition-shadow duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                <i class="fas fa-check-circle text-white text-xl"></i>
+            </div>
+            <span class="text-green-600 text-sm font-medium flex items-center">
+                <i class="fas fa-arrow-up mr-1"></i>
+                {{ completion_rate|floatformat:1 }}%
+            </span>
+        </div>
+        <div class="space-y-1">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ completed_evaluations|floatformat:0 }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">평가 완료</p>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-lg transition-shadow duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
+                <i class="fas fa-star text-white text-xl"></i>
+            </div>
+            <span class="text-green-600 text-sm font-medium flex items-center">
+                <i class="fas fa-arrow-up mr-1"></i>
+                +0.3
+            </span>
+        </div>
+        <div class="space-y-1">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ avg_score|floatformat:1 }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">평균 점수</p>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-lg transition-shadow duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <i class="fas fa-clock text-white text-xl"></i>
+            </div>
+            <span class="text-red-600 text-sm font-medium flex items-center">
+                <i class="fas fa-arrow-down mr-1"></i>
+                {{ pending_rate|floatformat:1 }}%
+            </span>
+        </div>
+        <div class="space-y-1">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ pending_evaluations|floatformat:0 }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">평가 대기</p>
+        </div>
+    </div>
+</div>
+
+<!-- 평가 진행률 -->
+<div class="mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h4 class="text-lg font-semibold text-gray-900 dark:text-white">평가 진행률</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">2024년 상반기 평가 진행 현황</p>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">기여방식 평가</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ contribution_progress|floatformat:1 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-primary h-2 rounded-full transition-all duration-300" style="width: {{ contribution_progress }}%"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">전문성 평가</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ expertise_progress|floatformat:1 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full transition-all duration-300" style="width: {{ expertise_progress }}%"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">기여수준 평가</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ impact_progress|floatformat:1 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-yellow-500 h-2 rounded-full transition-all duration-300" style="width: {{ impact_progress }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 차트 섹션 -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-primary"></i>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white">평가 등급 분포</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">종합 평가 결과 등급별 분포</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="h-64">
+                <canvas id="gradeDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-purple-600"></i>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white">부서별 평균 점수</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">부서별 종합 평가 평균 점수</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="h-64">
+                <canvas id="departmentScoreChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 평가 매트릭스 -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="lg:col-span-2">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">평가 매트릭스</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">기여방식 vs 기여수준 매트릭스</p>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg p-6 text-white hover:shadow-lg transition-shadow cursor-pointer">
+                        <h5 class="text-2xl font-bold mb-2">S급</h5>
+                        <p class="text-3xl font-bold">{{ s_count }}명</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-lg p-6 text-white hover:shadow-lg transition-shadow cursor-pointer">
+                        <h5 class="text-2xl font-bold mb-2">A급</h5>
+                        <p class="text-3xl font-bold">{{ a_count }}명</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg p-6 text-white hover:shadow-lg transition-shadow cursor-pointer">
+                        <h5 class="text-2xl font-bold mb-2">B급</h5>
+                        <p class="text-3xl font-bold">{{ b_count }}명</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-lg p-6 text-white hover:shadow-lg transition-shadow cursor-pointer">
+                        <h5 class="text-2xl font-bold mb-2">C급</h5>
+                        <p class="text-3xl font-bold">{{ c_count }}명</p>
+                    </div>
+                </div>
+                <div class="mt-4 flex gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>기여수준</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>기여방식</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h4 class="text-lg font-semibold text-gray-900 dark:text-white">최근 평가 활동</h4>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h6 class="font-semibold text-gray-900 dark:text-white">김영희 평가 완료</h6>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">기여방식: 균형형, 기여수준: 달성</p>
+                        <span class="text-xs text-gray-400">2시간 전</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-edit text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h6 class="font-semibold text-gray-900 dark:text-white">박철수 평가 수정</h6>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">전문성 평가 점수 조정</p>
+                        <span class="text-xs text-gray-400">4시간 전</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-clock text-yellow-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h6 class="font-semibold text-gray-900 dark:text-white">이미영 평가 대기</h6>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">기여수준 평가 미완료</p>
+                        <span class="text-xs text-gray-400">1일 전</span>
+                    </div>
+                </div>
+            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 상위 평가자 테이블 -->
+<div class="top-performers mb-5">
+    <div class="card table-card">
+        <div class="card-header table-header">
+            <div class="table-title-container">
+                <div class="table-icon">
+                    <i data-lucide="trophy" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="card-title">상위 평가자</h4>
+                    <p class="card-subtitle">종합 평가 점수 상위 10명</p>
+                </div>
+            </div>
+            <div class="table-controls">
+                <div class="search-mini">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <input type="text" placeholder="검색..." class="search-mini-input">
+                </div>
+                <button class="table-btn">
+                    <i data-lucide="filter" class="w-4 h-4"></i>
+                </button>
+                <button class="table-btn">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body table-body">
+            <div class="table-responsive">
+                <table class="table modern-table">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:hover:text-gray-100" data-sort="rank">
+                        순위
+                        <i class="fas fa-sort ml-1"></i>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:hover:text-gray-100" data-sort="name">
+                        이름
+                        <i class="fas fa-sort ml-1"></i>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:hover:text-gray-100" data-sort="department">
+                        부서
+                        <i class="fas fa-sort ml-1"></i>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        직급
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:hover:text-gray-100" data-sort="score">
+                        종합점수
+                        <i class="fas fa-sort ml-1"></i>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        기여방식
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        기여수준
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        등급
+                    </th>
+                    <th scope="col" class="relative px-6 py-3">
+                        <span class="sr-only">액션</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {% for employee in top_performers %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" data-employee-id="{{ employee.employee_id }}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="relative">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
+                                        {% if forloop.counter == 1 %}bg-yellow-400 text-white
+                                        {% elif forloop.counter == 2 %}bg-gray-300 text-gray-700
+                                        {% elif forloop.counter == 3 %}bg-orange-400 text-white
+                                        {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                {{ forloop.counter }}
+                            </span>
+                            {% if forloop.counter <= 3 %}
+                                <i class="fas fa-crown absolute -top-2 -right-2 text-yellow-500 text-xs"></i>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <i class="fas fa-user text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ employee.name }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ employee.employee_id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary-light text-primary">
+                            {{ employee.department }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {{ employee.position }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="space-y-1">
+                            <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ employee.total_score|floatformat:1 }}</div>
+                            <div class="w-24 bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-primary h-1.5 rounded-full" style="width: {{ employee.total_score|floatformat:0 }}0%"></div>
+                            </div>
+                            <div class="flex">
+                                {% for i in "12345" %}
+                                    <i class="fas fa-star text-xs {% if forloop.counter <= employee.total_score %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if employee.contribution_type_color == 'primary' %}bg-blue-100 text-blue-800
+                                    {% elif employee.contribution_type_color == 'success' %}bg-green-100 text-green-800
+                                    {% elif employee.contribution_type_color == 'warning' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ employee.contribution_type }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if employee.impact_level_color == 'primary' %}bg-blue-100 text-blue-800
+                                    {% elif employee.impact_level_color == 'success' %}bg-green-100 text-green-800
+                                    {% elif employee.impact_level_color == 'warning' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ employee.impact_level }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center justify-center px-3 py-1 text-xs font-bold rounded-full
+                                    {% if employee.grade|lower == 's' %}bg-yellow-400 text-white
+                                    {% elif employee.grade|lower == 'a' %}bg-green-500 text-white
+                                    {% elif employee.grade|lower == 'b' %}bg-blue-500 text-white
+                                    {% elif employee.grade|lower == 'c' %}bg-orange-500 text-white
+                                    {% else %}bg-red-500 text-white{% endif %}">
+                            {{ employee.grade }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end gap-2">
+                            <button class="text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-light" title="상세보기">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-light" title="편집">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-light" title="메시지">
+                                <i class="fas fa-comment"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Revolutionary Design System Specific Styles */
+.stats-section {
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    border: none;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(255, 107, 0, 0.15);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.card-body {
+    position: relative;
+    z-index: 1;
+}
+
+.stat-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    position: relative;
+    background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    box-shadow: 0 8px 25px rgba(255, 107, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.stat-icon::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+    pointer-events: none;
+}
+
+.stat-card:hover .stat-icon {
+    transform: rotate(-5deg) scale(1.1);
+    box-shadow: 0 12px 35px rgba(255, 107, 0, 0.4);
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-700) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-value {
+    transform: scale(1.05);
+}
+
+.stat-label {
+    font-size: var(--text-base);
+    color: var(--gray-600);
+    margin: var(--spacing-xs) 0 0 0;
+    font-weight: 500;
+}
+
+.stat-change {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    width: fit-content;
+    margin-left: auto;
+    transition: all 0.3s ease;
+}
+
+.stat-change.positive {
+    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+    color: var(--success);
+    border: 1px solid #6EE7B7;
+}
+
+.stat-change.negative {
+    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+    color: var(--error);
+    border: 1px solid #F87171;
+}
+
+.stat-change i {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-change i {
+    transform: scale(1.2);
+}
+
+/* 진행률 스타일 */
+.progress-overview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.progress-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.progress-label {
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.progress-percentage {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.progress {
+    height: 8px;
+    background-color: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
+}
+
+/* 평가 매트릭스 - 고급 인터랙티브 디자인 */
+.evaluation-matrix {
+    margin-bottom: 2.5rem;
+}
+
+.matrix-container {
+    position: relative;
+    padding: 2rem;
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.matrix-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 107, 0, 0.03) 0%, transparent 70%);
+    animation: matrixPulse 8s ease-in-out infinite;
+}
+
+@keyframes matrixPulse {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+    50% { transform: scale(1.1) rotate(180deg); opacity: 0.3; }
+}
+
+.matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1.5rem;
+    height: 320px;
+    position: relative;
+    z-index: 2;
+}
+
+.matrix-cell {
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.matrix-cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.matrix-cell:hover::before {
+    left: 100%;
+}
+
+.matrix-cell:hover {
+    transform: translateY(-12px) scale(1.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+}
+
+.matrix-cell-s {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+    color: white;
+    border: 3px solid rgba(255, 215, 0, 0.3);
+}
+
+.matrix-cell-s:hover {
+    box-shadow: 0 20px 50px rgba(255, 215, 0, 0.4);
+    border-color: rgba(255, 215, 0, 0.6);
+}
+
+.matrix-cell-a {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 50%, #388E3C 100%);
+    color: white;
+    border: 3px solid rgba(76, 175, 80, 0.3);
+}
+
+.matrix-cell-a:hover {
+    box-shadow: 0 20px 50px rgba(76, 175, 80, 0.4);
+    border-color: rgba(76, 175, 80, 0.6);
+}
+
+.matrix-cell-b {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 50%, #1565C0 100%);
+    color: white;
+    border: 3px solid rgba(33, 150, 243, 0.3);
+}
+
+.matrix-cell-b:hover {
+    box-shadow: 0 20px 50px rgba(33, 150, 243, 0.4);
+    border-color: rgba(33, 150, 243, 0.6);
+}
+
+.matrix-cell-c {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 50%, #E65100 100%);
+    color: white;
+    border: 3px solid rgba(255, 152, 0, 0.3);
+}
+
+.matrix-cell-c:hover {
+    box-shadow: 0 20px 50px rgba(255, 152, 0, 0.4);
+    border-color: rgba(255, 152, 0, 0.6);
+}
+
+.matrix-content {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.matrix-cell:hover .matrix-content {
+    transform: scale(1.1);
+}
+
+.matrix-content h5 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 1.75rem;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.matrix-count {
+    margin: 0;
+    font-size: 2.25rem;
+    font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: countUp 0.8s ease-out;
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.matrix-labels {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    display: flex;
+    gap: 2rem;
+    z-index: 3;
+}
+
+.matrix-axis-label {
+    font-size: var(--text-base);
+    color: var(--gray-700);
+    font-weight: 600;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 차트 카드 스타일 */
+.charts-section {
+    margin-bottom: 2.5rem;
+}
+
+.chart-card {
+    border: none;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+}
+
+.chart-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.chart-card:hover::before {
+    opacity: 1;
+}
+
+.chart-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 40px rgba(255, 107, 0, 0.12);
+}
+
+.chart-header {
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chart-title-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.chart-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover .chart-icon {
+    transform: rotate(5deg) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+}
+
+.chart-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.chart-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.chart-btn:hover {
+    background: var(--ok-orange-light);
+    color: var(--ok-orange);
+    transform: scale(1.1);
+}
+
+.chart-body {
+    padding: 1.5rem;
+    position: relative;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+    background: radial-gradient(circle at center, rgba(255, 107, 0, 0.02) 0%, transparent 70%);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover .chart-container {
+    background: radial-gradient(circle at center, rgba(255, 107, 0, 0.05) 0%, transparent 70%);
+}
+
+.chart-container canvas {
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover .chart-container canvas {
+    transform: scale(1.02);
+}
+
+/* 테이블 카드 스타일 */
+.table-card {
+    border: none;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.table-header {
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.table-title-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.table-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.table-card:hover .table-icon {
+    transform: rotate(-5deg) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+}
+
+.table-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.search-mini {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.search-mini-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: var(--text-sm);
+    color: var(--gray-700);
+    min-width: 120px;
+}
+
+.search-mini-input::placeholder {
+    color: var(--gray-400);
+}
+
+.table-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.table-btn:hover {
+    background: var(--ok-orange-light);
+    color: var(--ok-orange);
+    transform: scale(1.1);
+}
+
+.table-body {
+    padding: 0;
+}
+
+.modern-table {
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.modern-table thead th {
+    background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+    border-bottom: 2px solid var(--ok-orange);
+    color: var(--gray-700);
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    position: relative;
+}
+
+.modern-table thead th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
+}
+
+.modern-table thead th.sortable:hover {
+    background: linear-gradient(135deg, #E2E8F0 0%, #CBD5E1 100%);
+    color: var(--ok-orange);
+}
+
+.sort-icon {
+    margin-left: var(--spacing-xs);
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.sortable:hover .sort-icon {
+    opacity: 1;
+}
+
+.table-row-interactive {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.table-row-interactive:hover {
+    background: linear-gradient(135deg, #FFF4ED 0%, #FFEDE5 100%);
+    transform: scale(1.01);
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.1);
+}
+
+.table-row-interactive td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    vertical-align: middle;
+}
+
+.rank-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rank-crown {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    color: #FFD700;
+    animation: crownGlow 2s ease-in-out infinite;
+}
+
+@keyframes crownGlow {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+}
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: white;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.rank-1 { 
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    border: 2px solid #FFD700;
+}
+.rank-2 { 
+    background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%);
+    border: 2px solid #C0C0C0;
+}
+.rank-3 { 
+    background: linear-gradient(135deg, #CD7F32 0%, #A0522D 100%);
+    border: 2px solid #CD7F32;
+}
+.rank-4, .rank-5 { 
+    background: linear-gradient(135deg, var(--gray-500) 0%, var(--gray-600) 100%);
+}
+
+.department-tag {
+    background: var(--ok-orange-light);
+    color: var(--ok-orange);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 500;
+}
+
+.position-text {
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+.score-progress {
+    width: 100%;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin: var(--spacing-xs) 0;
+}
+
+.score-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    border-radius: var(--radius-full);
+    transition: width 0.8s ease;
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.table-row-interactive:hover .action-buttons {
+    opacity: 1;
+}
+
+.action-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(255, 107, 0, 0.1);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ok-orange);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.action-btn:hover {
+    background: var(--ok-orange);
+    color: white;
+    transform: scale(1.1);
+}
+
+.action-btn[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gray-900);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+/* 활동 타임라인 - 고급 애니메이션 */
+.activity-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    position: relative;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--ok-orange) 0%, transparent 100%);
+    opacity: 0.3;
+}
+
+.activity-item {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+    position: relative;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    animation: slideInFromRight 0.6s ease-out forwards;
+    animation-delay: calc(var(--item-index, 0) * 0.2s);
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+@keyframes slideInFromRight {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.activity-item:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 107, 0, 0.02) 100%);
+    transform: translateX(8px);
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.1);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.activity-icon::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    opacity: 0;
+    animation: iconShimmer 3s ease-in-out infinite;
+    animation-delay: calc(var(--item-index, 0) * 0.5s);
+}
+
+@keyframes iconShimmer {
+    0%, 100% { opacity: 0; transform: rotate(0deg); }
+    50% { opacity: 0.5; transform: rotate(180deg); }
+}
+
+.activity-item:hover .activity-icon {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.activity-icon.success {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    color: white;
+}
+
+.activity-icon.info {
+    background: linear-gradient(135deg, var(--info) 0%, #1d4ed8 100%);
+    color: white;
+}
+
+.activity-icon.warning {
+    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+    color: white;
+}
+
+.activity-content {
+    flex: 1;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover .activity-content {
+    transform: translateY(-2px);
+}
+
+.activity-content h6 {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-weight: 600;
+    color: var(--gray-900);
+    transition: color 0.3s ease;
+}
+
+.activity-item:hover .activity-content h6 {
+    color: var(--ok-orange);
+}
+
+.activity-content p {
+    margin: 0 0 var(--spacing-xs) 0;
+    color: var(--gray-600);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+}
+
+.activity-time {
+    font-size: var(--text-xs);
+    color: var(--gray-500);
+    font-weight: 500;
+    background: var(--gray-100);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover .activity-time {
+    background: var(--ok-orange-light);
+    color: var(--ok-orange);
+    transform: scale(1.05);
+}
+
+/* 활동 카드 */
+.activity-card {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    position: relative;
+}
+
+.activity-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--success) 0%, var(--info) 50%, var(--warning) 100%);
+    opacity: 0.8;
+}
+
+.activity-card .card-header {
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 1.5rem;
+}
+
+.activity-card .card-body {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-card .card-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.activity-card .card-body::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+.activity-card .card-body::-webkit-scrollbar-thumb {
+    background: var(--ok-orange);
+    border-radius: 2px;
+}
+
+.activity-card .card-body::-webkit-scrollbar-thumb:hover {
+    background: var(--ok-orange-hover);
+}
+
+/* 테이블 스타일 */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    color: white;
+}
+
+.rank-1 { background-color: #FFD700; }
+.rank-2 { background-color: #C0C0C0; }
+.rank-3 { background-color: #CD7F32; }
+.rank-4, .rank-5 { background-color: var(--gray-500); }
+
+.employee-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.employee-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--primary-orange-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-orange);
+}
+
+.employee-name {
+    margin: 0;
+    font-weight: 600;
+}
+
+.employee-id {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+}
+
+.score-display {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.score-value {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.score-stars {
+    display: flex;
+    gap: 2px;
+}
+
+.score-stars i {
+    color: var(--gray-300);
+}
+
+.score-stars i.filled {
+    color: #FFD700;
+}
+
+.grade-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    color: white;
+}
+
+.grade-s {
+    background-color: #FFD700;
+}
+
+.grade-a {
+    background-color: var(--success);
+}
+
+.grade-b {
+    background-color: var(--info);
+}
+
+.grade-c {
+    background-color: var(--warning);
+}
+
+.grade-d {
+    background-color: var(--error);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart.js 기본 설정
+Chart.defaults.font.family = 'Noto Sans KR, sans-serif';
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#4B5563';
+
+// 평가 등급 분포 차트
+const gradeCtx = document.getElementById('gradeDistributionChart').getContext('2d');
+const gradeChart = new Chart(gradeCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['S급', 'A급', 'B급', 'C급', 'D급'],
+        datasets: [{
+            data: [5, 25, 45, 20, 5],
+            backgroundColor: [
+                '#FFD700',  // S급 - 금색
+                '#4CAF50',  // A급 - 초록색
+                '#2196F3',  // B급 - 파란색
+                '#FF9800',  // C급 - 주황색
+                '#F44336'   // D급 - 빨간색
+            ],
+            borderWidth: 3,
+            borderColor: '#FFFFFF',
+            hoverBorderWidth: 5,
+            hoverBorderColor: '#FF6B00',
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                    font: {
+                        size: 13,
+                        weight: '600'
+                    },
+                    color: '#374151'
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                titleColor: '#FFFFFF',
+                bodyColor: '#FFFFFF',
+                borderColor: '#FF6B00',
+                borderWidth: 2,
+                cornerRadius: 12,
+                titleFont: {
+                    size: 14,
+                    weight: 'bold'
+                },
+                bodyFont: {
+                    size: 13
+                },
+                callbacks: {
+                    label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.parsed * 100) / total).toFixed(1);
+                        return `${context.label}: ${context.parsed}명 (${percentage}%)`;
+                    }
+                }
+            }
+        },
+        animation: {
+            animateRotate: true,
+            animateScale: true,
+            duration: 1500,
+            easing: 'easeInOutCubic'
+        },
+        elements: {
+            arc: {
+                borderJoinStyle: 'round'
+            }
+        }
+    }
+});
+
+// 부서별 평균 점수 차트
+const deptCtx = document.getElementById('departmentScoreChart').getContext('2d');
+const deptChart = new Chart(deptCtx, {
+    type: 'bar',
+    data: {
+        labels: ['IT개발', '마케팅', '영업', '인사', '재무'],
+        datasets: [{
+            label: '평균 점수',
+            data: [3.8, 3.5, 3.7, 3.9, 3.6],
+            backgroundColor: function(context) {
+                const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, '#FF6B00');
+                gradient.addColorStop(1, '#FFAA00');
+                return gradient;
+            },
+            borderRadius: 12,
+            borderSkipped: false,
+            hoverBackgroundColor: function(context) {
+                const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, '#E55A00');
+                gradient.addColorStop(1, '#FF8533');
+                return gradient;
+            }
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                titleColor: '#FFFFFF',
+                bodyColor: '#FFFFFF',
+                borderColor: '#FF6B00',
+                borderWidth: 2,
+                cornerRadius: 12,
+                titleFont: {
+                    size: 14,
+                    weight: 'bold'
+                },
+                bodyFont: {
+                    size: 13
+                },
+                callbacks: {
+                    label: function(context) {
+                        return `평균 점수: ${context.parsed.y.toFixed(1)}점`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 5,
+                grid: {
+                    color: 'rgba(229, 231, 235, 0.5)',
+                    drawBorder: false
+                },
+                ticks: {
+                    color: '#6B7280',
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    },
+                    callback: function(value) {
+                        return value.toFixed(1);
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#374151',
+                    font: {
+                        size: 12,
+                        weight: '600'
+                    }
+                }
+            }
+        },
+        animation: {
+            duration: 1500,
+            easing: 'easeInOutQuart'
+        },
+        elements: {
+            bar: {
+                borderRadius: 12
+            }
+        }
+    }
+});
+
+// 활동 타임라인 아이템에 인덱스 CSS 변수 설정
+document.addEventListener('DOMContentLoaded', function() {
+    const activityItems = document.querySelectorAll('.activity-item');
+    activityItems.forEach((item, index) => {
+        item.style.setProperty('--item-index', index);
+    });
+    
+    // 테이블 정렬 기능
+    const sortableHeaders = document.querySelectorAll('.sortable');
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const sortKey = this.dataset.sort;
+            console.log('Sorting by:', sortKey);
+            // 실제 정렬 로직은 백엔드에서 처리하거나 JavaScript로 구현
+        });
+    });
+    
+    // 검색 기능
+    const searchInput = document.querySelector('.search-mini-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const tableRows = document.querySelectorAll('.table-row-interactive');
+            
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // 액션 버튼 클릭 이벤트
+    const actionButtons = document.querySelectorAll('.action-btn');
+    actionButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const action = this.dataset.tooltip;
+            const employeeId = this.closest('tr').dataset.employeeId;
+            console.log(`${action} clicked for employee:`, employeeId);
+            // 실제 액션 처리 로직 구현
+        });
+    });
+});
+</script>
+{% endblock %} 

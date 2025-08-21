@@ -1,252 +1,493 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}기여도 평가 - {{ employee.name }}{% endblock %}
+{% block title %}기여도 평가 - {{ employee.name }} - 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Contribution Evaluation Center{% endblock %}
+{% block content_title %}기여도 평가 - {{ employee.name }}{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    AI 기반 차세대 평가 시스템으로 {{ employee.name }}의 기여도를 정확하게 측정하고 분석합니다 - {{ active_period }}
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .scoring-chart {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .scoring-chart-table {
+        background: transparent;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .scoring-chart-table th {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+        border: none;
+    }
+    
+    .scoring-chart-table td {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        padding: 0.875rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+    }
+    
+    .scoring-chart-table td.score-4 { color: #10b981; }
+    .scoring-chart-table td.score-3 { color: #f59e0b; }
+    .scoring-chart-table td.score-2 { color: #3b82f6; }
+    .scoring-chart-table td.score-1 { color: #ef4444; }
+    
+    .task-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .task-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
+    }
+    
+    .task-header {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .form-label-revolutionary {
+        color: #00d4ff;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-control-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+    
+    .form-control-revolutionary:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .form-control-revolutionary::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .form-control-revolutionary:read-only {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+        font-weight: 600;
+    }
+    
+    .form-select-revolutionary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+    
+    .form-select-revolutionary:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .evaluation-result {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .evaluation-result-title {
+        color: #00d4ff;
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .alert-revolutionary {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .alert-revolutionary .alert-icon {
+        color: #00d4ff;
+        font-size: 1.25rem;
+    }
+    
+    .comment-section {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .comment-title {
+        color: #00d4ff;
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .form-row-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .score-indicator {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .score-excellent { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .score-good { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .score-average { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .score-poor { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    
+    .weight-total {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 8px;
+        padding: 0.75rem;
+        text-align: center;
+        color: #00d4ff;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-grid,
+        .form-row-2,
+        .form-row-4 {
+            grid-template-columns: 1fr;
+        }
+        
+        .scoring-chart-table {
+            font-size: 0.75rem;
+        }
+        
+        .scoring-chart-table th,
+        .scoring-chart-table td {
+            padding: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">
-                        <i class="fas fa-tasks"></i> 기여도 평가
-                    </h4>
-                    <p class="text-muted mb-0">{{ employee.name }} - {{ active_period }}</p>
+<div class="revolutionary-container">
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+        
+        <!-- Scoring Chart 정보 -->
+        <div class="container-fluid px-4">
+            <div class="scoring-chart">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Scoring Chart 가이드
+                </h3>
+                <div class="table-responsive">
+                    <table class="scoring-chart-table">
+                        <thead>
+                            <tr>
+                                <th>기여범위</th>
+                                <th>총괄</th>
+                                <th>리딩</th>
+                                <th>실무</th>
+                                <th>지원</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>전략적</strong></td>
+                                <td class="score-4">4.0</td>
+                                <td class="score-4">4.0</td>
+                                <td class="score-3">3.0</td>
+                                <td class="score-2">2.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>상호적</strong></td>
+                                <td class="score-3">3.0</td>
+                                <td class="score-3">3.0</td>
+                                <td class="score-3">3.0</td>
+                                <td class="score-2">2.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>독립적</strong></td>
+                                <td class="score-2">2.0</td>
+                                <td class="score-3">3.0</td>
+                                <td class="score-2">2.0</td>
+                                <td class="score-1">1.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>의존적</strong></td>
+                                <td class="score-2">2.0</td>
+                                <td class="score-2">2.0</td>
+                                <td class="score-1">1.0</td>
+                                <td class="score-1">1.0</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <!-- Scoring Chart 정보 -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="card bg-light">
-                                    <div class="card-header">
-                                        <h6><i class="fas fa-info-circle"></i> Scoring Chart 가이드</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-bordered">
-                                                <thead class="table-dark">
-                                                    <tr>
-                                                        <th>기여범위</th>
-                                                        <th>총괄</th>
-                                                        <th>리딩</th>
-                                                        <th>실무</th>
-                                                        <th>지원</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td><strong>전략적</strong></td>
-                                                        <td class="text-success">4.0</td>
-                                                        <td class="text-success">4.0</td>
-                                                        <td class="text-warning">3.0</td>
-                                                        <td class="text-info">2.0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>상호적</strong></td>
-                                                        <td class="text-warning">3.0</td>
-                                                        <td class="text-warning">3.0</td>
-                                                        <td class="text-warning">3.0</td>
-                                                        <td class="text-info">2.0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>독립적</strong></td>
-                                                        <td class="text-info">2.0</td>
-                                                        <td class="text-warning">3.0</td>
-                                                        <td class="text-info">2.0</td>
-                                                        <td class="text-danger">1.0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>의존적</strong></td>
-                                                        <td class="text-info">2.0</td>
-                                                        <td class="text-info">2.0</td>
-                                                        <td class="text-danger">1.0</td>
-                                                        <td class="text-danger">1.0</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <small class="text-muted">
-                                            * 달성률에 따라 점수가 조정됩니다: 100% 이상(기본점수), 90% 이상(-0.5), 80% 이상(-1.0), 70% 이상(-1.5), 70% 미만(-2.0)
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Task 목록 -->
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>업무 과제 목록</h5>
-                                {% if tasks %}
-                                    {% for task in tasks %}
-                                    <div class="card mb-3 task-card" data-task-id="{{ task.id }}">
-                                        <div class="card-header">
-                                            <h6 class="mb-0">Task #{{ forloop.counter }}</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">과제명</label>
-                                                        <input type="text" class="form-control" 
-                                                               name="task_{{ task.id }}_title" 
-                                                               value="{{ task.title }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">과제 설명</label>
-                                                        <textarea class="form-control" rows="2" 
-                                                                  name="task_{{ task.id }}_description">{{ task.description }}</textarea>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">비중 (%)</label>
-                                                            <input type="number" class="form-control task-weight" 
-                                                                   name="task_{{ task.id }}_weight" 
-                                                                   value="{{ task.weight }}" min="0" max="100" step="0.01" required>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">단위</label>
-                                                            <input type="text" class="form-control" 
-                                                                   name="task_{{ task.id }}_unit" 
-                                                                   value="{{ task.target_unit }}">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">기여방식</label>
-                                                            <select class="form-select task-method" 
-                                                                    name="task_{{ task.id }}_method" required>
-                                                                {% for value, label in scoring_info.method_choices %}
-                                                                <option value="{{ value }}" {% if task.contribution_method == value %}selected{% endif %}>
-                                                                    {{ label }}
-                                                                </option>
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">기여범위</label>
-                                                            <select class="form-select task-scope" 
-                                                                    name="task_{{ task.id }}_scope" required>
-                                                                {% for value, label in scoring_info.scope_choices %}
-                                                                <option value="{{ value }}" {% if task.contribution_scope == value %}selected{% endif %}>
-                                                                    {{ label }}
-                                                                </option>
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mt-3">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">목표값</label>
-                                                            <input type="number" class="form-control task-target" 
-                                                                   name="task_{{ task.id }}_target" 
-                                                                   value="{{ task.target_value|default:'' }}" step="0.01">
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">실적값</label>
-                                                            <input type="number" class="form-control task-actual" 
-                                                                   name="task_{{ task.id }}_actual" 
-                                                                   value="{{ task.actual_value|default:'' }}" step="0.01">
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mt-3">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">달성률 (%)</label>
-                                                            <input type="text" class="form-control task-achievement" 
-                                                                   value="{{ task.achievement_rate|default:'-' }}" readonly>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">예상 점수</label>
-                                                            <input type="text" class="form-control task-score" 
-                                                                   value="-" readonly>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                {% else %}
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle"></i>
-                                        등록된 Task가 없습니다. 관리자에게 문의하세요.
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- 평가 결과 -->
-                        {% if evaluation %}
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card bg-light">
-                                    <div class="card-header">
-                                        <h6>평가 결과</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <label class="form-label">종합 달성률</label>
-                                                <input type="text" class="form-control" 
-                                                       value="{{ evaluation.total_achievement_rate|default:'-' }}%" readonly>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">기여도 점수</label>
-                                                <input type="text" class="form-control" 
-                                                       value="{{ evaluation.contribution_score|default:'-' }}" readonly>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">달성 여부</label>
-                                                <input type="text" class="form-control" 
-                                                       value="{% if evaluation.is_achieved %}달성{% else %}미달성{% endif %}" readonly>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">평가일</label>
-                                                <input type="text" class="form-control" 
-                                                       value="{{ evaluation.evaluated_date|default:'-' }}" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- 평가 의견 -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label class="form-label">평가 의견</label>
-                                    <textarea class="form-control" rows="4" name="comments" 
-                                              placeholder="평가 의견을 입력하세요...">{{ evaluation.comments|default:'' }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 버튼 -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> 저장
-                                </button>
-                                <a href="{% url 'evaluations:dashboard' %}" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> 돌아가기
-                                </a>
-                            </div>
-                        </div>
-                    </form>
+                <div class="mt-4 text-sm text-gray-400">
+                    <i class="fas fa-lightbulb"></i>
+                    달성률에 따라 점수가 조정됩니다: 100% 이상(기본점수), 90% 이상(-0.5), 80% 이상(-1.0), 70% 이상(-1.5), 70% 미만(-2.0)
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
+        <!-- Task 목록 -->
+        <div class="container-fluid px-4">
+            <h2 class="section-title">업무 과제 목록</h2>
+            
+            {% if tasks %}
+                {% for task in tasks %}
+                <div class="task-card" data-task-id="{{ task.id }}">
+                    <div class="task-header">
+                        <i class="fas fa-tasks"></i>
+                        Task #{{ forloop.counter }}
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div>
+                            <label class="form-label-revolutionary">과제명</label>
+                            <input type="text" class="form-control-revolutionary" 
+                                   name="task_{{ task.id }}_title" 
+                                   value="{{ task.title }}" required>
+                        </div>
+                        
+                        <div>
+                            <label class="form-label-revolutionary">비중 (%)</label>
+                            <input type="number" class="form-control-revolutionary task-weight" 
+                                   name="task_{{ task.id }}_weight" 
+                                   value="{{ task.weight }}" min="0" max="100" step="0.01" required>
+                        </div>
+                        
+                        <div>
+                            <label class="form-label-revolutionary">단위</label>
+                            <input type="text" class="form-control-revolutionary" 
+                                   name="task_{{ task.id }}_unit" 
+                                   value="{{ task.target_unit }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label-revolutionary">과제 설명</label>
+                        <textarea class="form-control-revolutionary" rows="2" 
+                                  name="task_{{ task.id }}_description">{{ task.description }}</textarea>
+                    </div>
+                    
+                    <div class="form-row-2 mb-4">
+                        <div>
+                            <label class="form-label-revolutionary">기여방식</label>
+                            <select class="form-select-revolutionary task-method" 
+                                    name="task_{{ task.id }}_method" required>
+                                {% for value, label in scoring_info.method_choices %}
+                                <option value="{{ value }}" {% if task.contribution_method == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="form-label-revolutionary">기여범위</label>
+                            <select class="form-select-revolutionary task-scope" 
+                                    name="task_{{ task.id }}_scope" required>
+                                {% for value, label in scoring_info.scope_choices %}
+                                <option value="{{ value }}" {% if task.contribution_scope == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row-4">
+                        <div>
+                            <label class="form-label-revolutionary">목표값</label>
+                            <input type="number" class="form-control-revolutionary task-target" 
+                                   name="task_{{ task.id }}_target" 
+                                   value="{{ task.target_value|default:'' }}" step="0.01">
+                        </div>
+                        
+                        <div>
+                            <label class="form-label-revolutionary">실적값</label>
+                            <input type="number" class="form-control-revolutionary task-actual" 
+                                   name="task_{{ task.id }}_actual" 
+                                   value="{{ task.actual_value|default:'' }}" step="0.01">
+                        </div>
+                        
+                        <div>
+                            <label class="form-label-revolutionary">달성률 (%)</label>
+                            <input type="text" class="form-control-revolutionary task-achievement" 
+                                   value="{{ task.achievement_rate|default:'-' }}" readonly>
+                        </div>
+                        
+                        <div>
+                            <label class="form-label-revolutionary">예상 점수</label>
+                            <input type="text" class="form-control-revolutionary task-score" 
+                                   value="-" readonly>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="weight-total" id="weightTotal">
+                    총 비중: 0%
+                </div>
+                
+            {% else %}
+                <div class="alert-revolutionary">
+                    <i class="fas fa-info-circle alert-icon"></i>
+                    <div>등록된 Task가 없습니다. 관리자에게 문의하세요.</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- 평가 결과 -->
+        {% if evaluation %}
+        <div class="container-fluid px-4">
+            <div class="evaluation-result">
+                <div class="evaluation-result-title">
+                    <i class="fas fa-chart-line"></i>
+                    평가 결과
+                </div>
+                
+                <div class="form-row-4">
+                    <div>
+                        <label class="form-label-revolutionary">종합 달성률</label>
+                        <input type="text" class="form-control-revolutionary" 
+                               value="{{ evaluation.total_achievement_rate|default:'-' }}%" readonly>
+                    </div>
+                    
+                    <div>
+                        <label class="form-label-revolutionary">기여도 점수</label>
+                        <input type="text" class="form-control-revolutionary" 
+                               value="{{ evaluation.contribution_score|default:'-' }}" readonly>
+                    </div>
+                    
+                    <div>
+                        <label class="form-label-revolutionary">달성 여부</label>
+                        <input type="text" class="form-control-revolutionary" 
+                               value="{% if evaluation.is_achieved %}달성{% else %}미달성{% endif %}" readonly>
+                    </div>
+                    
+                    <div>
+                        <label class="form-label-revolutionary">평가일</label>
+                        <input type="text" class="form-control-revolutionary" 
+                               value="{{ evaluation.evaluated_date|default:'-' }}" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 평가 의견 -->
+        <div class="container-fluid px-4">
+            <div class="comment-section">
+                <div class="comment-title">
+                    <i class="fas fa-comment-alt"></i>
+                    평가 의견
+                </div>
+                <textarea class="form-control-revolutionary" rows="4" name="comments" 
+                          placeholder="평가 의견을 입력하세요...">{{ evaluation.comments|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="container-fluid px-4">
+            <div class="flex flex-wrap items-center gap-3">
+                <button type="submit" class="btn-revolutionary btn-primary">
+                    <i class="fas fa-save"></i>
+                    저장
+                </button>
+                <a href="{% url 'evaluations:dashboard' %}" class="btn-revolutionary btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    돌아가기
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 // 실시간 점수 계산
 function calculateTaskScore(taskCard) {
@@ -285,6 +526,43 @@ function calculateTaskScore(taskCard) {
     }
     
     taskCard.querySelector('.task-score').value = finalScore.toFixed(1);
+    
+    // 점수별 색상 표시
+    const scoreInput = taskCard.querySelector('.task-score');
+    if (finalScore >= 3.5) {
+        scoreInput.style.color = '#10b981';
+    } else if (finalScore >= 2.5) {
+        scoreInput.style.color = '#f59e0b';
+    } else if (finalScore >= 1.5) {
+        scoreInput.style.color = '#3b82f6';
+    } else {
+        scoreInput.style.color = '#ef4444';
+    }
+}
+
+// 총 비중 계산
+function calculateTotalWeight() {
+    const weightInputs = document.querySelectorAll('.task-weight');
+    let total = 0;
+    
+    weightInputs.forEach(input => {
+        const weight = parseFloat(input.value) || 0;
+        total += weight;
+    });
+    
+    const totalElement = document.getElementById('weightTotal');
+    if (totalElement) {
+        totalElement.textContent = `총 비중: ${total.toFixed(1)}%`;
+        
+        // 100%가 아닐 때 경고 표시
+        if (Math.abs(total - 100) > 0.1) {
+            totalElement.style.borderColor = '#ef4444';
+            totalElement.style.color = '#ef4444';
+        } else {
+            totalElement.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+            totalElement.style.color = '#00d4ff';
+        }
+    }
 }
 
 // 이벤트 리스너 등록
@@ -294,13 +572,22 @@ document.addEventListener('DOMContentLoaded', function() {
     taskCards.forEach(card => {
         const inputs = card.querySelectorAll('input, select');
         inputs.forEach(input => {
-            input.addEventListener('change', () => calculateTaskScore(card));
-            input.addEventListener('input', () => calculateTaskScore(card));
+            input.addEventListener('change', () => {
+                calculateTaskScore(card);
+                calculateTotalWeight();
+            });
+            input.addEventListener('input', () => {
+                calculateTaskScore(card);
+                calculateTotalWeight();
+            });
         });
         
         // 초기 계산
         calculateTaskScore(card);
     });
+    
+    // 초기 총 비중 계산
+    calculateTotalWeight();
 });
 </script>
-{% endblock %} 
+{% endblock %}

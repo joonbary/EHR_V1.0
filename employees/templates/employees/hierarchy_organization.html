@@ -1,34 +1,73 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}계층별 조직도 - OK금융그룹 eHR{% endblock %}
+{% block title %}계층별 조직도 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Organizational Hierarchy System{% endblock %}
+{% block content_title %}계층별 조직도{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    AI 기반 조직 구조 분석과 최적화된 인력 배치를 통해 효율적인 조직 운영을 지원합니다
+</p>
+{% endblock %}
 
 {% block extra_css %}
 <style>
-    .hierarchy-container {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    .hierarchy-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 25px;
+        padding: 2.5rem;
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
         margin: 2rem 0;
         min-height: 80vh;
+        position: relative;
+        overflow: hidden;
     }
 
-    .hierarchy-header {
+    .hierarchy-container-revolutionary::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: pulse 10s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    .hierarchy-header-revolutionary {
         text-align: center;
         margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid var(--ok-primary);
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+        position: relative;
+        z-index: 1;
     }
 
-    .hierarchy-header h1 {
+    .hierarchy-header-revolutionary h1 {
         font-size: 2.5rem;
         font-weight: 700;
-        color: var(--ok-primary);
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 0.5rem;
     }
 
-    .hierarchy-controls {
+    .hierarchy-header-revolutionary p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+    }
+
+    .hierarchy-controls-revolutionary {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -37,121 +76,152 @@
         flex-wrap: wrap;
     }
 
-    .level-dropdown {
-        position: relative;
-    }
-
-    .dropdown-select {
+    .dropdown-select-revolutionary {
         appearance: none;
-        background: white;
-        border: 2px solid var(--ok-primary);
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
         padding: 0.75rem 3rem 0.75rem 1rem;
         font-size: 1rem;
         font-weight: 600;
-        color: var(--ok-primary);
+        color: #00d4ff;
         cursor: pointer;
         transition: all 0.3s ease;
         min-width: 200px;
+        position: relative;
     }
 
-    .dropdown-select:focus {
+    .dropdown-select-revolutionary:focus {
         outline: none;
-        box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.1);
-        border-color: var(--ok-accent);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        background: rgba(255, 255, 255, 0.08);
     }
 
-    .dropdown-select::after {
-        content: '▼';
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none;
+    .dropdown-select-revolutionary:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #00d4ff;
     }
 
-    .filter-section {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    .filter-input {
-        padding: 0.5rem 1rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
+    .filter-input-revolutionary {
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
         font-size: 0.9rem;
-    }
-
-    .stats-overview {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
         transition: all 0.3s ease;
     }
 
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    .filter-input-revolutionary:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
     }
 
-    .stat-value {
-        font-size: 2rem;
+    .filter-input-revolutionary::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .stats-overview-revolutionary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card-revolutionary:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    }
+
+    .stat-value-revolutionary {
+        font-size: 2.5rem;
         font-weight: 700;
-        color: var(--ok-primary);
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 0.5rem;
     }
 
-    .stat-label {
-        font-size: 0.9rem;
-        color: #64748b;
-        font-weight: 500;
+    .stat-label-revolutionary {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    .organization-grid {
+    .organization-grid-revolutionary {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
         gap: 1.5rem;
         margin-top: 2rem;
     }
 
-    .org-card {
-        background: white;
-        border-radius: 16px;
+    .org-card-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
         padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-left: 4px solid var(--ok-primary);
+        border-left: 3px solid #00d4ff;
         cursor: pointer;
+        position: relative;
+        overflow: hidden;
     }
 
-    .org-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-        border-left-color: var(--ok-accent);
+    .org-card-revolutionary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: all 0.5s ease;
     }
 
-    .org-card-header {
+    .org-card-revolutionary:hover::before {
+        left: 100%;
+    }
+
+    .org-card-revolutionary:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    }
+
+    .org-card-header-revolutionary {
         display: flex;
         align-items: center;
         gap: 1rem;
         margin-bottom: 1rem;
     }
 
-    .org-avatar {
+    .org-avatar-revolutionary {
         width: 60px;
         height: 60px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--ok-primary) 0%, var(--ok-accent) 100%);
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -159,137 +229,152 @@
         font-weight: 700;
         font-size: 1.2rem;
         flex-shrink: 0;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
     }
 
-    .org-info {
+    .org-avatar-revolutionary img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .org-info-revolutionary {
         flex: 1;
     }
 
-    .org-name {
+    .org-name-revolutionary {
         font-size: 1.2rem;
         font-weight: 700;
-        color: #1a202c;
+        color: white;
         margin-bottom: 0.25rem;
     }
 
-    .org-position {
+    .org-position-revolutionary {
         font-size: 1rem;
-        color: var(--ok-primary);
+        color: #00d4ff;
         font-weight: 600;
         margin-bottom: 0.25rem;
     }
 
-    .org-department {
-        font-size: 0.9rem;
-        color: #64748b;
+    .org-department-revolutionary {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
     }
 
-    .org-details {
+    .org-details-revolutionary {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 1rem;
         margin-top: 1rem;
         padding-top: 1rem;
-        border-top: 1px solid #f1f5f9;
+        border-top: 1px solid rgba(0, 212, 255, 0.2);
     }
 
-    .detail-item {
+    .detail-item-revolutionary {
         text-align: center;
     }
 
-    .detail-value {
-        font-size: 1.1rem;
+    .detail-value-revolutionary {
+        font-size: 1.25rem;
         font-weight: 600;
-        color: var(--ok-primary);
+        color: #00d4ff;
         margin-bottom: 0.25rem;
     }
 
-    .detail-label {
-        font-size: 0.8rem;
-        color: #64748b;
+    .detail-label-revolutionary {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 1px;
     }
 
-    .expand-btn {
-        background: var(--ok-accent);
+    .expand-btn-revolutionary {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
         font-size: 0.9rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         margin-top: 1rem;
         width: 100%;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
     }
 
-    .expand-btn:hover {
-        background: var(--ok-primary);
+    .expand-btn-revolutionary:hover {
         transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
     }
 
-    .members-list {
+    .members-list-revolutionary {
         margin-top: 1rem;
         padding-top: 1rem;
-        border-top: 1px solid #f1f5f9;
+        border-top: 1px solid rgba(0, 212, 255, 0.2);
         display: none;
     }
 
-    .members-list.show {
+    .members-list-revolutionary.show {
         display: block;
     }
 
-    .member-item {
+    .member-item-revolutionary {
         display: flex;
         align-items: center;
         gap: 0.75rem;
         padding: 0.75rem;
-        background: #f8fafc;
-        border-radius: 8px;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 12px;
         margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
     }
 
-    .member-avatar {
+    .member-item-revolutionary:hover {
+        background: rgba(0, 212, 255, 0.08);
+        transform: translateX(5px);
+    }
+
+    .member-avatar-revolutionary {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 600;
         font-size: 0.9rem;
-        color: #475569;
+        color: #00d4ff;
     }
 
-    .member-info {
+    .member-info-revolutionary {
         flex: 1;
     }
 
-    .member-name {
+    .member-name-revolutionary {
         font-weight: 600;
-        color: #1a202c;
+        color: white;
         margin-bottom: 0.25rem;
     }
 
-    .member-position {
+    .member-position-revolutionary {
         font-size: 0.8rem;
-        color: #64748b;
+        color: rgba(255, 255, 255, 0.6);
     }
 
-    .loading {
+    .loading-revolutionary {
         text-align: center;
         padding: 3rem;
-        color: #64748b;
+        color: rgba(255, 255, 255, 0.6);
     }
 
-    .loading .spinner {
+    .spinner-revolutionary {
         width: 40px;
         height: 40px;
-        border: 4px solid #f3f4f6;
-        border-top: 4px solid var(--ok-primary);
+        border: 3px solid rgba(0, 212, 255, 0.2);
+        border-top: 3px solid #00d4ff;
         border-radius: 50%;
         animation: spin 1s linear infinite;
         margin: 0 auto 1rem;
@@ -300,31 +385,37 @@
         100% { transform: rotate(360deg); }
     }
 
-    .error-message {
+    .error-message-revolutionary {
         text-align: center;
         padding: 2rem;
-        color: #dc2626;
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        border-radius: 12px;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 15px;
         margin: 1rem 0;
     }
 
-    .empty-state {
+    .empty-state-revolutionary {
         text-align: center;
         padding: 3rem;
-        color: #64748b;
+        color: rgba(255, 255, 255, 0.6);
     }
 
-    .empty-state i {
+    .empty-state-revolutionary i {
         font-size: 4rem;
         margin-bottom: 1rem;
-        opacity: 0.5;
+        color: rgba(0, 212, 255, 0.3);
+    }
+
+    .empty-state-revolutionary h3 {
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
     }
 
     /* 반응형 디자인 */
     @media (max-width: 768px) {
-        .hierarchy-controls {
+        .hierarchy-controls-revolutionary {
             flex-direction: column;
             gap: 1rem;
         }
@@ -334,15 +425,15 @@
             width: 100%;
         }
         
-        .dropdown-select {
+        .dropdown-select-revolutionary {
             width: 100%;
         }
         
-        .organization-grid {
+        .organization-grid-revolutionary {
             grid-template-columns: 1fr;
         }
         
-        .org-details {
+        .org-details-revolutionary {
             grid-template-columns: repeat(2, 1fr);
         }
     }
@@ -350,58 +441,60 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <div class="hierarchy-container">
-        <div class="hierarchy-header">
-            <h1>계층별 조직도</h1>
-            <p>조직 계층별 구조 및 구성원 정보</p>
-        </div>
-
-        <!-- 컨트롤 섹션 -->
-        <div class="hierarchy-controls">
-            <div class="level-dropdown">
-                <select class="dropdown-select" id="levelSelect">
-                    <option value="all">전체 현황</option>
-                    <option value="executive">임원급</option>
-                    <option value="department">부서장급</option>
-                    <option value="team">팀장급</option>
-                    <option value="member">팀원급</option>
-                </select>
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        <div class="hierarchy-container-revolutionary">
+            <div class="hierarchy-header-revolutionary">
+                <h1>계층별 조직도</h1>
+                <p>조직 계층별 구조 및 구성원 정보</p>
             </div>
-            
-            <div class="filter-section">
-                <select class="filter-input" id="departmentFilter" style="display: none;">
-                    <option value="">전체 부서</option>
-                </select>
-                <input type="text" class="filter-input" id="searchInput" 
-                       placeholder="이름 검색..." style="display: none;">
+
+            <!-- 컨트롤 섹션 -->
+            <div class="hierarchy-controls-revolutionary">
+                <div class="level-dropdown">
+                    <select class="dropdown-select-revolutionary" id="levelSelect">
+                        <option value="all">전체 현황</option>
+                        <option value="executive">임원급</option>
+                        <option value="department">부서장급</option>
+                        <option value="team">팀장급</option>
+                        <option value="member">팀원급</option>
+                    </select>
+                </div>
+                
+                <div class="filter-section">
+                    <select class="filter-input-revolutionary" id="departmentFilter" style="display: none;">
+                        <option value="">전체 부서</option>
+                    </select>
+                    <input type="text" class="filter-input-revolutionary" id="searchInput" 
+                           placeholder="이름 검색..." style="display: none;">
+                </div>
             </div>
-        </div>
 
-        <!-- 통계 개요 -->
-        <div class="stats-overview" id="statsOverview">
-            <!-- 통계 카드들이 동적으로 생성됩니다 -->
-        </div>
+            <!-- 통계 개요 -->
+            <div class="stats-overview-revolutionary" id="statsOverview">
+                <!-- 통계 카드들이 동적으로 생성됩니다 -->
+            </div>
 
-        <!-- 로딩 상태 -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>조직 정보를 불러오는 중입니다...</p>
-        </div>
+            <!-- 로딩 상태 -->
+            <div class="loading-revolutionary" id="loading">
+                <div class="spinner-revolutionary"></div>
+                <p>조직 정보를 불러오는 중입니다...</p>
+            </div>
 
-        <!-- 에러 메시지 -->
-        <div class="error-message" id="errorMessage" style="display: none;"></div>
+            <!-- 에러 메시지 -->
+            <div class="error-message-revolutionary" id="errorMessage" style="display: none;"></div>
 
-        <!-- 조직 그리드 -->
-        <div class="organization-grid" id="organizationGrid">
-            <!-- 조직 카드들이 동적으로 생성됩니다 -->
-        </div>
+            <!-- 조직 그리드 -->
+            <div class="organization-grid-revolutionary" id="organizationGrid">
+                <!-- 조직 카드들이 동적으로 생성됩니다 -->
+            </div>
 
-        <!-- 빈 상태 -->
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <i data-lucide="users-x"></i>
-            <h3>해당 조건에 맞는 조직 정보가 없습니다</h3>
-            <p>다른 조건으로 검색해보세요.</p>
+            <!-- 빈 상태 -->
+            <div class="empty-state-revolutionary" id="emptyState" style="display: none;">
+                <i class="fas fa-users-slash"></i>
+                <h3>해당 조건에 맞는 조직 정보가 없습니다</h3>
+                <p>다른 조건으로 검색해보세요.</p>
+            </div>
         </div>
     </div>
 </div>
@@ -519,25 +612,25 @@ class HierarchyOrganization {
     renderStats() {
         this.statsOverview.style.display = 'grid';
         this.statsOverview.innerHTML = `
-            <div class="stat-card">
-                <div class="stat-value">${this.currentData.executives}</div>
-                <div class="stat-label">임원급</div>
+            <div class="stat-card-revolutionary">
+                <div class="stat-value-revolutionary">${this.currentData.executives}</div>
+                <div class="stat-label-revolutionary">임원급</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">${this.currentData.departments}</div>
-                <div class="stat-label">부서장급</div>
+            <div class="stat-card-revolutionary">
+                <div class="stat-value-revolutionary">${this.currentData.departments}</div>
+                <div class="stat-label-revolutionary">부서장급</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">${this.currentData.teams}</div>
-                <div class="stat-label">팀장급</div>
+            <div class="stat-card-revolutionary">
+                <div class="stat-value-revolutionary">${this.currentData.teams}</div>
+                <div class="stat-label-revolutionary">팀장급</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">${this.currentData.members}</div>
-                <div class="stat-label">팀원급</div>
+            <div class="stat-card-revolutionary">
+                <div class="stat-value-revolutionary">${this.currentData.members}</div>
+                <div class="stat-label-revolutionary">팀원급</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">${this.currentData.total}</div>
-                <div class="stat-label">전체 인원</div>
+            <div class="stat-card-revolutionary">
+                <div class="stat-value-revolutionary">${this.currentData.total}</div>
+                <div class="stat-label-revolutionary">전체 인원</div>
             </div>
         `;
     }
@@ -560,85 +653,85 @@ class HierarchyOrganization {
     createOrgCard(org) {
         const initials = org.name.substring(0, 2);
         const profileImage = org.profile_image ? 
-            `<img src="${org.profile_image}" alt="${org.name}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` :
+            `<img src="${org.profile_image}" alt="${org.name}">` :
             initials;
         
         let details = '';
         if (this.currentLevel === 'executive') {
             details = `
-                <div class="detail-item">
-                    <div class="detail-value">${org.subordinate_count}</div>
-                    <div class="detail-label">부하직원</div>
+                <div class="detail-item-revolutionary">
+                    <div class="detail-value-revolutionary">${org.subordinate_count}</div>
+                    <div class="detail-label-revolutionary">부하직원</div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-value">${org.subordinate_departments?.length || 0}</div>
-                    <div class="detail-label">관할부서</div>
+                <div class="detail-item-revolutionary">
+                    <div class="detail-value-revolutionary">${org.subordinate_departments?.length || 0}</div>
+                    <div class="detail-label-revolutionary">관할부서</div>
                 </div>
             `;
         } else if (this.currentLevel === 'department') {
             details = `
-                <div class="detail-item">
-                    <div class="detail-value">${org.total_members}</div>
-                    <div class="detail-label">총 인원</div>
+                <div class="detail-item-revolutionary">
+                    <div class="detail-value-revolutionary">${org.total_members}</div>
+                    <div class="detail-label-revolutionary">총 인원</div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-value">${org.team_count}</div>
-                    <div class="detail-label">팀 수</div>
+                <div class="detail-item-revolutionary">
+                    <div class="detail-value-revolutionary">${org.team_count}</div>
+                    <div class="detail-label-revolutionary">팀 수</div>
                 </div>
             `;
         } else if (this.currentLevel === 'team') {
             details = `
-                <div class="detail-item">
-                    <div class="detail-value">${org.team_members}</div>
-                    <div class="detail-label">팀원 수</div>
+                <div class="detail-item-revolutionary">
+                    <div class="detail-value-revolutionary">${org.team_members}</div>
+                    <div class="detail-label-revolutionary">팀원 수</div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-value">Level ${org.level}</div>
-                    <div class="detail-label">성장레벨</div>
+                <div class="detail-item-revolutionary">
+                    <div class="detail-value-revolutionary">Level ${org.level}</div>
+                    <div class="detail-label-revolutionary">성장레벨</div>
                 </div>
             `;
         } else {
             details = `
-                <div class="detail-item">
-                    <div class="detail-value">Level ${org.level}</div>
-                    <div class="detail-label">성장레벨</div>
+                <div class="detail-item-revolutionary">
+                    <div class="detail-value-revolutionary">Level ${org.level}</div>
+                    <div class="detail-label-revolutionary">성장레벨</div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-value">${org.age || 0}년</div>
-                    <div class="detail-label">근무년수</div>
+                <div class="detail-item-revolutionary">
+                    <div class="detail-value-revolutionary">${org.age || 0}년</div>
+                    <div class="detail-label-revolutionary">근무년수</div>
                 </div>
             `;
         }
         
         const expandButton = (this.currentLevel === 'team' && org.members?.length > 0) ? 
-            `<button class="expand-btn" onclick="hierarchyOrg.toggleMembers(${org.id})">
+            `<button class="expand-btn-revolutionary" onclick="hierarchyOrg.toggleMembers(${org.id})">
                 팀원 보기 (${org.members.length}명)
             </button>` : '';
         
         const membersList = (this.currentLevel === 'team' && org.members?.length > 0) ?
-            `<div class="members-list" id="members-${org.id}">
+            `<div class="members-list-revolutionary" id="members-${org.id}">
                 ${org.members.map(member => `
-                    <div class="member-item">
-                        <div class="member-avatar">${member.name.substring(0, 2)}</div>
-                        <div class="member-info">
-                            <div class="member-name">${member.name}</div>
-                            <div class="member-position">${member.position} | Level ${member.level}</div>
+                    <div class="member-item-revolutionary">
+                        <div class="member-avatar-revolutionary">${member.name.substring(0, 2)}</div>
+                        <div class="member-info-revolutionary">
+                            <div class="member-name-revolutionary">${member.name}</div>
+                            <div class="member-position-revolutionary">${member.position} | Level ${member.level}</div>
                         </div>
                     </div>
                 `).join('')}
             </div>` : '';
         
         return `
-            <div class="org-card" data-id="${org.id}">
-                <div class="org-card-header">
-                    <div class="org-avatar">${profileImage}</div>
-                    <div class="org-info">
-                        <div class="org-name">${org.name}</div>
-                        <div class="org-position">${org.position}</div>
-                        <div class="org-department">${org.department} | ${org.job_type}</div>
+            <div class="org-card-revolutionary" data-id="${org.id}">
+                <div class="org-card-header-revolutionary">
+                    <div class="org-avatar-revolutionary">${profileImage}</div>
+                    <div class="org-info-revolutionary">
+                        <div class="org-name-revolutionary">${org.name}</div>
+                        <div class="org-position-revolutionary">${org.position}</div>
+                        <div class="org-department-revolutionary">${org.department} | ${org.job_type}</div>
                     </div>
                 </div>
-                <div class="org-details">
+                <div class="org-details-revolutionary">
                     ${details}
                 </div>
                 ${expandButton}
@@ -649,9 +742,9 @@ class HierarchyOrganization {
     
     addCardEventListeners() {
         // 조직 카드 클릭 이벤트
-        document.querySelectorAll('.org-card').forEach(card => {
+        document.querySelectorAll('.org-card-revolutionary').forEach(card => {
             card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('expand-btn')) {
+                if (!e.target.classList.contains('expand-btn-revolutionary')) {
                     const orgId = card.dataset.id;
                     this.showOrgDetails(orgId);
                 }

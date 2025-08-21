@@ -1,359 +1,533 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}평가자 대시보드 - OK금융그룹 e-HR{% endblock %}
+{% block title %}평가자 대시보드 - OK금융그룹 혁신적 HRM 시스템{% endblock %}
+
+{% block page_header %}Evaluator Dashboard Center{% endblock %}
+{% block content_title %}평가자 대시보드{% endblock %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    {{ evaluator.name }}님이 평가해야 할 직원들의 평가 진행 현황입니다
+</p>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .evaluator-container-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 25px;
+        padding: 2rem;
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .evaluator-container-revolutionary::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        left: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: pulse 10s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    /* 통계 카드 */
+    .evaluator-stat-card-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .evaluator-stat-card-revolutionary:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        border-color: rgba(0, 212, 255, 0.4);
+    }
+
+    .evaluator-stat-header-revolutionary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .evaluator-stat-icon-revolutionary {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        font-size: 1.25rem;
+        color: white;
+    }
+
+    .evaluator-stat-value-revolutionary {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .evaluator-stat-label-revolutionary {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* 평가 대상자 테이블 */
+    .evaluator-table-revolutionary {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 2rem;
+    }
+
+    .evaluator-table-revolutionary table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .evaluator-table-revolutionary th {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.1));
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #00d4ff;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .evaluator-table-revolutionary td {
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .evaluator-table-revolutionary tr:hover td {
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    /* 직원 정보 */
+    .employee-info-revolutionary {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .employee-avatar-revolutionary {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #00d4ff;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2);
+    }
+
+    .employee-name-revolutionary {
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.25rem;
+    }
+
+    .employee-detail-revolutionary {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* 상태 배지 */
+    .status-badge-revolutionary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-completed-revolutionary {
+        background: rgba(0, 255, 136, 0.1);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .status-pending-revolutionary {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* 전체 상태 */
+    .overall-status-revolutionary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        border-radius: 15px;
+    }
+
+    .overall-completed-revolutionary {
+        background: rgba(0, 255, 136, 0.1);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .overall-in-progress-revolutionary {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .overall-in-progress-revolutionary i {
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* 액션 버튼 */
+    .action-btn-revolutionary {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 3px 10px rgba(0, 212, 255, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .action-btn-revolutionary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* 알림 섹션 */
+    .alert-revolutionary {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-revolutionary i {
+        color: #00d4ff;
+        font-size: 1.25rem;
+    }
+
+    .alert-revolutionary .alert-content {
+        color: white;
+    }
+
+    .alert-revolutionary .alert-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .alert-revolutionary .alert-text {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+    }
+
+    /* 빈 상태 */
+    .empty-state-revolutionary {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-state-revolutionary i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: rgba(0, 212, 255, 0.3);
+    }
+
+    .empty-state-revolutionary h4 {
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-revolutionary p {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 1024px) {
+        .evaluator-container-revolutionary {
+            padding: 1.5rem;
+        }
+
+        .evaluator-stat-card-revolutionary {
+            padding: 1.25rem;
+        }
+
+        .evaluator-stat-value-revolutionary {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .evaluator-container-revolutionary {
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .evaluator-table-revolutionary {
+            overflow-x: auto;
+        }
+
+        .employee-info-revolutionary {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .evaluator-stat-header-revolutionary {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="page-content">
-    <div class="container">
-        <!-- 브레드크럼 -->
-        <nav class="breadcrumb">
-            <ul class="breadcrumb-list">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'home' %}" class="breadcrumb-link">홈</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'evaluations:dashboard' %}" class="breadcrumb-link">평가관리</a>
-                </li>
-                <li class="breadcrumb-item">평가자 대시보드</li>
-            </ul>
-        </nav>
-
-        <!-- 페이지 헤더 -->
-        <div class="page-header">
-            <div class="page-header-content">
-                <h1 class="page-title">
-                    <i class="fas fa-user-tie"></i>
-                    평가자 대시보드
-                </h1>
-                <p class="page-description">{{ evaluator.name }}님이 평가해야 할 직원들의 평가 진행 현황입니다</p>
-            </div>
-        </div>
-
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
         {% if active_period %}
         <!-- 평가 기간 정보 -->
-        <div class="alert alert-info mb-4">
+        <div class="alert-revolutionary">
             <i class="fas fa-info-circle"></i>
-            <strong>{{ active_period.year }}년 {{ active_period.get_period_type_display }}</strong> 평가가 진행 중입니다.
-            ({{ active_period.start_date|date:"Y.m.d" }} ~ {{ active_period.end_date|date:"Y.m.d" }})
+            <div class="alert-content">
+                <div class="alert-title">{{ active_period.year }}년 {{ active_period.get_period_type_display }} 평가가 진행 중입니다</div>
+                <div class="alert-text">({{ active_period.start_date|date:"Y.m.d" }} ~ {{ active_period.end_date|date:"Y.m.d" }})</div>
+            </div>
         </div>
 
         <!-- 평가 진행 현황 요약 -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stat-card bg-primary-gradient">
-                    <div class="stat-card-body">
-                        <div class="stat-icon">
+        <div class="mb-8">
+            <h2 class="section-title">평가 진행 현황</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- 평가 대상자 -->
+                <div class="evaluator-stat-card-revolutionary">
+                    <div class="evaluator-stat-header-revolutionary">
+                        <div class="evaluator-stat-icon-revolutionary" style="background: linear-gradient(135deg, #00d4ff, #0099ff);">
                             <i class="fas fa-users"></i>
                         </div>
-                        <div class="stat-info">
-                            <h3 class="stat-value">{{ total_count }}</h3>
-                            <p class="stat-label">평가 대상자</p>
-                        </div>
+                    </div>
+                    <div>
+                        <div class="evaluator-stat-value-revolutionary">{{ total_count }}</div>
+                        <div class="evaluator-stat-label-revolutionary">평가 대상자</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card bg-success-gradient">
-                    <div class="stat-card-body">
-                        <div class="stat-icon">
+
+                <!-- 평가 완료 -->
+                <div class="evaluator-stat-card-revolutionary">
+                    <div class="evaluator-stat-header-revolutionary">
+                        <div class="evaluator-stat-icon-revolutionary" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
                             <i class="fas fa-check-circle"></i>
                         </div>
-                        <div class="stat-info">
-                            <h3 class="stat-value">{{ completed_count }}</h3>
-                            <p class="stat-label">평가 완료</p>
-                        </div>
+                    </div>
+                    <div>
+                        <div class="evaluator-stat-value-revolutionary">{{ completed_count }}</div>
+                        <div class="evaluator-stat-label-revolutionary">평가 완료</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card bg-warning-gradient">
-                    <div class="stat-card-body">
-                        <div class="stat-icon">
+
+                <!-- 평가 대기 -->
+                <div class="evaluator-stat-card-revolutionary">
+                    <div class="evaluator-stat-header-revolutionary">
+                        <div class="evaluator-stat-icon-revolutionary" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
                             <i class="fas fa-hourglass-half"></i>
                         </div>
-                        <div class="stat-info">
-                            <h3 class="stat-value">{{ total_count|add:"-"|add:completed_count }}</h3>
-                            <p class="stat-label">평가 대기</p>
-                        </div>
+                    </div>
+                    <div>
+                        <div class="evaluator-stat-value-revolutionary">{{ total_count|add:"-"|add:completed_count }}</div>
+                        <div class="evaluator-stat-label-revolutionary">평가 대기</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card bg-info-gradient">
-                    <div class="stat-card-body">
-                        <div class="stat-icon">
+
+                <!-- 진행률 -->
+                <div class="evaluator-stat-card-revolutionary">
+                    <div class="evaluator-stat-header-revolutionary">
+                        <div class="evaluator-stat-icon-revolutionary" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
                             <i class="fas fa-percentage"></i>
                         </div>
-                        <div class="stat-info">
-                            <h3 class="stat-value">
-                                {% if total_count > 0 %}
-                                    {% widthratio completed_count total_count 100 %}%
-                                {% else %}
-                                    0%
-                                {% endif %}
-                            </h3>
-                            <p class="stat-label">진행률</p>
+                    </div>
+                    <div>
+                        <div class="evaluator-stat-value-revolutionary">
+                            {% if total_count > 0 %}
+                                {% widthratio completed_count total_count 100 %}%
+                            {% else %}
+                                0%
+                            {% endif %}
                         </div>
+                        <div class="evaluator-stat-label-revolutionary">진행률</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 평가 대상자 목록 -->
-        <div class="card">
-            <div class="card-header">
-                <h3>평가 대상자 목록</h3>
-            </div>
-            <div class="card-body">
-                {% if evaluation_status %}
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>직원 정보</th>
-                                    <th class="text-center">기여도 평가</th>
-                                    <th class="text-center">전문성 평가</th>
-                                    <th class="text-center">영향력 평가</th>
-                                    <th class="text-center">평가 상태</th>
-                                    <th class="text-center">작업</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for status in evaluation_status %}
-                                <tr>
-                                    <td>
-                                        <div class="employee-info">
-                                            <div class="employee-avatar">
-                                                <i class="fas fa-user"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="employee-name mb-0">{{ status.employee.name }}</h6>
-                                                <p class="employee-detail mb-0">
-                                                    {{ status.employee.department }} · {{ status.employee.position }}
-                                                </p>
+        <div class="evaluator-table-revolutionary">
+            <h3 class="section-title" style="padding: 1.5rem; margin: 0; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">평가 대상자 목록</h3>
+            
+            {% if evaluation_status %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>직원 정보</th>
+                                <th style="text-align: center;">기여도 평가</th>
+                                <th style="text-align: center;">전문성 평가</th>
+                                <th style="text-align: center;">영향력 평가</th>
+                                <th style="text-align: center;">평가 상태</th>
+                                <th style="text-align: center;">작업</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for status in evaluation_status %}
+                            <tr>
+                                <td>
+                                    <div class="employee-info-revolutionary">
+                                        <div class="employee-avatar-revolutionary">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <div class="employee-name-revolutionary">{{ status.employee.name }}</div>
+                                            <div class="employee-detail-revolutionary">
+                                                {{ status.employee.department }} · {{ status.employee.position }}
                                             </div>
                                         </div>
-                                    </td>
-                                    <td class="text-center">
-                                        {% if status.contribution %}
-                                            <span class="status-badge status-completed">
-                                                <i class="fas fa-check"></i> 완료
-                                            </span>
-                                        {% else %}
-                                            <span class="status-badge status-pending">
-                                                <i class="fas fa-times"></i> 미완료
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        {% if status.expertise %}
-                                            <span class="status-badge status-completed">
-                                                <i class="fas fa-check"></i> 완료
-                                            </span>
-                                        {% else %}
-                                            <span class="status-badge status-pending">
-                                                <i class="fas fa-times"></i> 미완료
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        {% if status.impact %}
-                                            <span class="status-badge status-completed">
-                                                <i class="fas fa-check"></i> 완료
-                                            </span>
-                                        {% else %}
-                                            <span class="status-badge status-pending">
-                                                <i class="fas fa-times"></i> 미완료
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        {% if status.completed %}
-                                            <span class="overall-status overall-completed">
-                                                <i class="fas fa-check-circle"></i> 평가 완료
-                                            </span>
-                                        {% else %}
-                                            <span class="overall-status overall-in-progress">
-                                                <i class="fas fa-spinner"></i> 진행 중
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="{% url 'evaluations:evaluate_employee' status.employee.id %}" 
-                                           class="btn btn-primary btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                            평가하기
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-users fa-4x text-muted mb-3"></i>
-                        <h4 class="text-muted">평가할 직원이 없습니다</h4>
-                        <p class="text-muted">귀하가 평가해야 할 직원이 지정되지 않았습니다.</p>
-                    </div>
-                {% endif %}
-            </div>
+                                    </div>
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if status.contribution %}
+                                        <span class="status-badge-revolutionary status-completed-revolutionary">
+                                            <i class="fas fa-check"></i> 완료
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge-revolutionary status-pending-revolutionary">
+                                            <i class="fas fa-times"></i> 미완료
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if status.expertise %}
+                                        <span class="status-badge-revolutionary status-completed-revolutionary">
+                                            <i class="fas fa-check"></i> 완료
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge-revolutionary status-pending-revolutionary">
+                                            <i class="fas fa-times"></i> 미완료
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if status.impact %}
+                                        <span class="status-badge-revolutionary status-completed-revolutionary">
+                                            <i class="fas fa-check"></i> 완료
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge-revolutionary status-pending-revolutionary">
+                                            <i class="fas fa-times"></i> 미완료
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if status.completed %}
+                                        <span class="overall-status-revolutionary overall-completed-revolutionary">
+                                            <i class="fas fa-check-circle"></i> 평가 완료
+                                        </span>
+                                    {% else %}
+                                        <span class="overall-status-revolutionary overall-in-progress-revolutionary">
+                                            <i class="fas fa-spinner"></i> 진행 중
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="{% url 'evaluations:evaluate_employee' status.employee.id %}" 
+                                       class="action-btn-revolutionary">
+                                        <i class="fas fa-edit"></i>
+                                        평가하기
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state-revolutionary">
+                    <i class="fas fa-users"></i>
+                    <h4>평가할 직원이 없습니다</h4>
+                    <p>귀하가 평가해야 할 직원이 지정되지 않았습니다.</p>
+                </div>
+            {% endif %}
         </div>
+        
         {% else %}
         <!-- 활성 평가 기간이 없을 때 -->
-        <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            현재 진행 중인 평가 기간이 없습니다.
+        <div class="alert-revolutionary" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
+            <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+            <div class="alert-content">
+                <div class="alert-title">현재 진행 중인 평가 기간이 없습니다</div>
+                <div class="alert-text">평가 관리자에게 문의하시기 바랍니다.</div>
+            </div>
         </div>
         {% endif %}
     </div>
 </div>
-
-<style>
-/* 통계 카드 스타일 */
-.stat-card {
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-normal);
-    color: white;
-}
-
-.stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-}
-
-.stat-card-body {
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.stat-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-
-.stat-info {
-    text-align: right;
-}
-
-.stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0;
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    margin: 0;
-    opacity: 0.9;
-}
-
-/* 그라데이션 배경 */
-.bg-primary-gradient {
-    background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-orange-hover) 100%);
-}
-
-.bg-success-gradient {
-    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
-}
-
-.bg-warning-gradient {
-    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
-}
-
-.bg-info-gradient {
-    background: linear-gradient(135deg, var(--info) 0%, #1d4ed8 100%);
-}
-
-/* 직원 정보 스타일 */
-.employee-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.employee-avatar {
-    width: 40px;
-    height: 40px;
-    background: var(--gray-100);
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gray-500);
-}
-
-.employee-name {
-    font-weight: 600;
-    color: var(--gray-900);
-}
-
-.employee-detail {
-    font-size: 0.875rem;
-    color: var(--gray-600);
-}
-
-/* 상태 배지 스타일 */
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.status-completed {
-    background: #D1FAE5;
-    color: #059669;
-}
-
-.status-pending {
-    background: #FEE2E2;
-    color: #DC2626;
-}
-
-/* 전체 상태 스타일 */
-.overall-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    font-size: 0.875rem;
-}
-
-.overall-completed {
-    color: var(--success);
-}
-
-.overall-in-progress {
-    color: var(--warning);
-}
-
-.overall-in-progress i {
-    animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* 템플릿 태그 대체 스타일 */
-.stat-value::after {
-    content: attr(data-value);
-}
-</style>
 {% endblock %}
