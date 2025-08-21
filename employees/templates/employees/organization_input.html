@@ -1,0 +1,714 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}조직 정보 관리 - OK금융그룹 eHR{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Revolutionary Theme Styles */
+    .org-input-container {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+        margin: 2rem 0;
+    }
+
+    .org-input-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #00d4ff;
+    }
+
+    .org-input-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .input-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .tab-btn {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 1rem 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+        color: #00d4ff;
+    }
+
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #00d4ff, #0099cc);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Form Styles */
+    .form-section {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+        color: #00d4ff;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        color: white;
+        padding: 0.75rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.05);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    /* Excel Upload Area */
+    .upload-area {
+        border: 2px dashed rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        padding: 3rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: rgba(0, 212, 255, 0.02);
+    }
+
+    .upload-area:hover {
+        border-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .upload-area.dragover {
+        border-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.1);
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: #00d4ff;
+        margin-bottom: 1rem;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+
+    /* Table for preview */
+    .preview-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .preview-table th {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .preview-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .preview-table tr:hover {
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    /* Success/Error Messages */
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+    }
+
+    .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="org-input-container">
+        <div class="org-input-header">
+            <h1>조직 정보 관리</h1>
+            <p>직원 정보 및 조직 구조 설정</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="input-tabs">
+            <button class="tab-btn active" data-tab="individual">개별 입력</button>
+            <button class="tab-btn" data-tab="bulk">일괄 업로드</button>
+            <button class="tab-btn" data-tab="organize">조직 구조 편집</button>
+        </div>
+
+        <!-- Individual Input Tab -->
+        <div id="individual" class="tab-content active">
+            <form id="individual-form" method="POST">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> 기본 정보</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">이름 *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">이메일 *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">전화번호</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Organization Structure -->
+                <div class="form-section">
+                    <h3><i class="fas fa-sitemap"></i> 조직 구조</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="company">회사 *</label>
+                            <select id="company" name="company" required>
+                                <option value="">선택하세요</option>
+                                <option value="OK">OK금융지주</option>
+                                <option value="OKB">OK저축은행</option>
+                                <option value="OKC">OK캐피탈</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="headquarters1">본부</label>
+                            <select id="headquarters1" name="headquarters1">
+                                <option value="">선택하세요</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="department">부서</label>
+                            <select id="department" name="department">
+                                <option value="">선택하세요</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="team">팀</label>
+                            <input type="text" id="team" name="team" placeholder="예: 개발1팀">
+                        </div>
+                        <div class="form-group">
+                            <label for="manager">직속 상사</label>
+                            <select id="manager" name="manager">
+                                <option value="">선택하세요</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Position Information -->
+                <div class="form-section">
+                    <h3><i class="fas fa-award"></i> 직급 정보</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="position">직급 *</label>
+                            <select id="position" name="position" required>
+                                <option value="">선택하세요</option>
+                                <option value="사원">사원</option>
+                                <option value="대리">대리</option>
+                                <option value="과장">과장</option>
+                                <option value="차장">차장</option>
+                                <option value="부장">부장</option>
+                                <option value="이사">이사</option>
+                                <option value="상무">상무</option>
+                                <option value="전무">전무</option>
+                                <option value="부사장">부사장</option>
+                                <option value="사장">사장</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="responsibility">직책</label>
+                            <input type="text" id="responsibility" name="responsibility" placeholder="예: 팀장, 본부장">
+                        </div>
+                        <div class="form-group">
+                            <label for="hire_date">입사일</label>
+                            <input type="date" id="hire_date" name="hire_date">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn-secondary" onclick="resetForm()">초기화</button>
+                    <button type="submit" class="btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bulk Upload Tab -->
+        <div id="bulk" class="tab-content">
+            <div class="form-section">
+                <h3><i class="fas fa-file-excel"></i> Excel 파일 업로드</h3>
+                
+                <div class="upload-area" id="upload-area">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h4>Excel 파일을 드래그하여 놓으세요</h4>
+                    <p>또는 클릭하여 파일 선택</p>
+                    <input type="file" id="file-input" accept=".xlsx,.xls" style="display: none;">
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button class="btn-secondary" onclick="downloadTemplate()">
+                        <i class="fas fa-download"></i> 템플릿 다운로드
+                    </button>
+                </div>
+
+                <!-- Preview Section -->
+                <div id="preview-section" style="display: none; margin-top: 2rem;">
+                    <h3><i class="fas fa-eye"></i> 업로드 미리보기</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="preview-table" id="preview-table">
+                            <!-- Table will be populated by JavaScript -->
+                        </table>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-secondary" onclick="cancelUpload()">취소</button>
+                        <button class="btn-primary" onclick="confirmUpload()">업로드 확인</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Organization Structure Edit Tab -->
+        <div id="organize" class="tab-content">
+            <div class="form-section">
+                <h3><i class="fas fa-project-diagram"></i> 조직 구조 편집</h3>
+                <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 2rem;">
+                    드래그 앤 드롭으로 조직 구조를 편집할 수 있습니다.
+                </p>
+                
+                <div id="org-structure-editor" style="min-height: 500px;">
+                    <!-- Organization structure editor will be loaded here -->
+                    <div style="text-align: center; padding: 3rem;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #00d4ff;"></i>
+                        <p style="margin-top: 1rem; color: rgba(255, 255, 255, 0.7);">조직 구조를 불러오는 중...</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-secondary" onclick="resetStructure()">원래대로</button>
+                    <button class="btn-primary" onclick="saveStructure()">변경사항 저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        
+        // Update active states
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        this.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+        
+        // Load content for specific tabs
+        if (tabId === 'organize') {
+            loadOrganizationStructure();
+        }
+    });
+});
+
+// Individual form submission
+document.getElementById('individual-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    
+    try {
+        const response = await fetch('{% url "employees:save_employee" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('success', '직원 정보가 성공적으로 저장되었습니다.');
+            this.reset();
+        } else {
+            showAlert('error', result.message || '저장 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        showAlert('error', '네트워크 오류가 발생했습니다.');
+    }
+});
+
+// File upload handling
+const uploadArea = document.getElementById('upload-area');
+const fileInput = document.getElementById('file-input');
+
+uploadArea.addEventListener('click', () => fileInput.click());
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFile(files[0]);
+    }
+});
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+});
+
+function handleFile(file) {
+    if (!file.name.match(/\.(xlsx|xls)$/)) {
+        showAlert('error', 'Excel 파일만 업로드 가능합니다.');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        
+        displayPreview(jsonData);
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function displayPreview(data) {
+    if (data.length === 0) {
+        showAlert('error', '파일에 데이터가 없습니다.');
+        return;
+    }
+    
+    const previewSection = document.getElementById('preview-section');
+    const previewTable = document.getElementById('preview-table');
+    
+    // Create table header
+    const headers = Object.keys(data[0]);
+    let tableHTML = '<thead><tr>';
+    headers.forEach(header => {
+        tableHTML += `<th>${header}</th>`;
+    });
+    tableHTML += '</tr></thead><tbody>';
+    
+    // Create table rows (show first 10 rows)
+    data.slice(0, 10).forEach(row => {
+        tableHTML += '<tr>';
+        headers.forEach(header => {
+            tableHTML += `<td>${row[header] || ''}</td>`;
+        });
+        tableHTML += '</tr>';
+    });
+    
+    if (data.length > 10) {
+        tableHTML += `<tr><td colspan="${headers.length}" style="text-align: center;">... 외 ${data.length - 10}개 행</td></tr>`;
+    }
+    
+    tableHTML += '</tbody>';
+    previewTable.innerHTML = tableHTML;
+    previewSection.style.display = 'block';
+    
+    // Store data for upload
+    window.uploadData = data;
+}
+
+async function confirmUpload() {
+    if (!window.uploadData) {
+        showAlert('error', '업로드할 데이터가 없습니다.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('{% url "employees:bulk_upload" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ data: window.uploadData })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('success', `${result.count}개의 직원 정보가 성공적으로 업로드되었습니다.`);
+            cancelUpload();
+        } else {
+            showAlert('error', result.message || '업로드 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        showAlert('error', '네트워크 오류가 발생했습니다.');
+    }
+}
+
+function cancelUpload() {
+    document.getElementById('preview-section').style.display = 'none';
+    document.getElementById('preview-table').innerHTML = '';
+    fileInput.value = '';
+    window.uploadData = null;
+}
+
+function downloadTemplate() {
+    // Create template data
+    const templateData = [
+        {
+            '이름': '홍길동',
+            '이메일': 'hong@example.com',
+            '전화번호': '010-1234-5678',
+            '회사': 'OK금융지주',
+            '본부': '디지털본부',
+            '부서': 'IT개발부',
+            '팀': '개발1팀',
+            '직급': '과장',
+            '직책': '',
+            '직속상사': '김부장',
+            '입사일': '2020-01-01'
+        }
+    ];
+    
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '조직정보');
+    XLSX.writeFile(wb, '조직정보_템플릿.xlsx');
+}
+
+// Load managers for dropdown
+async function loadManagers() {
+    try {
+        const response = await fetch('{% url "employees:get_managers" %}');
+        const managers = await response.json();
+        
+        const managerSelect = document.getElementById('manager');
+        managerSelect.innerHTML = '<option value="">선택하세요</option>';
+        
+        managers.forEach(manager => {
+            managerSelect.innerHTML += `<option value="${manager.id}">${manager.name} (${manager.position})</option>`;
+        });
+    } catch (error) {
+        console.error('Failed to load managers:', error);
+    }
+}
+
+// Load organization structure for editing
+async function loadOrganizationStructure() {
+    const editor = document.getElementById('org-structure-editor');
+    
+    try {
+        const response = await fetch('{% url "employees:organization_data_api" %}');
+        const result = await response.json();
+        
+        if (result.success) {
+            // Here you would implement a visual org chart editor
+            // For now, showing a placeholder
+            editor.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <p style="color: #00d4ff; font-size: 1.2rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        시각적 조직도 편집기는 향후 업데이트 예정입니다.
+                    </p>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-top: 1rem;">
+                        현재는 개별 입력 또는 Excel 업로드를 이용해주세요.
+                    </p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        editor.innerHTML = '<p style="color: #ef4444;">조직 구조를 불러오는데 실패했습니다.</p>';
+    }
+}
+
+// Utility functions
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        ${message}
+    `;
+    
+    const container = document.querySelector('.org-input-container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    setTimeout(() => alertDiv.remove(), 5000);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function resetForm() {
+    document.getElementById('individual-form').reset();
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadManagers();
+});
+</script>
+{% endblock %}

@@ -110,6 +110,24 @@ class EmployeeListView(ListView):
         # 현재 쿼리셋의 수
         context['queryset_count'] = self.get_queryset().count()
         
+        # 통계 데이터 추가 (상단 카드용)
+        from datetime import datetime, timedelta
+        
+        # 부서 수 계산 (중복 제거)
+        departments = set()
+        for dept in Employee.objects.exclude(department__isnull=True).exclude(department='').values_list('department', flat=True):
+            departments.add(dept)
+        for dept in Employee.objects.exclude(final_department__isnull=True).exclude(final_department='').values_list('final_department', flat=True):
+            departments.add(dept)
+        context['department_count'] = len(departments)
+        
+        # 활성 계정 수 (재직 상태)
+        context['active_count'] = Employee.objects.filter(employment_status='재직').count()
+        
+        # 신규 입사 (최근 30일)
+        thirty_days_ago = datetime.now().date() - timedelta(days=30)
+        context['new_employee_count'] = Employee.objects.filter(hire_date__gte=thirty_days_ago).count()
+        
         # 검색 관련 컨텍스트
         context['search_query'] = self.request.GET.get('q', '')
         context['search_type'] = self.request.GET.get('search_type', 'all')
@@ -724,3 +742,152 @@ def full_workforce_view(request):
 def overseas_workforce_view(request):
     """월간 해외인력현황 뷰"""
     return render(request, 'hr/overseas_workforce.html')
+
+
+# Organization Input Views
+def organization_input_view(request):
+    """조직 정보 입력 페이지"""
+    return render(request, 'employees/organization_input.html')
+
+
+def save_employee_api(request):
+    """개별 직원 정보 저장 API"""
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+            
+            # Create or update employee
+            employee = Employee(
+                name=data.get('name'),
+                email=data.get('email'),
+                phone=data.get('phone', ''),
+                company=data.get('company'),
+                headquarters1=data.get('headquarters1', ''),
+                department=data.get('department', ''),
+                current_position=data.get('position'),
+                new_position=data.get('position'),
+                responsibility=data.get('responsibility', ''),
+                hire_date=data.get('hire_date') if data.get('hire_date') else date.today(),
+                employment_status='재직'
+            )
+            
+            # Set manager if provided
+            manager_id = data.get('manager')
+            if manager_id:
+                try:
+                    manager = Employee.objects.get(id=manager_id)
+                    employee.manager = manager
+                except Employee.DoesNotExist:
+                    pass
+            
+            employee.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': '직원 정보가 저장되었습니다.',
+                'employee_id': employee.id
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'}, status=400)
+
+
+def bulk_upload_api(request):
+    """Excel 일괄 업로드 API"""
+    if request.method == 'POST':
+        try:
+            import json
+            body = json.loads(request.body)
+            data = body.get('data', [])
+            
+            created_count = 0
+            errors = []
+            
+            for row in data:
+                try:
+                    # Map Excel columns to model fields
+                    employee = Employee(
+                        name=row.get('이름', ''),
+                        email=row.get('이메일', ''),
+                        phone=row.get('전화번호', ''),
+                        company=row.get('회사', ''),
+                        headquarters1=row.get('본부', ''),
+                        department=row.get('부서', ''),
+                        current_position=row.get('직급', ''),
+                        new_position=row.get('직급', ''),
+                        responsibility=row.get('직책', ''),
+                        job_type=row.get('팀', ''),
+                        employment_status='재직'
+                    )
+                    
+                    # Parse hire date
+                    hire_date_str = row.get('입사일')
+                    if hire_date_str:
+                        from datetime import datetime
+                        try:
+                            employee.hire_date = datetime.strptime(hire_date_str, '%Y-%m-%d').date()
+                        except:
+                            employee.hire_date = date.today()
+                    else:
+                        employee.hire_date = date.today()
+                    
+                    # Find and set manager
+                    manager_name = row.get('직속상사')
+                    if manager_name:
+                        try:
+                            manager = Employee.objects.filter(name=manager_name).first()
+                            if manager:
+                                employee.manager = manager
+                        except:
+                            pass
+                    
+                    employee.save()
+                    created_count += 1
+                    
+                except Exception as e:
+                    errors.append(f"Row {row.get('이름', 'Unknown')}: {str(e)}")
+            
+            return JsonResponse({
+                'success': True,
+                'count': created_count,
+                'errors': errors,
+                'message': f'{created_count}개의 직원 정보가 업로드되었습니다.'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'}, status=400)
+
+
+def get_managers_api(request):
+    """관리자 목록 조회 API"""
+    try:
+        # Get employees who can be managers (usually higher positions)
+        managers = Employee.objects.filter(
+            employment_status='재직',
+            current_position__in=['팀장', '부장', '본부장', '이사', '상무', '전무', '부사장', '사장']
+        ).values('id', 'name', 'current_position', 'department')
+        
+        manager_list = []
+        for manager in managers:
+            manager_list.append({
+                'id': manager['id'],
+                'name': manager['name'],
+                'position': manager['current_position'],
+                'department': manager['department']
+            })
+        
+        return JsonResponse(manager_list, safe=False)
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

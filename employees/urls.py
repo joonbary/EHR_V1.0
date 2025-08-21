@@ -17,6 +17,12 @@ urlpatterns = [
     path('api/organization-data/', views.organization_data_api, name='organization_data_api'),
     path('api/hierarchy-data/', views.hierarchy_organization_api, name='hierarchy_organization_api'),
     
+    # Organization Input
+    path('organization/input/', views.organization_input_view, name='organization_input'),
+    path('api/save-employee/', views.save_employee_api, name='save_employee'),
+    path('api/bulk-upload/', views.bulk_upload_api, name='bulk_upload'),
+    path('api/get-managers/', views.get_managers_api, name='get_managers'),
+    
     # REST API endpoints
     path('api/test/', test_database, name='test-database'),  # 테스트 엔드포인트
     path('api/employees/', api_views.EmployeeListCreateAPIView.as_view(), name='employee-list-create'),

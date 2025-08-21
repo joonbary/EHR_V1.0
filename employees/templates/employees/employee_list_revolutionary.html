@@ -215,20 +215,20 @@
     <h2 style="color: var(--theme-text-primary, #ffffff); margin-bottom: 20px; font-size: 20px;">📊 직원 현황</h2>
     <div class="stats-grid">
         <div class="stat-item">
-            <span class="stat-number">{{ employees.count|default:"0" }}</span>
+            <span class="stat-number">{{ total_count|default:"0" }}</span>
             <div class="stat-label">총 직원 수</div>
         </div>
         <div class="stat-item">
-            <span class="stat-number">12</span>
+            <span class="stat-number">{{ department_count|default:"0" }}</span>
             <div class="stat-label">부서 수</div>
         </div>
         <div class="stat-item">
-            <span class="stat-number">{{ employees.count|default:"0" }}</span>
+            <span class="stat-number">{{ active_count|default:"0" }}</span>
             <div class="stat-label">활성 계정</div>
         </div>
         <div class="stat-item">
-            <span class="stat-number">0</span>
-            <div class="stat-label">신규 입사</div>
+            <span class="stat-number">{{ new_employee_count|default:"0" }}</span>
+            <div class="stat-label">신규 입사 (30일)</div>
         </div>
     </div>
 </div>
