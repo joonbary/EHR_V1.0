@@ -870,30 +870,39 @@ function createTemplateTable(data) {
         // 각 회사별 데이터 셀
         let rowTotal = 0;
         rowData.companies.forEach(companyData => {
+            let companyTotal = 0; // 각 회사의 합계를 계산
             companyData.positions.forEach(posData => {
                 const td = document.createElement('td');
                 td.className = 'number-cell';
                 td.style.textAlign = 'right';
                 td.style.paddingRight = '10px';
-                td.textContent = posData.count.toLocaleString();
-                tr.appendChild(td);
                 
-                // 그룹 전체 합계를 위해 각 회사의 '계' 컬럼 값을 누적
+                // '계' 컬럼의 경우 해당 회사의 모든 직책 합계를 계산
                 if (posData.position === '계') {
-                    rowTotal += posData.count;
+                    // 이 회사의 다른 모든 직책 값들을 합산
+                    companyTotal = companyData.positions
+                        .filter(p => p.position !== '계')
+                        .reduce((sum, p) => sum + (p.count || 0), 0);
+                    td.textContent = companyTotal.toLocaleString();
+                    rowTotal += companyTotal; // 그룹 전체 합계에 추가
+                } else {
+                    td.textContent = posData.count.toLocaleString();
                 }
+                
+                tr.appendChild(td);
             });
         });
         
         // 총계 행의 경우 특별 처리
         if (rowData.category === '총계') {
-            // 총계 행은 각 회사의 '계' 컬럼만 합산
+            // 총계 행은 각 회사의 모든 직책 합계를 다시 계산
             rowTotal = 0;
             rowData.companies.forEach(companyData => {
-                const totalForCompany = companyData.positions.find(p => p.position === '계');
-                if (totalForCompany) {
-                    rowTotal += totalForCompany.count;
-                }
+                // 각 회사의 실제 총계 계산 (계 컬럼 제외한 모든 직책 합산)
+                const companySum = companyData.positions
+                    .filter(p => p.position !== '계')
+                    .reduce((sum, p) => sum + (p.count || 0), 0);
+                rowTotal += companySum;
             });
         }
         
