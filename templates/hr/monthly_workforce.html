@@ -1,17 +1,18 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
 {% block title %}월간 인력현황{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* 그라디언트 배경 */
+    /* 그라디언트 배경 - Revolutionary Design */
     .gradient-bg {
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
     }
     
     .gradient-bg-subtle {
-        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 153, 255, 0.05) 100%);
     }
     
     /* 글래스모피즘 효과 */
@@ -34,15 +35,16 @@
     
     .hover-lift:hover {
         transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+        box-shadow: 0 12px 24px rgba(0, 212, 255, 0.3);
     }
     
-    /* 그라디언트 텍스트 */
+    /* 그라디언트 텍스트 - Revolutionary Design */
     .gradient-text {
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
     }
     
     .monthly-workforce-container {
@@ -227,7 +229,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Excel 파일 선택</label>
                 <div class="flex gap-2">
-                    <select id="fileSource" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                    <select id="fileSource" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
                         <option value="default">emp_upload.xlsx (기본)</option>
                         <option value="upload">새 파일 업로드</option>
                     </select>
@@ -241,7 +243,7 @@
             <!-- 조회 월 선택 -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">조회 월</label>
-                <input type="month" id="selectedMonth" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500" value="2025-08">
+                <input type="month" id="selectedMonth" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" value="2025-08">
             </div>
         </div>
         

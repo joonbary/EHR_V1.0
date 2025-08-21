@@ -1,17 +1,18 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
 {% block title %}월간 해외인력현황{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* 그라디언트 배경 */
+    /* 그라디언트 배경 - Revolutionary Design */
     .gradient-bg {
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
     }
     
     .gradient-bg-subtle {
-        background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 170, 0, 0.05) 100%);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 153, 255, 0.05) 100%);
     }
     
     /* 글래스모피즘 효과 */
@@ -34,15 +35,16 @@
     
     .hover-lift:hover {
         transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(255, 107, 0, 0.15);
+        box-shadow: 0 12px 24px rgba(0, 212, 255, 0.3);
     }
     
-    /* 그라디언트 텍스트 */
+    /* 그라디언트 텍스트 - Revolutionary Design */
     .gradient-text {
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
     }
     
     /* 법인별 색상 */
@@ -63,7 +65,7 @@
     
     /* 직급/직책 섹션 스타일 */
     .position-section {
-        background: rgba(255, 107, 0, 0.03);
+        background: rgba(0, 212, 255, 0.03);
         border-radius: 0.5rem;
         padding: 0.5rem;
         margin-bottom: 0.5rem;
@@ -71,7 +73,7 @@
     
     .position-header {
         font-weight: 600;
-        color: #FF6B00;
+        color: #00d4ff;
         margin-bottom: 0.25rem;
     }
     
@@ -94,11 +96,11 @@
             <div class="flex items-center space-x-3">
                 <div class="flex items-center space-x-2">
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">조회 월</label>
-                    <select id="selectedMonth" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                    <select id="selectedMonth" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
                         <!-- 동적 로드 -->
                     </select>
                 </div>
-                <select id="corporationFilter" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                <select id="corporationFilter" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
                     <option value="">전체 법인</option>
                     <option value="OK Bank (인니)">OK Bank (인니)</option>
                     <option value="OK Asset (인니)">OK Asset (인니)</option>
@@ -208,7 +210,7 @@
             <div class="modal-body">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Excel 파일 선택</label>
-                    <input type="file" id="fileInput" accept=".xlsx,.xls" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
                 </div>
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h6 class="font-semibold text-blue-900 mb-2">파일 형식:</h6>
