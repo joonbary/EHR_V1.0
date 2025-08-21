@@ -28,13 +28,40 @@ class EmployeeListView(ListView):
     
     def get_queryset(self):
         # Optimize query with select_related and prefetch_related to avoid N+1 problem
-        queryset = Employee.objects.select_related(
-            'user',
-            'manager',
-            'organization'
-        ).prefetch_related(
-            'subordinates'
-        )
+        # Check if organization field exists by testing model field access
+        has_organization_field = False
+        try:
+            # Test if organization field exists in the model
+            Employee._meta.get_field('organization')
+            has_organization_field = True
+        except Exception:
+            has_organization_field = False
+        
+        if has_organization_field:
+            try:
+                # Try to include organization field if it exists
+                queryset = Employee.objects.select_related(
+                    'user',
+                    'manager',
+                    'organization'
+                ).prefetch_related(
+                    'subordinates'
+                )
+            except Exception:
+                # Fallback if database doesn't have the column yet
+                queryset = Employee.objects.select_related(
+                    'user',
+                    'manager'
+                ).prefetch_related(
+                    'subordinates'
+                )
+        else:
+            queryset = Employee.objects.select_related(
+                'user',
+                'manager'
+            ).prefetch_related(
+                'subordinates'
+            )
         
         # 검색어 가져오기
         search_query = self.request.GET.get('q', '')

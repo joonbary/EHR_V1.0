@@ -21,8 +21,12 @@ def drop_all_tables():
     print("=" * 60)
     
     with connection.cursor() as cursor:
-        # 외래키 제약 조건 일시적으로 비활성화
-        cursor.execute("SET session_replication_role = 'replica';")
+        try:
+            # 외래키 제약 조건 일시적으로 비활성화 (권한이 있는 경우만)
+            cursor.execute("SET session_replication_role = 'replica';")
+        except Exception as e:
+            print(f"⚠️ 복제 모드 설정 실패: {e}")
+            print("💡 권한이 제한된 환경에서는 정상적인 현상입니다.")
         
         # 모든 테이블 목록 가져오기
         cursor.execute("""
@@ -35,18 +39,43 @@ def drop_all_tables():
         
         if tables:
             print(f"총 {len(tables)}개의 테이블을 발견했습니다.")
-            for table in tables:
-                table_name = table[0]
+            
+            # Django 관련 테이블 먼저 삭제 (의존성 순서대로)
+            django_tables = [
+                'django_migrations',
+                'django_content_type',
+                'auth_permission',
+                'auth_user',
+                'django_admin_log',
+                'django_session'
+            ]
+            
+            # Django 시스템 테이블 먼저 처리
+            for table_name in django_tables:
                 try:
                     cursor.execute(f'DROP TABLE IF EXISTS "{table_name}" CASCADE')
                     print(f"  ✓ {table_name} 삭제 완료")
                 except Exception as e:
-                    print(f"  ✗ {table_name} 삭제 실패: {e}")
+                    print(f"  ⚠️ {table_name} 삭제 실패: {e}")
+            
+            # 나머지 테이블 삭제
+            for table in tables:
+                table_name = table[0]
+                if table_name not in django_tables:
+                    try:
+                        cursor.execute(f'DROP TABLE IF EXISTS "{table_name}" CASCADE')
+                        print(f"  ✓ {table_name} 삭제 완료")
+                    except Exception as e:
+                        print(f"  ⚠️ {table_name} 삭제 실패: {e}")
         else:
             print("삭제할 테이블이 없습니다.")
         
-        # 외래키 제약 조건 다시 활성화
-        cursor.execute("SET session_replication_role = 'origin';")
+        try:
+            # 외래키 제약 조건 다시 활성화
+            cursor.execute("SET session_replication_role = 'origin';")
+        except Exception as e:
+            print(f"⚠️ 복제 모드 복원 실패: {e}")
+            print("💡 권한이 제한된 환경에서는 정상적인 현상입니다.")
     
     print("\n모든 테이블 삭제 완료!\n")
 
