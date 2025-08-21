@@ -1,0 +1,1004 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}조직 구조 관리 - OK금융그룹 eHR{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Revolutionary Theme Styles */
+    .org-structure-container {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+        margin: 2rem 0;
+    }
+
+    .org-structure-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #00d4ff;
+    }
+
+    .org-structure-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    /* 5단계 조직 체계 표시 */
+    .org-hierarchy {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem 0;
+        padding: 1.5rem;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .hierarchy-level {
+        text-align: center;
+        padding: 0.75rem 1.5rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        position: relative;
+    }
+
+    .hierarchy-level:not(:last-child)::after {
+        content: '→';
+        position: absolute;
+        right: -1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #00d4ff;
+        font-size: 1.2rem;
+    }
+
+    .level-number {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        color: white;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .level-name {
+        color: #00d4ff;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    /* Tab Navigation */
+    .structure-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .structure-tab {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 1rem 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .structure-tab.active {
+        color: #00d4ff;
+    }
+
+    .structure-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #00d4ff, #0099cc);
+    }
+
+    /* Upload Section */
+    .upload-section {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .upload-area {
+        border: 2px dashed rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        padding: 3rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: rgba(0, 212, 255, 0.02);
+    }
+
+    .upload-area:hover {
+        border-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .upload-area.dragover {
+        border-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.1);
+        transform: scale(1.02);
+    }
+
+    /* Tree View */
+    .org-tree-view {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .tree-node {
+        margin-left: 1.5rem;
+        padding: 0.5rem 0;
+        border-left: 1px solid rgba(0, 212, 255, 0.2);
+        position: relative;
+    }
+
+    .tree-node::before {
+        content: '';
+        position: absolute;
+        left: -1px;
+        top: 50%;
+        width: 1rem;
+        height: 1px;
+        background: rgba(0, 212, 255, 0.2);
+    }
+
+    .tree-node-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 1rem;
+        background: rgba(0, 212, 255, 0.02);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .tree-node-content:hover {
+        background: rgba(0, 212, 255, 0.05);
+        border-color: rgba(0, 212, 255, 0.3);
+        transform: translateX(5px);
+    }
+
+    .node-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 6px;
+        color: #00d4ff;
+        font-size: 0.9rem;
+    }
+
+    .node-info {
+        flex: 1;
+    }
+
+    .node-name {
+        color: white;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .node-code {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+    }
+
+    .node-count {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+    }
+
+    /* Preview Table */
+    .preview-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .preview-table th {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+        font-weight: 600;
+    }
+
+    .preview-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .preview-table tr:hover {
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-pending {
+        background: rgba(251, 191, 36, 0.1);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    /* Action Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+    }
+
+    /* Statistics Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .stat-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="org-structure-container">
+        <div class="org-structure-header">
+            <h1>조직 구조 관리</h1>
+            <p>5단계 조직 체계 마스터 데이터 관리</p>
+        </div>
+
+        <!-- 5단계 조직 체계 표시 -->
+        <div class="org-hierarchy">
+            <div class="hierarchy-level">
+                <div class="level-number">1</div>
+                <div class="level-name">그룹</div>
+            </div>
+            <div class="hierarchy-level">
+                <div class="level-number">2</div>
+                <div class="level-name">계열사</div>
+            </div>
+            <div class="hierarchy-level">
+                <div class="level-number">3</div>
+                <div class="level-name">본부</div>
+            </div>
+            <div class="hierarchy-level">
+                <div class="level-number">4</div>
+                <div class="level-name">부</div>
+            </div>
+            <div class="hierarchy-level">
+                <div class="level-number">5</div>
+                <div class="level-name">팀</div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-orgs">0</div>
+                <div class="stat-label">전체 조직</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="active-orgs">0</div>
+                <div class="stat-label">활성 조직</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-employees">0</div>
+                <div class="stat-label">소속 직원</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="last-update">-</div>
+                <div class="stat-label">최종 업데이트</div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="structure-tabs">
+            <button class="structure-tab active" data-tab="upload">Excel 업로드</button>
+            <button class="structure-tab" data-tab="view">조직 구조 보기</button>
+            <button class="structure-tab" data-tab="manage">개별 관리</button>
+            <button class="structure-tab" data-tab="mapping">직원 매핑</button>
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="upload-tab" class="tab-content active">
+            <div class="upload-section">
+                <h3 style="color: #00d4ff; margin-bottom: 1.5rem;">
+                    <i class="fas fa-file-excel"></i> 조직 구조 Excel 업로드
+                </h3>
+                
+                <div class="upload-area" id="structure-upload-area">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+                    <h4 style="color: white; margin-bottom: 0.5rem;">조직 구조 Excel 파일을 드래그하여 놓으세요</h4>
+                    <p style="color: rgba(255, 255, 255, 0.6);">또는 클릭하여 파일 선택</p>
+                    <input type="file" id="structure-file-input" accept=".xlsx,.xls" style="display: none;">
+                </div>
+
+                <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                    <button class="btn-secondary" onclick="downloadStructureTemplate()">
+                        <i class="fas fa-download"></i> 조직구조 템플릿 다운로드
+                    </button>
+                    <button class="btn-secondary" onclick="downloadSampleData()">
+                        <i class="fas fa-file-alt"></i> 샘플 데이터 다운로드
+                    </button>
+                </div>
+
+                <!-- Template Description -->
+                <div style="margin-top: 2rem; padding: 1rem; background: rgba(0, 212, 255, 0.05); border-radius: 8px; border: 1px solid rgba(0, 212, 255, 0.1);">
+                    <h4 style="color: #00d4ff; margin-bottom: 1rem;">📋 Excel 템플릿 구조</h4>
+                    <table style="width: 100%; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">
+                        <tr>
+                            <td style="padding: 0.5rem; width: 150px;"><strong>조직코드</strong></td>
+                            <td>고유 식별 코드 (예: GRP001, COM001, HQ001)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;"><strong>조직명</strong></td>
+                            <td>조직 명칭</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;"><strong>조직레벨</strong></td>
+                            <td>1:그룹, 2:계열사, 3:본부, 4:부, 5:팀</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;"><strong>상위조직코드</strong></td>
+                            <td>상위 조직의 코드 (최상위는 빈칸)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;"><strong>조직장</strong></td>
+                            <td>조직장 이름 (선택사항)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;"><strong>상태</strong></td>
+                            <td>active(활성), inactive(비활성), pending(준비중)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;"><strong>정렬순서</strong></td>
+                            <td>같은 레벨 내 표시 순서</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Preview Section -->
+                <div id="structure-preview-section" style="display: none; margin-top: 2rem;">
+                    <h3 style="color: #00d4ff; margin-bottom: 1rem;">
+                        <i class="fas fa-eye"></i> 업로드 미리보기
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table class="preview-table" id="structure-preview-table">
+                            <!-- Preview content will be inserted here -->
+                        </table>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                        <button class="btn-secondary" onclick="cancelStructureUpload()">취소</button>
+                        <button class="btn-primary" onclick="confirmStructureUpload()">
+                            <i class="fas fa-check"></i> 업로드 확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Tab -->
+        <div id="view-tab" class="tab-content" style="display: none;">
+            <div class="org-tree-view">
+                <h3 style="color: #00d4ff; margin-bottom: 1.5rem;">
+                    <i class="fas fa-sitemap"></i> 조직 구조 트리
+                </h3>
+                <div id="org-tree-container">
+                    <!-- Tree structure will be loaded here -->
+                    <div style="text-align: center; padding: 3rem;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #00d4ff;"></i>
+                        <p style="margin-top: 1rem; color: rgba(255, 255, 255, 0.7);">조직 구조를 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Tab -->
+        <div id="manage-tab" class="tab-content" style="display: none;">
+            <div class="upload-section">
+                <h3 style="color: #00d4ff; margin-bottom: 1.5rem;">
+                    <i class="fas fa-edit"></i> 조직 개별 관리
+                </h3>
+                
+                <form id="org-form">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div>
+                            <label style="color: rgba(255, 255, 255, 0.9); display: block; margin-bottom: 0.5rem;">조직코드 *</label>
+                            <input type="text" id="org-code" name="org_code" required 
+                                   style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); color: white; border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="color: rgba(255, 255, 255, 0.9); display: block; margin-bottom: 0.5rem;">조직명 *</label>
+                            <input type="text" id="org-name" name="org_name" required
+                                   style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); color: white; border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="color: rgba(255, 255, 255, 0.9); display: block; margin-bottom: 0.5rem;">조직레벨 *</label>
+                            <select id="org-level" name="org_level" required
+                                    style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); color: white; border-radius: 8px;">
+                                <option value="">선택하세요</option>
+                                <option value="1">1 - 그룹</option>
+                                <option value="2">2 - 계열사</option>
+                                <option value="3">3 - 본부</option>
+                                <option value="4">4 - 부</option>
+                                <option value="5">5 - 팀</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="color: rgba(255, 255, 255, 0.9); display: block; margin-bottom: 0.5rem;">상위조직</label>
+                            <select id="parent-org" name="parent_org"
+                                    style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); color: white; border-radius: 8px;">
+                                <option value="">최상위 조직</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                        <button type="button" class="btn-secondary" onclick="resetOrgForm()">초기화</button>
+                        <button type="submit" class="btn-primary">저장</button>
+                    </div>
+                </form>
+
+                <!-- Organization List -->
+                <div style="margin-top: 3rem;">
+                    <h4 style="color: #00d4ff; margin-bottom: 1rem;">등록된 조직 목록</h4>
+                    <div style="overflow-x: auto;">
+                        <table class="preview-table" id="org-list-table">
+                            <thead>
+                                <tr>
+                                    <th>조직코드</th>
+                                    <th>조직명</th>
+                                    <th>레벨</th>
+                                    <th>상위조직</th>
+                                    <th>상태</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Organization list will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapping Tab -->
+        <div id="mapping-tab" class="tab-content" style="display: none;">
+            <div class="upload-section">
+                <h3 style="color: #00d4ff; margin-bottom: 1.5rem;">
+                    <i class="fas fa-users"></i> 직원-조직 매핑
+                </h3>
+                
+                <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 2rem;">
+                    직원을 조직에 배치하고 관리합니다.
+                </p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <!-- Organization Selection -->
+                    <div>
+                        <h4 style="color: #00d4ff; margin-bottom: 1rem;">조직 선택</h4>
+                        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 1rem; max-height: 400px; overflow-y: auto;">
+                            <div id="mapping-org-tree">
+                                <!-- Organization tree for selection -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Employee List -->
+                    <div>
+                        <h4 style="color: #00d4ff; margin-bottom: 1rem;">직원 목록</h4>
+                        <input type="text" placeholder="직원 검색..." id="employee-search"
+                               style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); color: white; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 1rem; max-height: 350px; overflow-y: auto;">
+                            <div id="employee-list">
+                                <!-- Employee list for mapping -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button class="btn-primary" onclick="saveMapping()">
+                        <i class="fas fa-save"></i> 매핑 저장
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+// Tab switching
+document.querySelectorAll('.structure-tab').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        
+        // Update active states
+        document.querySelectorAll('.structure-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        
+        this.classList.add('active');
+        document.getElementById(`${tabId}-tab`).style.display = 'block';
+        
+        // Load content for specific tabs
+        if (tabId === 'view') {
+            loadOrganizationTree();
+        } else if (tabId === 'manage') {
+            loadOrganizationList();
+            loadParentOrganizations();
+        } else if (tabId === 'mapping') {
+            loadMappingData();
+        }
+    });
+});
+
+// File upload handling
+const uploadArea = document.getElementById('structure-upload-area');
+const fileInput = document.getElementById('structure-file-input');
+
+uploadArea.addEventListener('click', () => fileInput.click());
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleStructureFile(files[0]);
+    }
+});
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleStructureFile(e.target.files[0]);
+    }
+});
+
+function handleStructureFile(file) {
+    if (!file.name.match(/\.(xlsx|xls)$/)) {
+        showAlert('error', 'Excel 파일만 업로드 가능합니다.');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        
+        displayStructurePreview(jsonData);
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function displayStructurePreview(data) {
+    if (data.length === 0) {
+        showAlert('error', '파일에 데이터가 없습니다.');
+        return;
+    }
+    
+    const previewSection = document.getElementById('structure-preview-section');
+    const previewTable = document.getElementById('structure-preview-table');
+    
+    // Create table header
+    let tableHTML = `
+        <thead>
+            <tr>
+                <th>조직코드</th>
+                <th>조직명</th>
+                <th>레벨</th>
+                <th>상위조직</th>
+                <th>조직장</th>
+                <th>상태</th>
+                <th>검증결과</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    // Validate and display rows
+    data.forEach((row, index) => {
+        const validation = validateOrgRow(row);
+        tableHTML += `
+            <tr>
+                <td>${row['조직코드'] || ''}</td>
+                <td>${row['조직명'] || ''}</td>
+                <td>${getLevelName(row['조직레벨'])}</td>
+                <td>${row['상위조직코드'] || '-'}</td>
+                <td>${row['조직장'] || '-'}</td>
+                <td><span class="status-badge status-${row['상태'] || 'active'}">${row['상태'] || 'active'}</span></td>
+                <td>${validation.valid ? 
+                    '<span style="color: #22c55e;">✓</span>' : 
+                    `<span style="color: #ef4444;" title="${validation.errors.join(', ')}">✗</span>`
+                }</td>
+            </tr>
+        `;
+    });
+    
+    tableHTML += '</tbody>';
+    previewTable.innerHTML = tableHTML;
+    previewSection.style.display = 'block';
+    
+    // Store data for upload
+    window.structureUploadData = data;
+}
+
+function validateOrgRow(row) {
+    const errors = [];
+    
+    if (!row['조직코드']) errors.push('조직코드 필수');
+    if (!row['조직명']) errors.push('조직명 필수');
+    if (!row['조직레벨'] || row['조직레벨'] < 1 || row['조직레벨'] > 5) {
+        errors.push('조직레벨 1-5');
+    }
+    
+    // Level 2-5 must have parent
+    if (row['조직레벨'] > 1 && !row['상위조직코드']) {
+        errors.push('상위조직 필수');
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors: errors
+    };
+}
+
+function getLevelName(level) {
+    const levels = {
+        1: '그룹',
+        2: '계열사',
+        3: '본부',
+        4: '부',
+        5: '팀'
+    };
+    return levels[level] || level;
+}
+
+async function confirmStructureUpload() {
+    if (!window.structureUploadData) {
+        showAlert('error', '업로드할 데이터가 없습니다.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('{% url "employees:upload_organization_structure" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ data: window.structureUploadData })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('success', `${result.created}개 조직이 생성되고, ${result.updated}개가 업데이트되었습니다.`);
+            cancelStructureUpload();
+            loadStatistics();
+        } else {
+            showAlert('error', result.message || '업로드 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        showAlert('error', '네트워크 오류가 발생했습니다.');
+    }
+}
+
+function cancelStructureUpload() {
+    document.getElementById('structure-preview-section').style.display = 'none';
+    document.getElementById('structure-preview-table').innerHTML = '';
+    fileInput.value = '';
+    window.structureUploadData = null;
+}
+
+function downloadStructureTemplate() {
+    // Create template with sample data
+    const templateData = [
+        {
+            '조직코드': 'GRP001',
+            '조직명': 'OK금융그룹',
+            '조직레벨': 1,
+            '상위조직코드': '',
+            '조직장': '',
+            '상태': 'active',
+            '정렬순서': 1,
+            '설명': '그룹 최상위 조직'
+        },
+        {
+            '조직코드': 'COM001',
+            '조직명': 'OK저축은행',
+            '조직레벨': 2,
+            '상위조직코드': 'GRP001',
+            '조직장': '홍길동',
+            '상태': 'active',
+            '정렬순서': 1,
+            '설명': '저축은행 계열사'
+        },
+        {
+            '조직코드': 'HQ001',
+            '조직명': '디지털본부',
+            '조직레벨': 3,
+            '상위조직코드': 'COM001',
+            '조직장': '김본부',
+            '상태': 'active',
+            '정렬순서': 1,
+            '설명': '디지털 혁신 담당 본부'
+        },
+        {
+            '조직코드': 'DEPT001',
+            '조직명': 'IT개발부',
+            '조직레벨': 4,
+            '상위조직코드': 'HQ001',
+            '조직장': '이부장',
+            '상태': 'active',
+            '정렬순서': 1,
+            '설명': 'IT 시스템 개발'
+        },
+        {
+            '조직코드': 'TEAM001',
+            '조직명': '개발1팀',
+            '조직레벨': 5,
+            '상위조직코드': 'DEPT001',
+            '조직장': '박팀장',
+            '상태': 'active',
+            '정렬순서': 1,
+            '설명': '핵심 시스템 개발팀'
+        }
+    ];
+    
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '조직구조');
+    XLSX.writeFile(wb, '조직구조_템플릿.xlsx');
+}
+
+function downloadSampleData() {
+    // Download full sample organization structure
+    window.location.href = '{% url "employees:download_org_sample" %}';
+}
+
+async function loadOrganizationTree() {
+    try {
+        const response = await fetch('{% url "employees:get_organization_tree" %}');
+        const data = await response.json();
+        
+        const container = document.getElementById('org-tree-container');
+        container.innerHTML = renderTreeNodes(data.tree);
+    } catch (error) {
+        console.error('Failed to load organization tree:', error);
+    }
+}
+
+function renderTreeNodes(nodes, level = 0) {
+    let html = '';
+    
+    nodes.forEach(node => {
+        const marginLeft = level * 30;
+        html += `
+            <div class="tree-node" style="margin-left: ${marginLeft}px;">
+                <div class="tree-node-content">
+                    <div class="node-icon">${getNodeIcon(node.level)}</div>
+                    <div class="node-info">
+                        <div class="node-name">${node.name}</div>
+                        <div class="node-code">${node.code}</div>
+                    </div>
+                    <div class="node-count">${node.employee_count || 0}명</div>
+                </div>
+                ${node.children ? renderTreeNodes(node.children, level + 1) : ''}
+            </div>
+        `;
+    });
+    
+    return html;
+}
+
+function getNodeIcon(level) {
+    const icons = {
+        1: '🏢',  // 그룹
+        2: '🏛️',  // 계열사
+        3: '🏗️',  // 본부
+        4: '📁',  // 부
+        5: '👥'   // 팀
+    };
+    return icons[level] || '📄';
+}
+
+async function loadStatistics() {
+    try {
+        const response = await fetch('{% url "employees:get_organization_stats" %}');
+        const stats = await response.json();
+        
+        document.getElementById('total-orgs').textContent = stats.total_orgs || 0;
+        document.getElementById('active-orgs').textContent = stats.active_orgs || 0;
+        document.getElementById('total-employees').textContent = stats.total_employees || 0;
+        document.getElementById('last-update').textContent = stats.last_update || '-';
+    } catch (error) {
+        console.error('Failed to load statistics:', error);
+    }
+}
+
+// Organization form submission
+document.getElementById('org-form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    
+    try {
+        const response = await fetch('{% url "employees:save_organization" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('success', '조직이 성공적으로 저장되었습니다.');
+            this.reset();
+            loadOrganizationList();
+        } else {
+            showAlert('error', result.message || '저장 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        showAlert('error', '네트워크 오류가 발생했습니다.');
+    }
+});
+
+// Utility functions
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+    const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+    
+    const alertHTML = `
+        <div class="alert ${alertClass}" style="position: fixed; top: 20px; right: 20px; z-index: 9999; padding: 1rem 1.5rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fas fa-${icon}"></i>
+            ${message}
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHTML);
+    
+    setTimeout(() => {
+        document.querySelector(`.alert.${alertClass}`)?.remove();
+    }, 5000);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadStatistics();
+});
+</script>
+{% endblock %}

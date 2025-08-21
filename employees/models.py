@@ -8,6 +8,9 @@ from .models_hr import HREmployee, HRMonthlySnapshot, HRContractor, HRFileUpload
 # Weekly Workforce models import
 from .models_workforce import WeeklyWorkforceSnapshot, WeeklyJoinLeave, WeeklyWorkforceChange
 
+# Organization Structure models import
+from .models_organization import OrganizationStructure, OrganizationUploadHistory, EmployeeOrganizationMapping
+
 # Create your models here.
 
 class Employee(models.Model):
@@ -232,6 +235,17 @@ class Employee(models.Model):
         blank=True,
         related_name='subordinates',
         help_text="직속 상사 (평가권자)"
+    )
+    
+    # 소속 조직 (조직 구조 마스터와 연결)
+    organization = models.ForeignKey(
+        'OrganizationStructure',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='employees',
+        verbose_name='소속조직',
+        help_text="조직 구조 마스터의 소속 조직"
     )
     
     # 급호 (호봉)

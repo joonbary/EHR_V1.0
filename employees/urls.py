@@ -23,6 +23,14 @@ urlpatterns = [
     path('api/bulk-upload/', views.bulk_upload_api, name='bulk_upload'),
     path('api/get-managers/', views.get_managers_api, name='get_managers'),
     
+    # Organization Structure Management
+    path('organization/structure/', views.organization_structure_view, name='organization_structure'),
+    path('api/upload-organization-structure/', views.upload_organization_structure, name='upload_organization_structure'),
+    path('api/organization-tree/', views.get_organization_tree, name='get_organization_tree'),
+    path('api/organization-stats/', views.get_organization_stats, name='get_organization_stats'),
+    path('api/save-organization/', views.save_organization, name='save_organization'),
+    path('download/org-sample/', views.download_org_sample, name='download_org_sample'),
+    
     # REST API endpoints
     path('api/test/', test_database, name='test-database'),  # 테스트 엔드포인트
     path('api/employees/', api_views.EmployeeListCreateAPIView.as_view(), name='employee-list-create'),

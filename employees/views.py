@@ -891,3 +891,279 @@ def get_managers_api(request):
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+# Organization Structure Management Views
+def organization_structure_view(request):
+    """조직 구조 관리 페이지"""
+    return render(request, 'employees/organization_structure_upload.html')
+
+
+def upload_organization_structure(request):
+    """조직 구조 Excel 업로드 처리"""
+    if request.method == 'POST':
+        try:
+            import json
+            from .models_organization import OrganizationStructure, OrganizationUploadHistory
+            
+            body = json.loads(request.body)
+            data = body.get('data', [])
+            
+            created_count = 0
+            updated_count = 0
+            errors = []
+            
+            # Create upload history
+            upload_history = OrganizationUploadHistory.objects.create(
+                file_name='Direct Upload',
+                total_rows=len(data),
+                status='processing',
+                uploaded_by=request.user if request.user.is_authenticated else None
+            )
+            
+            # Process each row
+            for row in data:
+                try:
+                    org_code = row.get('조직코드')
+                    if not org_code:
+                        errors.append({'row': row, 'error': '조직코드 필수'})
+                        continue
+                    
+                    # Find or create organization
+                    org, created = OrganizationStructure.objects.get_or_create(
+                        org_code=org_code,
+                        defaults={
+                            'org_name': row.get('조직명', ''),
+                            'org_level': int(row.get('조직레벨', 1)),
+                            'status': row.get('상태', 'active'),
+                            'sort_order': int(row.get('정렬순서', 0)),
+                            'description': row.get('설명', ''),
+                        }
+                    )
+                    
+                    if not created:
+                        # Update existing
+                        org.org_name = row.get('조직명', org.org_name)
+                        org.org_level = int(row.get('조직레벨', org.org_level))
+                        org.status = row.get('상태', org.status)
+                        org.sort_order = int(row.get('정렬순서', org.sort_order))
+                        org.save()
+                        updated_count += 1
+                    else:
+                        created_count += 1
+                    
+                    # Set parent organization
+                    parent_code = row.get('상위조직코드')
+                    if parent_code:
+                        try:
+                            parent = OrganizationStructure.objects.get(org_code=parent_code)
+                            org.parent = parent
+                            org.save()
+                        except OrganizationStructure.DoesNotExist:
+                            errors.append({'row': row, 'error': f'상위조직 {parent_code} 없음'})
+                    
+                    # Set leader if specified
+                    leader_name = row.get('조직장')
+                    if leader_name:
+                        try:
+                            leader = Employee.objects.filter(name=leader_name).first()
+                            if leader:
+                                org.leader = leader
+                                org.save()
+                        except:
+                            pass
+                    
+                except Exception as e:
+                    errors.append({'row': row, 'error': str(e)})
+            
+            # Update upload history
+            upload_history.status = 'completed'
+            upload_history.processed_rows = len(data)
+            upload_history.success_count = created_count + updated_count
+            upload_history.error_count = len(errors)
+            upload_history.error_details = errors
+            upload_history.save()
+            
+            return JsonResponse({
+                'success': True,
+                'created': created_count,
+                'updated': updated_count,
+                'errors': errors,
+                'message': f'{created_count}개 생성, {updated_count}개 업데이트'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({'success': False, 'message': '잘못된 요청'}, status=400)
+
+
+def get_organization_tree(request):
+    """조직 트리 구조 조회"""
+    try:
+        from .models_organization import OrganizationStructure
+        
+        def build_tree(parent=None):
+            orgs = OrganizationStructure.objects.filter(
+                parent=parent,
+                status='active'
+            ).order_by('sort_order', 'org_code')
+            
+            tree = []
+            for org in orgs:
+                node = {
+                    'id': org.id,
+                    'code': org.org_code,
+                    'name': org.org_name,
+                    'level': org.org_level,
+                    'employee_count': org.get_employee_count() if hasattr(org, 'get_employee_count') else 0,
+                    'children': build_tree(org)
+                }
+                tree.append(node)
+            
+            return tree
+        
+        tree = build_tree()
+        
+        return JsonResponse({
+            'success': True,
+            'tree': tree
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+def get_organization_stats(request):
+    """조직 통계 조회"""
+    try:
+        from .models_organization import OrganizationStructure
+        from datetime import datetime
+        
+        total_orgs = OrganizationStructure.objects.count()
+        active_orgs = OrganizationStructure.objects.filter(status='active').count()
+        total_employees = Employee.objects.filter(employment_status='재직').count()
+        
+        last_org = OrganizationStructure.objects.order_by('-updated_at').first()
+        last_update = last_org.updated_at.strftime('%Y-%m-%d') if last_org else '-'
+        
+        return JsonResponse({
+            'total_orgs': total_orgs,
+            'active_orgs': active_orgs,
+            'total_employees': total_employees,
+            'last_update': last_update
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)
+
+
+def save_organization(request):
+    """개별 조직 저장"""
+    if request.method == 'POST':
+        try:
+            import json
+            from .models_organization import OrganizationStructure
+            
+            data = json.loads(request.body)
+            
+            org = OrganizationStructure(
+                org_code=data.get('org_code'),
+                org_name=data.get('org_name'),
+                org_level=int(data.get('org_level')),
+                status='active'
+            )
+            
+            # Set parent if provided
+            parent_id = data.get('parent_org')
+            if parent_id:
+                try:
+                    parent = OrganizationStructure.objects.get(id=parent_id)
+                    org.parent = parent
+                except:
+                    pass
+            
+            org.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': '조직이 저장되었습니다.'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({'success': False, 'message': '잘못된 요청'}, status=400)
+
+
+def download_org_sample(request):
+    """조직 구조 샘플 데이터 다운로드"""
+    import io
+    import xlsxwriter
+    from django.http import HttpResponse
+    
+    # Create Excel file in memory
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet('조직구조')
+    
+    # Define headers
+    headers = ['조직코드', '조직명', '조직레벨', '상위조직코드', '조직장', '상태', '정렬순서', '설명']
+    
+    # Write headers
+    for col, header in enumerate(headers):
+        worksheet.write(0, col, header)
+    
+    # Sample data - OK Financial Group structure
+    sample_data = [
+        ['GRP001', 'OK금융그룹', 1, '', '', 'active', 1, 'OK금융그룹 지주회사'],
+        
+        # 계열사 (Level 2)
+        ['COM001', 'OK저축은행', 2, 'GRP001', '', 'active', 1, '저축은행'],
+        ['COM002', 'OK캐피탈', 2, 'GRP001', '', 'active', 2, '캐피탈'],
+        ['COM003', 'OK손해보험', 2, 'GRP001', '', 'active', 3, '손해보험'],
+        
+        # 본부 (Level 3) - OK저축은행
+        ['HQ001', '경영지원본부', 3, 'COM001', '', 'active', 1, ''],
+        ['HQ002', '영업본부', 3, 'COM001', '', 'active', 2, ''],
+        ['HQ003', '디지털본부', 3, 'COM001', '', 'active', 3, ''],
+        ['HQ004', '리스크관리본부', 3, 'COM001', '', 'active', 4, ''],
+        
+        # 부 (Level 4) - 디지털본부
+        ['DEPT001', 'IT개발부', 4, 'HQ003', '', 'active', 1, ''],
+        ['DEPT002', 'IT운영부', 4, 'HQ003', '', 'active', 2, ''],
+        ['DEPT003', '디지털마케팅부', 4, 'HQ003', '', 'active', 3, ''],
+        
+        # 팀 (Level 5) - IT개발부
+        ['TEAM001', '개발1팀', 5, 'DEPT001', '', 'active', 1, '코어뱅킹 시스템'],
+        ['TEAM002', '개발2팀', 5, 'DEPT001', '', 'active', 2, '모바일/웹 개발'],
+        ['TEAM003', 'AI개발팀', 5, 'DEPT001', '', 'active', 3, 'AI/ML 솔루션'],
+    ]
+    
+    # Write sample data
+    for row_num, row_data in enumerate(sample_data, 1):
+        for col, value in enumerate(row_data):
+            worksheet.write(row_num, col, value)
+    
+    workbook.close()
+    
+    # Prepare response
+    output.seek(0)
+    response = HttpResponse(
+        output.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename=조직구조_샘플데이터.xlsx'
+    
+    return response
