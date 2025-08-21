@@ -985,31 +985,77 @@ function updateAIInsights(data) {
     const contractCount = byCategory['계약직'] || 0;
     const otherCount = byCategory['기타'] || 0;
     
-    // 관리직 계산 (부장급으로 추정)
-    const managerCount = Math.floor(totalEmployees * 0.02); // 약 2% 추정
+    // 실제 데이터 기반 관리직 계산
+    let managerCount = 0;
+    let seniorCount = 0; // 차장 이상
+    
+    // 테이블 데이터에서 실제 관리직 수 계산
+    if (data.table_data && data.table_data.length > 0) {
+        data.table_data.forEach(row => {
+            if (row.position === '부장' || row.position === '차장') {
+                row.companies.forEach(company => {
+                    const positionData = company.positions.find(p => p.position === row.position);
+                    if (positionData) {
+                        const count = positionData.count || 0;
+                        if (row.position === '부장') {
+                            managerCount += count;
+                        }
+                        seniorCount += count;
+                    }
+                });
+            }
+        });
+    }
+    
+    // 관리 범위 계산 (부장급 기준)
     const managementSpan = managerCount > 0 ? Math.floor(totalEmployees / managerCount) : 0;
     
-    // 계열사별 최대 규모 계산
+    // 계열사별 최대 규모 계산 (실제 데이터 기반)
     let maxCompanySize = 0;
-    let largestCompany = 'OK저축은행(센터/지점)';
+    let largestCompany = '';
+    let companyStats = {};
     
-    if (data.table_data && data.table_data.length > 0) {
-        // 총계 행에서 최대 회사 규모 찾기
-        const totalRow = data.table_data.find(row => row.category === '총계');
-        if (totalRow && totalRow.companies) {
-            totalRow.companies.forEach(company => {
-                const companyTotal = company.positions.find(p => p.position === '계')?.count || 0;
-                if (companyTotal > maxCompanySize) {
-                    maxCompanySize = companyTotal;
-                    largestCompany = company.name;
+    if (data.companies_header) {
+        // 각 회사별 총 인원 계산
+        data.companies_header.forEach(company => {
+            companyStats[company.name] = 0;
+        });
+        
+        if (data.table_data) {
+            data.table_data.forEach(row => {
+                if (row.category !== '총계') {
+                    row.companies.forEach((company, index) => {
+                        const companyName = data.companies_header[index]?.name;
+                        if (companyName) {
+                            company.positions.forEach(pos => {
+                                if (pos.position !== '계') {
+                                    companyStats[companyName] += (pos.count || 0);
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }
+        
+        // 최대 규모 회사 찾기
+        for (const [name, count] of Object.entries(companyStats)) {
+            if (count > maxCompanySize) {
+                maxCompanySize = count;
+                largestCompany = name;
+            }
+        }
     }
     
-    const avgCompanySize = Math.floor(totalEmployees / 7); // 7개 계열사
-    const regularRate = Math.round(((nonPlCount + plCount) / totalEmployees) * 100);
-    const contractRate = Math.round((contractCount / totalEmployees) * 100);
+    const avgCompanySize = Math.floor(totalEmployees / Object.keys(companyStats).length) || Math.floor(totalEmployees / 7);
+    
+    // 정규직/계약직 비율 계산 (API에서 제공되는 경우 사용)
+    const regularRate = summary.regular_rate || Math.round(((nonPlCount + plCount) / totalEmployees) * 100);
+    const contractRate = summary.contract_rate || Math.round((contractCount / totalEmployees) * 100);
+    
+    // 승진률 및 평균 근속년수 (API에서 제공되는 경우 사용)
+    const promotionRate = summary.promotion_rate || 0;
+    const averageTenure = summary.average_tenure || 0;
     
     // AI 인사이트 데이터 업데이트 (안전하게)
     const setTextContent = (id, value) => {
@@ -1022,13 +1068,34 @@ function updateAIInsights(data) {
     setTextContent('plCount', safeToLocaleString(plCount));
     setTextContent('managerCount', safeToLocaleString(managerCount));
     setTextContent('managementSpan', (managementSpan || 0).toFixed(1) + '명');
-    setTextContent('largestCompany', largestCompany || '');
+    setTextContent('largestCompany', largestCompany || 'N/A');
     setTextContent('maxCompanySize', safeToLocaleString(maxCompanySize) + '명');
     setTextContent('avgCompanySize', safeToLocaleString(avgCompanySize) + '명');
     setTextContent('regularRate', (regularRate || 0) + '%');
     setTextContent('contractRate', (contractRate || 0) + '%');
     setTextContent('contractCount', safeToLocaleString(contractCount));
     setTextContent('otherCount', safeToLocaleString(otherCount));
+    
+    // 추가 인사이트 업데이트 (있는 경우)
+    if (promotionRate > 0) {
+        const promotionElem = document.getElementById('promotionRate');
+        if (promotionElem) {
+            promotionElem.textContent = promotionRate.toFixed(2) + '%';
+        }
+    }
+    
+    if (averageTenure > 0) {
+        const tenureElem = document.getElementById('averageTenure');
+        if (tenureElem) {
+            tenureElem.textContent = averageTenure.toFixed(1) + '년';
+        }
+    }
+    
+    // 월별 변동 추이가 있으면 그래프 업데이트 (향후 구현)
+    if (summary.monthly_trend && summary.monthly_trend.length > 0) {
+        // TODO: 차트 라이브러리를 사용하여 추이 그래프 표시
+        console.log('Monthly trend data available:', summary.monthly_trend);
+    }
 }
 
 function showError(message) {

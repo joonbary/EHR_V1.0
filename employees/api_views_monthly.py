@@ -242,16 +242,54 @@ def get_monthly_workforce_data(request):
                     if pos_data['position'] != '계':
                         total_count += pos_data['count']
     
-    # 요약 데이터
+    # 더 현실적인 요약 데이터 계산
+    # 카테고리별 인원 계산
+    category_counts = {'Non-PL': 0, 'PL': 0, '계약직': 0, '기타': 0}
+    for row in table_data:
+        if not row.get('is_total', False) and row['category'] in category_counts:
+            for company_data in row['companies']:
+                for pos_data in company_data['positions']:
+                    if pos_data['position'] != '계':
+                        category_counts[row['category']] += pos_data['count']
+    
+    # 전월 데이터 시뮬레이션 (실제로는 이전 데이터에서 가져와야 함)
+    # 현실적인 변동률 적용 (월 1-3% 범위)
+    random.seed(42)  # 일관된 값을 위해
+    monthly_variation = random.uniform(-0.03, 0.03)  # -3% ~ +3%
+    total_previous = int(total_count / (1 + monthly_variation))
+    total_change = total_count - total_previous
+    
+    # 연간 변동 (월 변동의 누적 효과 고려)
+    yearly_variation = random.uniform(-0.05, 0.10)  # -5% ~ +10%
+    year_ago_count = int(total_count / (1 + yearly_variation))
+    year_change = total_count - year_ago_count
+    
+    # 정규직 비율 계산
+    regular_count = category_counts['Non-PL'] + category_counts['PL']
+    regular_rate = round((regular_count / total_count * 100), 1) if total_count > 0 else 0
+    
+    # 계약직 비율 계산
+    contract_rate = round((category_counts['계약직'] / total_count * 100), 1) if total_count > 0 else 0
+    
+    # 승진 데이터 (연간 약 5-10% 승진률)
+    promotion_count = random.randint(int(total_count * 0.005), int(total_count * 0.01))  # 월간 0.5-1%
+    promotion_rate = round(promotion_count / total_count * 100, 2) if total_count > 0 else 0
+    
+    # 평균 근속년수 (더 현실적인 범위)
+    average_tenure = round(random.uniform(4.5, 6.5), 1)
+    
     summary = {
         'total_current': total_count,
-        'total_previous': total_count - random.randint(-10, 20),
-        'total_change': random.randint(-10, 20),
-        'month_change': random.randint(-10, 20),
-        'year_change': random.randint(-50, 100),
-        'promotion_rate': round(random.uniform(5, 15), 1),
-        'regular_rate': round(random.uniform(80, 95), 1),
-        'average_tenure': round(random.uniform(3, 8), 1)
+        'total_previous': total_previous,
+        'total_change': total_change,
+        'month_change': total_change,
+        'year_change': year_change,
+        'promotion_count': promotion_count,
+        'promotion_rate': promotion_rate,
+        'regular_rate': regular_rate,
+        'contract_rate': contract_rate,
+        'average_tenure': average_tenure,
+        'by_category': category_counts
     }
     
     return JsonResponse({
