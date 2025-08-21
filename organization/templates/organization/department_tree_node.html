@@ -14,12 +14,12 @@
                 {% endif %}
                 
                 <div>
-                    <a href="{% url 'organization:department_detail' node.department.id %}" class="text-white font-semibold hover:text-blue-400">
+                    <a href="{% url 'organization:department_detail' node.department.id %}" class="text-white font-semibold hover:text-cyan-400 transition-colors">
                         {{ node.department.name }}
                     </a>
                     <span class="text-gray-400 text-sm ml-2">({{ node.department.code }})</span>
                     <div class="text-sm text-gray-400 mt-1">
-                        <span class="inline-block px-2 py-1 bg-blue-500 bg-opacity-20 text-blue-400 text-xs rounded mr-2">
+                        <span class="inline-block px-2 py-1 bg-cyan-500 bg-opacity-20 text-cyan-400 text-xs rounded mr-2 backdrop-filter blur-5px border border-cyan-500 border-opacity-30">
                             {{ node.department.get_department_type_display }}
                         </span>
                         {% if node.department.manager %}

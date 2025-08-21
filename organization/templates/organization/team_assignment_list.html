@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
 {% block title %}팀 배치 관리{% endblock %}
@@ -8,23 +8,40 @@
     .assignment-card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.2);
         border-radius: 12px;
         padding: 20px;
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .assignment-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: all 0.6s;
+    }
+    .assignment-card:hover::before {
+        left: 100%;
     }
     .assignment-card:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.2);
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
     }
     .primary-badge {
-        background: rgba(59, 130, 246, 0.2);
-        color: #3b82f6;
-        border: 1px solid rgba(59, 130, 246, 0.3);
+        background: rgba(0, 212, 255, 0.2);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.4);
         padding: 4px 12px;
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 500;
+        backdrop-filter: blur(5px);
     }
     .secondary-badge {
         background: rgba(156, 163, 175, 0.2);
@@ -34,24 +51,137 @@
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 500;
+        backdrop-filter: blur(5px);
     }
     .ratio-bar {
         background: rgba(255, 255, 255, 0.1);
         height: 6px;
         border-radius: 3px;
         overflow: hidden;
+        border: 1px solid rgba(0, 212, 255, 0.2);
     }
     .ratio-fill {
         height: 100%;
-        background: linear-gradient(90deg, #3b82f6, #06b6d4);
+        background: linear-gradient(90deg, #00d4ff, #0ea5e9);
         transition: width 0.3s ease;
+        position: relative;
+    }
+    .ratio-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
     }
     .filter-section {
         background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 24px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    .filter-section:hover {
+        border-color: rgba(0, 212, 255, 0.5);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+    }
+    .stat-card {
+        backdrop-filter: blur(10px);
+        border: 1px solid currentColor;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: all 0.6s;
+    }
+    .stat-card:hover::before {
+        left: 100%;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+    .form-input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #0ea5e9, #00d4ff);
+        border: 1px solid #00d4ff;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+    }
+    .btn-edit {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+    .btn-edit:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+    }
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border: 1px solid #ef4444;
+        transition: all 0.3s ease;
+    }
+    .btn-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+    }
+    .guide-panel {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(0, 212, 255, 0.1));
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    .empty-state {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
     }
 </style>
 {% endblock %}
@@ -64,7 +194,7 @@
             <h1 class="text-3xl font-bold text-white mb-2">팀 배치 관리</h1>
             <p class="text-gray-300">직원들의 팀 배치 현황을 관리합니다</p>
         </div>
-        <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
+        <button class="btn-primary text-white px-6 py-3 rounded-lg">
             <i class="fas fa-plus mr-2"></i>새 배치 등록
         </button>
     </div>
@@ -74,7 +204,7 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <label class="block text-sm text-gray-400 mb-2">부서</label>
-                <select class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600">
+                <select class="w-full form-input text-white px-4 py-2 rounded-lg">
                     <option>전체 부서</option>
                     <option>개발팀</option>
                     <option>마케팅팀</option>
@@ -83,7 +213,7 @@
             </div>
             <div>
                 <label class="block text-sm text-gray-400 mb-2">배치 유형</label>
-                <select class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600">
+                <select class="w-full form-input text-white px-4 py-2 rounded-lg">
                     <option>전체</option>
                     <option>주 배치</option>
                     <option>부 배치</option>
@@ -91,14 +221,14 @@
             </div>
             <div>
                 <label class="block text-sm text-gray-400 mb-2">상태</label>
-                <select class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600">
+                <select class="w-full form-input text-white px-4 py-2 rounded-lg">
                     <option>활성</option>
                     <option>종료</option>
                     <option>전체</option>
                 </select>
             </div>
             <div class="flex items-end">
-                <button class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                <button class="w-full btn-primary text-white px-4 py-2 rounded-lg">
                     <i class="fas fa-search mr-2"></i>검색
                 </button>
             </div>
@@ -107,7 +237,7 @@
 
     <!-- 통계 요약 -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-blue-500 bg-opacity-20 border border-blue-500 border-opacity-50 rounded-lg p-4">
+        <div class="stat-card bg-blue-500 bg-opacity-20 border-blue-500 rounded-lg p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-blue-400 text-sm">전체 배치</p>
@@ -116,7 +246,7 @@
                 <i class="fas fa-users text-blue-400 text-2xl"></i>
             </div>
         </div>
-        <div class="bg-green-500 bg-opacity-20 border border-green-500 border-opacity-50 rounded-lg p-4">
+        <div class="stat-card bg-green-500 bg-opacity-20 border-green-500 rounded-lg p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-green-400 text-sm">주 배치</p>
@@ -125,7 +255,7 @@
                 <i class="fas fa-star text-green-400 text-2xl"></i>
             </div>
         </div>
-        <div class="bg-purple-500 bg-opacity-20 border border-purple-500 border-opacity-50 rounded-lg p-4">
+        <div class="stat-card bg-purple-500 bg-opacity-20 border-purple-500 rounded-lg p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-purple-400 text-sm">부 배치</p>
@@ -134,7 +264,7 @@
                 <i class="fas fa-user-plus text-purple-400 text-2xl"></i>
             </div>
         </div>
-        <div class="bg-orange-500 bg-opacity-20 border border-orange-500 border-opacity-50 rounded-lg p-4">
+        <div class="stat-card bg-orange-500 bg-opacity-20 border-orange-500 rounded-lg p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-orange-400 text-sm">평균 비중</p>
@@ -210,11 +340,11 @@
                     등록: {{ assignment.created_at|date:"Y.m.d" }}
                 </div>
                 <div class="flex gap-2">
-                    <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                    <button class="btn-edit text-white px-3 py-1 rounded text-sm">
                         수정
                     </button>
                     {% if assignment.is_active %}
-                    <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                    <button class="btn-danger text-white px-3 py-1 rounded text-sm">
                         종료
                     </button>
                     {% endif %}
@@ -222,10 +352,10 @@
             </div>
         </div>
         {% empty %}
-        <div class="col-span-2 text-center py-12">
+        <div class="col-span-2 empty-state text-center py-12">
             <i class="fas fa-users text-gray-500 text-6xl mb-4"></i>
             <p class="text-gray-400 text-lg">팀 배치 내역이 없습니다.</p>
-            <button class="text-blue-400 hover:text-blue-300 mt-2">
+            <button class="text-cyan-400 hover:text-cyan-300 mt-2 transition-colors">
                 첫 팀 배치를 등록해보세요
             </button>
         </div>
@@ -233,7 +363,7 @@
     </div>
 
     <!-- 배치 관리 가이드 -->
-    <div class="mt-12 bg-blue-500 bg-opacity-10 border border-blue-500 border-opacity-30 rounded-lg p-6">
+    <div class="mt-12 guide-panel rounded-lg p-6">
         <h3 class="text-lg font-semibold text-white mb-4">팀 배치 관리 가이드</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
             <div>

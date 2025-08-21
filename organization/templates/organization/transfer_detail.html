@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
 {% block title %}{{ transfer.employee.name }} 인사이동 상세{% endblock %}
@@ -8,10 +8,15 @@
     .detail-card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
         border-radius: 12px;
         padding: 24px;
         margin-bottom: 24px;
+        transition: all 0.3s ease;
+    }
+    .detail-card:hover {
+        border-color: rgba(0, 212, 255, 0.5);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
     }
     .status-badge {
         display: inline-flex;
@@ -21,6 +26,7 @@
         border-radius: 20px;
         font-size: 0.875rem;
         font-weight: 500;
+        backdrop-filter: blur(5px);
     }
     .status-approved {
         background: rgba(34, 197, 94, 0.2);
@@ -40,29 +46,40 @@
     }
     .transfer-box {
         background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.2);
         border-radius: 8px;
         padding: 20px;
         min-width: 200px;
         text-align: center;
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+    .transfer-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
     }
     .transfer-box.old {
-        border-color: rgba(239, 68, 68, 0.3);
-        background: rgba(239, 68, 68, 0.05);
+        border-color: rgba(239, 68, 68, 0.4);
+        background: rgba(239, 68, 68, 0.1);
     }
     .transfer-box.new {
-        border-color: rgba(34, 197, 94, 0.3);
-        background: rgba(34, 197, 94, 0.05);
+        border-color: rgba(34, 197, 94, 0.4);
+        background: rgba(34, 197, 94, 0.1);
     }
     .flow-arrow {
-        color: #3b82f6;
+        color: #00d4ff;
         font-size: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
     }
     .timeline-item {
         position: relative;
         padding-left: 30px;
         padding-bottom: 20px;
-        border-left: 2px solid rgba(255, 255, 255, 0.1);
+        border-left: 2px solid rgba(0, 212, 255, 0.3);
     }
     .timeline-item::before {
         content: '';
@@ -71,11 +88,83 @@
         top: 5px;
         width: 10px;
         height: 10px;
-        background: #3b82f6;
+        background: #00d4ff;
         border-radius: 50%;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
     }
     .timeline-item:last-child {
         border-left-color: transparent;
+    }
+    .btn-approve {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        border: 1px solid #22c55e;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-approve::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s;
+    }
+    .btn-approve:hover::before {
+        left: 100%;
+    }
+    .btn-approve:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+    }
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        transform: translateY(-1px);
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #0ea5e9, #00d4ff);
+        border: 1px solid #00d4ff;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+    }
+    .change-summary {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(0, 212, 255, 0.1));
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    .approval-notice {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        backdrop-filter: blur(10px);
     }
 </style>
 {% endblock %}
@@ -108,7 +197,7 @@
                 </span>
                 <form method="post" action="{% url 'organization:transfer_approve' transfer.id %}" class="inline">
                     {% csrf_token %}
-                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    <button type="submit" class="btn-approve text-white px-4 py-2 rounded-lg"
                             onclick="return confirm('인사이동을 승인하시겠습니까?')">
                         <i class="fas fa-check mr-2"></i>승인
                     </button>
@@ -150,7 +239,7 @@
         </div>
         
         <!-- 변화 요약 -->
-        <div class="mt-6 bg-blue-500 bg-opacity-10 border border-blue-500 border-opacity-30 rounded-lg p-4">
+        <div class="mt-6 change-summary rounded-lg p-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
                     <span class="text-gray-400">부서 변경:</span>
@@ -246,7 +335,7 @@
             </div>
         </dl>
         
-        <div class="mt-4 bg-green-500 bg-opacity-10 border border-green-500 border-opacity-30 rounded-lg p-4">
+        <div class="mt-4 approval-notice rounded-lg p-4">
             <p class="text-green-400 text-sm">
                 <i class="fas fa-info-circle mr-2"></i>
                 이 인사이동은 승인되어 직원의 정보가 업데이트되었습니다.
@@ -286,10 +375,10 @@
 
     <!-- 액션 버튼 -->
     <div class="flex justify-end gap-4">
-        <a href="{% url 'organization:transfer_list' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors">
+        <a href="{% url 'organization:transfer_list' %}" class="btn-secondary text-white px-6 py-3 rounded-lg">
             목록으로
         </a>
-        <a href="{% url 'employees:employee_detail' transfer.employee.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
+        <a href="{% url 'employees:employee_detail' transfer.employee.id %}" class="btn-primary text-white px-6 py-3 rounded-lg">
             <i class="fas fa-user mr-2"></i>직원 프로필
         </a>
     </div>

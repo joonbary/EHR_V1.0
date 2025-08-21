@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_revolutionary.html' %}
 {% load static %}
 
 {% block title %}{{ department.name }} - 부서 상세{% endblock %}
@@ -8,27 +8,49 @@
     .info-card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
         border-radius: 12px;
         padding: 20px;
+        transition: all 0.3s ease;
+    }
+    .info-card:hover {
+        border-color: #00d4ff;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
     }
     .employee-card {
         background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.2);
         border-radius: 8px;
         padding: 15px;
         transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        position: relative;
+        overflow: hidden;
+    }
+    .employee-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: all 0.6s;
+    }
+    .employee-card:hover::before {
+        left: 100%;
     }
     .employee-card:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.2);
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
         transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
     }
     .history-item {
         position: relative;
         padding-left: 30px;
         padding-bottom: 20px;
-        border-left: 2px solid rgba(255, 255, 255, 0.1);
+        border-left: 2px solid rgba(0, 212, 255, 0.3);
     }
     .history-item::before {
         content: '';
@@ -37,8 +59,24 @@
         top: 5px;
         width: 10px;
         height: 10px;
-        background: #3b82f6;
+        background: #00d4ff;
         border-radius: 50%;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+    }
+    .sub-dept-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+    .sub-dept-card:hover {
+        background: rgba(0, 212, 255, 0.15);
+        border-color: #00d4ff;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2);
+    }
+    .status-badge {
+        backdrop-filter: blur(10px);
+        border: 1px solid currentColor;
     }
 </style>
 {% endblock %}
@@ -61,15 +99,15 @@
                 <p class="text-gray-300">{{ full_path }}</p>
             </div>
             <div class="flex gap-3">
-                <a href="{% url 'organization:department_create' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                <a href="{% url 'organization:department_create' %}" class="bg-gradient-to-r from-blue-500 to-cyan-500 bg-opacity-20 hover:bg-opacity-30 border border-cyan-500 border-opacity-50 text-white px-4 py-2 rounded-lg transition-all backdrop-filter blur-5px">
                     <i class="fas fa-edit mr-2"></i>수정
                 </a>
                 {% if department.is_active %}
-                <button class="bg-green-500 bg-opacity-20 text-green-400 px-4 py-2 rounded-lg cursor-not-allowed">
+                <button class="status-badge bg-green-500 bg-opacity-20 text-green-400 px-4 py-2 rounded-lg cursor-not-allowed">
                     <i class="fas fa-check-circle mr-2"></i>활성
                 </button>
                 {% else %}
-                <button class="bg-red-500 bg-opacity-20 text-red-400 px-4 py-2 rounded-lg cursor-not-allowed">
+                <button class="status-badge bg-red-500 bg-opacity-20 text-red-400 px-4 py-2 rounded-lg cursor-not-allowed">
                     <i class="fas fa-times-circle mr-2"></i>비활성
                 </button>
                 {% endif %}
@@ -130,7 +168,7 @@
                 <h3 class="text-lg font-semibold text-white mb-4">하위 부서</h3>
                 <div class="space-y-2">
                     {% for sub_dept in sub_departments %}
-                    <a href="{% url 'organization:department_detail' sub_dept.id %}" class="block bg-blue-500 bg-opacity-10 hover:bg-opacity-20 border border-blue-500 border-opacity-30 rounded-lg p-3 transition-all">
+                    <a href="{% url 'organization:department_detail' sub_dept.id %}" class="block sub-dept-card rounded-lg p-3">
                         <div class="flex justify-between items-center">
                             <span class="text-white">{{ sub_dept.name }}</span>
                             <span class="text-sm text-gray-400">{{ sub_dept.employee_count }}명</span>
