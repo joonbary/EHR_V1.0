@@ -89,20 +89,23 @@
         text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
     }
     
+    /* Page Container */
     .monthly-workforce-container {
         padding: 0;
-        background-color: #f8f9fa;
+        background: var(--background-gradient);
         min-height: 100vh;
     }
     
-    /* 템플릿 구조 테이블 스타일 */
+    /* Revolutionary Table Style */
     .template-table {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        background: var(--card-background);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
         overflow-x: auto;
         margin-bottom: 20px;
-        border: 1px solid rgba(0,0,0,0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
     
     .template-table table {
@@ -114,64 +117,86 @@
     
     .template-table th,
     .template-table td {
-        border: 1px solid #e5e7eb;
-        padding: 8px 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 12px 10px;
         text-align: center;
         vertical-align: middle;
         white-space: nowrap;
+        color: var(--text-secondary);
     }
     
-    /* 헤더 스타일 */
+    /* Revolutionary Header Styles */
     .company-header {
-        background-color: #e8f4f8;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
         font-weight: bold;
         font-size: 12px;
-        color: #374151;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     
     .position-header {
-        background-color: #f9fafb;
+        background: rgba(0, 212, 255, 0.1);
         font-weight: 600;
         font-size: 11px;
-        color: #374151;
+        color: rgba(255, 255, 255, 0.9);
+        letter-spacing: 0.5px;
     }
     
-    /* 행 헤더 (구분/직급) */
+    /* Revolutionary Row Headers */
     .row-category {
-        background-color: #f3f4f6;
+        background: rgba(255, 255, 255, 0.05);
         font-weight: bold;
         text-align: left;
         padding-left: 12px;
         min-width: 80px;
+        color: var(--primary-color);
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
     }
     
     .row-position {
-        background-color: #f9fafb;
+        background: rgba(255, 255, 255, 0.03);
         font-weight: 500;
         text-align: left;
         padding-left: 16px;
         min-width: 100px;
+        color: rgba(255, 255, 255, 0.8);
     }
     
-    /* 숫자 셀 */
+    /* Revolutionary Number Cells */
     .number-cell {
         text-align: right !important;
-        font-family: 'Courier New', monospace;
-        font-weight: 500;
+        font-family: 'Inter', monospace;
+        font-weight: 600;
         padding-right: 10px !important;
         min-width: 60px;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
     }
     
-    /* 소계/합계 행 */
+    .number-cell:hover {
+        color: var(--primary-color);
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+    
+    /* Revolutionary Total Rows */
     .total-row {
-        background-color: #fffacd;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 153, 255, 0.15));
         font-weight: bold;
+        border: 1px solid rgba(0, 212, 255, 0.3);
     }
     
     .grand-total-row {
-        background-color: #ffeb3b;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(0, 153, 255, 0.25));
         font-weight: bold;
         font-size: 14px;
+        border: 2px solid rgba(0, 212, 255, 0.5);
+        box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.2);
+    }
+    
+    .grand-total-row td {
+        color: var(--primary-color) !important;
+        text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
     }
     
     /* 카테고리별 색상 */
@@ -180,30 +205,119 @@
     .contract-row { border-left: 4px solid #f59e0b; }
     .other-row { border-left: 4px solid #ef4444; }
     
+    /* Revolutionary Loading State */
     .loading {
         text-align: center;
-        padding: 50px;
+        padding: var(--spacing-2xl);
         font-size: 18px;
-        color: #666;
+        color: var(--text-secondary);
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
     }
     
+    /* Revolutionary Error Message */
     .error-message {
-        background-color: #fee;
-        border: 1px solid #fcc;
-        color: #c33;
-        padding: 15px;
-        border-radius: 5px;
-        margin: 20px;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ff6b6b;
+        padding: var(--spacing-lg);
+        border-radius: 15px;
+        margin: var(--spacing-lg);
         text-align: center;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
     }
 
-    /* AI 인사이트 섹션 */
+    /* Revolutionary AI Insights Section */
     .ai-insights-section {
-        background: linear-gradient(135deg, rgba(255, 107, 0, 0.03) 0%, rgba(255, 170, 0, 0.03) 100%);
-        border-radius: 16px;
-        padding: 24px;
-        margin: 20px 0;
-        border: 1px solid rgba(255, 107, 0, 0.1);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 153, 255, 0.05));
+        border-radius: 20px;
+        padding: var(--spacing-xl);
+        margin: var(--spacing-lg) 0;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ai-insights-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Revolutionary Buttons */
+    .btn-revolutionary {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 1;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-revolutionary.btn-primary {
+        background: var(--primary-gradient);
+        color: white;
+        border: 2px solid rgba(0, 212, 255, 0.5);
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+    }
+    
+    .btn-revolutionary.btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s ease;
+        z-index: -1;
+    }
+    
+    .btn-revolutionary.btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 30px rgba(0, 212, 255, 0.6);
+        border-color: #00d4ff;
+        filter: brightness(1.2);
+    }
+    
+    .btn-revolutionary.btn-primary:hover::before {
+        left: 100%;
+    }
+    
+    .btn-revolutionary.btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--primary-color);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+    }
+    
+    .btn-revolutionary.btn-secondary:hover {
+        background: rgba(0, 212, 255, 0.2);
+        border-color: #00d4ff;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+    }
+    
+    .btn-revolutionary span {
+        display: inline-block;
     }
     
     .ai-insights-header {
@@ -214,40 +328,43 @@
     }
     
     .ai-icon {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #FF6B00 0%, #FFAA00 100%);
-        border-radius: 12px;
+        width: 50px;
+        height: 50px;
+        background: var(--primary-gradient);
+        border-radius: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 20px;
+        font-size: 24px;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        position: relative;
+        z-index: 1;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- 페이지 헤더 (sticky 고정) -->
-<div class="sticky top-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 mb-8">
+<!-- Revolutionary Page Header -->
+<div class="sticky top-0 z-30 backdrop-blur-xl bg-gradient-to-r from-gray-900/95 via-gray-800/95 to-gray-900/95 border-b border-cyan-500/30 mb-8">
     <div class="container mx-auto px-6 py-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-4xl font-bold gradient-text mb-2" id="pageTitle">월간 인력현황</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300" id="lastUpdated">데이터 로딩 중...</p>
+                <h1 class="hero-title" id="pageTitle">월간 인력현황</h1>
+                <p class="text-lg" style="color: var(--text-secondary);" id="lastUpdated">데이터 로딩 중...</p>
             </div>
             <div class="flex items-center space-x-3">
-                <button id="downloadExcelBtn" class="px-6 py-3 gradient-bg text-white rounded-xl hover:shadow-lg transition-all shadow-sm">
+                <button id="downloadExcelBtn" class="btn-revolutionary btn-primary">
                     <i data-lucide="download" class="w-5 h-5 inline mr-2"></i>
-                    Excel 다운로드
+                    <span>Excel 다운로드</span>
                 </button>
-                <a href="{% url 'employees:full_workforce' %}" class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors shadow-sm">
+                <a href="{% url 'employees:full_workforce' %}" class="btn-revolutionary btn-secondary">
                     <i data-lucide="users" class="w-5 h-5 inline mr-2"></i>
-                    전체 인력현황 보기
+                    <span>전체 인력현황</span>
                 </a>
-                <a href="{% url 'employees:hr_dashboard' %}" class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary transition-colors shadow-sm">
+                <a href="{% url 'employees:hr_dashboard' %}" class="btn-revolutionary btn-secondary">
                     <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
-                    대시보드로 돌아가기
+                    <span>대시보드</span>
                 </a>
             </div>
         </div>
@@ -257,10 +374,10 @@
 <div class="monthly-workforce-container">
     <div class="container mx-auto px-6">
     
-    <!-- 조회 필터 섹션 -->
-    <div class="glass dark:glass-dark rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm mb-6" id="filterSection">
+    <!-- Revolutionary Filter Section -->
+    <div class="revolutionary-card mb-6" id="filterSection">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+            <h3 class="text-xl font-bold" style="color: var(--primary-color); text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);">
                 <i data-lucide="filter" class="w-5 h-5 inline mr-2"></i>
                 데이터 조회 및 업로드
             </h3>
@@ -269,9 +386,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <!-- 파일 선택 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Excel 파일 선택</label>
+                <label class="block text-sm font-medium mb-2" style="color: var(--text-secondary);">Excel 파일 선택</label>
                 <div class="flex gap-2">
-                    <select id="fileSource" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                    <select id="fileSource" class="flex-1 px-4 py-2 border border-cyan-500/30 rounded-lg bg-gray-800/50 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 backdrop-filter backdrop-blur-sm">
                         <option value="default">emp_upload.xlsx (기본)</option>
                         <option value="upload">새 파일 업로드</option>
                     </select>
@@ -284,17 +401,17 @@
             
             <!-- 조회 월 선택 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">조회 월</label>
-                <input type="month" id="selectedMonth" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" value="2025-08">
+                <label class="block text-sm font-medium mb-2" style="color: var(--text-secondary);">조회 월</label>
+                <input type="month" id="selectedMonth" class="w-full px-4 py-2 border border-cyan-500/30 rounded-lg bg-gray-800/50 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 backdrop-filter backdrop-blur-sm" value="2025-08">
             </div>
         </div>
         
         <div class="mt-4 flex justify-end gap-2">
-            <button id="resetBtn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-medium">
-                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>초기화
+            <button id="resetBtn" class="btn-revolutionary btn-secondary">
+                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i><span>초기화</span>
             </button>
-            <button id="searchBtn" class="px-6 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition-all font-medium">
-                <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>조회
+            <button id="searchBtn" class="btn-revolutionary btn-primary">
+                <i data-lucide="search" class="w-4 h-4 inline mr-2"></i><span>조회</span>
             </button>
         </div>
     </div>
@@ -349,63 +466,63 @@
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div class="bg-gray-800/50 rounded-xl p-5 border border-cyan-500/30 shadow-sm hover:shadow-md transition-shadow">
+            <div class="revolutionary-card" style="padding: 1.5rem;"
                 <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-semibold text-white">
+                    <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="trending-up" class="w-5 h-5 inline mr-2 text-green-600"></i>
                         인력 규모 분석
                     </h4>
                     <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">핵심</span>
                 </div>
-                <p class="text-gray-600 text-sm mb-3">
+                <p class="text-sm mb-3" style="color: var(--text-secondary);">
                     OK금융그룹 전체 <strong id="totalEmployees">1,898명</strong>의 직원이 7개 계열사에 분포. 
                     금융업계 평균 대비 <strong>적정 규모</strong>를 유지하고 있습니다.
                 </p>
                 <div class="grid grid-cols-2 gap-3 text-center">
-                    <div class="bg-gray-700/50 rounded-lg p-2">
+                    <div class="rounded-lg p-2" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2);">
                         <div class="text-lg font-bold text-blue-600" id="nonPlCount">0</div>
-                        <div class="text-xs text-gray-500">Non-PL</div>
+                        <div class="text-xs" style="color: var(--text-secondary); opacity: 0.7;">Non-PL</div>
                     </div>
-                    <div class="bg-gray-700/50 rounded-lg p-2">
+                    <div class="rounded-lg p-2" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2);">
                         <div class="text-lg font-bold text-green-600" id="plCount">0</div>
-                        <div class="text-xs text-gray-500">PL</div>
+                        <div class="text-xs" style="color: var(--text-secondary); opacity: 0.7;">PL</div>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-gray-800/50 rounded-xl p-5 border border-cyan-500/30 shadow-sm hover:shadow-md transition-shadow">
+            <div class="revolutionary-card" style="padding: 1.5rem;"
                 <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-semibold text-white">
+                    <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="users" class="w-5 h-5 inline mr-2 text-blue-600"></i>
                         조직 구조 최적화
                     </h4>
                     <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">분석</span>
                 </div>
-                <p class="text-gray-600 text-sm mb-3">
+                <p class="text-sm mb-3" style="color: var(--text-secondary);">
                     관리직(부장급) 평균 관리 범위가 <strong id="managementSpan">48.7명</strong>으로 
                     효율적 관리 범위(40-60명) 내에 위치합니다.
                 </p>
                 <div class="grid grid-cols-2 gap-3 text-center">
-                    <div class="bg-gray-700/50 rounded-lg p-2">
+                    <div class="rounded-lg p-2" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2);">
                         <div class="text-lg font-bold text-orange-600" id="managerCount">0</div>
-                        <div class="text-xs text-gray-500">관리직</div>
+                        <div class="text-xs" style="color: var(--text-secondary); opacity: 0.7;">관리직</div>
                     </div>
-                    <div class="bg-gray-700/50 rounded-lg p-2">
+                    <div class="rounded-lg p-2" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2);">
                         <div class="text-lg font-bold text-purple-600" id="companyCount">7</div>
-                        <div class="text-xs text-gray-500">계열사</div>
+                        <div class="text-xs" style="color: var(--text-secondary); opacity: 0.7;">계열사</div>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-gray-800/50 rounded-xl p-5 border border-cyan-500/30 shadow-sm hover:shadow-md transition-shadow">
+            <div class="revolutionary-card" style="padding: 1.5rem;"
                 <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-semibold text-white">
+                    <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="building-2" class="w-5 h-5 inline mr-2 text-purple-600"></i>
                         계열사별 현황
                     </h4>
                     <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">현황</span>
                 </div>
-                <p class="text-gray-600 text-sm mb-3">
+                <p class="text-sm mb-3" style="color: var(--text-secondary);">
                     <strong id="largestCompany">OK저축은행(센터/지점)</strong>이 최대 규모이며,
                     각 계열사별 특성에 맞는 조직 구조를 운영 중입니다.
                 </p>
@@ -421,39 +538,39 @@
                 </div>
             </div>
             
-            <div class="bg-gray-800/50 rounded-xl p-5 border border-cyan-500/30 shadow-sm hover:shadow-md transition-shadow">
+            <div class="revolutionary-card" style="padding: 1.5rem;"
                 <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-semibold text-white">
+                    <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="target" class="w-5 h-5 inline mr-2 text-orange-600"></i>
                         인력 구성 분석
                     </h4>
                     <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">전략</span>
                 </div>
-                <p class="text-gray-600 text-sm mb-3">
+                <p class="text-sm mb-3" style="color: var(--text-secondary);">
                     정규직 <strong id="regularRate">90.2%</strong>, 계약직 <strong id="contractRate">2.6%</strong>로 
                     안정적인 고용 구조를 유지하고 있습니다.
                 </p>
                 <div class="grid grid-cols-2 gap-3 text-center">
-                    <div class="bg-gray-700/50 rounded-lg p-2">
+                    <div class="rounded-lg p-2" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2);">
                         <div class="text-lg font-bold text-yellow-600" id="contractCount">0</div>
-                        <div class="text-xs text-gray-500">계약직</div>
+                        <div class="text-xs" style="color: var(--text-secondary); opacity: 0.7;">계약직</div>
                     </div>
-                    <div class="bg-gray-700/50 rounded-lg p-2">
+                    <div class="rounded-lg p-2" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2);">
                         <div class="text-lg font-bold text-red-600" id="otherCount">0</div>
-                        <div class="text-xs text-gray-500">기타</div>
+                        <div class="text-xs" style="color: var(--text-secondary); opacity: 0.7;">기타</div>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-gray-800/50 rounded-xl p-5 border border-cyan-500/30 shadow-sm hover:shadow-md transition-shadow">
+            <div class="revolutionary-card" style="padding: 1.5rem;"
                 <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-semibold text-white">
+                    <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="trending-down" class="w-5 h-5 inline mr-2 text-red-600"></i>
                         리스크 포인트
                     </h4>
                     <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">주의</span>
                 </div>
-                <p class="text-gray-600 text-sm mb-3">
+                <p class="text-sm mb-3" style="color: var(--text-secondary);">
                     일부 계열사의 중간관리직 부족으로 업무 병목 현상 발생 가능성이 있으며, 
                     <strong>승진 또는 영입</strong>을 통한 보강이 필요합니다.
                 </p>
@@ -465,15 +582,15 @@
                 </div>
             </div>
             
-            <div class="bg-gray-800/50 rounded-xl p-5 border border-cyan-500/30 shadow-sm hover:shadow-md transition-shadow">
+            <div class="revolutionary-card" style="padding: 1.5rem;"
                 <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-semibold text-white">
+                    <h4 class="font-semibold" style="color: var(--text-primary);">
                         <i data-lucide="lightbulb" class="w-5 h-5 inline mr-2 text-indigo-600"></i>
                         개선 제안
                     </h4>
                     <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">제안</span>
                 </div>
-                <p class="text-gray-600 text-sm mb-3">
+                <p class="text-sm mb-3" style="color: var(--text-secondary);">
                     디지털 전환 가속화에 따라 <strong>IT 및 데이터 전문인력</strong> 확보가 필요하며,
                     특히 OK데이터시스템의 인력 증원이 시급합니다.
                 </p>
