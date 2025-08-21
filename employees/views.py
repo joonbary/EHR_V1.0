@@ -1138,20 +1138,56 @@ def save_organization(request):
 def download_org_sample(request):
     """조직 구조 샘플 데이터 다운로드"""
     import io
-    import xlsxwriter
     from django.http import HttpResponse
     
-    # Create Excel file in memory
-    output = io.BytesIO()
-    workbook = xlsxwriter.Workbook(output)
-    worksheet = workbook.add_worksheet('조직구조')
+    try:
+        import xlsxwriter
+        
+        # Create Excel file in memory
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet('조직구조')
+        
+    except ImportError:
+        # xlsxwriter가 없는 경우 openpyxl 사용
+        try:
+            from openpyxl import Workbook
+            from openpyxl.utils import get_column_letter
+            
+            workbook = Workbook()
+            worksheet = workbook.active
+            worksheet.title = '조직구조'
+            
+        except ImportError:
+            # 둘 다 없는 경우 CSV로 대체
+            import csv
+            from django.http import HttpResponse
+            
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename=조직구조_샘플데이터.csv'
+            
+            writer = csv.writer(response)
+            headers = ['조직코드', '조직명', '조직레벨', '상위조직코드', '조직장', '상태', '정렬순서', '설명']
+            writer.writerow(headers)
+            
+            # Sample data
+            sample_data = [
+                ['GRP001', 'OK금융그룹', 1, '', '', 'active', 1, 'OK금융그룹 지주회사'],
+                ['COM001', 'OK저축은행', 2, 'GRP001', '', 'active', 1, '저축은행'],
+                ['COM002', 'OK캐피탈', 2, 'GRP001', '', 'active', 2, '캐피탈'],
+                ['HQ001', '경영지원본부', 3, 'COM001', '', 'active', 1, ''],
+                ['HQ003', '디지털본부', 3, 'COM001', '', 'active', 3, ''],
+                ['DEPT001', 'IT개발부', 4, 'HQ003', '', 'active', 1, ''],
+                ['TEAM001', '개발1팀', 5, 'DEPT001', '', 'active', 1, '코어뱅킹 시스템'],
+            ]
+            
+            for row in sample_data:
+                writer.writerow(row)
+                
+            return response
     
     # Define headers
     headers = ['조직코드', '조직명', '조직레벨', '상위조직코드', '조직장', '상태', '정렬순서', '설명']
-    
-    # Write headers
-    for col, header in enumerate(headers):
-        worksheet.write(0, col, header)
     
     # Sample data - OK Financial Group structure
     sample_data = [
@@ -1179,19 +1215,68 @@ def download_org_sample(request):
         ['TEAM003', 'AI개발팀', 5, 'DEPT001', '', 'active', 3, 'AI/ML 솔루션'],
     ]
     
-    # Write sample data
-    for row_num, row_data in enumerate(sample_data, 1):
-        for col, value in enumerate(row_data):
-            worksheet.write(row_num, col, value)
+    try:
+        # xlsxwriter를 사용하는 경우
+        if 'xlsxwriter' in locals():
+            # Write headers
+            for col, header in enumerate(headers):
+                worksheet.write(0, col, header)
+            
+            # Write sample data
+            for row_num, row_data in enumerate(sample_data, 1):
+                for col, value in enumerate(row_data):
+                    worksheet.write(row_num, col, value)
+            
+            workbook.close()
+            
+            # Prepare response
+            output.seek(0)
+            response = HttpResponse(
+                output.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = 'attachment; filename=조직구조_샘플데이터.xlsx'
+            
+            return response
+            
+        # openpyxl을 사용하는 경우
+        elif 'openpyxl' in locals():
+            # Write headers
+            for col, header in enumerate(headers, 1):
+                worksheet.cell(row=1, column=col, value=header)
+            
+            # Write sample data
+            for row_num, row_data in enumerate(sample_data, 2):
+                for col, value in enumerate(row_data, 1):
+                    worksheet.cell(row=row_num, column=col, value=value)
+            
+            # Save to BytesIO
+            output = io.BytesIO()
+            workbook.save(output)
+            output.seek(0)
+            
+            response = HttpResponse(
+                output.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = 'attachment; filename=조직구조_샘플데이터.xlsx'
+            
+            return response
     
-    workbook.close()
-    
-    # Prepare response
-    output.seek(0)
-    response = HttpResponse(
-        output.read(),
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = 'attachment; filename=조직구조_샘플데이터.xlsx'
-    
-    return response
+    except Exception as e:
+        # 모든 Excel 라이브러리가 실패한 경우 CSV로 대체
+        import csv
+        
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename=조직구조_샘플데이터.csv'
+        
+        # BOM 추가 (Excel에서 한글 제대로 표시)
+        response.write('\ufeff')
+        
+        writer = csv.writer(response)
+        writer.writerow(headers)
+        
+        for row in sample_data:
+            writer.writerow(row)
+            
+        return response
