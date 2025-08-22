@@ -3,6 +3,9 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Employee
+from .models_organization import OrganizationStructure, OrganizationUploadHistory, EmployeeOrganizationMapping
+from .models_hr import HREmployee
+from .models_workforce import WeeklyWorkforceSnapshot
 from .forms import EmployeeForm
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -932,7 +935,7 @@ def upload_organization_structure(request):
     if request.method == 'POST':
         try:
             import json
-            from .models_organization import OrganizationStructure, OrganizationUploadHistory
+            # Using models imported at top of file
             
             body = json.loads(request.body)
             data = body.get('data', [])
@@ -1032,7 +1035,7 @@ def upload_organization_structure(request):
 def get_organization_tree(request):
     """조직 트리 구조 조회"""
     try:
-        from .models_organization import OrganizationStructure
+        # Models imported at top of file
         
         def build_tree(parent=None):
             orgs = OrganizationStructure.objects.filter(
@@ -1071,7 +1074,7 @@ def get_organization_tree(request):
 def get_organization_stats(request):
     """조직 통계 조회"""
     try:
-        from .models_organization import OrganizationStructure
+        # Models imported at top of file
         from datetime import datetime
         
         total_orgs = OrganizationStructure.objects.count()
@@ -1099,7 +1102,7 @@ def save_organization(request):
     if request.method == 'POST':
         try:
             import json
-            from .models_organization import OrganizationStructure
+            # Using models imported at top of file
             
             data = json.loads(request.body)
             
