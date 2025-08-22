@@ -386,60 +386,12 @@ def msa_integration(request):
     return render(request, "airiss/msa_integration.html", context)
 
 def dashboard(request):
-    """AIRISS 대시보드 - 메인 허브 페이지"""
-    from .models import AIAnalysisResult
-    
-    # 통계 데이터 수집
-    stats = {
-        'total_employees': 0,
-        'total_analyses': 0,
-        'avg_score': 0,
-        'recent_analyses': []
-    }
-    
-    try:
-        # Employee 모델이 있으면 직원 수 계산
-        if Employee:
-            try:
-                stats['total_employees'] = Employee.objects.count()
-            except Exception:
-                pass
-        
-        # AIAnalysisResult 테이블에서 분석 통계 계산
-        try:
-            from django.db.models import Avg
-            
-            stats['total_analyses'] = AIAnalysisResult.objects.count()
-            avg_result = AIAnalysisResult.objects.aggregate(avg_score=Avg('score'))
-            stats['avg_score'] = round(avg_result['avg_score'] or 0, 1)
-            
-            # 최근 분석 결과 5개
-            recent = AIAnalysisResult.objects.select_related('employee').order_by('-analyzed_at')[:5]
-            stats['recent_analyses'] = [
-                {
-                    'employee_name': r.employee.name if r.employee else 'Unknown',
-                    'score': r.score,
-                    'date': r.analyzed_at.strftime('%Y-%m-%d %H:%M')
-                }
-                for r in recent
-            ]
-        except Exception:
-            # 테이블이 없거나 필드 문제가 있을 경우 무시
-            pass
-    except Exception as e:
-        # 에러 발생 시 기본값 사용
-        import traceback
-        print(f"AIRISS dashboard error: {e}")
-        print(traceback.format_exc())
-        pass
-    
+    """AIRISS 대시보드 - MSA 서비스 iframe 연결"""
     context = {
         "page_title": "AIRISS v4 - AI 기반 HR 인텔리전스",
-        "local_mode": True,
-        "stats": stats
+        "airiss_v4_url": settings.AIRISS_SERVICE_URL  # 실제 AIRISS v4 MSA URL
     }
-    
-    return render(request, "airiss/dashboard.html", context)
+    return render(request, "airiss/airiss_v4_portal.html", context)
 
 def analytics(request):
     """AIRISS 분석"""

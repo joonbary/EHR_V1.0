@@ -35,7 +35,7 @@ DEBUG = True  # 디버그 모드 강제 활성화 (개발 중)
 # Railway 배포 설정
 if os.getenv('RAILWAY_ENVIRONMENT'):
     ALLOWED_HOSTS = ['*']
-    DEBUG = True  # 임시로 디버그 모드 활성화하여 에러 확인
+    DEBUG = False
 else:
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*').split(',')
 
