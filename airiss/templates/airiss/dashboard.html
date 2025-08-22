@@ -107,6 +107,23 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
+    {% if local_mode %}
+    <!-- 로컬 모드 안내 배너 -->
+    <div class="mb-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-4 shadow-lg">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 mr-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h4 class="font-semibold">AIRISS 로컬 모드 실행 중</h4>
+                <p class="text-sm opacity-90">외부 클라우드 서비스(web-production-4066.up.railway.app) 연결 불가로 인해 로컬 서버에서 AI 분석이 실행됩니다.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <!-- 배경 장식 요소 -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
@@ -133,10 +150,10 @@
                     <i data-lucide="settings" class="w-4 h-4"></i>
                     <span>AI 설정</span>
                 </button>
-                <button class="px-4 py-2 gradient-bg text-white rounded-xl hover:shadow-lg transition-all flex items-center space-x-2">
+                <a href="{% url 'airiss:upload_integrated' %}" class="px-4 py-2 gradient-bg text-white rounded-xl hover:shadow-lg transition-all flex items-center space-x-2 inline-block">
                     <i data-lucide="sparkles" class="w-4 h-4"></i>
                     <span>새 분석 시작</span>
-                </button>
+                </a>
             </div>
         </div>
     </div>

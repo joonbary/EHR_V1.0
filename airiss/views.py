@@ -386,13 +386,52 @@ def msa_integration(request):
     return render(request, "airiss/msa_integration.html", context)
 
 def dashboard(request):
-    """AIRISS 대시보드 - MSA 통합 페이지로 리다이렉트"""
-    # MSA 서비스를 iframe으로 표시하는 페이지로 변경
+    """AIRISS 대시보드 - 메인 허브 페이지"""
+    from .models import AIAnalysisResult
+    from django.db import connection
+    
+    # 통계 데이터 수집
+    stats = {
+        'total_employees': 0,
+        'total_analyses': 0,
+        'avg_score': 0,
+        'recent_analyses': []
+    }
+    
+    try:
+        # Employee 모델이 있으면 직원 수 계산
+        if Employee:
+            stats['total_employees'] = Employee.objects.count()
+        
+        # AIAnalysisResult 테이블이 있으면 분석 통계 계산
+        if AIAnalysisResult._meta.db_table in connection.introspection.table_names():
+            from django.db.models import Avg
+            
+            stats['total_analyses'] = AIAnalysisResult.objects.count()
+            avg_result = AIAnalysisResult.objects.aggregate(avg_score=Avg('ai_score'))
+            stats['avg_score'] = round(avg_result['avg_score'] or 0, 1)
+            
+            # 최근 분석 결과 5개
+            recent = AIAnalysisResult.objects.select_related('employee').order_by('-analyzed_at')[:5]
+            stats['recent_analyses'] = [
+                {
+                    'employee_name': r.employee.name if r.employee else 'Unknown',
+                    'score': r.ai_score,
+                    'date': r.analyzed_at.strftime('%Y-%m-%d %H:%M')
+                }
+                for r in recent
+            ]
+    except Exception as e:
+        # 에러 발생 시 기본값 사용
+        pass
+    
     context = {
         "page_title": "AIRISS v4 - AI 기반 HR 인텔리전스",
-        "airiss_v4_url": settings.AIRISS_SERVICE_URL  # https://web-production-4066.up.railway.app
+        "local_mode": True,
+        "stats": stats
     }
-    return render(request, "airiss/airiss_v4_portal.html", context)
+    
+    return render(request, "airiss/dashboard.html", context)
 
 def analytics(request):
     """AIRISS 분석"""

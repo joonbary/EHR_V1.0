@@ -136,6 +136,16 @@
 
 {% block content %}
 <div class="upload-container">
+    {% if local_mode %}
+    <div style="background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <h4 style="margin: 0 0 0.5rem 0; font-weight: 600;">
+            📢 AIRISS 로컬 모드로 실행 중
+        </h4>
+        <p style="margin: 0; font-size: 0.95rem;">현재 AIRISS 클라우드 서비스(web-production-4066.up.railway.app)가 일시적으로 이용 불가능하여 로컬 분석 모드로 작동 중입니다. 
+        Excel 파일을 업로드하면 로컬 서버에서 직접 AI 분석을 수행합니다.</p>
+    </div>
+    {% endif %}
+    
     <h1 class="text-3xl font-bold mb-2">AIRISS v4 직원 평가 분석</h1>
     <p class="text-gray-600 mb-6">10명의 직원 평가 정보가 담긴 엑셀 파일을 업로드하세요</p>
     
