@@ -83,7 +83,7 @@ class AIInsightService:
         insights = []
         
         # 전체 직원 수
-        total_employees = Employee.objects.filter(status='ACTIVE').count()
+        total_employees = Employee.objects.filter(employment_status='재직').count()
         
         # 부서별 분포
         dept_distribution = Employee.objects.filter(
@@ -207,7 +207,7 @@ class AIInsightService:
             risk_level__in=['HIGH', 'CRITICAL']
         ).count()
         
-        total_employees = Employee.objects.filter(status='ACTIVE').count()
+        total_employees = Employee.objects.filter(employment_status='재직').count()
         risk_ratio = (high_risk_employees / total_employees * 100) if total_employees > 0 else 0
         
         if risk_ratio > 15:
@@ -285,13 +285,13 @@ class AIInsightService:
             })
         
         # 연령 다양성
-        age_groups = Employee.objects.filter(status='ACTIVE').extra(
+        age_groups = Employee.objects.filter(employment_status='재직').extra(
             select={'age_group': 
                 "CASE WHEN EXTRACT(year FROM age(birth_date)) < 30 THEN '20대' "
                 "WHEN EXTRACT(year FROM age(birth_date)) < 40 THEN '30대' "
                 "WHEN EXTRACT(year FROM age(birth_date)) < 50 THEN '40대' "
                 "ELSE '50대 이상' END"}
-        ).values('age_group').annotate(count=Count('id')) if Employee.objects.filter(status='ACTIVE').exists() else []
+        ).values('age_group').annotate(count=Count('id')) if Employee.objects.filter(employment_status='재직').exists() else []
         
         if len(age_groups) < 3:
             insights.append({
@@ -418,7 +418,7 @@ class AIInsightService:
             today = timezone.now().date()
             
             # 오늘의 메트릭 계산
-            total_employees = Employee.objects.filter(status='ACTIVE').count()
+            total_employees = Employee.objects.filter(employment_status='재직').count()
             new_hires = Employee.objects.filter(
                 hire_date=today
             ).count()
