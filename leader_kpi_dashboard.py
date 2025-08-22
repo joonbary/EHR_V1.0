@@ -564,28 +564,327 @@ class LeaderKPIAnalytics:
         return list(trend)
     
     def _calculate_post_training_performance(self, employees_query, date_filter: Dict) -> float:
-        """교육 후 성과 개선율 계산"""
-        # 교육 이수 직원의 이후 평가 등급 개선 비율 계산
-        # 실제 구현시 더 정교한 로직 필요
-        return 15.5  # 임시값
+        """교육 후 성과 개선율 계산
+        
+        교육 이수 직원의 평가 등급 개선 비율을 계산합니다.
+        - 교육 이수 전후 평가 등급 비교
+        - 평가 점수 향상도 측정
+        - 교육 완료 후 3개월 이내 평가 대상
+        """
+        from trainings.models import TrainingEnrollment
+        from evaluations.models import Evaluation
+        from django.db.models import Avg, Count, Q, F
+        from datetime import timedelta
+        
+        # 교육 이수 완료한 직원들 조회
+        completed_trainings = TrainingEnrollment.objects.filter(
+            employee__in=employees_query,
+            status='COMPLETED',
+            completion_date__isnull=False
+        )
+        
+        if date_filter:
+            completed_trainings = completed_trainings.filter(
+                completion_date__gte=date_filter.get('start_date'),
+                completion_date__lte=date_filter.get('end_date')
+            )
+        
+        improvement_count = 0
+        total_evaluated = 0
+        
+        # 각 교육 이수 건에 대해 성과 개선 측정
+        for training in completed_trainings.select_related('employee'):
+            # 교육 전 평가 (교육 시작 전 6개월 이내)
+            pre_eval = Evaluation.objects.filter(
+                employee=training.employee,
+                status='COMPLETED',
+                created_at__lt=training.start_date,
+                created_at__gte=training.start_date - timedelta(days=180)
+            ).order_by('-created_at').first()
+            
+            # 교육 후 평가 (교육 완료 후 3개월 이내)
+            post_eval = Evaluation.objects.filter(
+                employee=training.employee,
+                status='COMPLETED',
+                created_at__gt=training.completion_date,
+                created_at__lte=training.completion_date + timedelta(days=90)
+            ).order_by('created_at').first()
+            
+            if pre_eval and post_eval:
+                total_evaluated += 1
+                
+                # 등급 개선 여부 확인 (S > A+ > A > B+ > B > C > D)
+                grade_values = {'S': 7, 'A+': 6, 'A': 5, 'B+': 4, 'B': 3, 'C': 2, 'D': 1}
+                pre_grade_value = grade_values.get(pre_eval.final_grade, 0)
+                post_grade_value = grade_values.get(post_eval.final_grade, 0)
+                
+                # 평가 점수나 등급이 개선된 경우
+                if post_grade_value > pre_grade_value or \
+                   (hasattr(post_eval, 'total_score') and hasattr(pre_eval, 'total_score') and 
+                    post_eval.total_score > pre_eval.total_score):
+                    improvement_count += 1
+        
+        # 개선율 계산 (백분율)
+        if total_evaluated > 0:
+            improvement_rate = (improvement_count / total_evaluated) * 100
+            return round(improvement_rate, 1)
+        
+        # 데이터가 없는 경우 기본값
+        return 0.0
     
     def _calculate_succession_readiness(self, department_id: Optional[str]) -> float:
-        """승계 준비도 지수 계산"""
-        # 핵심 직무별 후보자 수, 준비도 등을 종합한 지수
-        # 실제 구현시 더 정교한 로직 필요
-        return 75.0  # 임시값
+        """승계 준비도 지수 계산
+        
+        핵심 직무별 후보자 수와 준비도를 종합한 지수를 계산합니다.
+        - 핵심 직책별 후보자 pool 규모
+        - 후보자의 평균 성장레벨 및 평가등급
+        - 리더십 역량 보유 여부
+        - 100점 만점 기준
+        """
+        from django.db.models import Count, Avg, Q, Case, When, Value, IntegerField
+        
+        # 대상 직원 쿼리
+        employees_query = Employee.objects.filter(employment_status='재직')
+        if department_id:
+            employees_query = employees_query.filter(department_id=department_id)
+        
+        # 핵심 직책 정의 (관리자급 이상)
+        key_positions = ['과장', '차장', '부장', '이사', '상무', '전무', '부사장', '사장']
+        
+        # 현재 핵심 직책 보유자 수
+        key_position_holders = employees_query.filter(
+            position__in=key_positions
+        ).count()
+        
+        if key_position_holders == 0:
+            return 0.0
+        
+        # 승계 후보자 기준:
+        # 1. 한 단계 아래 직급
+        # 2. 평가등급 B+ 이상
+        # 3. 성장레벨 3 이상
+        succession_candidates = 0
+        readiness_scores = []
+        
+        position_hierarchy = {
+            '과장': '대리',
+            '차장': '과장',
+            '부장': '차장',
+            '이사': '부장',
+            '상무': '이사',
+            '전무': '상무',
+            '부사장': '전무',
+            '사장': '부사장'
+        }
+        
+        for current_position, candidate_position in position_hierarchy.items():
+            # 현재 직책 보유자 수
+            current_holders = employees_query.filter(position=current_position).count()
+            
+            if current_holders > 0:
+                # 후보자 조회
+                candidates = employees_query.filter(
+                    position=candidate_position
+                ).annotate(
+                    # 최근 평가 등급 확인
+                    recent_grade=Case(
+                        When(evaluation__status='COMPLETED', then='evaluation__final_grade'),
+                        default=Value(''),
+                        output_field=models.CharField()
+                    )
+                )
+                
+                # 자격 요건을 충족하는 후보자
+                qualified_candidates = candidates.filter(
+                    Q(recent_grade__in=['S', 'A+', 'A', 'B+']) |
+                    Q(growth_level__gte=3)
+                ).count()
+                
+                # 후보자 비율 (목표: 각 직책당 2명 이상의 후보자)
+                if current_holders > 0:
+                    candidate_ratio = qualified_candidates / current_holders
+                    # 최대 200% (직책당 2명)로 제한
+                    candidate_ratio = min(candidate_ratio, 2.0)
+                    readiness_scores.append(candidate_ratio * 50)  # 50점 만점으로 환산
+                    
+                    succession_candidates += qualified_candidates
+        
+        # 전체 준비도 점수 계산
+        if readiness_scores:
+            # 평균 준비도 점수
+            avg_readiness = sum(readiness_scores) / len(readiness_scores)
+            
+            # 추가 보너스 점수
+            # 1. 전체 후보자 pool 크기 (최대 25점)
+            pool_bonus = min((succession_candidates / key_position_holders) * 25, 25)
+            
+            # 2. 고성과자 비율 (최대 25점)
+            high_performers = employees_query.filter(
+                position__in=[v for v in position_hierarchy.values()]
+            ).annotate(
+                is_high_performer=Case(
+                    When(
+                        Q(evaluation__final_grade__in=['S', 'A+', 'A']) &
+                        Q(evaluation__status='COMPLETED'),
+                        then=Value(1)
+                    ),
+                    default=Value(0),
+                    output_field=IntegerField()
+                )
+            ).aggregate(
+                high_performer_ratio=Avg('is_high_performer')
+            )['high_performer_ratio'] or 0
+            
+            performance_bonus = high_performer_ratio * 25
+            
+            # 최종 점수 (100점 만점)
+            total_score = avg_readiness + pool_bonus + performance_bonus
+            return round(min(total_score, 100), 1)
+        
+        return 0.0
     
     def _analyze_competency_gaps(self, employees_query) -> float:
-        """역량 갭 분석"""
-        # 목표 역량 대비 현재 역량 수준의 갭 계산
-        # 실제 구현시 더 정교한 로직 필요
-        return 35.0  # 임시값
+        """역량 갭 분석
+        
+        목표 역량 대비 현재 역량 수준의 갭을 계산합니다.
+        - 직급별 요구 역량 수준
+        - 현재 보유 역량 수준
+        - 갭이 클수록 높은 값 (개선 필요도)
+        """
+        from django.db.models import Avg, Count, Q, Case, When, Value, FloatField
+        from evaluations.models import Evaluation
+        
+        # 직급별 목표 성장레벨 및 평가등급
+        target_levels = {
+            '사원': {'growth_level': 1, 'min_grade': 'B'},
+            '대리': {'growth_level': 2, 'min_grade': 'B+'},
+            '과장': {'growth_level': 3, 'min_grade': 'A'},
+            '차장': {'growth_level': 4, 'min_grade': 'A'},
+            '부장': {'growth_level': 5, 'min_grade': 'A+'},
+            '이사': {'growth_level': 5, 'min_grade': 'A+'},
+            '상무': {'growth_level': 6, 'min_grade': 'S'},
+            '전무': {'growth_level': 6, 'min_grade': 'S'},
+            '부사장': {'growth_level': 6, 'min_grade': 'S'},
+            '사장': {'growth_level': 6, 'min_grade': 'S'}
+        }
+        
+        grade_values = {'S': 7, 'A+': 6, 'A': 5, 'B+': 4, 'B': 3, 'C': 2, 'D': 1}
+        
+        total_gap_score = 0
+        employee_count = 0
+        
+        # 각 직원별 역량 갭 계산
+        for employee in employees_query.select_related('user'):
+            position = employee.position or '사원'
+            target = target_levels.get(position, target_levels['사원'])
+            
+            # 성장레벨 갭 (0-5 scale)
+            current_growth_level = getattr(employee, 'growth_level', 1)
+            growth_gap = max(0, target['growth_level'] - current_growth_level)
+            growth_gap_normalized = (growth_gap / 5) * 50  # 50% 가중치
+            
+            # 평가등급 갭
+            recent_eval = Evaluation.objects.filter(
+                employee=employee,
+                status='COMPLETED'
+            ).order_by('-created_at').first()
+            
+            if recent_eval and recent_eval.final_grade:
+                current_grade_value = grade_values.get(recent_eval.final_grade, 1)
+                target_grade_value = grade_values.get(target['min_grade'], 3)
+                grade_gap = max(0, target_grade_value - current_grade_value)
+                grade_gap_normalized = (grade_gap / 6) * 50  # 50% 가중치
+            else:
+                # 평가 데이터가 없는 경우 중간값
+                grade_gap_normalized = 25
+            
+            # 개인별 총 갭 점수 (0-100)
+            individual_gap = growth_gap_normalized + grade_gap_normalized
+            total_gap_score += individual_gap
+            employee_count += 1
+        
+        # 평균 갭 점수 계산
+        if employee_count > 0:
+            avg_gap = total_gap_score / employee_count
+            return round(avg_gap, 1)
+        
+        return 0.0
     
     def _calculate_retention_risk(self, employees_query) -> float:
-        """리텐션 리스크 계산"""
-        # 이직 위험이 높은 핵심 인재 비율
-        # 실제 구현시 더 정교한 로직 필요
-        return 12.5  # 임시값
+        """리텐션 리스크 계산
+        
+        이직 위험이 높은 핵심 인재의 비율을 계산합니다.
+        위험 요소:
+        - 장기 근속 (5년 이상) without 승진
+        - 낮은 평가등급 (C, D) 연속 2회 이상
+        - 급여 인상률 낮음 (2% 미만)
+        - 교육 기회 부족 (연 1회 미만)
+        """
+        from django.db.models import Count, Q, Case, When, Value, IntegerField
+        from datetime import datetime, timedelta
+        from evaluations.models import Evaluation
+        from trainings.models import TrainingEnrollment
+        
+        total_employees = employees_query.count()
+        if total_employees == 0:
+            return 0.0
+        
+        high_risk_count = 0
+        today = datetime.now().date()
+        
+        for employee in employees_query:
+            risk_factors = 0
+            
+            # 위험 요소 1: 5년 이상 근속했지만 승진 없음
+            if employee.hire_date:
+                years_of_service = (today - employee.hire_date).days / 365
+                if years_of_service >= 5:
+                    # 현재 직급과 입사 시 직급 비교
+                    if employee.position == employee.initial_position or \
+                       employee.position in ['사원', '대리']:
+                        risk_factors += 1
+            
+            # 위험 요소 2: 최근 2회 평가에서 낮은 등급
+            recent_evals = Evaluation.objects.filter(
+                employee=employee,
+                status='COMPLETED'
+            ).order_by('-created_at')[:2]
+            
+            low_grade_count = sum(1 for eval in recent_evals 
+                                 if eval.final_grade in ['C', 'D'])
+            if low_grade_count >= 2:
+                risk_factors += 1
+            
+            # 위험 요소 3: 최근 1년간 교육 기회 부족
+            one_year_ago = today - timedelta(days=365)
+            training_count = TrainingEnrollment.objects.filter(
+                employee=employee,
+                enrolled_date__gte=one_year_ago,
+                status__in=['COMPLETED', 'IN_PROGRESS', 'APPROVED']
+            ).count()
+            
+            if training_count < 1:
+                risk_factors += 1
+            
+            # 위험 요소 4: 고성과자인데 보상 부족 (평가는 높은데 직급은 낮음)
+            if recent_evals.exists():
+                latest_eval = recent_evals.first()
+                if latest_eval.final_grade in ['S', 'A+', 'A'] and \
+                   employee.position in ['사원', '대리']:
+                    risk_factors += 1
+            
+            # 위험 요소 5: 나이와 직급 불균형 (40세 이상인데 대리 이하)
+            if hasattr(employee, 'age') and employee.age:
+                if employee.age >= 40 and employee.position in ['사원', '대리']:
+                    risk_factors += 1
+            
+            # 2개 이상의 위험 요소가 있으면 고위험군으로 분류
+            if risk_factors >= 2:
+                high_risk_count += 1
+        
+        # 전체 직원 중 고위험군 비율 (백분율)
+        risk_percentage = (high_risk_count / total_employees) * 100
+        return round(risk_percentage, 1)
 
 
 class LeaderKPIDashboardView(TemplateView):

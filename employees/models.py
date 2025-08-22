@@ -106,6 +106,7 @@ class Employee(models.Model):
     # 직급 정보
     previous_position = models.CharField(max_length=50, blank=True, null=True, verbose_name='직급(전)')
     current_position = models.CharField(max_length=50, blank=True, null=True, verbose_name='직급')
+    initial_position = models.CharField(max_length=50, blank=True, null=True, verbose_name='입사시 직급')
     
     # 조직 구조
     headquarters1 = models.CharField(max_length=100, blank=True, null=True, verbose_name='본부1')
