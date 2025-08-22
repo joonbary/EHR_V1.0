@@ -1,0 +1,167 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}AIRISS v4 - AI 기반 HR 인텔리전스{% endblock %}
+
+{% block page_header %}AIRISS v4{% endblock %}
+{% block content_title %}AI-Powered HR Result & Intelligence Scoring System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .redirect-container {
+        text-align: center;
+        padding: 60px 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        margin: 40px auto;
+        max-width: 600px;
+    }
+    
+    .redirect-icon {
+        font-size: 64px;
+        color: #00d4ff;
+        margin-bottom: 30px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .redirect-message {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 18px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+    
+    .redirect-button {
+        display: inline-block;
+        padding: 15px 40px;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        color: #000;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        margin: 10px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .redirect-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+    }
+    
+    .redirect-info {
+        margin-top: 40px;
+        padding: 20px;
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+    }
+    
+    .spinner {
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top: 3px solid #00d4ff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="redirect-container">
+    <div class="redirect-icon">
+        <i class="fas fa-rocket"></i>
+    </div>
+    
+    <h2 style="color: #00d4ff; margin-bottom: 20px;">AIRISS v4 MSA 서비스</h2>
+    
+    <div class="redirect-message">
+        AIRISS v4는 독립적인 마이크로서비스로 운영됩니다.<br>
+        새 창에서 AIRISS v4 서비스로 연결합니다.
+    </div>
+    
+    <div class="spinner"></div>
+    
+    <div style="margin: 30px 0;">
+        <button onclick="openAIRISS()" class="redirect-button">
+            <i class="fas fa-external-link-alt"></i> AIRISS v4 열기
+        </button>
+        
+        <a href="{% url 'dashboard' %}" class="redirect-button" style="background: rgba(255, 255, 255, 0.1);">
+            <i class="fas fa-arrow-left"></i> 대시보드로 돌아가기
+        </a>
+    </div>
+    
+    <div class="redirect-info">
+        <strong>💡 알림:</strong><br>
+        AIRISS v4는 별도의 Railway 서비스에서 실행됩니다.<br>
+        서비스 URL: <code>{{ airiss_v4_url }}</code><br><br>
+        
+        <strong>연결 문제가 있나요?</strong><br>
+        • 팝업 차단을 해제해주세요<br>
+        • 서비스가 활성화되어 있는지 확인해주세요<br>
+        • 네트워크 연결을 확인해주세요
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openAIRISS() {
+        // 새 탭에서 AIRISS v4 열기
+        const url = '{{ airiss_v4_url }}';
+        const newWindow = window.open(url, '_blank');
+        
+        if (newWindow) {
+            // 성공적으로 열렸을 때
+            console.log('AIRISS v4 opened in new tab');
+            
+            // 현재 페이지에 성공 메시지 표시
+            const messageDiv = document.querySelector('.redirect-message');
+            messageDiv.innerHTML = `
+                <div style="color: #00ff00;">
+                    <i class="fas fa-check-circle"></i> AIRISS v4가 새 탭에서 열렸습니다!<br>
+                    <small style="color: rgba(255,255,255,0.6);">팝업 차단기가 활성화된 경우 수동으로 열기 버튼을 클릭하세요.</small>
+                </div>
+            `;
+        } else {
+            // 팝업이 차단된 경우
+            alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
+        }
+    }
+    
+    // 페이지 로드 시 자동으로 새 탭 열기 시도
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            // 자동으로 열지 않고 사용자가 버튼을 클릭하도록 유도
+            // openAIRISS();  // 주석 처리 - 사용자 액션 필요
+            
+            // 대신 안내 메시지 표시
+            const spinner = document.querySelector('.spinner');
+            if (spinner) {
+                spinner.style.display = 'none';
+            }
+            
+            const messageDiv = document.querySelector('.redirect-message');
+            messageDiv.innerHTML += '<br><strong style="color: #00d4ff;">위 버튼을 클릭하여 AIRISS v4를 여세요.</strong>';
+        }, 1000);
+    });
+</script>
+{% endblock %}

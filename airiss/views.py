@@ -386,12 +386,12 @@ def msa_integration(request):
     return render(request, "airiss/msa_integration.html", context)
 
 def dashboard(request):
-    """AIRISS 대시보드 - MSA 서비스 iframe 연결"""
+    """AIRISS 대시보드 - MSA 서비스 연결 페이지"""
     context = {
         "page_title": "AIRISS v4 - AI 기반 HR 인텔리전스",
         "airiss_v4_url": settings.AIRISS_SERVICE_URL  # 실제 AIRISS v4 MSA URL
     }
-    return render(request, "airiss/airiss_v4_portal.html", context)
+    return render(request, "airiss/airiss_redirect.html", context)
 
 def analytics(request):
     """AIRISS 분석"""
