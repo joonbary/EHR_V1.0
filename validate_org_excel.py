@@ -11,7 +11,7 @@ from datetime import datetime
 def validate_organization_excel():
     """Excel 파일 검증 및 API 형식 변환"""
     
-    file_path = r'D:\EHR_project\조직구조_업로드_최종.xlsx'
+    file_path = r'D:\EHR_project\조직구조_업로드_수정본.xlsx'
     
     print("="*60)
     print("조직구조 Excel 파일 검증")
@@ -51,7 +51,7 @@ def validate_organization_excel():
     missing_columns = [col for col in required_columns if col not in df.columns]
     
     if missing_columns:
-        print(f"\n❌ 필수 컬럼 누락: {missing_columns}")
+        print(f"\n[ERROR] 필수 컬럼 누락: {missing_columns}")
         return
     else:
         print(f"\n[OK] 필수 컬럼 모두 존재")
@@ -62,7 +62,7 @@ def validate_organization_excel():
     # 조직레벨 검증
     if '조직레벨' in df.columns:
         unique_levels = df['조직레벨'].unique()
-        print(f"  조직레벨 종류: {sorted(unique_levels)}")
+        print(f"  조직레벨 종류: {list(unique_levels)}")
         
         # 레벨이 숫자가 아닌 경우 확인
         non_numeric_levels = []
@@ -74,7 +74,7 @@ def validate_organization_excel():
                 non_numeric_levels.append(level)
         
         if non_numeric_levels:
-            print(f"  ⚠️ 숫자가 아닌 레벨: {list(set(non_numeric_levels))[:5]}")
+            print(f"  [WARNING] 숫자가 아닌 레벨: {list(set(non_numeric_levels))[:5]}")
     
     # 5. 상위조직 참조 검증
     print(f"\n상위조직 참조 검증:")
@@ -83,7 +83,7 @@ def validate_organization_excel():
     missing_parents = parent_codes - all_org_codes
     
     if missing_parents:
-        print(f"  ❌ 존재하지 않는 상위조직 참조: {list(missing_parents)[:10]}")
+        print(f"  [ERROR] 존재하지 않는 상위조직 참조: {list(missing_parents)[:10]}")
     else:
         print(f"  [OK] 모든 상위조직 참조 유효")
     
@@ -122,7 +122,7 @@ def validate_organization_excel():
         if org_data['조직코드'] and org_data['조직명'] and org_data['조직레벨']:
             api_data.append(org_data)
         else:
-            print(f"  ⚠️ 행 {idx+1} 스킵 (필수 필드 누락)")
+            print(f"  [WARNING] 행 {idx+1} 스킵 (필수 필드 누락)")
     
     print(f"  [OK] API 전송 가능한 데이터: {len(api_data)}개")
     
@@ -142,12 +142,12 @@ def validate_organization_excel():
     # 10. 문제점 요약
     print(f"\n="*60)
     print("검증 결과 요약:")
-    print(f"  • 전체 행: {len(df)}개")
-    print(f"  • 유효한 데이터: {len(api_data)}개")
-    print(f"  • 누락된 상위조직: {len(missing_parents)}개")
+    print(f"  - 전체 행: {len(df)}개")
+    print(f"  - 유효한 데이터: {len(api_data)}개")
+    print(f"  - 누락된 상위조직: {len(missing_parents)}개")
     
     if len(api_data) < len(df):
-        print(f"\n⚠️ 주의: 일부 데이터가 유효하지 않아 스킵되었습니다.")
+        print(f"\n[WARNING] 주의: 일부 데이터가 유효하지 않아 스킵되었습니다.")
         print(f"   원인: 필수 필드(조직코드, 조직명, 조직레벨) 누락 또는 잘못된 형식")
     
     print("="*60)

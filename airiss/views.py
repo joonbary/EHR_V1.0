@@ -388,7 +388,6 @@ def msa_integration(request):
 def dashboard(request):
     """AIRISS 대시보드 - 메인 허브 페이지"""
     from .models import AIAnalysisResult
-    from django.db import connection
     
     # 통계 데이터 수집
     stats = {
@@ -401,10 +400,13 @@ def dashboard(request):
     try:
         # Employee 모델이 있으면 직원 수 계산
         if Employee:
-            stats['total_employees'] = Employee.objects.count()
+            try:
+                stats['total_employees'] = Employee.objects.count()
+            except Exception:
+                pass
         
-        # AIAnalysisResult 테이블이 있으면 분석 통계 계산
-        if AIAnalysisResult._meta.db_table in connection.introspection.table_names():
+        # AIAnalysisResult 테이블에서 분석 통계 계산
+        try:
             from django.db.models import Avg
             
             stats['total_analyses'] = AIAnalysisResult.objects.count()
@@ -421,8 +423,14 @@ def dashboard(request):
                 }
                 for r in recent
             ]
+        except Exception:
+            # 테이블이 없거나 필드 문제가 있을 경우 무시
+            pass
     except Exception as e:
         # 에러 발생 시 기본값 사용
+        import traceback
+        print(f"AIRISS dashboard error: {e}")
+        print(traceback.format_exc())
         pass
     
     context = {
@@ -456,17 +464,14 @@ def chatbot(request):
 def executive_dashboard(request):
     """임원 대시보드 - 포트폴리오 전용"""
     from .models import AIAnalysisResult
-    from django.db import connection
     import json
     
     # 분석 결과가 있는지 확인
     has_analysis = False
     team_scores = []
     
-    # DB 테이블 존재 여부 확인
-    table_exists = AIAnalysisResult._meta.db_table in connection.introspection.table_names()
-    
-    if table_exists:
+    # DB 테이블에서 데이터 조회 시도
+    try:
         # 팀별 평균 성과 점수 계산
         from django.db.models import Avg
         
@@ -483,6 +488,9 @@ def executive_dashboard(request):
                 for dept in dept_scores
             ]
             has_analysis = len(team_scores) > 0
+    except Exception:
+        # 데이터베이스 조회 실패 시 무시
+        pass
     
     # 더미 데이터 (분석 결과가 없을 경우)
     if not has_analysis:
@@ -506,29 +514,30 @@ def executive_dashboard(request):
 def employee_analysis_all(request):
     """전체 직원 분석 뷰"""
     from .models import AIAnalysisResult
-    from django.db import connection
     import json
     
     employees_data = []
     
-    # DB 테이블 존재 여부 확인
-    table_exists = AIAnalysisResult._meta.db_table in connection.introspection.table_names()
-    
-    if table_exists and Employee:
-        # 실제 데이터 조회
-        analyses = AIAnalysisResult.objects.select_related('employee').order_by('-analyzed_at')[:50]
-        
-        for analysis in analyses:
-            employees_data.append({
-                'id': analysis.employee.id,
-                'name': analysis.employee.name,
-                'department': analysis.employee.department or '미지정',
-                'position': analysis.employee.position or '미지정',
-                'ai_score': round(analysis.score, 1),
-                'confidence': round(analysis.confidence * 100, 1),
-                'analyzed_date': analysis.analyzed_at.strftime('%Y-%m-%d'),
-                'status': '분석완료'
-            })
+    # DB 테이블에서 데이터 조회 시도
+    try:
+        if Employee:
+            # 실제 데이터 조회
+            analyses = AIAnalysisResult.objects.select_related('employee').order_by('-analyzed_at')[:50]
+            
+            for analysis in analyses:
+                employees_data.append({
+                    'id': analysis.employee.id,
+                    'name': analysis.employee.name,
+                    'department': analysis.employee.department or '미지정',
+                    'position': analysis.employee.position or '미지정',
+                    'ai_score': round(analysis.score, 1),
+                    'confidence': round(analysis.confidence * 100, 1),
+                    'analyzed_date': analysis.analyzed_at.strftime('%Y-%m-%d'),
+                    'status': '분석완료'
+                })
+    except Exception:
+        # 데이터베이스 조회 실패 시 무시
+        pass
     
     # 더미 데이터 (실제 데이터가 없을 경우)
     if not employees_data:
@@ -559,7 +568,6 @@ def employee_analysis_all(request):
 def employee_analysis_detail(request, employee_id):
     """개별 직원 상세 분석"""
     from .models import AIAnalysisResult
-    from django.db import connection
     import json
     
     # 더미 데이터 생성
@@ -580,10 +588,8 @@ def employee_analysis_detail(request, employee_id):
     }
     
     # 실제 데이터 조회 시도
-    table_exists = AIAnalysisResult._meta.db_table in connection.introspection.table_names()
-    
-    if table_exists and Employee:
-        try:
+    try:
+        if Employee:
             employee = Employee.objects.get(id=employee_id)
             analysis = AIAnalysisResult.objects.filter(employee=employee).order_by('-analyzed_at').first()
             
@@ -600,8 +606,8 @@ def employee_analysis_detail(request, employee_id):
                 if analysis.result_data:
                     employee_data['strengths'] = analysis.result_data.get('strengths', employee_data['strengths'])
                     employee_data['weaknesses'] = analysis.result_data.get('weaknesses', employee_data['weaknesses'])
-        except:
-            pass  # 더미 데이터 사용
+    except:
+        pass  # 더미 데이터 사용
     
     context = {
         'page_title': f'{employee_data["name"]} - 상세 분석',
