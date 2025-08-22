@@ -387,11 +387,64 @@ def msa_integration(request):
 
 def dashboard(request):
     """AIRISS 대시보드 - MSA 서비스 연결 페이지"""
-    context = {
-        "page_title": "AIRISS v4 - AI 기반 HR 인텔리전스",
-        "airiss_v4_url": settings.AIRISS_SERVICE_URL  # 실제 AIRISS v4 MSA URL
-    }
-    return render(request, "airiss/airiss_redirect.html", context)
+    # 더 간단한 방법으로 시도
+    try:
+        context = {
+            "page_title": "AIRISS v4 - AI 기반 HR 인텔리전스",
+            "airiss_v4_url": settings.AIRISS_SERVICE_URL  # 실제 AIRISS v4 MSA URL
+        }
+        return render(request, "airiss/airiss_v4_portal.html", context)
+    except Exception as e:
+        # 에러 발생 시 기본 템플릿 사용
+        from django.http import HttpResponse
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>AIRISS v4</title>
+            <style>
+                body {{ 
+                    font-family: Arial, sans-serif; 
+                    background: #1a1a2e; 
+                    color: white; 
+                    display: flex; 
+                    justify-content: center; 
+                    align-items: center; 
+                    height: 100vh;
+                    margin: 0;
+                }}
+                .container {{
+                    text-align: center;
+                    padding: 40px;
+                    background: rgba(255,255,255,0.1);
+                    border-radius: 20px;
+                }}
+                .btn {{
+                    display: inline-block;
+                    padding: 15px 40px;
+                    background: #00d4ff;
+                    color: #000;
+                    text-decoration: none;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    margin: 20px 10px;
+                }}
+                .btn:hover {{
+                    background: #00a8cc;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>AIRISS v4 - AI HR Intelligence System</h1>
+                <p>외부 MSA 서비스로 연결합니다.</p>
+                <a href="{settings.AIRISS_SERVICE_URL}" target="_blank" class="btn">AIRISS v4 열기</a>
+                <a href="/" class="btn" style="background: #666;">돌아가기</a>
+            </div>
+        </body>
+        </html>
+        """
+        return HttpResponse(html)
 
 def analytics(request):
     """AIRISS 분석"""
