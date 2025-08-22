@@ -59,7 +59,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:ehrv10-production.up.railway.app)",
       "Bash(git reset:*)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(git pull:*)"
     ],
     "deny": []
   }

@@ -134,9 +134,9 @@ def airiss_upload_proxy(request):
                             AIAnalysisResult.objects.create(
                                 analysis_type=analysis_type,
                                 employee=employee,
-                                analyzed_by=request.user if request.user.is_authenticated else None,
-                                ai_score=emp_data['score'],
-                                confidence_score=0.85,
+                                created_by=request.user if request.user.is_authenticated else None,
+                                score=emp_data['score'],
+                                confidence=0.85,
                                 insights=f"{emp_data['name']}님의 성과 점수는 {emp_data['score']}점입니다. 강점: {', '.join(emp_data['strengths'][:2])}",
                                 result_data=emp_data
                             )
@@ -340,9 +340,9 @@ def msa_integration(request):
                 AIAnalysisResult.objects.create(
                     analysis_type=analysis_type,
                     employee=employee,
-                    analyzed_by=request.user if request.user.is_authenticated else None,
-                    ai_score=ai_score,
-                    confidence_score=confidence,
+                    created_by=request.user if request.user.is_authenticated else None,
+                    score=ai_score,
+                    confidence=confidence,
                     insights=insights_text,
                     result_data=result_data
                 )
@@ -372,7 +372,7 @@ def msa_integration(request):
                 "name": emp.name,
                 "department": emp.department,
                 "position": emp.position,
-                "ai_score": latest_analysis.ai_score if latest_analysis else None,
+                "ai_score": latest_analysis.score if latest_analysis else None,
                 "analyzed_at": latest_analysis.analyzed_at.strftime("%Y-%m-%d %H:%M") if latest_analysis else None
             })
     
@@ -408,7 +408,7 @@ def dashboard(request):
             from django.db.models import Avg
             
             stats['total_analyses'] = AIAnalysisResult.objects.count()
-            avg_result = AIAnalysisResult.objects.aggregate(avg_score=Avg('ai_score'))
+            avg_result = AIAnalysisResult.objects.aggregate(avg_score=Avg('score'))
             stats['avg_score'] = round(avg_result['avg_score'] or 0, 1)
             
             # 최근 분석 결과 5개
@@ -416,7 +416,7 @@ def dashboard(request):
             stats['recent_analyses'] = [
                 {
                     'employee_name': r.employee.name if r.employee else 'Unknown',
-                    'score': r.ai_score,
+                    'score': r.score,
                     'date': r.analyzed_at.strftime('%Y-%m-%d %H:%M')
                 }
                 for r in recent
@@ -472,7 +472,7 @@ def executive_dashboard(request):
         
         if Employee:
             dept_scores = AIAnalysisResult.objects.values('employee__department').annotate(
-                avg_score=Avg('ai_score')
+                avg_score=Avg('score')
             ).order_by('-avg_score')[:5]
             
             team_scores = [
@@ -524,8 +524,8 @@ def employee_analysis_all(request):
                 'name': analysis.employee.name,
                 'department': analysis.employee.department or '미지정',
                 'position': analysis.employee.position or '미지정',
-                'ai_score': round(analysis.ai_score, 1),
-                'confidence': round(analysis.confidence_score * 100, 1),
+                'ai_score': round(analysis.score, 1),
+                'confidence': round(analysis.confidence * 100, 1),
                 'analyzed_date': analysis.analyzed_at.strftime('%Y-%m-%d'),
                 'status': '분석완료'
             })
@@ -592,8 +592,8 @@ def employee_analysis_detail(request, employee_id):
                     'name': employee.name,
                     'department': employee.department or '미지정',
                     'position': employee.position or '미지정',
-                    'ai_score': round(analysis.ai_score, 1),
-                    'confidence': round(analysis.confidence_score * 100, 1)
+                    'ai_score': round(analysis.score, 1),
+                    'confidence': round(analysis.confidence * 100, 1)
                 })
                 
                 # result_data에서 추가 정보 추출
