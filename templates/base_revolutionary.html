@@ -187,6 +187,28 @@
         
         // Initialize dynamic background
         addDynamicBackground();
+        
+        // AIRISS 팝업 열기 함수
+        function openAIRISS() {
+            const airissUrl = 'https://web-production-4066.up.railway.app';
+            const popupWidth = 1200;
+            const popupHeight = 800;
+            const left = (window.screen.width - popupWidth) / 2;
+            const top = (window.screen.height - popupHeight) / 2;
+            
+            const popup = window.open(
+                airissUrl,
+                'AIRISS_V4',
+                `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
+            );
+            
+            if (popup) {
+                popup.focus();
+            } else {
+                // 팝업이 차단된 경우 새 탭으로 열기
+                window.open(airissUrl, '_blank');
+            }
+        }
     </script>
     
     {% block extra_js %}{% endblock %}
