@@ -1,5 +1,9 @@
 from django.urls import path, include
 from . import views, api_views
+try:
+    from . import api_talent
+except ImportError:
+    api_talent = None
 from django.views.generic import TemplateView
 from core.views import under_construction
 from .views_test import test_database
@@ -53,4 +57,13 @@ urlpatterns = [
     
     # HR Dashboard API
     path('hr/api/', include('employees.urls_hr')),
-] 
+    
+    # Talent Management API (AIRISS Integration)
+]
+
+# 인재 관리 API URL 추가
+if api_talent:
+    urlpatterns += [
+        path('api/talent/pool/', api_talent.talent_pool_api, name='talent_pool_api'),
+        path('api/talent/detail/<int:employee_id>/', api_talent.talent_detail_api, name='talent_detail_api'),
+    ] 

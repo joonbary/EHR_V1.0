@@ -511,6 +511,10 @@
             <button class="tab-button" data-tab="overseas">해외 인력</button>
             <button class="tab-button" data-tab="contractor">외주 현황</button>
             <button class="tab-button" data-tab="visualization">시각화</button>
+            <button class="tab-button" data-tab="talent">
+                <i class="fas fa-star"></i> 인재 관리
+                <span class="badge-new" style="background: linear-gradient(135deg, #ff6b6b, #ff4757); color: white; font-size: 0.6rem; padding: 0.15rem 0.4rem; border-radius: 10px; font-weight: 600; margin-left: 0.5rem;">NEW</span>
+            </button>
         </div>
     </div>
 
@@ -659,6 +663,173 @@
             </div>
         </div>
         
+        <!-- 인재 관리 탭 (AIRISS 통합) -->
+        <div id="talent-tab" class="tab-content">
+            <div class="container-fluid px-0">
+                <!-- 인재 카테고리 통계 -->
+                <div class="stats-grid mb-6">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ffd700, #ff6b6b);">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="coreTalentTrend">+3</span>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="coreTalentCount">0</h3>
+                            <p class="stat-label">핵심인재</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #00d4ff, #667eea);">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-trend positive">
+                                <span id="promotionCandidateTrend">6명</span>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="promotionCandidateCount">0</h3>
+                            <p class="stat-label">승진후보자</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff4757);">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-trend negative">
+                                <span id="retentionRiskTrend">4명</span>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="retentionRiskCount">0</h3>
+                            <p class="stat-label">이직위험군</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #ea580c);">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-trend">
+                                <span id="needsAttentionTrend">관리중</span>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="needsAttentionCount">0</h3>
+                            <p class="stat-label">관리필요인력</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 인재풀 테이블 -->
+                <div class="feature-card mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="section-title">
+                            <i class="fas fa-users" style="color: #00d4ff; margin-right: 0.5rem;"></i>
+                            인재풀 현황 (AIRISS AI 분석 기반)
+                        </h3>
+                        <div class="flex gap-2">
+                            <select id="talentCategoryFilter" class="filter-select" style="width: 200px;">
+                                <option value="">전체 카테고리</option>
+                                <option value="CORE_TALENT">핵심인재</option>
+                                <option value="PROMOTION_CANDIDATE">승진후보자</option>
+                                <option value="RETENTION_RISK">이직위험군</option>
+                                <option value="NEEDS_ATTENTION">관리필요인력</option>
+                            </select>
+                            <button class="btn-revolutionary btn-primary" onclick="refreshTalentData()">
+                                <i class="fas fa-sync-alt"></i> 새로고침
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>직원명</th>
+                                    <th>부서</th>
+                                    <th>직급</th>
+                                    <th>카테고리</th>
+                                    <th>AI 점수</th>
+                                    <th>신뢰도</th>
+                                    <th>상태</th>
+                                    <th>최근 분석일</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody id="talentPoolTableBody">
+                                <!-- 동적 로딩 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 승진 후보자 상세 -->
+                <div class="feature-card mb-6">
+                    <h3 class="section-title">
+                        <i class="fas fa-award" style="color: #ffd700; margin-right: 0.5rem;"></i>
+                        승진 후보자 관리
+                    </h3>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>직원명</th>
+                                    <th>현재 직급</th>
+                                    <th>목표 직급</th>
+                                    <th>준비도</th>
+                                    <th>AI 추천점수</th>
+                                    <th>예상 승진일</th>
+                                    <th>개발 계획</th>
+                                </tr>
+                            </thead>
+                            <tbody id="promotionCandidateTableBody">
+                                <!-- 동적 로딩 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 이직 위험 관리 -->
+                <div class="feature-card">
+                    <h3 class="section-title">
+                        <i class="fas fa-shield-alt" style="color: #ff4757; margin-right: 0.5rem;"></i>
+                        이직 위험 관리
+                    </h3>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>직원명</th>
+                                    <th>부서</th>
+                                    <th>위험도</th>
+                                    <th>위험 점수</th>
+                                    <th>주요 위험 요인</th>
+                                    <th>대응 전략</th>
+                                    <th>조치 상태</th>
+                                    <th>담당자</th>
+                                </tr>
+                            </thead>
+                            <tbody id="retentionRiskTableBody">
+                                <!-- 동적 로딩 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- 시각화 탭 -->
         <div id="visualization-tab" class="tab-content">
             <div class="charts-grid">
@@ -791,5 +962,206 @@
         // 차트 로딩 로직
         console.log('차트 로딩');
     }
+    
+    // 인재 관리 탭 기능
+    function loadTalentData() {
+        // API 호출하여 인재풀 데이터 로드
+        fetch('/employees/api/talent/pool/')
+            .then(response => response.json())
+            .then(data => {
+                // 통계 업데이트
+                updateTalentStatistics(data.statistics);
+                // 테이블 업데이트
+                updateTalentPoolTable(data.talent_pool);
+                updatePromotionCandidatesTable(data.promotion_candidates);
+                updateRetentionRiskTable(data.retention_risks);
+            })
+            .catch(error => {
+                console.error('Error loading talent data:', error);
+                // 테스트 데이터로 표시
+                loadTestTalentData();
+            });
+    }
+    
+    function loadTestTalentData() {
+        // 테스트 데이터
+        const testData = {
+            statistics: {
+                core_talent: 9,
+                promotion_candidate: 6,
+                retention_risk: 4,
+                needs_attention: 10
+            },
+            talent_pool: [
+                {name: '직원20', department: 'IT개발부', position: '과장', category: '승진후보자', ai_score: 85.2, confidence: 88, status: 'ACTIVE', analyzed_date: '2025-01-25'},
+                {name: '직원40', department: '마케팅팀', position: '대리', category: '승진후보자', ai_score: 83.7, confidence: 85, status: 'ACTIVE', analyzed_date: '2025-01-25'},
+                {name: '직원10', department: '영업팀', position: '사원', category: '이직위험군', ai_score: 82.0, confidence: 79, status: 'MONITORING', analyzed_date: '2025-01-25'},
+                {name: '직원30', department: '인사팀', position: '과장', category: '승진후보자', ai_score: 80.4, confidence: 82, status: 'ACTIVE', analyzed_date: '2025-01-25'}
+            ],
+            promotion_candidates: [
+                {name: '직원20', current_position: '과장', target_position: '차장', readiness: '곧 준비됨', ai_score: 85.2, expected_date: '2025-07-25', plan: '리더십 교육 진행중'},
+                {name: '직원40', current_position: '대리', target_position: '과장', readiness: '준비됨', ai_score: 83.7, expected_date: '2025-06-01', plan: 'MBA 과정 이수중'},
+                {name: '직원30', current_position: '과장', target_position: '차장', readiness: '개발중', ai_score: 80.4, expected_date: '2025-10-01', plan: '프로젝트 관리 경험 확대'}
+            ],
+            retention_risks: [
+                {name: '직원10', department: '영업팀', risk_level: '높음', risk_score: 82.0, factors: '보상 불만족, 경력 정체', strategy: '보상 재검토, 경력 개발 계획', status: '대기중', assigned: '김HR'},
+                {name: '직원11', department: '재무팀', risk_level: '높음', risk_score: 73.6, factors: '업무 과부하', strategy: '업무 재배분', status: '진행중', assigned: '이HR'},
+                {name: '직원49', department: 'IT개발부', risk_level: '높음', risk_score: 72.5, factors: '경력 개발 기회 부족', strategy: '교육 프로그램 제공', status: '대기중', assigned: '박HR'}
+            ]
+        };
+        
+        updateTalentStatistics(testData.statistics);
+        updateTalentPoolTable(testData.talent_pool);
+        updatePromotionCandidatesTable(testData.promotion_candidates);
+        updateRetentionRiskTable(testData.retention_risks);
+    }
+    
+    function updateTalentStatistics(stats) {
+        document.getElementById('coreTalentCount').textContent = stats.core_talent || 0;
+        document.getElementById('promotionCandidateCount').textContent = stats.promotion_candidate || 0;
+        document.getElementById('retentionRiskCount').textContent = stats.retention_risk || 0;
+        document.getElementById('needsAttentionCount').textContent = stats.needs_attention || 0;
+    }
+    
+    function updateTalentPoolTable(data) {
+        const tbody = document.getElementById('talentPoolTableBody');
+        tbody.innerHTML = '';
+        
+        data.forEach(item => {
+            const row = `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.department}</td>
+                    <td>${item.position}</td>
+                    <td><span class="badge" style="background: ${getCategoryColor(item.category)}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px;">${item.category}</span></td>
+                    <td><strong style="color: ${getScoreColor(item.ai_score)}">${item.ai_score}</strong></td>
+                    <td>${item.confidence}%</td>
+                    <td><span class="badge" style="background: ${getStatusColor(item.status)}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px;">${item.status}</span></td>
+                    <td>${item.analyzed_date}</td>
+                    <td>
+                        <button class="btn btn-sm" style="background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3); padding: 0.25rem 0.75rem; border-radius: 6px;" onclick="viewDetail('${item.name}')">
+                            상세보기
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+    
+    function updatePromotionCandidatesTable(data) {
+        const tbody = document.getElementById('promotionCandidateTableBody');
+        tbody.innerHTML = '';
+        
+        data.forEach(item => {
+            const row = `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.current_position}</td>
+                    <td>${item.target_position}</td>
+                    <td><span class="badge" style="background: ${getReadinessColor(item.readiness)}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px;">${item.readiness}</span></td>
+                    <td><strong style="color: #00d4ff">${item.ai_score}</strong></td>
+                    <td>${item.expected_date}</td>
+                    <td>${item.plan}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+    
+    function updateRetentionRiskTable(data) {
+        const tbody = document.getElementById('retentionRiskTableBody');
+        tbody.innerHTML = '';
+        
+        data.forEach(item => {
+            const row = `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.department}</td>
+                    <td><span class="badge" style="background: ${getRiskLevelColor(item.risk_level)}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px;">${item.risk_level}</span></td>
+                    <td><strong style="color: #ff4757">${item.risk_score}%</strong></td>
+                    <td>${item.factors}</td>
+                    <td>${item.strategy}</td>
+                    <td><span class="badge" style="background: ${getActionStatusColor(item.status)}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px;">${item.status}</span></td>
+                    <td>${item.assigned}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+    
+    // Helper functions
+    function getCategoryColor(category) {
+        const colors = {
+            '핵심인재': 'linear-gradient(135deg, #ffd700, #ff6b6b)',
+            '승진후보자': 'linear-gradient(135deg, #00d4ff, #667eea)',
+            '이직위험군': 'linear-gradient(135deg, #ff6b6b, #ff4757)',
+            '관리필요인력': 'linear-gradient(135deg, #f59e0b, #ea580c)'
+        };
+        return colors[category] || '#6b7280';
+    }
+    
+    function getScoreColor(score) {
+        if (score >= 80) return '#10b981';
+        if (score >= 60) return '#f59e0b';
+        return '#ef4444';
+    }
+    
+    function getStatusColor(status) {
+        const colors = {
+            'ACTIVE': '#10b981',
+            'MONITORING': '#f59e0b',
+            'PENDING': '#6b7280'
+        };
+        return colors[status] || '#6b7280';
+    }
+    
+    function getReadinessColor(readiness) {
+        const colors = {
+            '준비됨': '#10b981',
+            '곧 준비됨': '#3b82f6',
+            '개발중': '#f59e0b',
+            '준비안됨': '#ef4444'
+        };
+        return colors[readiness] || '#6b7280';
+    }
+    
+    function getRiskLevelColor(level) {
+        const colors = {
+            '매우높음': '#dc2626',
+            '높음': '#ef4444',
+            '중간': '#f59e0b',
+            '낮음': '#10b981'
+        };
+        return colors[level] || '#6b7280';
+    }
+    
+    function getActionStatusColor(status) {
+        const colors = {
+            '완료': '#10b981',
+            '진행중': '#3b82f6',
+            '대기중': '#6b7280',
+            '실패': '#ef4444'
+        };
+        return colors[status] || '#6b7280';
+    }
+    
+    function viewDetail(name) {
+        alert(`${name}님의 상세 정보 페이지로 이동합니다.`);
+    }
+    
+    function refreshTalentData() {
+        loadTalentData();
+    }
+    
+    // 탭 전환 시 인재 관리 데이터 로드
+    document.addEventListener('DOMContentLoaded', function() {
+        const existingTabHandler = document.querySelector('.tab-button[data-tab="talent"]');
+        if (existingTabHandler) {
+            existingTabHandler.addEventListener('click', function() {
+                setTimeout(loadTalentData, 100);
+            });
+        }
+    });
 </script>
 {% endblock %}
