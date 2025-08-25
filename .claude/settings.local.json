@@ -62,7 +62,9 @@
       "WebFetch(domain:localhost)",
       "Bash(git pull:*)",
       "Bash(timeout:*)",
-      "Bash(railway restart:*)"
+      "Bash(railway restart:*)",
+      "Bash(run_server.bat)",
+      "Bash(cmd.exe /c run_server.bat)"
     ],
     "deny": []
   }

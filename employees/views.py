@@ -930,11 +930,11 @@ def get_managers_api(request):
 # Organization Structure Management Views
 def organization_structure_view(request):
     """조직 구조 관리 페이지"""
-    return render(request, 'employees/organization_structure_upload.html')
+    return render(request, 'employees/organization_structure.html')
 
 def organization_structure_upload_view(request):
     """조직 구조 업로드 페이지 (새 버전)"""
-    return render(request, 'employees/organization_structure.html')
+    return render(request, 'employees/organization_structure_upload.html')
 
 
 @csrf_exempt
@@ -1029,9 +1029,9 @@ def upload_organization_structure(request):
         # 데이터 처리
         for idx, row in enumerate(data):
             try:
-                # 필수 필드 확인
-                org_code = row.get('조직코드', '').strip() if row.get('조직코드') else ''
-                org_name = row.get('조직명', '').strip() if row.get('조직명') else ''
+                # 필수 필드 확인 (A,B,C,D 컬럼 또는 한글 컬럼명 지원)
+                org_code = (row.get('조직코드') or row.get('A', '')).strip() if (row.get('조직코드') or row.get('A')) else ''
+                org_name = (row.get('조직명') or row.get('B', '')).strip() if (row.get('조직명') or row.get('B')) else ''
                 
                 if not org_code:
                     errors.append({
@@ -1049,9 +1049,9 @@ def upload_organization_structure(request):
                     })
                     continue
                 
-                # 조직 레벨 처리
+                # 조직 레벨 처리 (C 컬럼 또는 한글 컬럼명 지원)
                 try:
-                    org_level = int(row.get('조직레벨', 1))
+                    org_level = int(row.get('조직레벨') or row.get('C', 1))
                 except (ValueError, TypeError):
                     org_level = 1
                 
@@ -1061,9 +1061,9 @@ def upload_organization_structure(request):
                     defaults={
                         'org_name': org_name,
                         'org_level': org_level,
-                        'status': row.get('상태', 'active'),
-                        'sort_order': int(row.get('정렬순서', 0)) if row.get('정렬순서') else 0,
-                        'description': row.get('설명', ''),
+                        'status': row.get('상태') or row.get('F', 'active'),
+                        'sort_order': int(row.get('정렬순서') or row.get('G', 0)) if (row.get('정렬순서') or row.get('G')) else 0,
+                        'description': row.get('설명') or row.get('H', ''),
                     }
                 )
                 
@@ -1071,17 +1071,17 @@ def upload_organization_structure(request):
                     # 기존 조직 업데이트
                     org.org_name = org_name
                     org.org_level = org_level
-                    if row.get('상태'):
-                        org.status = row.get('상태')
-                    if row.get('설명'):
-                        org.description = row.get('설명')
+                    if row.get('상태') or row.get('F'):
+                        org.status = row.get('상태') or row.get('F')
+                    if row.get('설명') or row.get('H'):
+                        org.description = row.get('설명') or row.get('H')
                     org.save()
                     updated_count += 1
                 else:
                     created_count += 1
                 
-                # 상위 조직 설정
-                parent_code = row.get('상위조직코드', '').strip() if row.get('상위조직코드') else ''
+                # 상위 조직 설정 (D 컬럼 또는 한글 컬럼명 지원)
+                parent_code = (row.get('상위조직코드') or row.get('D', '')).strip() if (row.get('상위조직코드') or row.get('D')) else ''
                 if parent_code:
                     try:
                         parent = OrganizationStructure.objects.get(org_code=parent_code)

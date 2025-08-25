@@ -319,12 +319,17 @@ function showPreview(data) {
 function validateRow(row) {
     const errors = [];
     
-    if (!row['조직코드']) errors.push('조직코드 필수');
-    if (!row['조직명']) errors.push('조직명 필수');
-    if (!row['조직레벨']) errors.push('조직레벨 필수');
+    // 컬럼 매핑 (A,B,C,D... 또는 한글 컬럼명 둘 다 지원)
+    const orgCode = row['조직코드'] || row['A'];
+    const orgName = row['조직명'] || row['B'];
+    const orgLevel = row['조직레벨'] || row['C'];
+    
+    if (!orgCode) errors.push('조직코드 필수');
+    if (!orgName) errors.push('조직명 필수');
+    if (!orgLevel) errors.push('조직레벨 필수');
     
     // 조직레벨이 숫자인지 확인
-    if (row['조직레벨'] && isNaN(parseInt(row['조직레벨']))) {
+    if (orgLevel && isNaN(parseInt(orgLevel))) {
         errors.push('조직레벨은 숫자여야 함');
     }
     
