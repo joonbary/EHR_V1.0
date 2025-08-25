@@ -989,6 +989,16 @@ def upload_organization_structure(request):
                 for key, value in row.items():
                     print(f"  - {key}: {value}")
         
+        if data:
+            print(f"[DEBUG] 첫 번째 행 키: {list(data[0].keys())}")
+            print(f"[DEBUG] 첫 번째 행 데이터: {data[0]}")
+            
+            # 필드명 매핑 시도
+            for idx, row in enumerate(data[:3]):  # 처음 3개만 디버깅
+                print(f"[DEBUG] 행 {idx+1}:")
+                for key, value in row.items():
+                    print(f"  - {key}: {value}")
+        
         
         # 모델 임포트
         try:
