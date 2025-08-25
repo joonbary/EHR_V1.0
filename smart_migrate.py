@@ -91,6 +91,118 @@ def handle_existing_tables():
                 cursor.execute(f'DROP TABLE IF EXISTS "{table}" CASCADE')
                 print(f"    {table} 삭제 완료")
 
+def ensure_organization_tables():
+    """OrganizationStructure 테이블들이 존재하는지 확인하고 생성"""
+    org_tables = [
+        'employees_organizationstructure',
+        'employees_organizationuploadhistory', 
+        'employees_employeeorganizationmapping'
+    ]
+    
+    missing_tables = []
+    for table in org_tables:
+        if not check_table_exists(table):
+            missing_tables.append(table)
+    
+    if missing_tables:
+        print(f"\n조직구조 테이블이 누락되어 있습니다: {missing_tables}")
+        print("테이블을 생성합니다...")
+        
+        with connection.cursor() as cursor:
+            try:
+                # OrganizationStructure 테이블
+                if 'employees_organizationstructure' in missing_tables:
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS employees_organizationstructure (
+                            id SERIAL PRIMARY KEY,
+                            org_code VARCHAR(50) UNIQUE NOT NULL,
+                            org_name VARCHAR(100) NOT NULL,
+                            org_level INTEGER NOT NULL DEFAULT 1,
+                            parent_id INTEGER REFERENCES employees_organizationstructure(id) ON DELETE CASCADE,
+                            full_path VARCHAR(500) DEFAULT '',
+                            group_name VARCHAR(100) DEFAULT '',
+                            company_name VARCHAR(100) DEFAULT '',
+                            headquarters_name VARCHAR(100) DEFAULT '',
+                            department_name VARCHAR(100) DEFAULT '',
+                            team_name VARCHAR(100) DEFAULT '',
+                            description TEXT DEFAULT '',
+                            establishment_date DATE,
+                            status VARCHAR(20) DEFAULT 'active',
+                            leader_id INTEGER,
+                            sort_order INTEGER DEFAULT 0,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            created_by_id INTEGER
+                        )
+                    """)
+                    print("  - employees_organizationstructure 생성")
+                
+                # OrganizationUploadHistory 테이블
+                if 'employees_organizationuploadhistory' in missing_tables:
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS employees_organizationuploadhistory (
+                            id SERIAL PRIMARY KEY,
+                            file_name VARCHAR(255) NOT NULL,
+                            file_path VARCHAR(100),
+                            status VARCHAR(20) DEFAULT 'pending',
+                            total_rows INTEGER DEFAULT 0,
+                            processed_rows INTEGER DEFAULT 0,
+                            success_count INTEGER DEFAULT 0,
+                            error_count INTEGER DEFAULT 0,
+                            error_details JSONB DEFAULT '[]'::jsonb,
+                            uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            processed_at TIMESTAMP,
+                            uploaded_by_id INTEGER,
+                            options JSONB DEFAULT '{}'::jsonb
+                        )
+                    """)
+                    print("  - employees_organizationuploadhistory 생성")
+                
+                # EmployeeOrganizationMapping 테이블
+                if 'employees_employeeorganizationmapping' in missing_tables:
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS employees_employeeorganizationmapping (
+                            id SERIAL PRIMARY KEY,
+                            employee_id INTEGER NOT NULL,
+                            organization_id INTEGER NOT NULL REFERENCES employees_organizationstructure(id) ON DELETE CASCADE,
+                            is_primary BOOLEAN DEFAULT TRUE,
+                            role VARCHAR(50),
+                            start_date DATE DEFAULT CURRENT_DATE,
+                            end_date DATE,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """)
+                    print("  - employees_employeeorganizationmapping 생성")
+                
+                # Employee 테이블에 organization_id 추가
+                if check_table_exists('employees_employee'):
+                    cursor.execute("""
+                        ALTER TABLE employees_employee 
+                        ADD COLUMN IF NOT EXISTS organization_id INTEGER
+                    """)
+                    print("  - employees_employee.organization_id 추가")
+                
+                # 마이그레이션 레코드 추가
+                cursor.execute("""
+                    INSERT INTO django_migrations (app, name, applied) 
+                    VALUES ('employees', '0003_organizationstructure_employeeorganizationmapping_and_more', CURRENT_TIMESTAMP)
+                    ON CONFLICT DO NOTHING
+                """)
+                
+                # 샘플 데이터
+                cursor.execute("""
+                    INSERT INTO employees_organizationstructure 
+                    (org_code, org_name, org_level, status, sort_order, group_name, full_path) 
+                    VALUES ('GRP001', 'OK금융그룹', 1, 'active', 1, 'OK금융그룹', 'OK금융그룹')
+                    ON CONFLICT (org_code) DO NOTHING
+                """)
+                
+                print("조직구조 테이블 생성 완료!")
+                
+            except Exception as e:
+                print(f"조직구조 테이블 생성 오류: {e}")
+
 def smart_migrate():
     """스마트 마이그레이션 실행"""
     print("\n" + "=" * 60)
@@ -133,6 +245,9 @@ def smart_migrate():
         
         # 이미 적용된 마이그레이션은 fake로 처리
         call_command('migrate', '--fake-initial', verbosity=1)
+    
+    # 2. 조직구조 테이블 확인 및 생성
+    ensure_organization_tables()
     
     print("\n" + "=" * 60)
     print("스마트 마이그레이션 완료!")
