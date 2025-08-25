@@ -9,6 +9,7 @@ from .models_workforce import WeeklyWorkforceSnapshot
 from .forms import EmployeeForm
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 import pandas as pd
 from django.core.files.storage import default_storage
@@ -929,7 +930,12 @@ def organization_structure_view(request):
     """조직 구조 관리 페이지"""
     return render(request, 'employees/organization_structure_upload.html')
 
+def organization_structure_upload_view(request):
+    """조직 구조 업로드 페이지 (새 버전)"""
+    return render(request, 'employees/organization_structure.html')
 
+
+@csrf_exempt
 def upload_organization_structure(request):
     """조직 구조 Excel 업로드 처리"""
     if request.method == 'POST':
@@ -1071,6 +1077,7 @@ def get_organization_tree(request):
         }, status=500)
 
 
+@csrf_exempt
 def get_organization_stats(request):
     """조직 통계 조회 - 안전 버전"""
     from datetime import datetime
@@ -1124,6 +1131,7 @@ def get_organization_stats(request):
         print(f"Critical error in get_organization_stats: {e}")
         return JsonResponse(result)
 
+@csrf_exempt
 def save_organization(request):
     """개별 조직 저장"""
     if request.method == 'POST':

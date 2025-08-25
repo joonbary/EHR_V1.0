@@ -1,5 +1,6 @@
 from django.urls import path, include
 from . import views, api_views
+from .test_upload import test_upload
 try:
     from . import api_talent
 except ImportError:
@@ -29,7 +30,9 @@ urlpatterns = [
     
     # Organization Structure Management
     path('organization/structure/', views.organization_structure_view, name='organization_structure'),
+    path('organization/upload/', views.organization_structure_upload_view, name='organization_structure_upload'),
     path('api/upload-organization-structure/', views.upload_organization_structure, name='upload_organization_structure'),
+    path('api/test-upload/', test_upload, name='test_upload'),
     path('api/organization-tree/', views.get_organization_tree, name='get_organization_tree'),
     path('api/organization-stats/', views.get_organization_stats, name='get_organization_stats'),
     path('api/save-organization/', views.save_organization, name='save_organization'),

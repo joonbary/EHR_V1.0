@@ -1,0 +1,468 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}조직 구조 관리{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        background: #1a1a2e;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .upload-area {
+        border: 2px dashed #00d4ff;
+        border-radius: 8px;
+        padding: 3rem;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .upload-area:hover {
+        background: rgba(0, 212, 255, 0.05);
+        border-color: #00ff88;
+    }
+
+    .upload-area.dragging {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00ff88;
+    }
+
+    .preview-table {
+        margin-top: 2rem;
+        overflow-x: auto;
+    }
+
+    .preview-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .preview-table th {
+        background: #0f0f23;
+        color: #00d4ff;
+        padding: 0.75rem;
+        text-align: left;
+        border: 1px solid #2a2a3e;
+    }
+
+    .preview-table td {
+        padding: 0.75rem;
+        border: 1px solid #2a2a3e;
+        color: #e0e0e0;
+    }
+
+    .preview-table tr:hover {
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .validation-success {
+        color: #00ff88;
+    }
+
+    .validation-error {
+        color: #ff4444;
+    }
+
+    .btn-upload {
+        background: linear-gradient(135deg, #00d4ff, #00ff88);
+        color: #0a0a1f;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+
+    .btn-upload:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .stats-card {
+        background: #1a1a2e;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stats-card h3 {
+        color: #00d4ff;
+        margin-bottom: 1rem;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        color: #e0e0e0;
+    }
+
+    .stat-value {
+        color: #00ff88;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-sitemap"></i> 조직 구조 관리</h1>
+</div>
+
+<!-- 통계 카드 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3>전체 조직</h3>
+            <div class="stat-value" id="total-orgs">0</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3>활성 조직</h3>
+            <div class="stat-value" id="active-orgs">0</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3>전체 직원</h3>
+            <div class="stat-value" id="total-employees">0</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3>최종 업데이트</h3>
+            <div class="stat-value" id="last-update">-</div>
+        </div>
+    </div>
+</div>
+
+<!-- 업로드 섹션 -->
+<div class="upload-container">
+    <h2><i class="fas fa-upload"></i> Excel 파일 업로드</h2>
+    
+    <div class="upload-area" id="uploadArea">
+        <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+        <p>Excel 파일을 드래그하거나 클릭하여 선택</p>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+    </div>
+
+    <div class="mt-3">
+        <a href="{% url 'employees:download_org_sample' %}" class="btn btn-secondary">
+            <i class="fas fa-download"></i> 샘플 다운로드
+        </a>
+    </div>
+</div>
+
+<!-- 미리보기 테이블 -->
+<div id="previewSection" style="display: none;">
+    <div class="upload-container">
+        <h3><i class="fas fa-table"></i> 데이터 미리보기</h3>
+        <div class="preview-table" id="previewTable"></div>
+        
+        <div class="mt-3">
+            <button class="btn-upload" id="uploadBtn" disabled>
+                <i class="fas fa-check"></i> 업로드 완료
+            </button>
+            <button class="btn btn-secondary" id="cancelBtn">
+                <i class="fas fa-times"></i> 취소
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 조직 트리 뷰 -->
+<div class="upload-container">
+    <h2><i class="fas fa-network-wired"></i> 조직 구조</h2>
+    <div id="orgTree"></div>
+</div>
+
+<script>
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+// 파일 업로드 처리
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const previewSection = document.getElementById('previewSection');
+const uploadBtn = document.getElementById('uploadBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+
+let uploadData = null;
+
+// 클릭으로 파일 선택
+uploadArea.addEventListener('click', () => {
+    fileInput.click();
+});
+
+// 파일 선택 시
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        handleFile(file);
+    }
+});
+
+// 드래그 앤 드롭
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragging');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragging');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragging');
+    
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        handleFile(file);
+    }
+});
+
+// 파일 처리
+function handleFile(file) {
+    if (!file.name.match(/\.(xlsx|xls)$/)) {
+        alert('Excel 파일만 업로드 가능합니다.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        
+        uploadData = jsonData;
+        showPreview(jsonData);
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// 미리보기 표시
+function showPreview(data) {
+    if (!data || data.length === 0) {
+        alert('데이터가 없습니다.');
+        return;
+    }
+
+    const headers = Object.keys(data[0]);
+    let tableHTML = '<table><thead><tr>';
+    
+    // 헤더
+    headers.forEach(header => {
+        tableHTML += `<th>${header}</th>`;
+    });
+    tableHTML += '<th>검증</th></tr></thead><tbody>';
+    
+    // 데이터 (최대 10개)
+    const previewData = data.slice(0, 10);
+    let allValid = true;
+    
+    previewData.forEach((row, index) => {
+        tableHTML += '<tr>';
+        headers.forEach(header => {
+            tableHTML += `<td>${row[header] || ''}</td>`;
+        });
+        
+        // 검증
+        const validation = validateRow(row);
+        if (validation.valid) {
+            tableHTML += '<td class="validation-success"><i class="fas fa-check"></i></td>';
+        } else {
+            tableHTML += `<td class="validation-error" title="${validation.errors.join(', ')}"><i class="fas fa-times"></i></td>`;
+            allValid = false;
+        }
+        
+        tableHTML += '</tr>';
+    });
+    
+    if (data.length > 10) {
+        tableHTML += `<tr><td colspan="${headers.length + 1}" style="text-align: center;">... 외 ${data.length - 10}개 데이터</td></tr>`;
+    }
+    
+    tableHTML += '</tbody></table>';
+    
+    document.getElementById('previewTable').innerHTML = tableHTML;
+    previewSection.style.display = 'block';
+    uploadBtn.disabled = !allValid;
+}
+
+// 데이터 검증
+function validateRow(row) {
+    const errors = [];
+    
+    if (!row['조직코드']) errors.push('조직코드 필수');
+    if (!row['조직명']) errors.push('조직명 필수');
+    if (!row['조직레벨']) errors.push('조직레벨 필수');
+    
+    // 조직레벨이 숫자인지 확인
+    if (row['조직레벨'] && isNaN(parseInt(row['조직레벨']))) {
+        errors.push('조직레벨은 숫자여야 함');
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors: errors
+    };
+}
+
+// 업로드 완료
+uploadBtn.addEventListener('click', async () => {
+    if (!uploadData) return;
+    
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 업로드 중...';
+    
+    try {
+        const response = await fetch('{% url "employees:upload_organization_structure" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ data: uploadData })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            alert(`업로드 완료!\n생성: ${result.created}개\n업데이트: ${result.updated}개`);
+            resetUpload();
+            loadStatistics();
+            loadOrganizationTree();
+        } else {
+            alert(result.message || '업로드 실패');
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="fas fa-check"></i> 업로드 완료';
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('네트워크 오류가 발생했습니다.');
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-check"></i> 업로드 완료';
+    }
+});
+
+// 취소
+cancelBtn.addEventListener('click', () => {
+    resetUpload();
+});
+
+// 초기화
+function resetUpload() {
+    fileInput.value = '';
+    uploadData = null;
+    previewSection.style.display = 'none';
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<i class="fas fa-check"></i> 업로드 완료';
+}
+
+// 통계 로드
+async function loadStatistics() {
+    try {
+        const response = await fetch('{% url "employees:get_organization_stats" %}');
+        const stats = await response.json();
+        
+        document.getElementById('total-orgs').textContent = stats.total_orgs || 0;
+        document.getElementById('active-orgs').textContent = stats.active_orgs || 0;
+        document.getElementById('total-employees').textContent = stats.total_employees || 0;
+        document.getElementById('last-update').textContent = stats.last_update || '-';
+    } catch (error) {
+        console.error('Failed to load statistics:', error);
+    }
+}
+
+// 조직 트리 로드
+async function loadOrganizationTree() {
+    try {
+        const response = await fetch('{% url "employees:get_organization_tree" %}');
+        const data = await response.json();
+        
+        if (data.success) {
+            renderTree(data.tree);
+        }
+    } catch (error) {
+        console.error('Failed to load organization tree:', error);
+    }
+}
+
+// 트리 렌더링
+function renderTree(tree) {
+    const container = document.getElementById('orgTree');
+    if (!tree || tree.length === 0) {
+        container.innerHTML = '<p style="color: #999;">조직 데이터가 없습니다.</p>';
+        return;
+    }
+    
+    container.innerHTML = renderTreeNodes(tree, 0);
+}
+
+function renderTreeNodes(nodes, level) {
+    let html = '';
+    
+    nodes.forEach(node => {
+        const icon = getNodeIcon(node.level);
+        const marginLeft = level * 30;
+        
+        html += `
+            <div class="tree-node" style="margin-left: ${marginLeft}px; margin-bottom: 0.5rem;">
+                <div style="display: flex; align-items: center; padding: 0.5rem; background: rgba(0,212,255,0.05); border-radius: 4px;">
+                    <span style="margin-right: 0.5rem;">${icon}</span>
+                    <span style="color: #00d4ff; font-weight: bold;">${node.code}</span>
+                    <span style="margin-left: 0.5rem; color: #e0e0e0;">${node.name}</span>
+                    <span style="margin-left: auto; color: #00ff88;">${node.employee_count || 0}명</span>
+                </div>
+                ${node.children ? renderTreeNodes(node.children, level + 1) : ''}
+            </div>
+        `;
+    });
+    
+    return html;
+}
+
+function getNodeIcon(level) {
+    const icons = {
+        1: '🏢',  // 그룹
+        2: '🏛️',  // 계열사
+        3: '🏗️',  // 본부
+        4: '📁',  // 부
+        5: '👥'   // 팀
+    };
+    return icons[level] || '📄';
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    loadStatistics();
+    loadOrganizationTree();
+});
+</script>
+
+<!-- SheetJS 라이브러리 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+{% endblock %}
