@@ -1,6 +1,12 @@
 from django.contrib import admin
 from .models import Employee
 
+# 인재 관리 Admin 등록
+try:
+    from .admin_talent import *
+except ImportError:
+    pass  # 마이그레이션 전에는 무시
+
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = [
