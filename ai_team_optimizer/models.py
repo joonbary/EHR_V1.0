@@ -383,3 +383,19 @@ class TeamTemplate(models.Model):
         """사용 횟수 증가"""
         self.usage_count += 1
         self.save(update_fields=['usage_count'])
+
+class TeamRecommendation(models.Model):
+    """팀 추천 모델"""
+    team_name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    recommended_for = models.CharField(max_length=200, blank=True)
+    score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'ai_team_recommendation'
+        ordering = ['-score', '-created_at']
+    
+    def __str__(self):
+        return f"{self.team_name} (Score: {self.score})"

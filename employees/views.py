@@ -10,6 +10,7 @@ from .forms import EmployeeForm
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.urls import reverse
 import pandas as pd
 from django.core.files.storage import default_storage
@@ -230,6 +231,7 @@ class EmployeeDeleteView(DeleteView):
         messages.success(request, '직원이 성공적으로 삭제되었습니다.')
         return super().delete(request, *args, **kwargs)
 
+@method_decorator(csrf_exempt, name="dispatch")
 class BulkUploadView(View):
     template_name = 'employees/bulk_upload.html'
     sample_headers = ['이름', '부서', '직급', '입사일', '이메일', '전화번호']
