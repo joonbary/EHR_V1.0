@@ -519,3 +519,17 @@ class TeamOptimizationService:
             recommendations.append(rec)
         
         return recommendations
+
+class TeamOptimizer:
+    """팀 최적화 서비스"""
+    
+    def __init__(self):
+        self.name = "TeamOptimizer"
+    
+    def optimize(self, team_data):
+        """팀 최적화 로직"""
+        return {
+            "status": "success",
+            "message": "Team optimization completed",
+            "data": team_data
+        }

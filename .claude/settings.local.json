@@ -60,7 +60,9 @@
       "WebFetch(domain:ehrv10-production.up.railway.app)",
       "Bash(git reset:*)",
       "WebFetch(domain:localhost)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(timeout:*)",
+      "Bash(railway restart:*)"
     ],
     "deny": []
   }
