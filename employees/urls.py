@@ -66,9 +66,9 @@ urlpatterns = [
 
 # 인재 관리 API URL 추가
 if api_talent:
-    from . import api_talent_debug
+    from . import api_talent_improved
     urlpatterns += [
-        path('api/talent/pool/', api_talent_debug.talent_pool_api_debug, name='talent_pool_api'),
-        path('api/talent/detail/<int:employee_id>/', api_talent.talent_detail_api, name='talent_detail_api'),
-        path('api/talent/test/', api_talent_debug.test_talent_db, name='test_talent_db'),
+        path('api/talent/pool/', api_talent_improved.talent_pool_api_improved, name='talent_pool_api'),
+        path('api/talent/detail/<int:employee_id>/', api_talent_improved.talent_detail_api_improved, name='talent_detail_api'),
+        path('api/talent/test/', api_talent_improved.talent_pool_api_improved, name='test_talent_db'),
     ] 
