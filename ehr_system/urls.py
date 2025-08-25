@@ -6,9 +6,15 @@ from django.views.generic import TemplateView
 
 from .views import DashboardView
 from .dashboard_views import leader_kpi_dashboard, workforce_comp_dashboard, workforce_comp_api
+from .health import health_check, readiness_check, liveness_check
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # Health checks
+    path('health/', health_check, name='health_check'),
+    path('ready/', readiness_check, name='readiness_check'),
+    path('alive/', liveness_check, name='liveness_check'),
     
     # 인증 URL - 제거됨
     

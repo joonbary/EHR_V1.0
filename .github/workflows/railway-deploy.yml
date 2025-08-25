@@ -1,0 +1,113 @@
+name: Railway Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DJANGO_ENV: railway
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ehr_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run migrations
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ehr_test
+      run: |
+        python manage.py migrate --noinput
+    
+    - name: Run tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ehr_test
+      run: |
+        python manage.py test --noinput --parallel
+    
+    - name: Check for migration conflicts
+      run: |
+        python manage.py makemigrations --check --dry-run
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Railway CLI
+      run: npm install -g @railway/cli
+    
+    - name: Deploy to Railway
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        railway up --service ehr-v10
+    
+    - name: Run production migrations
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        railway run --service ehr-v10 python manage.py migrate --noinput
+    
+    - name: Collect static files
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        railway run --service ehr-v10 python manage.py collectstatic --noinput
+    
+    - name: Health check
+      run: |
+        sleep 30
+        curl -f https://ehrv10-production.up.railway.app/health/ || exit 1
+    
+    - name: Notify deployment
+      if: always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const status = '${{ job.status }}' === 'success' ? '✅' : '❌';
+          const message = `Deployment ${status}: ${context.sha.substring(0, 7)} by ${context.actor}`;
+          console.log(message);
