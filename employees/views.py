@@ -937,108 +937,181 @@ def organization_structure_upload_view(request):
 
 @csrf_exempt
 def upload_organization_structure(request):
-    """조직 구조 Excel 업로드 처리"""
-    if request.method == 'POST':
+    """조직 구조 Excel 업로드 처리 - 개선된 버전"""
+    import json
+    from datetime import datetime
+    
+    # 디버깅 로그
+    print(f"[DEBUG] Request method: {request.method}")
+    print(f"[DEBUG] Content-Type: {request.META.get('CONTENT_TYPE', 'None')}")
+    print(f"[DEBUG] Request body length: {len(request.body) if request.body else 0}")
+    
+    if request.method != 'POST':
+        return JsonResponse({
+            'success': False,
+            'message': 'POST 메소드만 허용됩니다'
+        }, status=405)
+    
+    try:
+        # request body 파싱
+        if not request.body:
+            return JsonResponse({
+                'success': False,
+                'message': '요청 데이터가 없습니다'
+            }, status=400)
+        
         try:
-            import json
-            # Using models imported at top of file
-            
             body = json.loads(request.body)
             data = body.get('data', [])
-            
-            created_count = 0
-            updated_count = 0
-            errors = []
-            
-            # Create upload history
+        except json.JSONDecodeError as e:
+            print(f"[ERROR] JSON 파싱 오류: {e}")
+            return JsonResponse({
+                'success': False,
+                'message': f'JSON 파싱 오류: {str(e)}'
+            }, status=400)
+        
+        if not data:
+            return JsonResponse({
+                'success': False,
+                'message': '업로드할 데이터가 없습니다'
+            }, status=400)
+        
+        print(f"[DEBUG] 데이터 개수: {len(data)}")
+        
+        # 모델 임포트
+        try:
+            from employees.models_organization import OrganizationStructure, OrganizationUploadHistory
+        except ImportError as e:
+            print(f"[ERROR] 모델 임포트 실패: {e}")
+            return JsonResponse({
+                'success': False,
+                'message': '서버 설정 오류'
+            }, status=500)
+        
+        created_count = 0
+        updated_count = 0
+        errors = []
+        
+        # 업로드 기록 생성 (선택사항)
+        try:
             upload_history = OrganizationUploadHistory.objects.create(
-                file_name='Direct Upload',
+                file_name='Excel Upload',
                 total_rows=len(data),
                 status='processing',
                 uploaded_by=request.user if request.user.is_authenticated else None
             )
-            
-            # Process each row
-            for row in data:
-                try:
-                    org_code = row.get('조직코드')
-                    if not org_code:
-                        errors.append({'row': row, 'error': '조직코드 필수'})
-                        continue
-                    
-                    # Find or create organization
-                    org, created = OrganizationStructure.objects.get_or_create(
-                        org_code=org_code,
-                        defaults={
-                            'org_name': row.get('조직명', ''),
-                            'org_level': int(row.get('조직레벨', 1)),
-                            'status': row.get('상태', 'active'),
-                            'sort_order': int(row.get('정렬순서', 0)),
-                            'description': row.get('설명', ''),
-                        }
-                    )
-                    
-                    if not created:
-                        # Update existing
-                        org.org_name = row.get('조직명', org.org_name)
-                        org.org_level = int(row.get('조직레벨', org.org_level))
-                        org.status = row.get('상태', org.status)
-                        org.sort_order = int(row.get('정렬순서', org.sort_order))
-                        org.save()
-                        updated_count += 1
-                    else:
-                        created_count += 1
-                    
-                    # Set parent organization
-                    parent_code = row.get('상위조직코드')
-                    if parent_code:
-                        try:
-                            parent = OrganizationStructure.objects.get(org_code=parent_code)
-                            org.parent = parent
-                            org.save()
-                        except OrganizationStructure.DoesNotExist:
-                            errors.append({'row': row, 'error': f'상위조직 {parent_code} 없음'})
-                    
-                    # Set leader if specified
-                    leader_name = row.get('조직장')
-                    if leader_name:
-                        try:
-                            leader = Employee.objects.filter(name=leader_name).first()
-                            if leader:
-                                org.leader = leader
-                                org.save()
-                        except:
-                            pass
-                    
-                except Exception as e:
-                    errors.append({'row': row, 'error': str(e)})
-            
-            # Update upload history
-            upload_history.status = 'completed'
-            upload_history.processed_rows = len(data)
-            upload_history.success_count = created_count + updated_count
-            upload_history.error_count = len(errors)
-            upload_history.error_details = errors
-            upload_history.save()
-            
-            return JsonResponse({
-                'success': True,
-                'created': created_count,
-                'updated': updated_count,
-                'errors': errors,
-                'message': f'{created_count}개 생성, {updated_count}개 업데이트'
-            })
-            
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
-            }, status=400)
-    
-    return JsonResponse({'success': False, 'message': '잘못된 요청'}, status=400)
+            print(f"[WARNING] 업로드 기록 생성 실패: {e}")
+            upload_history = None
+        
+        # 데이터 처리
+        for idx, row in enumerate(data):
+            try:
+                # 필수 필드 확인
+                org_code = row.get('조직코드', '').strip() if row.get('조직코드') else ''
+                org_name = row.get('조직명', '').strip() if row.get('조직명') else ''
+                
+                if not org_code:
+                    errors.append({
+                        'row': idx + 1,
+                        'error': '조직코드 없음',
+                        'data': row
+                    })
+                    continue
+                
+                if not org_name:
+                    errors.append({
+                        'row': idx + 1,
+                        'error': '조직명 없음',
+                        'data': row
+                    })
+                    continue
+                
+                # 조직 레벨 처리
+                try:
+                    org_level = int(row.get('조직레벨', 1))
+                except (ValueError, TypeError):
+                    org_level = 1
+                
+                # 조직 생성 또는 업데이트
+                org, created = OrganizationStructure.objects.get_or_create(
+                    org_code=org_code,
+                    defaults={
+                        'org_name': org_name,
+                        'org_level': org_level,
+                        'status': row.get('상태', 'active'),
+                        'sort_order': int(row.get('정렬순서', 0)) if row.get('정렬순서') else 0,
+                        'description': row.get('설명', ''),
+                    }
+                )
+                
+                if not created:
+                    # 기존 조직 업데이트
+                    org.org_name = org_name
+                    org.org_level = org_level
+                    if row.get('상태'):
+                        org.status = row.get('상태')
+                    if row.get('설명'):
+                        org.description = row.get('설명')
+                    org.save()
+                    updated_count += 1
+                else:
+                    created_count += 1
+                
+                # 상위 조직 설정
+                parent_code = row.get('상위조직코드', '').strip() if row.get('상위조직코드') else ''
+                if parent_code:
+                    try:
+                        parent = OrganizationStructure.objects.get(org_code=parent_code)
+                        org.parent = parent
+                        org.save()
+                    except OrganizationStructure.DoesNotExist:
+                        print(f"[WARNING] 상위조직 {parent_code} 찾을 수 없음")
+                
+            except Exception as e:
+                print(f"[ERROR] 행 {idx + 1} 처리 오류: {e}")
+                errors.append({
+                    'row': idx + 1,
+                    'error': str(e),
+                    'data': row
+                })
+        
+        # 업로드 기록 업데이트
+        if upload_history:
+            try:
+                upload_history.status = 'completed'
+                upload_history.success_count = created_count + updated_count
+                upload_history.error_count = len(errors)
+                upload_history.save()
+            except:
+                pass
+        
+        # 결과 반환
+        result = {
+            'success': True,
+            'created': created_count,
+            'updated': updated_count,
+            'total': created_count + updated_count,
+            'errors': len(errors),
+            'message': f'업로드 완료: {created_count}개 생성, {updated_count}개 업데이트'
+        }
+        
+        if errors:
+            result['error_details'] = errors[:10]  # 최대 10개 오류만 반환
+        
+        print(f"[SUCCESS] 업로드 결과: {result['message']}")
+        return JsonResponse(result)
+        
+    except Exception as e:
+        print(f"[CRITICAL] 업로드 실패: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        return JsonResponse({
+            'success': False,
+            'message': f'서버 오류: {str(e)}'
+        }, status=500)
 
-
-@csrf_exempt
 def get_organization_tree(request):
     """조직 트리 구조 조회 - 안전 버전"""
     try:
