@@ -1267,6 +1267,75 @@ def get_organization_stats(request):
         return JsonResponse(result)
 
 @csrf_exempt
+def delete_organization_data(request):
+    """조직 데이터 삭제 API"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST 요청만 허용됩니다.'}, status=405)
+    
+    try:
+        import json
+        data = json.loads(request.body)
+        delete_type = data.get('type', 'all')  # 'all' 또는 'specific'
+        org_code = data.get('org_code', '')
+        
+        from employees.models_organization import OrganizationStructure, OrganizationUploadHistory, EmployeeOrganizationMapping
+        
+        if delete_type == 'all':
+            # 모든 조직 데이터 삭제
+            try:
+                mapping_count = EmployeeOrganizationMapping.objects.count()
+                history_count = OrganizationUploadHistory.objects.count()
+                org_count = OrganizationStructure.objects.count()
+                
+                EmployeeOrganizationMapping.objects.all().delete()
+                OrganizationUploadHistory.objects.all().delete()
+                OrganizationStructure.objects.all().delete()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'모든 조직 데이터 삭제 완료 (조직: {org_count}개, 매핑: {mapping_count}개, 히스토리: {history_count}개)'
+                })
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'삭제 중 오류 발생: {str(e)}'
+                }, status=500)
+            
+        elif delete_type == 'specific' and org_code:
+            # 특정 조직 및 하위 조직 삭제
+            try:
+                org = OrganizationStructure.objects.get(org_code=org_code)
+                descendants = org.get_descendants(include_self=True)
+                count = len(descendants)
+                
+                # 하위부터 삭제 (외래키 제약조건)
+                for desc in reversed(descendants):
+                    desc.delete()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'조직 {org_code} 및 하위 {count}개 조직 삭제 완료'
+                })
+                
+            except OrganizationStructure.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'조직코드 {org_code}를 찾을 수 없습니다.'
+                }, status=404)
+        
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': '잘못된 삭제 타입입니다.'
+            }, status=400)
+            
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'삭제 중 오류 발생: {str(e)}'
+        }, status=500)
+
+@csrf_exempt
 def save_organization(request):
     """개별 조직 저장"""
     if request.method == 'POST':

@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/test-upload/', test_upload, name='test_upload'),
     path('api/organization-tree/', views.get_organization_tree, name='get_organization_tree'),
     path('api/organization-stats/', views.get_organization_stats, name='get_organization_stats'),
+    path('api/delete-organization-data/', views.delete_organization_data, name='delete_organization_data'),
     path('api/save-organization/', views.save_organization, name='save_organization'),
     path('download/org-sample/', views.download_org_sample, name='download_org_sample'),
     

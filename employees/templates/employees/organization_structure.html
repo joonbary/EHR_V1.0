@@ -156,6 +156,9 @@
         <a href="{% url 'employees:download_org_sample' %}" class="btn btn-secondary">
             <i class="fas fa-download"></i> 샘플 다운로드
         </a>
+        <button class="btn btn-danger ms-2" id="deleteAllBtn">
+            <i class="fas fa-trash"></i> 모든 데이터 삭제
+        </button>
     </div>
 </div>
 
@@ -455,6 +458,52 @@ function getNodeIcon(level) {
     };
     return icons[level] || '📄';
 }
+
+// 데이터 삭제 함수
+async function deleteAllData() {
+    if (!confirm('정말로 모든 조직 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다!')) {
+        return;
+    }
+    
+    const deleteBtn = document.getElementById('deleteAllBtn');
+    const originalText = deleteBtn.innerHTML;
+    
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 삭제 중...';
+    
+    try {
+        const response = await fetch('{% url "employees:delete_organization_data" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                type: 'all'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message);
+            loadStatistics();
+            loadOrganizationTree();
+        } else {
+            alert('삭제 실패: ' + result.message);
+        }
+        
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('네트워크 오류가 발생했습니다.');
+    } finally {
+        deleteBtn.disabled = false;
+        deleteBtn.innerHTML = originalText;
+    }
+}
+
+// 삭제 버튼 이벤트 리스너
+document.getElementById('deleteAllBtn').addEventListener('click', deleteAllData);
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', () => {
