@@ -97,33 +97,20 @@ def talent_pool_api(request):
         })
         
     except Exception as e:
-        # 에러 발생 시 테스트 데이터 반환
+        # 에러 발생 시 실제 DB 데이터만 반환 (목업 데이터 제거)
         return JsonResponse({
             'success': False,
             'error': str(e),
             'statistics': {
-                'core_talent': 9,
-                'promotion_candidate': 6,
-                'retention_risk': 4,
-                'needs_attention': 10
+                'core_talent': 0,
+                'promotion_candidate': 0,
+                'retention_risk': 0,
+                'needs_attention': 0
             },
-            'talent_pool': [
-                {'name': '직원20', 'department': 'IT개발부', 'position': '과장', 'category': '승진후보자', 
-                 'ai_score': 85.2, 'confidence': 88, 'status': 'ACTIVE', 'analyzed_date': '2025-01-25'},
-                {'name': '직원40', 'department': '마케팅팀', 'position': '대리', 'category': '승진후보자', 
-                 'ai_score': 83.7, 'confidence': 85, 'status': 'ACTIVE', 'analyzed_date': '2025-01-25'},
-            ],
-            'promotion_candidates': [
-                {'name': '직원20', 'current_position': '과장', 'target_position': '차장', 
-                 'readiness': '곧 준비됨', 'ai_score': 85.2, 'expected_date': '2025-07-25', 
-                 'plan': '리더십 교육 진행중'}
-            ],
-            'retention_risks': [
-                {'name': '직원10', 'department': '영업팀', 'risk_level': '높음', 'risk_score': 82.0, 
-                 'factors': '보상 불만족, 경력 정체', 'strategy': '보상 재검토', 
-                 'status': '대기중', 'assigned': '김HR'}
-            ]
-        })
+            'talent_pool': [],
+            'promotion_candidates': [],
+            'retention_risks': []
+        }, status=500)
 
 
 @require_GET

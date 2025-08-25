@@ -1,0 +1,835 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}AI 인사이트 - 경영진 대시보드{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Insight card styles */
+    .insight-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .insight-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .insight-item {
+        background: rgba(0, 212, 255, 0.05);
+        border-left: 3px solid #00d4ff;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .insight-item:hover {
+        transform: translateX(10px);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.2);
+    }
+
+    .confidence-meter {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .confidence-bar {
+        width: 100px;
+        height: 6px;
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #00d4ff, #00ff88);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    .action-item {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 204, 0.1));
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .action-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+
+    .priority-badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .priority-critical {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff4444;
+        border: 1px solid #ff4444;
+    }
+
+    .priority-high {
+        background: rgba(255, 136, 0, 0.2);
+        color: #ff8800;
+        border: 1px solid #ff8800;
+    }
+
+    .priority-medium {
+        background: rgba(255, 187, 51, 0.2);
+        color: #ffbb33;
+        border: 1px solid #ffbb33;
+    }
+
+    .priority-low {
+        background: rgba(0, 212, 255, 0.2);
+        color: #00d4ff;
+        border: 1px solid #00d4ff;
+    }
+
+    .prediction-chart {
+        height: 300px;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 15px;
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    .trend-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .trend-up {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+    }
+
+    .trend-down {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff4444;
+    }
+
+    .trend-stable {
+        background: rgba(255, 187, 51, 0.2);
+        color: #ffbb33;
+    }
+
+    .ai-pulse {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #00ff88;
+        animation: pulse 2s infinite;
+        margin-right: 0.5rem;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+    }
+    
+    /* Hero subtitle style fix */
+    .hero-subtitle {
+        color: rgba(0, 212, 255, 0.8) !important;
+        font-weight: 400;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    /* Tab Navigation */
+    .nav-tabs {
+        border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+        margin-bottom: 2rem;
+    }
+
+    .nav-tabs .nav-link {
+        color: rgba(255, 255, 255, 0.6);
+        background: transparent;
+        border: none;
+        padding: 1rem 2rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: #00d4ff;
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #00d4ff;
+        background: rgba(0, 212, 255, 0.1);
+        border-bottom: 3px solid #00d4ff;
+    }
+
+    .nav-tabs .nav-link .badge {
+        margin-left: 0.5rem;
+        background: rgba(255, 68, 68, 0.8);
+        color: #fff;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    /* Talent Management Styles */
+    .talent-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95), rgba(10, 15, 27, 0.95));
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .talent-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    }
+
+    .talent-table {
+        background: rgba(0, 212, 255, 0.02);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .talent-table table {
+        width: 100%;
+        color: #fff;
+    }
+
+    .talent-table th {
+        background: rgba(0, 212, 255, 0.1);
+        padding: 1rem;
+        font-weight: 600;
+        color: #00d4ff;
+        border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .talent-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .talent-table tr:hover {
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .ai-score-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .score-high {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+        border: 1px solid #00ff88;
+    }
+
+    .score-medium {
+        background: rgba(255, 187, 51, 0.2);
+        color: #ffbb33;
+        border: 1px solid #ffbb33;
+    }
+
+    .score-low {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff4444;
+        border: 1px solid #ff4444;
+    }
+
+    .risk-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .risk-critical {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff4444;
+        border: 1px solid #ff4444;
+    }
+
+    .risk-high {
+        background: rgba(255, 136, 0, 0.2);
+        color: #ff8800;
+        border: 1px solid #ff8800;
+    }
+
+    .risk-medium {
+        background: rgba(255, 187, 51, 0.2);
+        color: #ffbb33;
+        border: 1px solid #ffbb33;
+    }
+
+    .risk-low {
+        background: rgba(0, 212, 255, 0.2);
+        color: #00d4ff;
+        border: 1px solid #00d4ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">AI 경영 인사이트</span>
+            </h1>
+            <p class="hero-subtitle">실시간 AI 기반 경영 의사결정 지원 시스템</p>
+        </div>
+        <div class="hero-particles"></div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs" id="executiveTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="insights-tab" data-bs-toggle="tab" data-bs-target="#insights" type="button" role="tab" aria-controls="insights" aria-selected="true">
+                <i class="fas fa-brain me-2"></i>AI 인사이트
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="talent-tab" data-bs-toggle="tab" data-bs-target="#talent" type="button" role="tab" aria-controls="talent" aria-selected="false">
+                <i class="fas fa-users-cog me-2"></i>인재 관리
+                <span class="badge">AIRISS</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="predictions-tab" data-bs-toggle="tab" data-bs-target="#predictions" type="button" role="tab" aria-controls="predictions" aria-selected="false">
+                <i class="fas fa-chart-line me-2"></i>예측 분석
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="executiveTabContent">
+        <!-- AI Insights Tab -->
+        <div class="tab-pane fade show active" id="insights" role="tabpanel" aria-labelledby="insights-tab">
+            <!-- Success Metrics -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">{{ success_metrics.insights_generated|default:"0" }}</div>
+                            <div class="stat-label">오늘의 인사이트</div>
+                        </div>
+                        <div class="stat-sparkline"></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">{{ success_metrics.actions_completed|default:"0" }}</div>
+                            <div class="stat-label">완료된 액션</div>
+                        </div>
+                        <div class="stat-sparkline"></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">{{ success_metrics.avg_ai_confidence|default:"0" }}%</div>
+                            <div class="stat-label">AI 신뢰도</div>
+                        </div>
+                        <div class="stat-sparkline"></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">
+                                <span class="ai-pulse"></span>
+                                {{ success_metrics.system_health|default:"양호" }}
+                            </div>
+                            <div class="stat-label">시스템 상태</div>
+                        </div>
+                        <div class="stat-sparkline"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Daily AI Insights -->
+                <div class="col-md-8">
+                    <div class="insight-card">
+                        <h3 class="mb-4" style="color: #00d4ff;">
+                            <i class="fas fa-lightbulb me-2"></i>오늘의 핵심 AI 인사이트
+                        </h3>
+                        
+                        {% for insight in daily_insights %}
+                        <div class="insight-item">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 style="color: #fff;">{{ insight.title }}</h5>
+                                <div class="confidence-meter">
+                                    <small class="text-muted">신뢰도</small>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: {{ insight.ai_confidence|floatformat:0 }}%;"></div>
+                                    </div>
+                                    <span style="color: #00d4ff;">{{ insight.ai_confidence|floatformat:0 }}%</span>
+                                </div>
+                            </div>
+                            <p class="text-light mb-2">{{ insight.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-primary me-2">{{ insight.category }}</span>
+                                    <span class="trend-indicator {% if insight.trend == 'up' %}trend-up{% elif insight.trend == 'down' %}trend-down{% else %}trend-stable{% endif %}">
+                                        <i class="fas fa-arrow-{% if insight.trend == 'up' %}up{% elif insight.trend == 'down' %}down{% else %}right{% endif %}"></i>
+                                        {{ insight.trend_value }}%
+                                    </span>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewInsightDetail('{{ insight.id }}')">
+                                    <i class="fas fa-chart-line me-1"></i>상세보기
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">오늘의 인사이트가 아직 생성되지 않았습니다.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Recommended Actions -->
+                <div class="col-md-4">
+                    <div class="insight-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 style="color: #00d4ff;">
+                                <i class="fas fa-clipboard-check me-2"></i>추천 액션
+                            </h4>
+                            <span class="badge bg-warning">{{ pending_actions_count|default:"0" }} 대기중</span>
+                        </div>
+                        
+                        {% for action in recommended_actions %}
+                        <div class="action-item" onclick="executeAction('{{ action.id }}')">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 style="color: #fff;">{{ action.title }}</h6>
+                                <span class="priority-badge priority-{{ action.priority|lower }}">
+                                    {{ action.get_priority_display }}
+                                </span>
+                            </div>
+                            <p class="text-light small mb-2">{{ action.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>예상 소요: {{ action.estimated_time }}
+                                </small>
+                                <small class="text-muted">
+                                    기한: {{ action.due_date|date:"m/d" }}
+                                </small>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">추천 액션이 없습니다.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Talent Management Tab -->
+        <div class="tab-pane fade" id="talent" role="tabpanel" aria-labelledby="talent-tab">
+            <!-- Talent Statistics -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="coreTalentCount">0</div>
+                            <div class="stat-label">핵심 인재</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #00ff88, #00cc66);">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="promotionCandidateCount">0</div>
+                            <div class="stat-label">승진 후보자</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="retentionRiskCount">0</div>
+                            <div class="stat-label">이직 위험군</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffa500, #ff6b6b);">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="needsAttentionCount">0</div>
+                            <div class="stat-label">관리 필요</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Talent Pool Table -->
+            <div class="talent-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 style="color: #00d4ff;">
+                        <i class="fas fa-users me-2"></i>인재풀 현황
+                    </h4>
+                    <div>
+                        <select class="form-select form-select-sm" id="talentCategoryFilter" style="background: rgba(0, 212, 255, 0.1); color: #fff; border-color: #00d4ff;">
+                            <option value="">전체 카테고리</option>
+                            <option value="CORE_TALENT">핵심 인재</option>
+                            <option value="HIGH_POTENTIAL">고잠재력</option>
+                            <option value="SPECIALIST">전문가</option>
+                            <option value="NEEDS_ATTENTION">관리 필요</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="talent-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>부서</th>
+                                <th>직급</th>
+                                <th>카테고리</th>
+                                <th>AI 점수</th>
+                                <th>신뢰도</th>
+                                <th>상태</th>
+                                <th>분석일</th>
+                            </tr>
+                        </thead>
+                        <tbody id="talentPoolTableBody">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Promotion Candidates -->
+            <div class="talent-card">
+                <h4 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-chart-line me-2"></i>승진 후보자
+                </h4>
+                <div class="talent-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>현재 직급</th>
+                                <th>목표 직급</th>
+                                <th>준비도</th>
+                                <th>AI 추천점수</th>
+                                <th>예상 시기</th>
+                                <th>개발 계획</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promotionCandidatesTableBody">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Retention Risk -->
+            <div class="talent-card">
+                <h4 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-user-shield me-2"></i>이직 위험 관리
+                </h4>
+                <div class="talent-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>부서</th>
+                                <th>위험도</th>
+                                <th>위험 점수</th>
+                                <th>주요 요인</th>
+                                <th>대응 전략</th>
+                                <th>상태</th>
+                                <th>담당자</th>
+                            </tr>
+                        </thead>
+                        <tbody id="retentionRiskTableBody">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Predictions Tab -->
+        <div class="tab-pane fade" id="predictions" role="tabpanel" aria-labelledby="predictions-tab">
+            <div class="insight-card">
+                <h3 class="mb-4" style="color: #00d4ff;">
+                    <i class="fas fa-chart-line me-2"></i>AI 예측 분석
+                </h3>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="prediction-chart">
+                            <h5 style="color: #fff;">인력 변동 예측</h5>
+                            <canvas id="turnoverChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="prediction-chart">
+                            <h5 style="color: #fff;">성과 트렌드</h5>
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="prediction-chart">
+                            <h5 style="color: #fff;">조직 건강도</h5>
+                            <canvas id="healthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolved Insights (shown in all tabs) -->
+    {% if resolved_insights %}
+    <div class="insight-card mt-4">
+        <h4 class="mb-4" style="color: #00d4ff;">
+            <i class="fas fa-check-circle me-2"></i>오늘 해결된 인사이트
+        </h4>
+        <div class="row g-3">
+            {% for resolved in resolved_insights %}
+            <div class="col-md-6">
+                <div class="d-flex align-items-center p-3" 
+                     style="background: rgba(0, 255, 136, 0.1); border-radius: 10px; border-left: 3px solid #00ff88;">
+                    <i class="fas fa-check-circle me-3" style="color: #00ff88; font-size: 1.5rem;"></i>
+                    <div>
+                        <h6 style="color: #fff;">{{ resolved.title }}</h6>
+                        <small class="text-muted">{{ resolved.resolved_at|timesince }} 전 해결</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Talent Management Functions
+function loadTalentData() {
+    fetch('/employees/api/talent/pool/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update statistics
+                document.getElementById('coreTalentCount').textContent = data.statistics.core_talent || 0;
+                document.getElementById('promotionCandidateCount').textContent = data.statistics.promotion_candidate || 0;
+                document.getElementById('retentionRiskCount').textContent = data.statistics.retention_risk || 0;
+                document.getElementById('needsAttentionCount').textContent = data.statistics.needs_attention || 0;
+                
+                // Update talent pool table
+                const talentPoolBody = document.getElementById('talentPoolTableBody');
+                talentPoolBody.innerHTML = '';
+                
+                if (data.talent_pool && data.talent_pool.length > 0) {
+                    data.talent_pool.forEach(talent => {
+                        const row = `
+                            <tr>
+                                <td>${talent.name}</td>
+                                <td>${talent.department}</td>
+                                <td>${talent.position}</td>
+                                <td><span class="badge bg-primary">${talent.category}</span></td>
+                                <td>
+                                    <span class="ai-score-badge ${talent.ai_score >= 80 ? 'score-high' : talent.ai_score >= 60 ? 'score-medium' : 'score-low'}">
+                                        ${talent.ai_score}
+                                    </span>
+                                </td>
+                                <td>${talent.confidence}%</td>
+                                <td><span class="badge bg-success">${talent.status}</span></td>
+                                <td>${talent.analyzed_date}</td>
+                            </tr>
+                        `;
+                        talentPoolBody.innerHTML += row;
+                    });
+                } else {
+                    talentPoolBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">데이터가 없습니다</td></tr>';
+                }
+                
+                // Update promotion candidates table
+                const promotionBody = document.getElementById('promotionCandidatesTableBody');
+                promotionBody.innerHTML = '';
+                
+                if (data.promotion_candidates && data.promotion_candidates.length > 0) {
+                    data.promotion_candidates.forEach(candidate => {
+                        const row = `
+                            <tr>
+                                <td>${candidate.name}</td>
+                                <td>${candidate.current_position}</td>
+                                <td>${candidate.target_position}</td>
+                                <td><span class="badge bg-success">${candidate.readiness}</span></td>
+                                <td>
+                                    <span class="ai-score-badge score-high">${candidate.ai_score}</span>
+                                </td>
+                                <td>${candidate.expected_date}</td>
+                                <td>${candidate.plan}</td>
+                            </tr>
+                        `;
+                        promotionBody.innerHTML += row;
+                    });
+                } else {
+                    promotionBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">데이터가 없습니다</td></tr>';
+                }
+                
+                // Update retention risk table
+                const retentionBody = document.getElementById('retentionRiskTableBody');
+                retentionBody.innerHTML = '';
+                
+                if (data.retention_risks && data.retention_risks.length > 0) {
+                    data.retention_risks.forEach(risk => {
+                        const riskClass = risk.risk_level === '매우 높음' ? 'risk-critical' : 
+                                         risk.risk_level === '높음' ? 'risk-high' : 
+                                         risk.risk_level === '중간' ? 'risk-medium' : 'risk-low';
+                        const row = `
+                            <tr>
+                                <td>${risk.name}</td>
+                                <td>${risk.department}</td>
+                                <td>
+                                    <span class="risk-indicator ${riskClass}">
+                                        ${risk.risk_level}
+                                    </span>
+                                </td>
+                                <td>${risk.risk_score}</td>
+                                <td>${risk.factors}</td>
+                                <td>${risk.strategy}</td>
+                                <td><span class="badge bg-warning">${risk.status}</span></td>
+                                <td>${risk.assigned}</td>
+                            </tr>
+                        `;
+                        retentionBody.innerHTML += row;
+                    });
+                } else {
+                    retentionBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">데이터가 없습니다</td></tr>';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading talent data:', error);
+            // Clear all tables on error
+            document.getElementById('talentPoolTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-muted">데이터 로드 실패</td></tr>';
+            document.getElementById('promotionCandidatesTableBody').innerHTML = '<tr><td colspan="7" class="text-center text-muted">데이터 로드 실패</td></tr>';
+            document.getElementById('retentionRiskTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-muted">데이터 로드 실패</td></tr>';
+        });
+}
+
+// Category filter
+document.getElementById('talentCategoryFilter').addEventListener('change', function() {
+    const category = this.value;
+    fetch(`/employees/api/talent/pool/${category ? '?category=' + category : ''}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update talent pool table with filtered data
+            const talentPoolBody = document.getElementById('talentPoolTableBody');
+            talentPoolBody.innerHTML = '';
+            
+            if (data.talent_pool && data.talent_pool.length > 0) {
+                data.talent_pool.forEach(talent => {
+                    const row = `
+                        <tr>
+                            <td>${talent.name}</td>
+                            <td>${talent.department}</td>
+                            <td>${talent.position}</td>
+                            <td><span class="badge bg-primary">${talent.category}</span></td>
+                            <td>
+                                <span class="ai-score-badge ${talent.ai_score >= 80 ? 'score-high' : talent.ai_score >= 60 ? 'score-medium' : 'score-low'}">
+                                    ${talent.ai_score}
+                                </span>
+                            </td>
+                            <td>${talent.confidence}%</td>
+                            <td><span class="badge bg-success">${talent.status}</span></td>
+                            <td>${talent.analyzed_date}</td>
+                        </tr>
+                    `;
+                    talentPoolBody.innerHTML += row;
+                });
+            } else {
+                talentPoolBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">데이터가 없습니다</td></tr>';
+            }
+        });
+});
+
+// Other functions
+function viewInsightDetail(insightId) {
+    console.log('Viewing insight detail:', insightId);
+}
+
+function executeAction(actionId) {
+    console.log('Executing action:', actionId);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load talent data when talent tab is shown
+    document.getElementById('talent-tab').addEventListener('shown.bs.tab', function() {
+        loadTalentData();
+    });
+    
+    // Chart initialization code here for predictions tab
+});
+</script>
+{% endblock %}
