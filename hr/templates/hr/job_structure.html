@@ -1,0 +1,24 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}직급/직군 체계{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-sitemap"></i> 직급/직군 체계
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent px-0">
+                <li class="breadcrumb-item"><a href="{% url 'hr:dashboard' %}" class="text-cyan">HR Dashboard</a></li>
+                <li class="breadcrumb-item active text-white">직급/직군 체계</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 직급/직군 체계 페이지입니다. 데이터를 추가하려면 <a href="/admin/hr/" class="text-cyan">Admin 페이지</a>를 이용하세요.
+    </div>
+</div>
+{% endblock %}

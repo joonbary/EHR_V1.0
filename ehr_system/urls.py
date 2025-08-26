@@ -65,6 +65,9 @@ urlpatterns = [
     # 조직관리
     path('organization/', include('organization.urls')),
     
+    # HR 관리 시스템
+    path('hr/', include('hr.urls')),
+    
     # 보고서
     path('reports/', include('reports.urls')),
     

@@ -1,0 +1,261 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}HR Management Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- 페이지 헤더 -->
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-users-cog"></i> HR Management System
+        </h1>
+        <p class="text-cyan">인사정보 종합 관리 시스템</p>
+    </div>
+
+    <!-- 주요 통계 카드 -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-cyan mb-2">총 직원 수</h6>
+                            <h3 class="mb-0">{{ total_employees }}</h3>
+                        </div>
+                        <div class="icon-circle bg-cyan">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-cyan mb-2">평균 급여</h6>
+                            <h3 class="mb-0">₩{{ avg_salary|floatformat:0|default:"0" }}</h3>
+                        </div>
+                        <div class="icon-circle bg-success">
+                            <i class="fas fa-won-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-cyan mb-2">올해 교육</h6>
+                            <h3 class="mb-0">{{ total_trainings }}</h3>
+                        </div>
+                        <div class="icon-circle bg-warning">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-cyan mb-2">복리후생</h6>
+                            <h3 class="mb-0">{{ active_benefits }}</h3>
+                        </div>
+                        <div class="icon-circle bg-info">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 메뉴 그리드 -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <a href="{% url 'hr:job_structure' %}" class="text-decoration-none">
+                <div class="card bg-dark-lighter border-cyan hover-effect">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-sitemap fa-3x text-cyan mb-3"></i>
+                        <h5 class="card-title">직급/직군 체계</h5>
+                        <p class="text-muted">직군 {{ job_families }}개, 직급 {{ job_grades }}개</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{% url 'hr:salary_management' %}" class="text-decoration-none">
+                <div class="card bg-dark-lighter border-cyan hover-effect">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-money-check-alt fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">급여 관리</h5>
+                        <p class="text-muted">급여등급 {{ salary_grades }}개</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{% url 'hr:education_management' %}" class="text-decoration-none">
+                <div class="card bg-dark-lighter border-cyan hover-effect">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-certificate fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">교육/자격증</h5>
+                        <p class="text-muted">올해 교육 {{ total_trainings }}건</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <a href="{% url 'hr:evaluation_list' %}" class="text-decoration-none">
+                <div class="card bg-dark-lighter border-cyan hover-effect">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">평가 관리</h5>
+                        <p class="text-muted">인사평가 및 성과관리</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{% url 'hr:benefits_management' %}" class="text-decoration-none">
+                <div class="card bg-dark-lighter border-cyan hover-effect">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-heart fa-3x text-danger mb-3"></i>
+                        <h5 class="card-title">복리후생</h5>
+                        <p class="text-muted">{{ active_benefits }}개 프로그램 운영</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="/admin/hr/" class="text-decoration-none">
+                <div class="card bg-dark-lighter border-cyan hover-effect">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-cog fa-3x text-secondary mb-3"></i>
+                        <h5 class="card-title">HR Admin</h5>
+                        <p class="text-muted">데이터 관리 및 설정</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 최근 활동 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0"><i class="fas fa-arrow-up"></i> 최근 승진</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_promotions %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>직원</th>
+                                    <th>승진 내역</th>
+                                    <th>승진일</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for promotion in recent_promotions %}
+                                <tr>
+                                    <td>{{ promotion.employee.name }}</td>
+                                    <td>{{ promotion.from_grade.name }} → {{ promotion.to_grade.name }}</td>
+                                    <td>{{ promotion.promotion_date|date:"Y-m-d" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">최근 승진 내역이 없습니다.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> 최근 평가</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_evaluations %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>직원</th>
+                                    <th>평가기간</th>
+                                    <th>등급</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for eval in recent_evaluations %}
+                                <tr>
+                                    <td>{{ eval.employee.name }}</td>
+                                    <td>{{ eval.evaluation_period }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if eval.rating == 'S' %}success{% elif eval.rating == 'A' %}info{% elif eval.rating == 'B' %}warning{% else %}secondary{% endif %}">
+                                            {{ eval.rating }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">최근 평가 내역이 없습니다.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a2e;
+}
+
+.hover-effect {
+    transition: all 0.3s ease;
+}
+
+.hover-effect:hover {
+    transform: translateY(-5px);
+    border-color: #00d4ff !important;
+    box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+}
+
+.bg-dark-lighter {
+    background-color: #2a2a3e;
+}
+</style>
+{% endblock %}

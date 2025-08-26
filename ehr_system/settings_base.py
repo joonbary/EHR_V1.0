@@ -60,6 +60,9 @@ INSTALLED_APPS = [
     'ai_predictions',
     'ai_interviewer',
     'airiss',
+    
+    # HR Management app
+    'hr',
 ]
 
 MIDDLEWARE = [

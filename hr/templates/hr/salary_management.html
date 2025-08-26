@@ -1,0 +1,213 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}급여 관리{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- 페이지 헤더 -->
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-money-check-alt"></i> 급여 관리
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent px-0">
+                <li class="breadcrumb-item"><a href="{% url 'hr:dashboard' %}" class="text-cyan">HR Dashboard</a></li>
+                <li class="breadcrumb-item active text-white">급여 관리</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 급여 통계 -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-body">
+                    <h6 class="text-cyan mb-2">이번달 총 급여</h6>
+                    <h3 class="mb-0">₩{{ total_monthly_salary|floatformat:0|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-body">
+                    <h6 class="text-cyan mb-2">급여 등급</h6>
+                    <h3 class="mb-0">{{ salary_grades|length }}개</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-body">
+                    <h6 class="text-cyan mb-2">재직 직원</h6>
+                    <h3 class="mb-0">{{ employees|length }}명</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-lighter border-cyan">
+                <div class="card-body">
+                    <h6 class="text-cyan mb-2">최근 성과급</h6>
+                    <h3 class="mb-0">{{ recent_bonuses|length }}건</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 급여 등급 테이블 -->
+    <div class="card bg-dark-lighter border-cyan mb-4">
+        <div class="card-header bg-dark">
+            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> 급여 등급표</h5>
+        </div>
+        <div class="card-body">
+            {% if salary_grades %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>등급코드</th>
+                            <th>등급명</th>
+                            <th>최소금액</th>
+                            <th>중간값</th>
+                            <th>최대금액</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grade in salary_grades %}
+                        <tr>
+                            <td><span class="badge bg-cyan">{{ grade.grade_code }}</span></td>
+                            <td>{{ grade.grade_name }}</td>
+                            <td>₩{{ grade.min_amount|floatformat:0 }}</td>
+                            <td>₩{{ grade.midpoint|floatformat:0 }}</td>
+                            <td>₩{{ grade.max_amount|floatformat:0 }}</td>
+                            <td>
+                                <span class="badge bg-{% if grade.is_active %}success{% else %}secondary{% endif %}">
+                                    {% if grade.is_active %}활성{% else %}비활성{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                급여 등급이 설정되지 않았습니다.
+                <a href="/admin/hr/salarygrade/add/" class="btn btn-sm btn-cyan ms-2">등급 추가</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 직원별 급여 현황 -->
+    <div class="card bg-dark-lighter border-cyan mb-4">
+        <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-users"></i> 직원별 급여 현황</h5>
+            <a href="/admin/hr/basesalary/add/" class="btn btn-sm btn-cyan">
+                <i class="fas fa-plus"></i> 급여 설정
+            </a>
+        </div>
+        <div class="card-body">
+            {% if employees %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>사번</th>
+                            <th>이름</th>
+                            <th>부서</th>
+                            <th>직급</th>
+                            <th>현재 기본급</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees|slice:":20" %}
+                        <tr>
+                            <td>{{ emp.id }}</td>
+                            <td>{{ emp.name }}</td>
+                            <td>{{ emp.department|default:"미지정" }}</td>
+                            <td>{{ emp.position|default:"미지정" }}</td>
+                            <td>
+                                {% if emp.current_salary %}
+                                    ₩{{ emp.current_salary|floatformat:0 }}
+                                {% else %}
+                                    <span class="text-muted">미설정</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'hr:employee_salary_detail' emp.id %}" class="btn btn-sm btn-outline-cyan">
+                                    <i class="fas fa-eye"></i> 상세
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if employees|length > 20 %}
+            <div class="text-center mt-3">
+                <small class="text-muted">총 {{ employees|length }}명 중 20명만 표시</small>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="alert alert-info">
+                재직 중인 직원이 없습니다.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 최근 성과급 -->
+    <div class="card bg-dark-lighter border-cyan">
+        <div class="card-header bg-dark">
+            <h5 class="mb-0"><i class="fas fa-trophy"></i> 최근 성과급 지급</h5>
+        </div>
+        <div class="card-body">
+            {% if recent_bonuses %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>직원</th>
+                            <th>유형</th>
+                            <th>평가기간</th>
+                            <th>금액</th>
+                            <th>지급일</th>
+                            <th>지급상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bonus in recent_bonuses %}
+                        <tr>
+                            <td>{{ bonus.employee.name }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ bonus.get_bonus_type_display }}</span>
+                            </td>
+                            <td>{{ bonus.evaluation_period }}</td>
+                            <td>₩{{ bonus.bonus_amount|floatformat:0 }}</td>
+                            <td>{{ bonus.payment_date|date:"Y-m-d" }}</td>
+                            <td>
+                                <span class="badge bg-{% if bonus.is_paid %}success{% else %}warning{% endif %}">
+                                    {% if bonus.is_paid %}지급완료{% else %}미지급{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">최근 성과급 지급 내역이 없습니다.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-dark-lighter {
+    background-color: #2a2a3e;
+}
+</style>
+{% endblock %}

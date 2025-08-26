@@ -1,0 +1,25 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}{{ employee.name }} 급여 상세{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-user-circle"></i> {{ employee.name }} 급여 상세
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent px-0">
+                <li class="breadcrumb-item"><a href="{% url 'hr:dashboard' %}" class="text-cyan">HR Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'hr:salary_management' %}" class="text-cyan">급여 관리</a></li>
+                <li class="breadcrumb-item active text-white">{{ employee.name }}</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 직원 급여 상세 페이지입니다.
+    </div>
+</div>
+{% endblock %}
