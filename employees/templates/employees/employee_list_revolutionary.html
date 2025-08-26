@@ -242,16 +242,16 @@
                 {{ employee.name|slice:":1" }}
             </div>
             <div class="employee-name">{{ employee.name }}</div>
-            <div class="employee-position">{{ employee.position|default:"직원" }}</div>
+            <div class="employee-position">{{ employee.current_position|default:employee.new_position|default:employee.position|default:"직원" }}</div>
             
             <div class="employee-details">
                 <div class="employee-detail">
                     <i class="fas fa-id-badge"></i>
-                    <span>{{ employee.employee_id|default:"미정" }}</span>
+                    <span>{{ employee.no|default:employee.id|default:"미정" }}</span>
                 </div>
                 <div class="employee-detail">
                     <i class="fas fa-building"></i>
-                    <span>{{ employee.department_name|default:"미지정" }}</span>
+                    <span>{{ employee.department|default:employee.final_department|default:"미지정" }}</span>
                 </div>
                 <div class="employee-detail">
                     <i class="fas fa-envelope"></i>
@@ -259,7 +259,7 @@
                 </div>
                 <div class="employee-detail">
                     <i class="fas fa-phone"></i>
-                    <span>{{ employee.phone_number|default:"연락처 없음" }}</span>
+                    <span>{{ employee.phone|default:"연락처 없음" }}</span>
                 </div>
             </div>
             
