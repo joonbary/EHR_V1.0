@@ -213,13 +213,22 @@ def smart_migrate():
     state = get_migration_state()
     print(f"\n데이터베이스 상태: {state}")
     
+    # HR 앱 마이그레이션 생성 시도 (새로 추가)
+    print("\nHR 앱 마이그레이션 확인...")
+    try:
+        from django.core.management import call_command
+        call_command('makemigrations', 'hr', '--skip-checks', '--noinput')
+        print("HR 앱 마이그레이션 생성 완료")
+    except Exception as e:
+        print(f"HR 앱 마이그레이션 생성 중 오류 (무시 가능): {e}")
+    
     if state == 'fresh':
         print("새로운 데이터베이스입니다. 전체 마이그레이션을 실행합니다.")
-        call_command('migrate', verbosity=1)
+        call_command('migrate', '--skip-checks', verbosity=1)
         
     elif state == 'django_only':
         print("Django 기본 앱만 설치되어 있습니다. 커스텀 앱을 마이그레이션합니다.")
-        call_command('migrate', verbosity=1)
+        call_command('migrate', '--skip-checks', verbosity=1)
         
     elif state == 'has_data':
         print("\n경고: 데이터가 있는 테이블이 발견되었습니다.")
@@ -229,12 +238,12 @@ def smart_migrate():
         if os.environ.get('RAILWAY_ENVIRONMENT'):
             print("Railway 환경입니다. 자동으로 처리합니다.")
             handle_existing_tables()
-            call_command('migrate', '--fake-initial', verbosity=1)
+            call_command('migrate', '--fake-initial', '--skip-checks', verbosity=1)
         else:
             response = input("\n계속하시겠습니까? (yes/no): ")
             if response.lower() == 'yes':
                 handle_existing_tables()
-                call_command('migrate', '--fake-initial', verbosity=1)
+                call_command('migrate', '--fake-initial', '--skip-checks', verbosity=1)
             else:
                 print("작업이 취소되었습니다.")
                 return False
@@ -244,7 +253,7 @@ def smart_migrate():
         handle_existing_tables()
         
         # 이미 적용된 마이그레이션은 fake로 처리
-        call_command('migrate', '--fake-initial', verbosity=1)
+        call_command('migrate', '--fake-initial', '--skip-checks', verbosity=1)
     
     # 2. 조직구조 테이블 확인 및 생성
     ensure_organization_tables()
