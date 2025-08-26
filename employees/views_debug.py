@@ -10,7 +10,7 @@ def debug_employee_count(request):
     """데이터베이스의 실제 직원 수 확인"""
     try:
         total = Employee.objects.count()
-        first_10 = list(Employee.objects.all()[:10].values('id', 'name', 'department', 'current_position'))
+        first_10 = list(Employee.objects.all()[:10].values('id', 'name', 'department'))
         
         return JsonResponse({
             'total_count': total,
@@ -24,7 +24,8 @@ def debug_employee_count(request):
 def debug_employee_list(request):
     """간단한 HTML로 직원 목록 표시"""
     try:
-        employees = Employee.objects.all()[:20]
+        # values()를 사용하여 특정 필드만 선택
+        employees = Employee.objects.values('id', 'no', 'name', 'department', 'position', 'email')[:20]
         total = Employee.objects.count()
         
         html = f"""
@@ -47,12 +48,12 @@ def debug_employee_list(request):
         for emp in employees:
             html += f"""
                 <tr>
-                    <td>{emp.id}</td>
-                    <td>{emp.no or '-'}</td>
-                    <td>{emp.name}</td>
-                    <td>{emp.department or emp.final_department or '-'}</td>
-                    <td>{emp.current_position or emp.position or '-'}</td>
-                    <td>{emp.email}</td>
+                    <td>{emp.get('id', '-')}</td>
+                    <td>{emp.get('no', '-')}</td>
+                    <td>{emp.get('name', '-')}</td>
+                    <td>{emp.get('department', '-')}</td>
+                    <td>{emp.get('position', '-')}</td>
+                    <td>{emp.get('email', '-')}</td>
                 </tr>
             """
         
