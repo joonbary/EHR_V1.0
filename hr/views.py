@@ -3,7 +3,7 @@ HR 관리 시스템 Views
 """
 
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required  # 로그인 기능 나중에 구현
 from django.db.models import Count, Sum, Avg, Q
 from django.contrib import messages
 from datetime import datetime, date
@@ -20,7 +20,7 @@ from .models import (
     MonthlySalary
 )
 
-@login_required
+# @login_required  # 로그인 기능 나중에 구현
 def hr_dashboard(request):
     """HR 대시보드"""
     context = {
@@ -56,7 +56,7 @@ def hr_dashboard(request):
     return render(request, 'hr/dashboard.html', context)
 
 
-@login_required
+# @login_required  # 로그인 기능 나중에 구현
 def job_structure(request):
     """직급/직군 체계 관리"""
     
@@ -78,7 +78,7 @@ def job_structure(request):
     return render(request, 'hr/job_structure.html', context)
 
 
-@login_required
+# @login_required  # 로그인 기능 나중에 구현
 def salary_management(request):
     """급여 관리"""
     
@@ -111,7 +111,7 @@ def salary_management(request):
     return render(request, 'hr/salary_management.html', context)
 
 
-@login_required
+# @login_required  # 로그인 기능 나중에 구현
 def employee_salary_detail(request, employee_id):
     """직원 급여 상세"""
     employee = get_object_or_404(Employee, pk=employee_id)
@@ -148,7 +148,7 @@ def employee_salary_detail(request, employee_id):
     return render(request, 'hr/employee_salary_detail.html', context)
 
 
-@login_required
+# @login_required  # 로그인 기능 나중에 구현
 def education_management(request):
     """교육/자격증 관리"""
     
@@ -180,7 +180,7 @@ def education_management(request):
     return render(request, 'hr/education_management.html', context)
 
 
-@login_required
+# @login_required  # 로그인 기능 나중에 구현
 def evaluation_list(request):
     """평가 관리"""
     
@@ -206,7 +206,7 @@ def evaluation_list(request):
     return render(request, 'hr/evaluation_list.html', context)
 
 
-@login_required 
+# @login_required  # 로그인 기능 나중에 구현
 def benefits_management(request):
     """복리후생 관리"""
     
