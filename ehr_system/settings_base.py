@@ -172,9 +172,9 @@ AIRISS_SERVICE_URL = os.getenv('AIRISS_SERVICE_URL', 'https://web-production-406
 AIRISS_ENABLED = os.getenv('AIRISS_ENABLED', 'False').lower() == 'true'
 
 # Login settings
-LOGIN_URL = '/users/login/'
+LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/users/login/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Session settings
 SESSION_COOKIE_AGE = 86400  # 24 hours
