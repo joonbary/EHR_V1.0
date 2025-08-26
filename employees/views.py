@@ -99,8 +99,8 @@ class EmployeeListView(ListView):
         if employment_status:
             queryset = queryset.filter(employment_status=employment_status)
         
-        # 정렬 (회사 > 본부1 > 최종소속 > 직급 > 이름 순)
-        return queryset.order_by('company', 'headquarters1', 'final_department', 'current_position', 'name')
+        # 정렬 (이름 순으로 간단히)
+        return queryset.order_by('name')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
