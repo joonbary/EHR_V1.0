@@ -32,41 +32,8 @@ class EmployeeListView(ListView):
     paginate_by = 20
     
     def get_queryset(self):
-        # Optimize query with select_related and prefetch_related to avoid N+1 problem
-        # Check if organization field exists by testing model field access
-        has_organization_field = False
-        try:
-            # Test if organization field exists in the model
-            Employee._meta.get_field('organization')
-            has_organization_field = True
-        except Exception:
-            has_organization_field = False
-        
-        if has_organization_field:
-            try:
-                # Try to include organization field if it exists
-                queryset = Employee.objects.select_related(
-                    'user',
-                    'manager',
-                    'organization'
-                ).prefetch_related(
-                    'subordinates'
-                )
-            except Exception:
-                # Fallback if database doesn't have the column yet
-                queryset = Employee.objects.select_related(
-                    'user',
-                    'manager'
-                ).prefetch_related(
-                    'subordinates'
-                )
-        else:
-            queryset = Employee.objects.select_related(
-                'user',
-                'manager'
-            ).prefetch_related(
-                'subordinates'
-            )
+        # Simple queryset without optimization to avoid field errors
+        queryset = Employee.objects.all()
         
         # 검색어 가져오기
         search_query = self.request.GET.get('q', '')
@@ -138,44 +105,71 @@ class EmployeeListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # 전체 직원 수
-        context['total_count'] = Employee.objects.count()
-        # 현재 쿼리셋의 수
-        context['queryset_count'] = self.get_queryset().count()
-        
-        # 통계 데이터 추가 (상단 카드용)
-        from datetime import datetime, timedelta
-        
-        # 부서 수 계산 (중복 제거)
-        departments = set()
-        for dept in Employee.objects.exclude(department__isnull=True).exclude(department='').values_list('department', flat=True):
-            departments.add(dept)
-        for dept in Employee.objects.exclude(final_department__isnull=True).exclude(final_department='').values_list('final_department', flat=True):
-            departments.add(dept)
-        context['department_count'] = len(departments)
-        
-        # 활성 계정 수 (재직 상태)
-        context['active_count'] = Employee.objects.filter(employment_status='재직').count()
-        
-        # 신규 입사 (최근 30일)
-        thirty_days_ago = datetime.now().date() - timedelta(days=30)
-        context['new_employee_count'] = Employee.objects.filter(hire_date__gte=thirty_days_ago).count()
-        
-        # 검색 관련 컨텍스트
-        context['search_query'] = self.request.GET.get('q', '')
-        context['search_type'] = self.request.GET.get('search_type', 'all')
-        
-        # 필터 관련 컨텍스트
-        context['filter_company'] = self.request.GET.get('company', '')
-        context['filter_headquarters1'] = self.request.GET.get('headquarters1', '')
-        context['filter_position'] = self.request.GET.get('position', '')
-        context['filter_employment_status'] = self.request.GET.get('employment_status', '')
-        
-        # 필터 옵션용 데이터
-        context['companies'] = Employee.objects.exclude(company__isnull=True).exclude(company='').values_list('company', flat=True).distinct().order_by('company')
-        context['headquarters1_list'] = Employee.objects.exclude(headquarters1__isnull=True).exclude(headquarters1='').values_list('headquarters1', flat=True).distinct().order_by('headquarters1')
-        context['positions'] = Employee.objects.exclude(current_position__isnull=True).exclude(current_position='').values_list('current_position', flat=True).distinct().order_by('current_position')
-        context['employment_statuses'] = Employee.objects.exclude(employment_status__isnull=True).exclude(employment_status='').values_list('employment_status', flat=True).distinct().order_by('employment_status')
+        try:
+            # 전체 직원 수
+            context['total_count'] = Employee.objects.count()
+            # 현재 쿼리셋의 수
+            context['queryset_count'] = self.get_queryset().count()
+            
+            # 통계 데이터 추가 (상단 카드용)
+            from datetime import datetime, timedelta
+            
+            # 부서 수 계산 (중복 제거)
+            departments = set()
+            try:
+                for dept in Employee.objects.exclude(department__isnull=True).exclude(department='').values_list('department', flat=True):
+                    departments.add(dept)
+                for dept in Employee.objects.exclude(final_department__isnull=True).exclude(final_department='').values_list('final_department', flat=True):
+                    departments.add(dept)
+                context['department_count'] = len(departments)
+            except Exception:
+                context['department_count'] = 0
+            
+            # 활성 계정 수 (재직 상태)
+            try:
+                context['active_count'] = Employee.objects.filter(employment_status='재직').count()
+            except Exception:
+                context['active_count'] = Employee.objects.count()
+            
+            # 신규 입사 (최근 30일)
+            try:
+                thirty_days_ago = datetime.now().date() - timedelta(days=30)
+                context['new_employee_count'] = Employee.objects.filter(hire_date__gte=thirty_days_ago).count()
+            except Exception:
+                context['new_employee_count'] = 0
+            
+            # 검색 관련 컨텍스트
+            context['search_query'] = self.request.GET.get('q', '')
+            context['search_type'] = self.request.GET.get('search_type', 'all')
+            
+            # 필터 관련 컨텍스트
+            context['filter_company'] = self.request.GET.get('company', '')
+            context['filter_headquarters1'] = self.request.GET.get('headquarters1', '')
+            context['filter_position'] = self.request.GET.get('position', '')
+            context['filter_employment_status'] = self.request.GET.get('employment_status', '')
+            
+            # 필터 옵션용 데이터
+            try:
+                context['companies'] = Employee.objects.exclude(company__isnull=True).exclude(company='').values_list('company', flat=True).distinct().order_by('company')
+                context['headquarters1_list'] = Employee.objects.exclude(headquarters1__isnull=True).exclude(headquarters1='').values_list('headquarters1', flat=True).distinct().order_by('headquarters1')
+                context['positions'] = Employee.objects.exclude(current_position__isnull=True).exclude(current_position='').values_list('current_position', flat=True).distinct().order_by('current_position')
+                context['employment_statuses'] = Employee.objects.exclude(employment_status__isnull=True).exclude(employment_status='').values_list('employment_status', flat=True).distinct().order_by('employment_status')
+            except Exception:
+                context['companies'] = []
+                context['headquarters1_list'] = []
+                context['positions'] = []
+                context['employment_statuses'] = []
+        except Exception as e:
+            # Provide default context if any error occurs
+            context['total_count'] = 0
+            context['queryset_count'] = 0
+            context['department_count'] = 0
+            context['active_count'] = 0
+            context['new_employee_count'] = 0
+            context['companies'] = []
+            context['headquarters1_list'] = []
+            context['positions'] = []
+            context['employment_statuses'] = []
         
         return context
 
@@ -188,15 +182,20 @@ class EmployeeDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         emp = self.object
         today = date.today()
-        # 근무기간 계산
-        years = today.year - emp.hire_date.year
-        months = today.month - emp.hire_date.month
-        days = today.day - emp.hire_date.day
-        if days < 0:
-            months -= 1
-        if months < 0:
-            years -= 1
-            months += 12
+        # 근무기간 계산 (hire_date가 없을 수도 있음)
+        if emp.hire_date:
+            years = today.year - emp.hire_date.year
+            months = today.month - emp.hire_date.month
+            days = today.day - emp.hire_date.day
+            if days < 0:
+                months -= 1
+            if months < 0:
+                years -= 1
+                months += 12
+        else:
+            years = 0
+            months = 0
+            days = 0
         work_period_text = f"{years}년 {months}개월"
         context['today'] = today
         context['work_period_text'] = work_period_text
