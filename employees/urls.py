@@ -8,6 +8,7 @@ except ImportError:
 from django.views.generic import TemplateView
 from core.views import under_construction
 from .views_test import test_database
+from . import views_debug
 
 app_name = 'employees'
 
@@ -38,6 +39,11 @@ urlpatterns = [
     path('api/delete-organization-data/', views.delete_organization_data, name='delete_organization_data'),
     path('api/save-organization/', views.save_organization, name='save_organization'),
     path('download/org-sample/', views.download_org_sample, name='download_org_sample'),
+    
+    # Debug endpoints
+    path('debug/count/', views_debug.debug_employee_count, name='debug-count'),
+    path('debug/list/', views_debug.debug_employee_list, name='debug-list'),
+    path('debug/context/', views_debug.debug_template_context, name='debug-context'),
     
     # REST API endpoints
     path('api/test/', test_database, name='test-database'),  # 테스트 엔드포인트

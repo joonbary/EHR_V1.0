@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Employee List</title>
+</head>
+<body>
+    <h1>Debug Template Context</h1>
+    
+    <h2>Context Variables:</h2>
+    <ul>
+        <li>employees exists: {{ employees|yesno:"YES,NO" }}</li>
+        <li>employees count: {{ employees.count }}</li>
+        <li>object_list exists: {{ object_list|yesno:"YES,NO" }}</li>
+        <li>object_list count: {{ object_list.count }}</li>
+        <li>page_obj exists: {{ page_obj|yesno:"YES,NO" }}</li>
+        <li>is_paginated: {{ is_paginated }}</li>
+    </ul>
+    
+    <h2>First 10 Employees:</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Position</th>
+        </tr>
+        {% for emp in employees %}
+        <tr>
+            <td>{{ emp.id }}</td>
+            <td>{{ emp.name }}</td>
+            <td>{{ emp.department|default:"-" }}</td>
+            <td>{{ emp.current_position|default:emp.position|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No employees found in template context</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <h2>Raw SQL Test:</h2>
+    {% load i18n %}
+    {% load static %}
+    <p>Testing direct database query...</p>
+</body>
+</html>
