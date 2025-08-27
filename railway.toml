@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "python fix_migration_dependency.py && python load_simple_employees.py && python manage.py collectstatic --noinput && gunicorn ehr_system.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --workers 2 --threads 4 --worker-class sync --max-requests 1000 --max-requests-jitter 50"
+startCommand = "python fix_migration_dependency.py && python load_safe_employees.py && python manage.py collectstatic --noinput && gunicorn ehr_system.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --workers 2 --threads 4 --worker-class sync --max-requests 1000 --max-requests-jitter 50"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
