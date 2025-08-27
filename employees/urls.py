@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 from core.views import under_construction
 from .views_test import test_database
 from . import views_debug
+from . import views_system_debug
 
 app_name = 'employees'
 
@@ -69,6 +70,10 @@ urlpatterns = [
     path('hr/api/', include('employees.urls_hr')),
     
     # Talent Management API (AIRISS Integration)
+    
+    # System debug views (Railway troubleshooting)
+    path('system/debug/', views_system_debug.system_debug_info, name='system_debug_info'),
+    path('system/force-load/', views_system_debug.force_load_employees, name='force_load_employees'),
 ]
 
 # 인재 관리 API URL 추가
