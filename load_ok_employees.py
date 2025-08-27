@@ -134,12 +134,8 @@ def generate_ok_employees():
                     company='OK저축은행',
                     headquarters1=hq_name,
                     headquarters2='',
-                    headquarters3='',
-                    headquarters4='',
                     final_department=department,
-                    team='',
                     current_position=position_choice['title'],
-                    new_position='',
                     employment_status=employment_status,
                     hire_date=hire_date,
                     gender=gender,
@@ -147,10 +143,8 @@ def generate_ok_employees():
                     growth_level=position_choice['level'],
                     birth_date=date(random.randint(1965, 2000), random.randint(1, 12), random.randint(1, 28)),
                     education=random.choice(['고졸', '전문대졸', '대졸', '석사', '박사']),
-                    major=random.choice(['경영학', '경제학', '컴퓨터공학', '통계학', '수학', '법학', '행정학', '회계학']),
                     address=fake.address(),
-                    emergency_contact=fake.phone_number(),
-                    notes=''
+                    emergency_contact=fake.phone_number()
                 )
                 employees_created += 1
                 employee_no += 1
