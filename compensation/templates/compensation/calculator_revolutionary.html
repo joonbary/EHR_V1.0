@@ -1,0 +1,509 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}보상 계산기 - EHR System{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">
+                    <i class="fas fa-calculator"></i> 보상 계산기
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">홈</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'compensation:dashboard' %}">보상관리</a></li>
+                        <li class="breadcrumb-item active">보상 계산기</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" onclick="runCalculation()">
+                    <i class="fas fa-play"></i> 계산 실행
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Section -->
+    <div class="row">
+        <!-- Employee Selection -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">직원 선택</h5>
+                </div>
+                <div class="card-body">
+                    <form id="calculatorForm">
+                        <div class="mb-3">
+                            <label for="employeeSearch" class="form-label">직원 검색</label>
+                            <input type="text" class="form-control" id="employeeSearch" 
+                                   placeholder="이름 또는 사번으로 검색">
+                        </div>
+                        <div class="mb-3">
+                            <label for="payPeriod" class="form-label">급여 기간</label>
+                            <input type="month" class="form-control" id="payPeriod" 
+                                   value="{{ current_period }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="employmentType" class="form-label">고용 형태</label>
+                            <select class="form-select" id="employmentType">
+                                <option value="">전체</option>
+                                <option value="정규직">정규직</option>
+                                <option value="Non-PL">Non-PL</option>
+                                <option value="PL">PL</option>
+                                <option value="별정직">별정직</option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <!-- Employee List -->
+                    <div class="employee-list mt-3" style="max-height: 400px; overflow-y: auto;">
+                        <div class="list-group" id="employeeList">
+                            <!-- Dynamic employee list -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculation Details -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">보상 계산 상세</h5>
+                </div>
+                <div class="card-body" id="calculationDetails">
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-user-circle fa-3x mb-3"></i>
+                        <p>직원을 선택하면 보상 계산 내역이 표시됩니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculation Breakdown -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">계산 내역</h5>
+                </div>
+                <div class="card-body" id="calculationBreakdown">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>구분</th>
+                                <th>항목</th>
+                                <th class="text-end">금액</th>
+                                <th>산식</th>
+                            </tr>
+                        </thead>
+                        <tbody id="breakdownTable">
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">
+                                    계산 결과가 여기에 표시됩니다.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simulation Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line"></i> 시뮬레이션
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">성장레벨 변경</label>
+                            <select class="form-select" id="simGrowthLevel">
+                                <option value="">현재 유지</option>
+                                <option value="1">레벨 1</option>
+                                <option value="2">레벨 2</option>
+                                <option value="3">레벨 3</option>
+                                <option value="4">레벨 4</option>
+                                <option value="5">레벨 5</option>
+                                <option value="6">레벨 6</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">평가등급 변경</label>
+                            <select class="form-select" id="simEvalGrade">
+                                <option value="">현재 유지</option>
+                                <option value="S">S</option>
+                                <option value="A+">A+</option>
+                                <option value="A">A</option>
+                                <option value="B+">B+</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">직책 변경</label>
+                            <select class="form-select" id="simPosition">
+                                <option value="">현재 유지</option>
+                                <option value="POS01">팀장</option>
+                                <option value="POS02">부문장</option>
+                                <option value="POS03">본부장</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-info w-100" onclick="runSimulation()">
+                                <i class="fas fa-sync"></i> 시뮬레이션 실행
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Simulation Results -->
+                    <div class="mt-4" id="simulationResults">
+                        <!-- Dynamic simulation results -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.employee-list .list-group-item {
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.employee-list .list-group-item:hover {
+    background-color: rgba(0, 212, 255, 0.1);
+    border-left: 3px solid #00d4ff;
+}
+
+.employee-list .list-group-item.active {
+    background-color: rgba(0, 212, 255, 0.2);
+    border-color: #00d4ff;
+}
+
+.calculation-row {
+    transition: all 0.3s;
+}
+
+.calculation-row:hover {
+    background-color: rgba(0, 212, 255, 0.05);
+}
+
+.amount-positive {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.amount-negative {
+    color: #dc3545;
+    font-weight: 600;
+}
+</style>
+
+<script>
+let selectedEmployee = null;
+
+// 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    const currentDate = new Date();
+    const yearMonth = currentDate.toISOString().slice(0, 7);
+    document.getElementById('payPeriod').value = yearMonth;
+    
+    loadEmployees();
+});
+
+// 직원 목록 로드
+function loadEmployees() {
+    const searchTerm = document.getElementById('employeeSearch').value;
+    const employmentType = document.getElementById('employmentType').value;
+    
+    // API 호출하여 직원 목록 가져오기
+    fetch(`/api/employees/?search=${searchTerm}&employment_type=${employmentType}`)
+        .then(response => response.json())
+        .then(data => {
+            const listContainer = document.getElementById('employeeList');
+            listContainer.innerHTML = '';
+            
+            data.forEach(employee => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item';
+                item.onclick = () => selectEmployee(employee);
+                item.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">${employee.name}</h6>
+                            <small class="text-muted">${employee.employee_id} | ${employee.department}</small>
+                        </div>
+                        <span class="badge bg-primary">${employee.employment_type}</span>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading employees:', error);
+            // 더미 데이터로 테스트
+            displayDummyEmployees();
+        });
+}
+
+// 직원 선택
+function selectEmployee(employee) {
+    selectedEmployee = employee;
+    
+    // UI 업데이트
+    document.querySelectorAll('#employeeList .list-group-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+    
+    // 보상 계산 실행
+    calculateCompensation();
+}
+
+// 보상 계산
+function calculateCompensation() {
+    if (!selectedEmployee) return;
+    
+    const payPeriod = document.getElementById('payPeriod').value;
+    
+    fetch(`/compensation/api/employee/${selectedEmployee.id}/statement/?period=${payPeriod}`)
+        .then(response => response.json())
+        .then(data => {
+            displayCalculationDetails(data);
+            displayCalculationBreakdown(data);
+        })
+        .catch(error => {
+            console.error('Error calculating compensation:', error);
+            displayDummyCalculation();
+        });
+}
+
+// 계산 상세 표시
+function displayCalculationDetails(data) {
+    const detailsContainer = document.getElementById('calculationDetails');
+    
+    const comp = data.compensation || {};
+    
+    detailsContainer.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-muted mb-3">직원 정보</h6>
+                <dl class="row">
+                    <dt class="col-sm-4">이름</dt>
+                    <dd class="col-sm-8">${data.employee?.name || '-'}</dd>
+                    <dt class="col-sm-4">부서</dt>
+                    <dd class="col-sm-8">${data.employee?.department || '-'}</dd>
+                    <dt class="col-sm-4">직책</dt>
+                    <dd class="col-sm-8">${data.employee?.position || '-'}</dd>
+                    <dt class="col-sm-4">고용형태</dt>
+                    <dd class="col-sm-8">${data.employee?.employment_type || '-'}</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted mb-3">보상 요약</h6>
+                <dl class="row">
+                    <dt class="col-sm-4">기본급</dt>
+                    <dd class="col-sm-8 amount-positive">₩${(comp.base_salary || 0).toLocaleString()}</dd>
+                    <dt class="col-sm-4">통상임금</dt>
+                    <dd class="col-sm-8 amount-positive">₩${(comp.ordinary_wage || 0).toLocaleString()}</dd>
+                    <dt class="col-sm-4">총 보상</dt>
+                    <dd class="col-sm-8 amount-positive fw-bold">₩${(comp.total_compensation || 0).toLocaleString()}</dd>
+                </dl>
+            </div>
+        </div>
+    `;
+}
+
+// 계산 내역 표시
+function displayCalculationBreakdown(data) {
+    const tableBody = document.getElementById('breakdownTable');
+    const comp = data.compensation || {};
+    
+    tableBody.innerHTML = `
+        <tr class="calculation-row">
+            <td rowspan="2">기본급여</td>
+            <td>기본급</td>
+            <td class="text-end amount-positive">₩${(comp.base_salary || 0).toLocaleString()}</td>
+            <td><small>성장레벨 테이블</small></td>
+        </tr>
+        <tr class="calculation-row">
+            <td>고정OT</td>
+            <td class="text-end amount-positive">₩${(comp.fixed_ot || 0).toLocaleString()}</td>
+            <td><small>통상시급 × 20 × 1.5</small></td>
+        </tr>
+        <tr class="calculation-row">
+            <td rowspan="2">수당</td>
+            <td>직책급</td>
+            <td class="text-end amount-positive">₩${(comp.position_allowance || 0).toLocaleString()}</td>
+            <td><small>직책 테이블</small></td>
+        </tr>
+        <tr class="calculation-row">
+            <td>직무역량급</td>
+            <td class="text-end amount-positive">₩${(comp.competency_allowance || 0).toLocaleString()}</td>
+            <td><small>직무 × 역량등급</small></td>
+        </tr>
+        <tr class="calculation-row">
+            <td rowspan="3">변동급</td>
+            <td>PI</td>
+            <td class="text-end amount-positive">₩${(comp.pi_amount || 0).toLocaleString()}</td>
+            <td><small>연간 성과 반영</small></td>
+        </tr>
+        <tr class="calculation-row">
+            <td>월성과급</td>
+            <td class="text-end amount-positive">₩${(comp.monthly_pi_amount || 0).toLocaleString()}</td>
+            <td><small>월별 성과 (PL)</small></td>
+        </tr>
+        <tr class="calculation-row">
+            <td>추석상여</td>
+            <td class="text-end amount-positive">₩${(comp.holiday_bonus || 0).toLocaleString()}</td>
+            <td><small>통상임금 × 일할</small></td>
+        </tr>
+        <tr class="table-primary">
+            <td colspan="2"><strong>총 보상</strong></td>
+            <td class="text-end"><strong>₩${(comp.total_compensation || 0).toLocaleString()}</strong></td>
+            <td></td>
+        </tr>
+    `;
+}
+
+// 시뮬레이션 실행
+function runSimulation() {
+    if (!selectedEmployee) {
+        alert('먼저 직원을 선택해주세요.');
+        return;
+    }
+    
+    // 시뮬레이션 파라미터
+    const params = {
+        growth_level: document.getElementById('simGrowthLevel').value,
+        eval_grade: document.getElementById('simEvalGrade').value,
+        position: document.getElementById('simPosition').value,
+    };
+    
+    // 시뮬레이션 결과 표시 (실제 구현 필요)
+    const resultsContainer = document.getElementById('simulationResults');
+    resultsContainer.innerHTML = `
+        <div class="alert alert-info">
+            <h6>시뮬레이션 결과</h6>
+            <p>변경 사항이 적용된 예상 보상입니다.</p>
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <strong>현재 총 보상:</strong> ₩5,500,000
+                </div>
+                <div class="col-md-4">
+                    <strong>예상 총 보상:</strong> ₩6,200,000
+                </div>
+                <div class="col-md-4">
+                    <strong>차이:</strong> <span class="text-success">+₩700,000 (+12.7%)</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 계산 실행
+function runCalculation() {
+    const payPeriod = document.getElementById('payPeriod').value;
+    
+    if (!payPeriod) {
+        alert('급여 기간을 선택해주세요.');
+        return;
+    }
+    
+    // 전체 계산 실행
+    fetch('/compensation/api/snapshot/run/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            period: payPeriod,
+            employee_ids: selectedEmployee ? [selectedEmployee.id] : null
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'completed') {
+            alert('계산이 완료되었습니다.');
+            if (selectedEmployee) {
+                calculateCompensation();
+            }
+        } else {
+            alert('계산 중 오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error running calculation:', error);
+        alert('계산 실행에 실패했습니다.');
+    });
+}
+
+// 더미 데이터 표시 (API 연결 전 테스트용)
+function displayDummyEmployees() {
+    const employees = [
+        {id: 1, name: '김철수', employee_id: 'E001', department: '개발팀', employment_type: '정규직'},
+        {id: 2, name: '이영희', employee_id: 'E002', department: '영업팀', employment_type: 'Non-PL'},
+        {id: 3, name: '박민수', employee_id: 'E003', department: '기획팀', employment_type: 'PL'},
+    ];
+    
+    const listContainer = document.getElementById('employeeList');
+    listContainer.innerHTML = '';
+    
+    employees.forEach(employee => {
+        const item = document.createElement('div');
+        item.className = 'list-group-item';
+        item.onclick = () => selectEmployee(employee);
+        item.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">${employee.name}</h6>
+                    <small class="text-muted">${employee.employee_id} | ${employee.department}</small>
+                </div>
+                <span class="badge bg-primary">${employee.employment_type}</span>
+            </div>
+        `;
+        listContainer.appendChild(item);
+    });
+}
+
+function displayDummyCalculation() {
+    const dummyData = {
+        employee: {
+            name: selectedEmployee?.name || '김철수',
+            department: selectedEmployee?.department || '개발팀',
+            position: '팀장',
+            employment_type: selectedEmployee?.employment_type || '정규직'
+        },
+        compensation: {
+            base_salary: 4500000,
+            fixed_ot: 645933,
+            position_allowance: 800000,
+            competency_allowance: 450000,
+            pi_amount: 0,
+            monthly_pi_amount: 0,
+            holiday_bonus: 0,
+            ordinary_wage: 5750000,
+            total_compensation: 6395933
+        }
+    };
+    
+    displayCalculationDetails(dummyData);
+    displayCalculationBreakdown(dummyData);
+}
+
+// 검색 이벤트
+document.getElementById('employeeSearch').addEventListener('input', loadEmployees);
+document.getElementById('employmentType').addEventListener('change', loadEmployees);
+</script>
+{% endblock %}

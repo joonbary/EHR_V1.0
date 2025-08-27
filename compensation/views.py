@@ -400,3 +400,30 @@ def api_job_type_analysis(request):
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+def compensation_calculator(request):
+    """보상 계산기 페이지"""
+    context = {
+        'page_title': '보상 계산기',
+        'description': '직원별 보상을 계산하고 시뮬레이션합니다.',
+    }
+    return render(request, 'compensation/calculator_revolutionary.html', context)
+
+
+def compensation_reports(request):
+    """보상 리포트 페이지"""
+    context = {
+        'page_title': '보상 리포트',
+        'description': '보상 관련 각종 리포트를 조회합니다.',
+    }
+    return render(request, 'compensation/reports_revolutionary.html', context)
+
+
+def compensation_settings(request):
+    """보상 설정 페이지"""
+    context = {
+        'page_title': '보상 설정',
+        'description': '보상 테이블 및 정책을 설정합니다.',
+    }
+    return render(request, 'compensation/settings_revolutionary.html', context)
