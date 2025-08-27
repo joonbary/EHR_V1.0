@@ -32,8 +32,10 @@ class EmployeeListView(ListView):
     paginate_by = 20
     
     def get_queryset(self):
-        # Simple queryset without optimization to avoid field errors
-        queryset = Employee.objects.all()
+        # Safe queryset - only() to limit fields loaded
+        queryset = Employee.objects.only('id', 'name', 'email', 'department', 'position', 'phone', 'no', 
+                                         'final_department', 'current_position', 'new_position',
+                                         'company', 'headquarters1', 'employment_status')
         
         # 검색어 가져오기
         search_query = self.request.GET.get('q', '')
