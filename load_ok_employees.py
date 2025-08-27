@@ -19,11 +19,15 @@ from employees.models import Employee
 def generate_ok_employees():
     """OK저축은행 직원 1000명 생성"""
     
-    # 이미 충분한 데이터가 있는지 확인
-    existing_count = Employee.objects.count()
-    if existing_count >= 100:  # 100명 이상 있으면 스킵
-        print(f"이미 {existing_count}명의 직원 데이터가 있습니다. 스킵합니다.")
-        return
+    try:
+        # 이미 충분한 데이터가 있는지 확인
+        existing_count = Employee.objects.count()
+        if existing_count >= 100:  # 100명 이상 있으면 스킵
+            print(f"이미 {existing_count}명의 직원 데이터가 있습니다. 스킵합니다.")
+            return
+    except Exception as e:
+        print(f"직원 수 확인 중 오류: {e}")
+        existing_count = 0
     
     print(f"현재 직원 수: {existing_count}명")
     print("OK저축은행 직원 데이터를 생성합니다...")
