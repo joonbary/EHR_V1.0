@@ -26,9 +26,18 @@ if RAILWAY_STATIC_URL:
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=0)  # Disable pooling to prevent SSL issues
     }
-    print(f"Using PostgreSQL database from DATABASE_URL")
+    # Add PostgreSQL-specific options for better connection stability
+    DATABASES['default']['OPTIONS'] = {
+        'sslmode': 'require',
+        'connect_timeout': 30,
+        'keepalives': 1,
+        'keepalives_idle': 30,
+        'keepalives_interval': 10,
+        'keepalives_count': 5,
+    }
+    print(f"Using PostgreSQL database from DATABASE_URL with improved SSL handling")
 else:
     # Fallback to SQLite if no DATABASE_URL
     DATABASES = {

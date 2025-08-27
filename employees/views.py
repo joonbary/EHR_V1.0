@@ -105,13 +105,37 @@ class EmployeeListView(ListView):
         return queryset.order_by('name')
     
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        # Database connection retry mechanism
+        from django.db import connection, OperationalError
+        import time
         
-        try:
-            # 전체 직원 수
-            context['total_count'] = Employee.objects.count()
-            # 현재 쿼리셋의 수
-            context['queryset_count'] = self.get_queryset().count()
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            try:
+                context = super().get_context_data(**kwargs)
+                
+                # 전체 직원 수
+                context['total_count'] = Employee.objects.count()
+                # 현재 쿼리셋의 수
+                context['queryset_count'] = self.get_queryset().count()
+                break  # Success, exit retry loop
+                
+            except OperationalError as e:
+                retry_count += 1
+                if retry_count >= max_retries:
+                    # Final retry failed, return safe defaults
+                    context = {'object_list': [], 'employees': []}
+                    context['total_count'] = 0
+                    context['queryset_count'] = 0
+                    context['error_message'] = "데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+                    return context
+                
+                # Close the old connection and retry
+                connection.close()
+                time.sleep(0.5 * retry_count)  # Exponential backoff
+                continue
             
             # 통계 데이터 추가 (상단 카드용)
             from datetime import datetime, timedelta
