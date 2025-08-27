@@ -136,62 +136,51 @@ class EmployeeListView(ListView):
                 connection.close()
                 time.sleep(0.5 * retry_count)  # Exponential backoff
                 continue
-            
-            # 통계 데이터 추가 (상단 카드용)
-            from datetime import datetime, timedelta
-            
-            # 부서 수 계산 (중복 제거)
-            departments = set()
-            try:
-                for dept in Employee.objects.exclude(department__isnull=True).exclude(department='').values_list('department', flat=True):
-                    departments.add(dept)
-                for dept in Employee.objects.exclude(final_department__isnull=True).exclude(final_department='').values_list('final_department', flat=True):
-                    departments.add(dept)
-                context['department_count'] = len(departments)
-            except Exception:
-                context['department_count'] = 0
-            
-            # 활성 계정 수 (재직 상태)
-            try:
-                context['active_count'] = Employee.objects.filter(employment_status='재직').count()
-            except Exception:
-                context['active_count'] = Employee.objects.count()
-            
-            # 신규 입사 (최근 30일)
-            try:
-                thirty_days_ago = datetime.now().date() - timedelta(days=30)
-                context['new_employee_count'] = Employee.objects.filter(hire_date__gte=thirty_days_ago).count()
-            except Exception:
-                context['new_employee_count'] = 0
-            
-            # 검색 관련 컨텍스트
-            context['search_query'] = self.request.GET.get('q', '')
-            context['search_type'] = self.request.GET.get('search_type', 'all')
-            
-            # 필터 관련 컨텍스트
-            context['filter_company'] = self.request.GET.get('company', '')
-            context['filter_headquarters1'] = self.request.GET.get('headquarters1', '')
-            context['filter_position'] = self.request.GET.get('position', '')
-            context['filter_employment_status'] = self.request.GET.get('employment_status', '')
-            
-            # 필터 옵션용 데이터
-            try:
-                context['companies'] = Employee.objects.exclude(company__isnull=True).exclude(company='').values_list('company', flat=True).distinct().order_by('company')
-                context['headquarters1_list'] = Employee.objects.exclude(headquarters1__isnull=True).exclude(headquarters1='').values_list('headquarters1', flat=True).distinct().order_by('headquarters1')
-                context['positions'] = Employee.objects.exclude(current_position__isnull=True).exclude(current_position='').values_list('current_position', flat=True).distinct().order_by('current_position')
-                context['employment_statuses'] = Employee.objects.exclude(employment_status__isnull=True).exclude(employment_status='').values_list('employment_status', flat=True).distinct().order_by('employment_status')
-            except Exception:
-                context['companies'] = []
-                context['headquarters1_list'] = []
-                context['positions'] = []
-                context['employment_statuses'] = []
-        except Exception as e:
-            # Provide default context if any error occurs
-            context['total_count'] = 0
-            context['queryset_count'] = 0
+        
+        # 통계 데이터 추가 (상단 카드용)
+        from datetime import datetime, timedelta
+        
+        # 부서 수 계산 (중복 제거)
+        departments = set()
+        try:
+            for dept in Employee.objects.exclude(department__isnull=True).exclude(department='').values_list('department', flat=True):
+                departments.add(dept)
+            for dept in Employee.objects.exclude(final_department__isnull=True).exclude(final_department='').values_list('final_department', flat=True):
+                departments.add(dept)
+            context['department_count'] = len(departments)
+        except Exception:
             context['department_count'] = 0
-            context['active_count'] = 0
+        
+        # 활성 계정 수 (재직 상태)
+        try:
+            context['active_count'] = Employee.objects.filter(employment_status='재직').count()
+        except Exception:
+            context['active_count'] = Employee.objects.count()
+        
+        # 신규 입사 (최근 30일)
+        try:
+            thirty_days_ago = datetime.now().date() - timedelta(days=30)
+            context['new_employee_count'] = Employee.objects.filter(hire_date__gte=thirty_days_ago).count()
+        except Exception:
             context['new_employee_count'] = 0
+        
+        # 검색 관련 컨텍스트
+        context['search_query'] = self.request.GET.get('q', '')
+        context['search_type'] = self.request.GET.get('search_type', 'all')
+        
+        # 필터 관련 컨텍스트
+        context['filter_company'] = self.request.GET.get('company', '')
+        context['filter_headquarters1'] = self.request.GET.get('headquarters1', '')
+        context['filter_position'] = self.request.GET.get('position', '')
+        context['filter_employment_status'] = self.request.GET.get('employment_status', '')
+        
+        # 필터 옵션용 데이터
+        try:
+            context['companies'] = Employee.objects.exclude(company__isnull=True).exclude(company='').values_list('company', flat=True).distinct().order_by('company')
+            context['headquarters1_list'] = Employee.objects.exclude(headquarters1__isnull=True).exclude(headquarters1='').values_list('headquarters1', flat=True).distinct().order_by('headquarters1')
+            context['positions'] = Employee.objects.exclude(current_position__isnull=True).exclude(current_position='').values_list('current_position', flat=True).distinct().order_by('current_position')
+            context['employment_statuses'] = Employee.objects.exclude(employment_status__isnull=True).exclude(employment_status='').values_list('employment_status', flat=True).distinct().order_by('employment_status')
+        except Exception:
             context['companies'] = []
             context['headquarters1_list'] = []
             context['positions'] = []
