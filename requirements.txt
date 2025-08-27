@@ -24,6 +24,7 @@ pytz==2025.2
 requests==2.32.3
 python-dotenv==1.0.0
 Pillow==11.3.0
+faker==28.4.1
 
 # AI and ML packages
 openai==1.51.2
