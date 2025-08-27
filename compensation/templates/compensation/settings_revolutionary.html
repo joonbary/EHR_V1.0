@@ -1,0 +1,535 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}보상 설정 - EHR System{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">
+                    <i class="fas fa-cog"></i> 보상 설정
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">홈</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'compensation:dashboard' %}">보상관리</a></li>
+                        <li class="breadcrumb-item active">보상 설정</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-success" onclick="saveSettings()">
+                    <i class="fas fa-save"></i> 설정 저장
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Navigation -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="text-muted mb-3">설정 메뉴</h6>
+                    <div class="nav flex-column nav-pills">
+                        <a class="nav-link active" data-bs-toggle="pill" href="#baseSalary">
+                            <i class="fas fa-money-bill"></i> 기본급 테이블
+                        </a>
+                        <a class="nav-link" data-bs-toggle="pill" href="#positionAllowance">
+                            <i class="fas fa-user-tie"></i> 직책급 관리
+                        </a>
+                        <a class="nav-link" data-bs-toggle="pill" href="#competencyAllowance">
+                            <i class="fas fa-brain"></i> 역량급 관리
+                        </a>
+                        <a class="nav-link" data-bs-toggle="pill" href="#piSettings">
+                            <i class="fas fa-chart-pie"></i> PI 설정
+                        </a>
+                        <a class="nav-link" data-bs-toggle="pill" href="#monthlyPI">
+                            <i class="fas fa-calendar-alt"></i> 월성과급
+                        </a>
+                        <a class="nav-link" data-bs-toggle="pill" href="#csvImport">
+                            <i class="fas fa-file-csv"></i> CSV 가져오기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- Base Salary Settings -->
+                <div class="tab-pane fade show active" id="baseSalary">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">기본급 테이블 관리</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6>성장레벨별 기본급 설정</h6>
+                                    <button class="btn btn-sm btn-primary" onclick="addBaseSalaryRow()">
+                                        <i class="fas fa-plus"></i> 행 추가
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>등급코드</th>
+                                            <th>레벨</th>
+                                            <th>직급명</th>
+                                            <th>정규직</th>
+                                            <th>Non-PL</th>
+                                            <th>PL</th>
+                                            <th>작업</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="baseSalaryTable">
+                                        <tr>
+                                            <td>GRD11</td>
+                                            <td>1-1</td>
+                                            <td>주임</td>
+                                            <td><input type="number" class="form-control" value="3000000"></td>
+                                            <td><input type="number" class="form-control" value="3150000"></td>
+                                            <td><input type="number" class="form-control" value="3300000"></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>GRD21</td>
+                                            <td>2-1</td>
+                                            <td>선임</td>
+                                            <td><input type="number" class="form-control" value="3500000"></td>
+                                            <td><input type="number" class="form-control" value="3675000"></td>
+                                            <td><input type="number" class="form-control" value="3850000"></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>참고:</strong> 기본급은 성장레벨과 고용형태에 따라 차등 적용됩니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Position Allowance Settings -->
+                <div class="tab-pane fade" id="positionAllowance">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">직책급 관리</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h6>본사 직책급</h6>
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>직책</th>
+                                                <th>A등급</th>
+                                                <th>B+등급</th>
+                                                <th>B등급</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>팀장</td>
+                                                <td><input type="number" class="form-control form-control-sm" value="800000"></td>
+                                                <td><input type="number" class="form-control form-control-sm" value="700000"></td>
+                                                <td><input type="number" class="form-control form-control-sm" value="600000"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>부문장</td>
+                                                <td><input type="number" class="form-control form-control-sm" value="1200000"></td>
+                                                <td><input type="number" class="form-control form-control-sm" value="1100000"></td>
+                                                <td><input type="number" class="form-control form-control-sm" value="1000000"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>영업조직 직책급</h6>
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>직책</th>
+                                                <th>월 지급액</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>팀장</td>
+                                                <td><input type="number" class="form-control form-control-sm" value="700000"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>센터장</td>
+                                                <td><input type="number" class="form-control form-control-sm" value="900000"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>지점장</td>
+                                                <td><input type="number" class="form-control form-control-sm" value="1000000"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="initialRate" checked>
+                                <label class="form-check-label" for="initialRate">
+                                    초임 1년간 80% 지급 적용
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competency Allowance Settings -->
+                <div class="tab-pane fade" id="competencyAllowance">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">직무역량급 관리</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">직무 프로파일 선택</label>
+                                <select class="form-select" id="jobProfileSelect">
+                                    <option value="JP001">경영관리 - 경영기획 - 전략기획</option>
+                                    <option value="JP002">경영관리 - 인사 - HR기획</option>
+                                    <option value="JP004">IT - 개발 - 시스템개발</option>
+                                    <option value="JP006">영업 - 기업영업 - 법인영업</option>
+                                </select>
+                            </div>
+
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>역량등급</th>
+                                        <th>월 지급액</th>
+                                        <th>설명</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>T1 (Expert)</td>
+                                        <td><input type="number" class="form-control" value="500000"></td>
+                                        <td>최고 수준 전문가</td>
+                                    </tr>
+                                    <tr>
+                                        <td>T2 (Advanced)</td>
+                                        <td><input type="number" class="form-control" value="400000"></td>
+                                        <td>숙련 전문가</td>
+                                    </tr>
+                                    <tr>
+                                        <td>T3 (Intermediate)</td>
+                                        <td><input type="number" class="form-control" value="300000"></td>
+                                        <td>중급 실무자</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PI Settings -->
+                <div class="tab-pane fade" id="piSettings">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">PI (Performance Incentive) 설정</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>주의:</strong> PI는 Non-PL 직원에게만 적용됩니다.
+                            </div>
+
+                            <h6>PI 지급률 테이블 (%)</h6>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2">평가등급</th>
+                                        <th colspan="2">본사</th>
+                                        <th colspan="2">영업</th>
+                                    </tr>
+                                    <tr>
+                                        <th>팀원</th>
+                                        <th>직책자</th>
+                                        <th>팀원</th>
+                                        <th>직책자</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>S</td>
+                                        <td><input type="number" class="form-control form-control-sm" value="150"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="180"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="160"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="200"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>A+</td>
+                                        <td><input type="number" class="form-control form-control-sm" value="130"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="160"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="140"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="180"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly PI Settings -->
+                <div class="tab-pane fade" id="monthlyPI">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">월성과급 설정 (PL 전용)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>주의:</strong> 월성과급은 PL 직원에게만 적용됩니다.
+                            </div>
+
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>역할레벨</th>
+                                        <th>S</th>
+                                        <th>A+</th>
+                                        <th>A</th>
+                                        <th>B+</th>
+                                        <th>B</th>
+                                        <th>C</th>
+                                        <th>D</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>센터장</td>
+                                        <td><input type="number" class="form-control form-control-sm" value="1500000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="1300000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="1100000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="900000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="800000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="600000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>팀장</td>
+                                        <td><input type="number" class="form-control form-control-sm" value="1200000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="1050000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="900000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="700000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="600000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="400000"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CSV Import -->
+                <div class="tab-pane fade" id="csvImport">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">CSV 데이터 가져오기</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6>기본급 테이블</h6>
+                                            <p class="text-muted">base_salary_table.csv</p>
+                                            <input type="file" class="form-control mb-2" accept=".csv">
+                                            <button class="btn btn-sm btn-primary w-100">
+                                                <i class="fas fa-upload"></i> 업로드
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6>직책급 테이블</h6>
+                                            <p class="text-muted">position_allowance_table.csv</p>
+                                            <input type="file" class="form-control mb-2" accept=".csv">
+                                            <button class="btn btn-sm btn-primary w-100">
+                                                <i class="fas fa-upload"></i> 업로드
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6>PI 지급률</h6>
+                                            <p class="text-muted">pi_table.csv</p>
+                                            <input type="file" class="form-control mb-2" accept=".csv">
+                                            <button class="btn btn-sm btn-primary w-100">
+                                                <i class="fas fa-upload"></i> 업로드
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6>월성과급 테이블</h6>
+                                            <p class="text-muted">monthly_pi_table.csv</p>
+                                            <input type="file" class="form-control mb-2" accept=".csv">
+                                            <button class="btn btn-sm btn-primary w-100">
+                                                <i class="fas fa-upload"></i> 업로드
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <h6>CSV 파일 형식</h6>
+                                <ul class="mb-0">
+                                    <li>UTF-8 인코딩 사용</li>
+                                    <li>첫 번째 행은 헤더</li>
+                                    <li>날짜 형식: YYYY-MM-DD</li>
+                                    <li>금액은 숫자만 (콤마 제외)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.nav-pills .nav-link {
+    color: #6c757d;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: all 0.3s;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: rgba(0, 212, 255, 0.1);
+    color: #00d4ff;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #00d4ff;
+    color: #000;
+}
+
+.form-control:focus {
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+}
+
+.table input[type="number"] {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.table input[type="number"]:focus {
+    background: rgba(0, 212, 255, 0.1);
+    border-color: #00d4ff;
+}
+</style>
+
+<script>
+function saveSettings() {
+    // Collect all settings data
+    const settings = {
+        baseSalary: collectBaseSalaryData(),
+        positionAllowance: collectPositionAllowanceData(),
+        competencyAllowance: collectCompetencyAllowanceData(),
+        pi: collectPIData(),
+        monthlyPI: collectMonthlyPIData()
+    };
+    
+    // Save via API
+    console.log('Saving settings:', settings);
+    
+    // Show success message
+    alert('설정이 저장되었습니다.');
+}
+
+function addBaseSalaryRow() {
+    const tbody = document.getElementById('baseSalaryTable');
+    const newRow = tbody.insertRow();
+    newRow.innerHTML = `
+        <td><input type="text" class="form-control" placeholder="GRD00"></td>
+        <td><input type="text" class="form-control" placeholder="0-0"></td>
+        <td><input type="text" class="form-control" placeholder="직급명"></td>
+        <td><input type="number" class="form-control" value="0"></td>
+        <td><input type="number" class="form-control" value="0"></td>
+        <td><input type="number" class="form-control" value="0"></td>
+        <td>
+            <button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+}
+
+function collectBaseSalaryData() {
+    const rows = document.querySelectorAll('#baseSalaryTable tr');
+    const data = [];
+    rows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        if (inputs.length > 0) {
+            data.push({
+                gradeCode: inputs[0]?.value,
+                level: inputs[1]?.value,
+                title: inputs[2]?.value,
+                regular: inputs[3]?.value,
+                nonPL: inputs[4]?.value,
+                pl: inputs[5]?.value
+            });
+        }
+    });
+    return data;
+}
+
+function collectPositionAllowanceData() {
+    // Collect position allowance settings
+    return {};
+}
+
+function collectCompetencyAllowanceData() {
+    // Collect competency allowance settings
+    return {};
+}
+
+function collectPIData() {
+    // Collect PI settings
+    return {};
+}
+
+function collectMonthlyPIData() {
+    // Collect monthly PI settings
+    return {};
+}
+</script>
+{% endblock %}

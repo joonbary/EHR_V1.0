@@ -1,0 +1,455 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}보상 대시보드 - EHR System{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">
+                    <i class="fas fa-chart-line"></i> 보상 대시보드
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">홈</a></li>
+                        <li class="breadcrumb-item active">보상 대시보드</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <select class="form-select" id="periodSelect" onchange="loadDashboardData()">
+                    <option value="2024-11">2024년 11월</option>
+                    <option value="2024-10">2024년 10월</option>
+                    <option value="2024-09">2024년 9월</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">평균 기본급</h6>
+                            <h3 class="mb-0">₩{{ avg_base_salary|floatformat:0|default:"0" }}</h3>
+                        </div>
+                        <div class="stats-icon bg-primary">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success">+3.5%</span>
+                        <small class="text-muted">전월 대비</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">평균 총 보상</h6>
+                            <h3 class="mb-0">₩{{ avg_total_compensation|floatformat:0|default:"0" }}</h3>
+                        </div>
+                        <div class="stats-icon bg-info">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success">+4.2%</span>
+                        <small class="text-muted">전월 대비</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">총 성과급</h6>
+                            <h3 class="mb-0">₩{{ total_pi|floatformat:0|default:"0" }}</h3>
+                        </div>
+                        <div class="stats-icon bg-warning">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-danger">-2.1%</span>
+                        <small class="text-muted">전월 대비</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">총 직원수</h6>
+                            <h3 class="mb-0">{{ total_employees|default:"0" }}명</h3>
+                        </div>
+                        <div class="stats-icon bg-success">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success">+12</span>
+                        <small class="text-muted">신규 채용</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <!-- Compensation Mix Chart -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">보상 구성 비율</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="compensationMixChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grade Distribution Chart -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">평가등급별 보상</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="gradeDistributionChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Section -->
+    <div class="row">
+        <!-- Department Compensation -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">부서별 평균 보상</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>부서</th>
+                                    <th>인원</th>
+                                    <th>평균 보상</th>
+                                    <th>변동</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>개발팀</td>
+                                    <td>45</td>
+                                    <td>₩6,800,000</td>
+                                    <td><span class="badge bg-success">+3.2%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>영업팀</td>
+                                    <td>120</td>
+                                    <td>₩5,400,000</td>
+                                    <td><span class="badge bg-success">+5.1%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>인사팀</td>
+                                    <td>25</td>
+                                    <td>₩5,200,000</td>
+                                    <td><span class="badge bg-danger">-1.2%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>재무팀</td>
+                                    <td>30</td>
+                                    <td>₩5,600,000</td>
+                                    <td><span class="badge bg-success">+2.8%</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performers -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">성과 상위자</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>순위</th>
+                                    <th>이름</th>
+                                    <th>부서</th>
+                                    <th>PI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-warning">1</span></td>
+                                    <td>김철수</td>
+                                    <td>영업팀</td>
+                                    <td>₩1,200,000</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-secondary">2</span></td>
+                                    <td>이영희</td>
+                                    <td>개발팀</td>
+                                    <td>₩1,100,000</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-secondary">3</span></td>
+                                    <td>박민수</td>
+                                    <td>기획팀</td>
+                                    <td>₩1,050,000</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>최지원</td>
+                                    <td>영업팀</td>
+                                    <td>₩980,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">빠른 작업</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{% url 'compensation:calculator' %}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-calculator"></i> 보상 계산기
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'compensation:reports' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-file-alt"></i> 리포트 생성
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'compensation:settings' %}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-cog"></i> 설정 관리
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success w-100" onclick="runMonthlyCalculation()">
+                                <i class="fas fa-sync"></i> 월별 계산 실행
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stats-card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+}
+
+.stats-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+}
+
+.card {
+    background: #1a1a2e;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.table {
+    color: #fff;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 212, 255, 0.1);
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize Charts
+document.addEventListener('DOMContentLoaded', function() {
+    initCompensationMixChart();
+    initGradeDistributionChart();
+    loadDashboardData();
+});
+
+function initCompensationMixChart() {
+    const ctx = document.getElementById('compensationMixChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['기본급', '고정OT', '직책급', '역량급', 'PI/월성과급'],
+            datasets: [{
+                data: [60, 12, 8, 5, 15],
+                backgroundColor: [
+                    '#00d4ff',
+                    '#00a8cc',
+                    '#007c99',
+                    '#005066',
+                    '#003344'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#fff',
+                        padding: 15
+                    }
+                }
+            }
+        }
+    });
+}
+
+function initGradeDistributionChart() {
+    const ctx = document.getElementById('gradeDistributionChart').getContext('2d');
+    
+    const gradeStats = {{ grade_stats|safe|default:"[]" }};
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: gradeStats.length > 0 ? gradeStats.map(s => s.grade) : ['S', 'A+', 'A', 'B+', 'B', 'C', 'D'],
+            datasets: [{
+                label: '평균 보상',
+                data: gradeStats.length > 0 ? gradeStats.map(s => s.avg_compensation) : [7500000, 6800000, 6200000, 5500000, 5000000, 4500000, 4000000],
+                backgroundColor: '#00d4ff',
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#fff',
+                        callback: function(value) {
+                            return '₩' + (value / 1000000).toFixed(1) + 'M';
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#fff'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function loadDashboardData() {
+    const period = document.getElementById('periodSelect').value;
+    
+    // Fetch dashboard data
+    fetch(`/compensation/api/dashboard-new/?period=${period}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update UI with fetched data
+            console.log('Dashboard data:', data);
+        })
+        .catch(error => {
+            console.error('Error loading dashboard data:', error);
+        });
+}
+
+function runMonthlyCalculation() {
+    const period = document.getElementById('periodSelect').value;
+    
+    if (confirm(`${period} 기간의 보상을 계산하시겠습니까?`)) {
+        fetch('/compensation/api/snapshot/run/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                period: period
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                alert('월별 계산이 완료되었습니다.');
+                loadDashboardData();
+            } else {
+                alert('계산 중 오류가 발생했습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('Error running calculation:', error);
+            alert('계산 실행에 실패했습니다.');
+        });
+    }
+}
+</script>
+{% endblock %}

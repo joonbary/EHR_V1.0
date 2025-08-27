@@ -1,0 +1,419 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}보상 리포트 - EHR System{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">
+                    <i class="fas fa-chart-bar"></i> 보상 리포트
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">홈</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'compensation:dashboard' %}">보상관리</a></li>
+                        <li class="breadcrumb-item active">보상 리포트</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        <i class="fas fa-file-export"></i> 리포트 생성
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> 인쇄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Filters -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">리포트 필터</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">기간 선택</label>
+                    <input type="month" class="form-control" id="reportPeriod" value="2024-11">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">리포트 유형</label>
+                    <select class="form-select" id="reportType">
+                        <option value="summary">보상 요약</option>
+                        <option value="detail">상세 내역</option>
+                        <option value="comparison">전월 비교</option>
+                        <option value="distribution">분포 분석</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">부서</label>
+                    <select class="form-select" id="department">
+                        <option value="">전체</option>
+                        <option value="dev">개발팀</option>
+                        <option value="sales">영업팀</option>
+                        <option value="hr">인사팀</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-info w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i> 필터 적용
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Content -->
+    <div class="row">
+        <!-- Summary Cards -->
+        <div class="col-md-3 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">총 인건비</h6>
+                            <h4 class="mb-0">₩<span id="totalCost">0</span></h4>
+                        </div>
+                        <div class="stats-icon bg-primary">
+                            <i class="fas fa-won-sign"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-arrow-up text-success"></i> 5.2% 전월 대비
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">평균 보상</h6>
+                            <h4 class="mb-0">₩<span id="avgCompensation">0</span></h4>
+                        </div>
+                        <div class="stats-icon bg-info">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-arrow-up text-success"></i> 3.1% 전월 대비
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">변동급 비율</h6>
+                            <h4 class="mb-0"><span id="variableRatio">15.3</span>%</h4>
+                        </div>
+                        <div class="stats-icon bg-warning">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-arrow-down text-danger"></i> 0.5% 전월 대비
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">대상 인원</h6>
+                            <h4 class="mb-0"><span id="employeeCount">0</span>명</h4>
+                        </div>
+                        <div class="stats-icon bg-success">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-arrow-up text-success"></i> 12명 증가
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Report Tables -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#summaryTab">
+                                요약 리포트
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#detailTab">
+                                상세 내역
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#analysisTab">
+                                분석 차트
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Summary Tab -->
+                        <div class="tab-pane fade show active" id="summaryTab">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>구분</th>
+                                            <th>인원</th>
+                                            <th>기본급 합계</th>
+                                            <th>수당 합계</th>
+                                            <th>변동급 합계</th>
+                                            <th>총 보상</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="summaryTableBody">
+                                        <tr>
+                                            <td>정규직</td>
+                                            <td>450</td>
+                                            <td>₩2,250,000,000</td>
+                                            <td>₩450,000,000</td>
+                                            <td>₩337,500,000</td>
+                                            <td>₩3,037,500,000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Non-PL</td>
+                                            <td>120</td>
+                                            <td>₩480,000,000</td>
+                                            <td>₩96,000,000</td>
+                                            <td>₩72,000,000</td>
+                                            <td>₩648,000,000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PL</td>
+                                            <td>80</td>
+                                            <td>₩400,000,000</td>
+                                            <td>₩80,000,000</td>
+                                            <td>₩120,000,000</td>
+                                            <td>₩600,000,000</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-primary">
+                                            <th>합계</th>
+                                            <th>650</th>
+                                            <th>₩3,130,000,000</th>
+                                            <th>₩626,000,000</th>
+                                            <th>₩529,500,000</th>
+                                            <th>₩4,285,500,000</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Detail Tab -->
+                        <div class="tab-pane fade" id="detailTab">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="직원명 또는 사번 검색">
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>사번</th>
+                                            <th>이름</th>
+                                            <th>부서</th>
+                                            <th>직급</th>
+                                            <th>기본급</th>
+                                            <th>고정OT</th>
+                                            <th>직책급</th>
+                                            <th>역량급</th>
+                                            <th>PI/월성과</th>
+                                            <th>총 보상</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detailTableBody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Tab -->
+                        <div class="tab-pane fade" id="analysisTab">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <canvas id="compensationChart"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <canvas id="distributionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stats-card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,212,255,0.2);
+}
+
+.stats-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: #00d4ff;
+    border-bottom-color: #00d4ff;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadReportData();
+    initCharts();
+});
+
+function loadReportData() {
+    const period = document.getElementById('reportPeriod').value;
+    
+    // Load summary data
+    fetch(`/compensation/api/kpi/mix-ratio/?period=${period}`)
+        .then(response => response.json())
+        .then(data => {
+            updateSummaryCards(data);
+        })
+        .catch(error => {
+            console.error('Error loading report data:', error);
+            // Use dummy data for demonstration
+            updateSummaryCards({
+                mix_ratio: {
+                    total_amount: 4285500000,
+                    employee_count: 650,
+                    variable_ratio: 15.3
+                }
+            });
+        });
+}
+
+function updateSummaryCards(data) {
+    document.getElementById('totalCost').textContent = (data.mix_ratio?.total_amount || 4285500000).toLocaleString();
+    document.getElementById('avgCompensation').textContent = ((data.mix_ratio?.total_amount || 4285500000) / (data.mix_ratio?.employee_count || 650)).toLocaleString();
+    document.getElementById('variableRatio').textContent = data.mix_ratio?.variable_ratio || 15.3;
+    document.getElementById('employeeCount').textContent = data.mix_ratio?.employee_count || 650;
+}
+
+function applyFilters() {
+    loadReportData();
+}
+
+function generateReport() {
+    const period = document.getElementById('reportPeriod').value;
+    const type = document.getElementById('reportType').value;
+    
+    // Generate Excel or PDF report
+    alert(`리포트 생성 중...\n기간: ${period}\n유형: ${type}`);
+}
+
+function initCharts() {
+    // Compensation Structure Chart
+    const ctx1 = document.getElementById('compensationChart');
+    if (ctx1) {
+        new Chart(ctx1.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['기본급', '고정OT', '직책급', '역량급', '변동급'],
+                datasets: [{
+                    data: [60, 12, 8, 5, 15],
+                    backgroundColor: [
+                        '#00d4ff',
+                        '#00a8cc',
+                        '#007c99',
+                        '#005066',
+                        '#002433'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '보상 구성 비율'
+                    }
+                }
+            }
+        });
+    }
+
+    // Distribution Chart
+    const ctx2 = document.getElementById('distributionChart');
+    if (ctx2) {
+        new Chart(ctx2.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['3M 이하', '3-4M', '4-5M', '5-6M', '6-7M', '7M 이상'],
+                datasets: [{
+                    label: '인원 분포',
+                    data: [45, 120, 180, 145, 95, 65],
+                    backgroundColor: '#00d4ff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '보상 구간별 인원 분포'
+                    }
+                }
+            }
+        });
+    }
+}
+</script>
+{% endblock %}
