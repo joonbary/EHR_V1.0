@@ -10,6 +10,7 @@ from core.views import under_construction
 from .views_test import test_database
 from . import views_debug
 from . import views_system_debug
+from . import views_deployment_debug
 
 app_name = 'employees'
 
@@ -80,6 +81,9 @@ urlpatterns = [
     # System debug views (Railway troubleshooting)
     path('system/debug/', views_system_debug.system_debug_info, name='system_debug_info'),
     path('system/force-load/', views_system_debug.force_load_employees, name='force_load_employees'),
+    
+    # Deployment debug
+    path('deployment/debug/', views_deployment_debug.deployment_debug, name='deployment_debug'),
 ]
 
 # 인재 관리 API URL 추가
