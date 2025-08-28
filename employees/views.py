@@ -706,7 +706,102 @@ def calculate_age(hire_date):
     return today.year - hire_date.year
 
 def organization_data_api(request):
-    """조직도 데이터 JSON API"""
+    """조직도 데이터 JSON API - OrganizationStructure 테이블 사용"""
+    
+    # 먼저 OrganizationStructure 데이터가 있는지 확인
+    try:
+        from employees.models_organization import OrganizationStructure
+    except ImportError:
+        # OrganizationStructure 모델이 없으면 기존 Employee 테이블 사용
+        return organization_data_api_legacy(request)
+    
+    # OrganizationStructure에 데이터가 있는지 확인
+    if not OrganizationStructure.objects.filter(status='active').exists():
+        # 데이터가 없으면 기존 Employee 테이블 사용
+        return organization_data_api_legacy(request)
+    
+    def build_org_tree(parent_id=None, processed=None):
+        if processed is None:
+            processed = set()
+        
+        # 순환 참조 방지
+        if parent_id and parent_id in processed:
+            return []
+        
+        if parent_id:
+            processed.add(parent_id)
+        
+        # 해당 부모의 하위 조직들 조회
+        orgs = OrganizationStructure.objects.filter(
+            parent_id=parent_id,
+            status='active'
+        ).order_by('sort_order', 'org_code')
+        
+        nodes = []
+        for org in orgs:
+            # 조직장 정보 가져오기
+            leader_info = None
+            if org.leader:
+                leader_info = {
+                    'name': org.leader.name,
+                    'position': org.leader.new_position,
+                    'email': org.leader.email,
+                    'phone': org.leader.phone
+                }
+            
+            # 해당 조직의 직원 수 계산
+            employee_count = 0
+            if hasattr(Employee, 'objects'):
+                # 조직명으로 직원 찾기 (본부, 부서, 팀 기준)
+                if org.org_level == 3:  # 본부
+                    employee_count = Employee.objects.filter(
+                        headquarters1=org.org_name,
+                        employment_status='재직'
+                    ).count()
+                elif org.org_level == 4:  # 부
+                    employee_count = Employee.objects.filter(
+                        headquarters2=org.org_name,
+                        employment_status='재직'
+                    ).count()
+                elif org.org_level == 5:  # 팀
+                    employee_count = Employee.objects.filter(
+                        final_department=org.org_name,
+                        employment_status='재직'
+                    ).count()
+            
+            node = {
+                'id': org.id,
+                'name': org.org_name,
+                'code': org.org_code,
+                'level': org.org_level,
+                'level_name': org.get_org_level_display() if hasattr(org, 'get_org_level_display') else str(org.org_level),
+                'position': leader_info['position'] if leader_info else '',
+                'department': org.full_path,
+                'leader': leader_info,
+                'employee_count': employee_count,
+                'description': org.description,
+                'status': org.status,
+                'children': build_org_tree(org.id, processed.copy())
+            }
+            nodes.append(node)
+        
+        return nodes
+    
+    try:
+        org_data = build_org_tree()
+        return JsonResponse({
+            'success': True,
+            'data': org_data,
+            'source': 'OrganizationStructure'  # 데이터 소스 표시
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+def organization_data_api_legacy(request):
+    """조직도 데이터 JSON API - 레거시 버전 (Employee 테이블 사용)"""
     def build_tree(manager_id=None, processed=None):
         if processed is None:
             processed = set()
@@ -752,7 +847,8 @@ def organization_data_api(request):
         org_data = build_tree()
         return JsonResponse({
             'success': True,
-            'data': org_data
+            'data': org_data,
+            'source': 'Employee'  # 데이터 소스 표시
         })
     except Exception as e:
         return JsonResponse({

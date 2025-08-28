@@ -215,6 +215,14 @@
             <button class="control-btn" id="collapse-all">전체 접기</button>
             <button class="control-btn" id="reset-zoom">원본 크기</button>
             <button class="control-btn" id="center-view">중앙 정렬</button>
+            <a href="{% url 'employees:organization_structure_upload' %}" class="control-btn" style="text-decoration: none; display: inline-block;">
+                <i class="fas fa-upload"></i> 조직도 업로드
+            </a>
+        </div>
+        
+        <!-- 데이터 소스 표시 -->
+        <div id="data-source-info" style="text-align: center; margin: 1rem 0; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+            <i class="fas fa-database"></i> 데이터 소스: <span id="data-source">로딩 중...</span>
         </div>
 
         <div class="zoom-info">
@@ -283,6 +291,19 @@ class OrganizationChart {
             
             if (result.success) {
                 this.data = result.data;
+                
+                // 데이터 소스 표시
+                const sourceEl = document.getElementById('data-source');
+                if (sourceEl) {
+                    if (result.source === 'OrganizationStructure') {
+                        sourceEl.textContent = '업로드된 조직 구조';
+                        sourceEl.style.color = '#00d4ff';
+                    } else {
+                        sourceEl.textContent = '직원 데이터베이스';
+                        sourceEl.style.color = '#ffa500';
+                    }
+                }
+                
                 this.render();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('org-chart-svg').style.display = 'block';
@@ -295,6 +316,13 @@ class OrganizationChart {
             const errorEl = document.getElementById('error-message');
             errorEl.textContent = error.message;
             errorEl.style.display = 'block';
+            
+            // 에러 시 데이터 소스 표시
+            const sourceEl = document.getElementById('data-source');
+            if (sourceEl) {
+                sourceEl.textContent = '데이터 없음';
+                sourceEl.style.color = '#ff4444';
+            }
         }
     }
     
@@ -359,7 +387,14 @@ class OrganizationChart {
         nodeEnter.append('text')
             .attr('class', 'department')
             .attr('dy', '15px')
-            .text(d => `${d.data.department || ''} | Level ${d.data.level || ''}`);
+            .text(d => {
+                // OrganizationStructure 데이터 형식 처리
+                if (d.data.code) {
+                    return `${d.data.code} | ${d.data.level_name || `Level ${d.data.level}`}`;
+                }
+                // 기존 Employee 데이터 형식 처리
+                return `${d.data.department || ''} | Level ${d.data.level || ''}`;
+            });
         
         // 노드 업데이트
         const nodeUpdate = nodeEnter.merge(node);
