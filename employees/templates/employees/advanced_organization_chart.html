@@ -1009,15 +1009,7 @@ function renderCompactView() {
 
 // 노드 렌더링 여부 확인
 function shouldRenderNode(node) {
-    // Progressive Disclosure: 펼쳐진 부모의 자식만 표시
-    if (node.parentId) {
-        const parent = OrgChartState.nodes.get(node.parentId);
-        if (!parent || !OrgChartState.expandedNodes.has(node.parentId)) {
-            return false;
-        }
-    }
-    
-    // 레벨 필터 적용
+    // 레벨 필터가 활성화된 경우 먼저 확인
     if (OrgChartState.currentLevel !== 'all') {
         console.log(`Filtering node ${node.name} (type: ${node.type}) with filter: ${OrgChartState.currentLevel}`);
         
@@ -1043,11 +1035,49 @@ function shouldRenderNode(node) {
                 shouldShow = true;
         }
         
-        console.log(`Node ${node.name} - Show: ${shouldShow}`);
-        return shouldShow;
+        console.log(`Node ${node.name} - Level Filter Show: ${shouldShow}`);
+        
+        // 레벨 필터에서 보여야 하는 노드면 부모 체인도 자동 확장
+        if (shouldShow) {
+            ensureParentChainExpanded(node);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    // Progressive Disclosure: 펼쳐진 부모의 자식만 표시 (레벨 필터가 없을 때만)
+    if (node.parentId) {
+        const parent = OrgChartState.nodes.get(node.parentId);
+        if (!parent || !OrgChartState.expandedNodes.has(node.parentId)) {
+            return false;
+        }
     }
     
     return true;
+}
+
+// 부모 체인을 자동으로 확장
+function ensureParentChainExpanded(node) {
+    let currentNode = node;
+    const nodesToExpand = [];
+    
+    // 루트까지 부모 체인을 추적
+    while (currentNode.parentId) {
+        const parent = OrgChartState.nodes.get(currentNode.parentId);
+        if (parent) {
+            nodesToExpand.push(parent.id);
+            currentNode = parent;
+        } else {
+            break;
+        }
+    }
+    
+    // 모든 부모 노드를 확장된 상태로 설정
+    nodesToExpand.forEach(nodeId => {
+        OrgChartState.expandedNodes.add(nodeId);
+        console.log(`Auto-expanded parent node: ${nodeId}`);
+    });
 }
 
 // 엣지 렌더링 여부 확인
@@ -1419,7 +1449,42 @@ function updateLevelFilter(level) {
         btn.classList.toggle('active', btn.dataset.level === level);
     });
     
+    // 레벨 필터 변경 시 expandedNodes 초기화하고 필요한 노드들만 확장
+    if (level !== 'all') {
+        OrgChartState.expandedNodes.clear();
+        console.log('Cleared expandedNodes for level filtering');
+        
+        // 필터에 맞는 모든 노드들의 부모 체인을 미리 확장
+        OrgChartState.nodes.forEach(node => {
+            let shouldShow = false;
+            switch(level) {
+                case 'executive':
+                    shouldShow = node.type === 'company' || node.type === 'division';
+                    break;
+                case 'division':
+                    shouldShow = node.type === 'company' || node.type === 'division';
+                    break;
+                case 'department':
+                    shouldShow = node.type === 'company' || node.type === 'division' || node.type === 'department';
+                    break;
+                case 'team':
+                    shouldShow = node.type !== 'person';
+                    break;
+            }
+            
+            if (shouldShow) {
+                ensureParentChainExpanded(node);
+            }
+        });
+    } else {
+        // 'all' 레벨인 경우 루트 노드만 확장된 상태로 초기화
+        OrgChartState.expandedNodes.clear();
+        OrgChartState.expandedNodes.add('OK금융그룹');
+        console.log('Reset to default Progressive Disclosure mode');
+    }
+    
     console.log('Current state after level filter update:', OrgChartState.currentLevel);
+    console.log('Expanded nodes:', Array.from(OrgChartState.expandedNodes));
     renderChart();
 }
 
