@@ -532,6 +532,8 @@ import json
 
 def org_tree_api(request):
     """조직 트리 데이터 API - Lazy Loading 지원"""
+    from django.http import JsonResponse
+    
     depth = int(request.GET.get('depth', 2))
     node_id = request.GET.get('node_id', None)
     
@@ -648,6 +650,8 @@ def org_tree_api(request):
 
 def org_search_api(request):
     """조직도 검색 API"""
+    from django.http import JsonResponse
+    
     query = request.GET.get('q', '').strip()
     
     if len(query) < 2:

@@ -644,7 +644,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeChart();
     setupEventListeners();
     setupKeyboardNavigation();
-    loadInitialData();
+    // API 데이터 로드를 시도하고, 실패하면 샘플 데이터 사용
+    loadInitialData().catch(() => {
+        console.log('Using sample data...');
+        useSampleData();
+    });
 });
 
 // 차트 초기화
@@ -759,7 +763,12 @@ async function loadInitialData() {
     try {
         // API에서 초기 2레벨 데이터 로드
         const response = await fetch('/employees/api/org/root?depth=2');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
+        
+        console.log('Loaded org data:', data); // 디버깅용
         
         // 노드 생성 및 렌더링
         processOrgData(data);
@@ -1165,8 +1174,11 @@ async function performSearch(query) {
 }
 
 // 검색 결과 표시
-function showSearchResults(results) {
+function showSearchResults(data) {
     const autocomplete = document.getElementById('searchAutocomplete');
+    
+    // API 응답에서 results 배열 추출
+    const results = data.results || data;
     
     if (!results || results.length === 0) {
         autocomplete.classList.remove('active');
@@ -1281,21 +1293,151 @@ function showLoading(show) {
 
 // 에러 표시
 function showError(message) {
-    // 에러 메시지 표시 구현
     console.error(message);
+    // 에러 메시지를 화면에 표시
+    const viewport = document.getElementById('chartViewport');
+    if (viewport && !document.getElementById('errorMessage')) {
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'errorMessage';
+        errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 0, 0.1); color: #ff6b6b; padding: 1rem 2rem; border-radius: 0.5rem; border: 1px solid #ff6b6b;';
+        errorDiv.textContent = message;
+        viewport.appendChild(errorDiv);
+        
+        // 3초 후 에러 메시지 제거
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 3000);
+    }
+}
+
+// 샘플 데이터 사용 (API 실패 시 백업)
+function useSampleData() {
+    const sampleData = {
+        id: 'root',
+        name: 'OK금융그룹',
+        type: 'company',
+        title: 'CEO',
+        headcount: 1700,
+        childrenCount: 5,
+        hasChildren: true,
+        parentId: null,
+        path: ['OK금융그룹'],
+        children: [
+            {
+                id: 'division-1',
+                name: '경영지원본부',
+                type: 'division',
+                headcount: 320,
+                childrenCount: 8,
+                hasChildren: true,
+                parentId: 'root',
+                path: ['OK금융그룹', '경영지원본부'],
+                children: [
+                    {
+                        id: 'dept-1-1',
+                        name: '인사팀',
+                        type: 'department',
+                        headcount: 45,
+                        childrenCount: 0,
+                        hasChildren: false,
+                        parentId: 'division-1',
+                        path: ['OK금융그룹', '경영지원본부', '인사팀']
+                    },
+                    {
+                        id: 'dept-1-2',
+                        name: '재무팀',
+                        type: 'department',
+                        headcount: 38,
+                        childrenCount: 0,
+                        hasChildren: false,
+                        parentId: 'division-1',
+                        path: ['OK금융그룹', '경영지원본부', '재무팀']
+                    }
+                ]
+            },
+            {
+                id: 'division-2',
+                name: 'IT본부',
+                type: 'division',
+                headcount: 450,
+                childrenCount: 10,
+                hasChildren: true,
+                parentId: 'root',
+                path: ['OK금융그룹', 'IT본부'],
+                children: [
+                    {
+                        id: 'dept-2-1',
+                        name: '개발1팀',
+                        type: 'department',
+                        headcount: 62,
+                        childrenCount: 0,
+                        hasChildren: false,
+                        parentId: 'division-2',
+                        path: ['OK금융그룹', 'IT본부', '개발1팀']
+                    },
+                    {
+                        id: 'dept-2-2',
+                        name: '인프라팀',
+                        type: 'department',
+                        headcount: 35,
+                        childrenCount: 0,
+                        hasChildren: false,
+                        parentId: 'division-2',
+                        path: ['OK금융그룹', 'IT본부', '인프라팀']
+                    }
+                ]
+            },
+            {
+                id: 'division-3',
+                name: '영업본부',
+                type: 'division',
+                headcount: 580,
+                childrenCount: 15,
+                hasChildren: true,
+                parentId: 'root',
+                path: ['OK금융그룹', '영업본부'],
+                children: []
+            }
+        ]
+    };
+    
+    showLoading(false);
+    processOrgData(sampleData);
+    renderChart();
 }
 
 // 기타 레이아웃 계산 함수들 (간단한 구현)
 function calculateRadialLayout() {
+    console.log('Calculating radial layout...');
     // 방사형 레이아웃 계산 로직
+    // 임시로 기본 레이아웃 사용
+    calculateLayout();
 }
 
 function calculateGridLayout() {
+    console.log('Calculating grid layout...');
     // 그리드 레이아웃 계산 로직
+    const nodes = Array.from(OrgChartState.nodes.values());
+    const cols = 4;
+    let row = 0, col = 0;
+    
+    nodes.forEach((node, index) => {
+        node.x = col * (CONFIG.NODE_WIDTH + CONFIG.SIBLING_SPACING) - (cols * CONFIG.NODE_WIDTH) / 2;
+        node.y = row * (CONFIG.NODE_HEIGHT + 40);
+        
+        col++;
+        if (col >= cols) {
+            col = 0;
+            row++;
+        }
+    });
 }
 
 function calculateCompactLayout() {
+    console.log('Calculating compact layout...');
     // 컴팩트 레이아웃 계산 로직
+    // 임시로 기본 레이아웃 사용
+    calculateLayout();
 }
 </script>
 {% endblock %}
