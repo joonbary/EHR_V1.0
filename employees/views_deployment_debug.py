@@ -9,16 +9,34 @@ import os
 def deployment_debug(request):
     """배포 환경 디버그 정보"""
     
-    # URL 패턴 확인
-    resolver = get_resolver()
+    # URL 패턴 확인 - 더 정확한 방법
+    from django.urls import reverse, NoReverseMatch
     url_patterns = []
+    url_names = []
     
-    # employees 앱의 URL 패턴만 추출
-    for pattern in resolver.url_patterns:
-        if hasattr(pattern, 'pattern'):
-            pattern_str = str(pattern.pattern)
-            if 'employees/' in pattern_str:
-                url_patterns.append(pattern_str)
+    # employees 앱의 실제 URL 체크
+    try:
+        # employees 앱의 urlpatterns 직접 확인
+        from employees import urls as employees_urls
+        for pattern in employees_urls.urlpatterns:
+            if hasattr(pattern, 'pattern'):
+                url_patterns.append(str(pattern.pattern))
+                if hasattr(pattern, 'name'):
+                    url_names.append(pattern.name)
+    except Exception as e:
+        url_patterns = [f"Error loading patterns: {e}"]
+    
+    # 특정 URL reverse 테스트
+    specific_urls = {}
+    try:
+        specific_urls['advanced_org_chart'] = reverse('employees:advanced_organization_chart')
+    except NoReverseMatch:
+        specific_urls['advanced_org_chart'] = 'Not found'
+    
+    try:
+        specific_urls['org_tree_api'] = reverse('employees:org_tree_api')
+    except NoReverseMatch:
+        specific_urls['org_tree_api'] = 'Not found'
     
     # 시스템 정보
     debug_info = {
@@ -26,7 +44,9 @@ def deployment_debug(request):
         'python_version': sys.version,
         'django_version': '5.0.1',
         'working_directory': os.getcwd(),
-        'employees_urls': url_patterns[:20],  # 처음 20개만
+        'employees_url_patterns': url_patterns[:30],  # 처음 30개
+        'employees_url_names': url_names[:30],
+        'specific_urls': specific_urls,
         'advanced_org_chart_available': 'advanced-org-chart/' in str(url_patterns),
         'api_org_root_available': 'api/org/root' in str(url_patterns),
         'environment': os.environ.get('RAILWAY_ENVIRONMENT', 'unknown'),
