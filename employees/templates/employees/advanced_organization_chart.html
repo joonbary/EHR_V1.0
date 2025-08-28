@@ -618,7 +618,7 @@ const OrgChartState = {
     currentLevel: 'all',
     zoomLevel: 100,
     focusedNode: null,
-    expandedNodes: new Set(['root', 'division-1', 'division-2']), // 초기 2레벨만 펼침
+    expandedNodes: new Set(['OK금융그룹']), // 루트 노드만 초기 펼침
     searchQuery: '',
     nodes: new Map(),
     edges: [],
@@ -1561,7 +1561,7 @@ function showError(message) {
 // 샘플 데이터 사용 (API 실패 시 백업)
 function useSampleData() {
     const sampleData = {
-        id: 'root',
+        id: 'OK금융그룹',
         name: 'OK금융그룹',
         type: 'company',
         title: 'CEO',
