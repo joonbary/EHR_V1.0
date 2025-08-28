@@ -1,0 +1,1109 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}조직도 - OK금융그룹{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/revolutionary-design-system.css' %}">
+<style>
+    /* Revolutionary Organization Chart v3 - Improved Layout */
+    .org-chart-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        position: relative;
+    }
+
+    /* View Mode Selector */
+    .view-mode-selector {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        background: rgba(26, 31, 46, 0.95);
+        padding: 0.5rem;
+        border-radius: 15px;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .view-mode-btn {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        color: rgba(255, 255, 255, 0.7);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .view-mode-btn:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+
+    .view-mode-btn.active {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #0a0f1b;
+        border-color: transparent;
+    }
+
+    /* Vertical Layout (Default) */
+    .org-container-vertical {
+        position: relative;
+        padding: 2rem;
+        min-height: 600px;
+    }
+
+    .level-container {
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .level-header {
+        background: linear-gradient(90deg, rgba(0, 212, 255, 0.2) 0%, transparent 100%);
+        border-left: 4px solid #00d4ff;
+        padding: 0.75rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0 10px 10px 0;
+    }
+
+    .level-title {
+        font-size: 1.2rem;
+        color: #00d4ff;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .level-nodes {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        padding-left: 2rem;
+    }
+
+    /* Compact Grid Layout */
+    .org-container-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        padding: 2rem;
+    }
+
+    /* Radial/Mind Map Layout */
+    .org-container-radial {
+        position: relative;
+        width: 100%;
+        height: 800px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .radial-center {
+        position: absolute;
+        z-index: 10;
+    }
+
+    .radial-ring {
+        position: absolute;
+        border: 1px dashed rgba(0, 212, 255, 0.2);
+        border-radius: 50%;
+    }
+
+    .radial-node {
+        position: absolute;
+        transform: translate(-50%, -50%);
+    }
+
+    /* Enhanced Node Card */
+    .org-node-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(10, 15, 27, 0.95) 100%);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.25rem;
+        min-width: 260px;
+        max-width: 320px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .org-node-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        border-color: #00d4ff;
+        box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
+    }
+
+    .org-node-card.focused {
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.3);
+    }
+
+    .node-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .node-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #0a0f1b;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+
+    .node-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .node-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .node-position {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .node-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .node-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.5rem;
+        background: rgba(0, 212, 255, 0.05);
+        border-radius: 8px;
+    }
+
+    .node-stat-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #00d4ff;
+    }
+
+    .node-stat-label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 0.25rem;
+    }
+
+    /* Level Tabs */
+    .level-tabs {
+        display: flex;
+        background: rgba(26, 31, 46, 0.95);
+        border-radius: 15px;
+        padding: 0.5rem;
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        gap: 0.5rem;
+    }
+
+    .level-tab {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .level-tab:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+
+    .level-tab.active {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #0a0f1b;
+        border-color: transparent;
+    }
+
+    .level-tab .badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+
+    .level-tab.active .badge {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Mini Map */
+    .minimap {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 200px;
+        height: 150px;
+        background: rgba(26, 31, 46, 0.95);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 0.5rem;
+        z-index: 100;
+        backdrop-filter: blur(10px);
+    }
+
+    .minimap-title {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .minimap-content {
+        width: 100%;
+        height: calc(100% - 1.5rem);
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .minimap-node {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: #00d4ff;
+        border-radius: 50%;
+    }
+
+    .minimap-viewport {
+        position: absolute;
+        border: 2px solid #00d4ff;
+        background: rgba(0, 212, 255, 0.1);
+        pointer-events: none;
+    }
+
+    /* Breadcrumb Navigation */
+    .breadcrumb-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background: rgba(26, 31, 46, 0.95);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        overflow-x: auto;
+    }
+
+    .breadcrumb-item {
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: color 0.3s ease;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .breadcrumb-item:hover {
+        color: #00d4ff;
+    }
+
+    .breadcrumb-item.active {
+        color: #00d4ff;
+        font-weight: 600;
+    }
+
+    .breadcrumb-separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Zoom Controls */
+    .zoom-controls {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(26, 31, 46, 0.95);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        z-index: 100;
+    }
+
+    .zoom-btn {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 8px;
+        color: #00d4ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .zoom-btn:hover {
+        background: rgba(0, 212, 255, 0.2);
+        transform: scale(1.1);
+    }
+
+    .zoom-level {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.75rem;
+        padding: 0.25rem;
+    }
+
+    /* Search Results */
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(26, 31, 46, 0.98);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        margin-top: 0.5rem;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+    }
+
+    .search-result-item {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .search-result-item:hover {
+        background: rgba(0, 212, 255, 0.1);
+    }
+
+    .search-result-name {
+        color: #00d4ff;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .search-result-path {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+    }
+
+    /* Focus Mode */
+    .focus-mode .org-node-card:not(.focused) {
+        opacity: 0.3;
+        filter: blur(1px);
+    }
+
+    .focus-mode .org-node-card.related {
+        opacity: 0.7;
+        filter: none;
+    }
+
+    /* Loading State */
+    @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+    }
+
+    .skeleton {
+        animation: pulse 2s infinite;
+        background: linear-gradient(90deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 212, 255, 0.2) 50%, rgba(0, 212, 255, 0.1) 100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="org-chart-page">
+    <div class="container-fluid px-4">
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2 text-white mb-0">
+                <i class="fas fa-sitemap me-2" style="color: #00d4ff;"></i>
+                조직도
+            </h1>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" onclick="showHelp()">
+                    <i class="fas fa-question-circle"></i> 도움말
+                </button>
+                <a href="{% url 'employees:organization_structure_upload' %}" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> 조직도 업로드
+                </a>
+            </div>
+        </div>
+
+        <!-- View Mode Selector -->
+        <div class="view-mode-selector">
+            <button class="view-mode-btn active" data-mode="vertical">
+                <i class="fas fa-bars"></i> 수직 레이아웃
+            </button>
+            <button class="view-mode-btn" data-mode="grid">
+                <i class="fas fa-th"></i> 그리드 뷰
+            </button>
+            <button class="view-mode-btn" data-mode="radial">
+                <i class="fas fa-circle-notch"></i> 방사형 뷰
+            </button>
+            <button class="view-mode-btn" data-mode="compact">
+                <i class="fas fa-compress-alt"></i> 컴팩트 뷰
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="position-relative mb-3">
+            <input type="text" class="form-control bg-dark text-white border-secondary" 
+                   id="searchInput" 
+                   placeholder="🔍 이름, 부서, 직급으로 검색..."
+                   style="padding: 0.75rem 1rem; border-radius: 10px;">
+            <div id="searchResults" class="search-results d-none"></div>
+        </div>
+
+        <!-- Level Tabs -->
+        <div class="level-tabs" id="levelTabs">
+            <div class="level-tab active" data-level="all">
+                전체 <span class="badge">0</span>
+            </div>
+            <div class="level-tab" data-level="1">
+                임원진 <span class="badge">0</span>
+            </div>
+            <div class="level-tab" data-level="2">
+                본부장 <span class="badge">0</span>
+            </div>
+            <div class="level-tab" data-level="3">
+                부서장 <span class="badge">0</span>
+            </div>
+            <div class="level-tab" data-level="4">
+                팀장 <span class="badge">0</span>
+            </div>
+            <div class="level-tab" data-level="5">
+                팀원 <span class="badge">0</span>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb-nav" id="breadcrumbNav">
+            <div class="breadcrumb-item active">
+                <i class="fas fa-home"></i>
+                <span>전체 조직</span>
+            </div>
+        </div>
+
+        <!-- Main Organization Container -->
+        <div class="bg-dark border border-secondary rounded-4 p-4 position-relative" style="min-height: 600px;">
+            <div id="orgContainer" class="org-container-vertical">
+                <!-- Organization content will be loaded here -->
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-5 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted mt-3">조직도를 불러오는 중...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-5 d-none">
+                <i class="fas fa-sitemap fa-4x text-muted mb-3"></i>
+                <h3 class="text-muted">조직도 데이터가 없습니다</h3>
+                <p class="text-muted">조직 구조를 업로드하여 시작하세요.</p>
+                <a href="{% url 'employees:organization_structure_upload' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-upload"></i> 조직도 업로드
+                </a>
+            </div>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomIn()">
+                <i class="fas fa-plus"></i>
+            </button>
+            <div class="zoom-level" id="zoomLevel">100%</div>
+            <button class="zoom-btn" onclick="zoomOut()">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="zoom-btn" onclick="resetZoom()">
+                <i class="fas fa-compress"></i>
+            </button>
+        </div>
+
+        <!-- Mini Map -->
+        <div class="minimap" id="minimap">
+            <div class="minimap-title">미니맵</div>
+            <div class="minimap-content" id="minimapContent">
+                <div class="minimap-viewport"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global Variables
+let orgData = [];
+let currentView = 'vertical';
+let currentLevel = 'all';
+let currentZoom = 100;
+let focusedNode = null;
+let searchResults = [];
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEventListeners();
+    loadOrganizationData();
+});
+
+// Initialize Event Listeners
+function initializeEventListeners() {
+    // View Mode Buttons
+    document.querySelectorAll('.view-mode-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            changeViewMode(e.target.dataset.mode);
+        });
+    });
+
+    // Level Tabs
+    document.querySelectorAll('.level-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            filterByLevel(e.currentTarget.dataset.level);
+        });
+    });
+
+    // Search Input
+    const searchInput = document.getElementById('searchInput');
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch(e.target.value);
+        }, 300);
+    });
+
+    // Click outside to close search results
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#searchInput') && !e.target.closest('#searchResults')) {
+            document.getElementById('searchResults').classList.add('d-none');
+        }
+    });
+}
+
+// Load Organization Data
+async function loadOrganizationData() {
+    showLoading(true);
+    
+    try {
+        const response = await fetch('{% url "employees:organization_data_api" %}');
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.length > 0) {
+            orgData = processOrgData(result.data);
+            updateLevelCounts();
+            renderOrganization();
+            showLoading(false);
+        } else {
+            showEmptyState();
+        }
+    } catch (error) {
+        console.error('Error loading organization data:', error);
+        showEmptyState();
+    }
+}
+
+// Process Organization Data
+function processOrgData(data) {
+    // Add level information and flatten structure for easy access
+    const processed = [];
+    
+    function processNode(node, level = 1, path = []) {
+        const processedNode = {
+            ...node,
+            level: node.level || level,
+            path: [...path, node.name],
+            pathString: [...path, node.name].join(' > ')
+        };
+        
+        processed.push(processedNode);
+        
+        if (node.children && node.children.length > 0) {
+            processedNode.children = node.children.map(child => 
+                processNode(child, level + 1, processedNode.path)
+            );
+        }
+        
+        return processedNode;
+    }
+    
+    return data.map(node => processNode(node));
+}
+
+// Change View Mode
+function changeViewMode(mode) {
+    currentView = mode;
+    
+    // Update button states
+    document.querySelectorAll('.view-mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    
+    // Update container class
+    const container = document.getElementById('orgContainer');
+    container.className = `org-container-${mode}`;
+    
+    // Re-render organization
+    renderOrganization();
+}
+
+// Filter by Level
+function filterByLevel(level) {
+    currentLevel = level;
+    
+    // Update tab states
+    document.querySelectorAll('.level-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.level === level);
+    });
+    
+    // Re-render organization
+    renderOrganization();
+}
+
+// Render Organization
+function renderOrganization() {
+    const container = document.getElementById('orgContainer');
+    container.innerHTML = '';
+    
+    switch(currentView) {
+        case 'vertical':
+            renderVerticalView(container);
+            break;
+        case 'grid':
+            renderGridView(container);
+            break;
+        case 'radial':
+            renderRadialView(container);
+            break;
+        case 'compact':
+            renderCompactView(container);
+            break;
+    }
+}
+
+// Render Vertical View (Improved)
+function renderVerticalView(container) {
+    const levels = groupByLevel(orgData);
+    
+    Object.keys(levels).sort().forEach(level => {
+        if (currentLevel !== 'all' && level !== currentLevel) return;
+        
+        const levelContainer = document.createElement('div');
+        levelContainer.className = 'level-container';
+        
+        const levelHeader = document.createElement('div');
+        levelHeader.className = 'level-header';
+        levelHeader.innerHTML = `<div class="level-title">${getLevelName(level)} (${levels[level].length}명)</div>`;
+        
+        const levelNodes = document.createElement('div');
+        levelNodes.className = 'level-nodes';
+        
+        levels[level].forEach(node => {
+            levelNodes.appendChild(createNodeCard(node));
+        });
+        
+        levelContainer.appendChild(levelHeader);
+        levelContainer.appendChild(levelNodes);
+        container.appendChild(levelContainer);
+    });
+}
+
+// Render Grid View
+function renderGridView(container) {
+    const nodes = currentLevel === 'all' 
+        ? flattenNodes(orgData)
+        : flattenNodes(orgData).filter(n => n.level == currentLevel);
+    
+    nodes.forEach(node => {
+        container.appendChild(createNodeCard(node));
+    });
+}
+
+// Render Radial View
+function renderRadialView(container) {
+    // Create center node
+    const center = document.createElement('div');
+    center.className = 'radial-center';
+    center.appendChild(createNodeCard({
+        name: 'OK금융그룹',
+        position: 'CEO',
+        level: 0
+    }));
+    container.appendChild(center);
+    
+    // Create rings for each level
+    const levels = groupByLevel(orgData);
+    let ringRadius = 150;
+    
+    Object.keys(levels).forEach((level, index) => {
+        const ring = document.createElement('div');
+        ring.className = 'radial-ring';
+        ring.style.width = `${ringRadius * 2}px`;
+        ring.style.height = `${ringRadius * 2}px`;
+        ring.style.left = `50%`;
+        ring.style.top = `50%`;
+        ring.style.transform = 'translate(-50%, -50%)';
+        container.appendChild(ring);
+        
+        const nodes = levels[level];
+        const angleStep = (2 * Math.PI) / nodes.length;
+        
+        nodes.forEach((node, i) => {
+            const angle = i * angleStep;
+            const x = Math.cos(angle) * ringRadius;
+            const y = Math.sin(angle) * ringRadius;
+            
+            const nodeEl = document.createElement('div');
+            nodeEl.className = 'radial-node';
+            nodeEl.style.left = `50%`;
+            nodeEl.style.top = `50%`;
+            nodeEl.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+            nodeEl.appendChild(createNodeCard(node, true));
+            container.appendChild(nodeEl);
+        });
+        
+        ringRadius += 200;
+    });
+}
+
+// Render Compact View
+function renderCompactView(container) {
+    const tree = document.createElement('div');
+    tree.style.display = 'flex';
+    tree.style.flexDirection = 'column';
+    tree.style.gap = '1rem';
+    
+    function renderLevel(nodes, depth = 0) {
+        const levelDiv = document.createElement('div');
+        levelDiv.style.display = 'flex';
+        levelDiv.style.gap = '1rem';
+        levelDiv.style.paddingLeft = `${depth * 2}rem`;
+        levelDiv.style.flexWrap = 'wrap';
+        
+        nodes.forEach(node => {
+            const card = createNodeCard(node, true);
+            card.style.minWidth = '200px';
+            levelDiv.appendChild(card);
+            
+            if (node.children && node.children.length > 0) {
+                tree.appendChild(renderLevel(node.children, depth + 1));
+            }
+        });
+        
+        return levelDiv;
+    }
+    
+    tree.appendChild(renderLevel(orgData));
+    container.appendChild(tree);
+}
+
+// Create Node Card
+function createNodeCard(node, compact = false) {
+    const card = document.createElement('div');
+    card.className = 'org-node-card';
+    if (focusedNode === node.id) {
+        card.classList.add('focused');
+    }
+    
+    // Header
+    const header = document.createElement('div');
+    header.className = 'node-header';
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'node-avatar';
+    avatar.textContent = node.name ? node.name.substring(0, 2) : '조직';
+    
+    const info = document.createElement('div');
+    info.className = 'node-info';
+    info.innerHTML = `
+        <div class="node-name">${node.name || '이름 없음'}</div>
+        <div class="node-position">${node.position || node.code || ''}</div>
+    `;
+    
+    header.appendChild(avatar);
+    header.appendChild(info);
+    card.appendChild(header);
+    
+    // Stats (if not compact)
+    if (!compact && (node.employee_count !== undefined || node.children)) {
+        const stats = document.createElement('div');
+        stats.className = 'node-stats';
+        
+        if (node.employee_count !== undefined) {
+            stats.innerHTML += `
+                <div class="node-stat">
+                    <div class="node-stat-value">${node.employee_count}</div>
+                    <div class="node-stat-label">인원</div>
+                </div>
+            `;
+        }
+        
+        if (node.children) {
+            stats.innerHTML += `
+                <div class="node-stat">
+                    <div class="node-stat-value">${node.children.length}</div>
+                    <div class="node-stat-label">하위</div>
+                </div>
+            `;
+        }
+        
+        card.appendChild(stats);
+    }
+    
+    // Click handler
+    card.addEventListener('click', () => {
+        selectNode(node);
+    });
+    
+    return card;
+}
+
+// Select Node
+function selectNode(node) {
+    focusedNode = node.id;
+    
+    // Update breadcrumb
+    updateBreadcrumb(node.path || [node.name]);
+    
+    // Update focus styles
+    document.querySelectorAll('.org-node-card').forEach(card => {
+        card.classList.remove('focused', 'related');
+    });
+    
+    // Re-render to show focus
+    renderOrganization();
+}
+
+// Update Breadcrumb
+function updateBreadcrumb(path) {
+    const breadcrumb = document.getElementById('breadcrumbNav');
+    breadcrumb.innerHTML = '';
+    
+    path.forEach((item, index) => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'breadcrumb-item';
+        if (index === path.length - 1) {
+            itemEl.classList.add('active');
+        }
+        
+        itemEl.innerHTML = `<span>${item}</span>`;
+        breadcrumb.appendChild(itemEl);
+        
+        if (index < path.length - 1) {
+            const separator = document.createElement('div');
+            separator.className = 'breadcrumb-separator';
+            separator.textContent = '>';
+            breadcrumb.appendChild(separator);
+        }
+    });
+}
+
+// Perform Search
+function performSearch(query) {
+    if (!query) {
+        document.getElementById('searchResults').classList.add('d-none');
+        return;
+    }
+    
+    const results = [];
+    const searchLower = query.toLowerCase();
+    
+    function searchNodes(nodes) {
+        nodes.forEach(node => {
+            if ((node.name && node.name.toLowerCase().includes(searchLower)) ||
+                (node.position && node.position.toLowerCase().includes(searchLower)) ||
+                (node.department && node.department.toLowerCase().includes(searchLower))) {
+                results.push(node);
+            }
+            
+            if (node.children) {
+                searchNodes(node.children);
+            }
+        });
+    }
+    
+    searchNodes(orgData);
+    displaySearchResults(results);
+}
+
+// Display Search Results
+function displaySearchResults(results) {
+    const resultsContainer = document.getElementById('searchResults');
+    
+    if (results.length === 0) {
+        resultsContainer.classList.add('d-none');
+        return;
+    }
+    
+    resultsContainer.innerHTML = '';
+    resultsContainer.classList.remove('d-none');
+    
+    results.slice(0, 10).forEach(result => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `
+            <div class="search-result-name">${result.name}</div>
+            <div class="search-result-path">${result.pathString || ''}</div>
+        `;
+        item.addEventListener('click', () => {
+            selectNode(result);
+            document.getElementById('searchResults').classList.add('d-none');
+            document.getElementById('searchInput').value = '';
+        });
+        resultsContainer.appendChild(item);
+    });
+}
+
+// Zoom Functions
+function zoomIn() {
+    currentZoom = Math.min(200, currentZoom + 10);
+    applyZoom();
+}
+
+function zoomOut() {
+    currentZoom = Math.max(50, currentZoom - 10);
+    applyZoom();
+}
+
+function resetZoom() {
+    currentZoom = 100;
+    applyZoom();
+}
+
+function applyZoom() {
+    const container = document.getElementById('orgContainer');
+    container.style.transform = `scale(${currentZoom / 100})`;
+    container.style.transformOrigin = 'top center';
+    document.getElementById('zoomLevel').textContent = `${currentZoom}%`;
+}
+
+// Utility Functions
+function groupByLevel(nodes) {
+    const groups = {};
+    
+    function collectNodes(nodeList) {
+        nodeList.forEach(node => {
+            const level = node.level || 1;
+            if (!groups[level]) {
+                groups[level] = [];
+            }
+            groups[level].push(node);
+            
+            if (node.children) {
+                collectNodes(node.children);
+            }
+        });
+    }
+    
+    collectNodes(nodes);
+    return groups;
+}
+
+function flattenNodes(nodes) {
+    const flat = [];
+    
+    function flatten(nodeList) {
+        nodeList.forEach(node => {
+            flat.push(node);
+            if (node.children) {
+                flatten(node.children);
+            }
+        });
+    }
+    
+    flatten(nodes);
+    return flat;
+}
+
+function getLevelName(level) {
+    const names = {
+        '1': '임원진',
+        '2': '본부장',
+        '3': '부서장',
+        '4': '팀장',
+        '5': '팀원'
+    };
+    return names[level] || `Level ${level}`;
+}
+
+function updateLevelCounts() {
+    const levels = groupByLevel(orgData);
+    let total = 0;
+    
+    document.querySelectorAll('.level-tab').forEach(tab => {
+        const level = tab.dataset.level;
+        if (level === 'all') {
+            tab.querySelector('.badge').textContent = flattenNodes(orgData).length;
+        } else {
+            const count = levels[level] ? levels[level].length : 0;
+            tab.querySelector('.badge').textContent = count;
+            total += count;
+        }
+    });
+}
+
+function showLoading(show) {
+    document.getElementById('loadingState').classList.toggle('d-none', !show);
+    document.getElementById('orgContainer').classList.toggle('d-none', show);
+}
+
+function showEmptyState() {
+    document.getElementById('loadingState').classList.add('d-none');
+    document.getElementById('orgContainer').classList.add('d-none');
+    document.getElementById('emptyState').classList.remove('d-none');
+}
+
+function showHelp() {
+    alert(`조직도 사용법:
+    
+1. 레이아웃 선택: 수직, 그리드, 방사형, 컴팩트 중 선택
+2. 레벨별 필터: 임원진, 본부장, 부서장, 팀장, 팀원별로 필터링
+3. 검색: 이름, 부서, 직급으로 빠른 검색
+4. 줌: +/- 버튼으로 확대/축소
+5. 미니맵: 전체 구조를 한눈에 보기
+6. 노드 클릭: 상세 정보 및 관계 보기`);
+}
+</script>
+{% endblock %}
