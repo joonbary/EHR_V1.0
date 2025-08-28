@@ -210,28 +210,40 @@
         flex: 1;
         position: relative;
         overflow-y: auto;
-        overflow-x: hidden; /* 가로 스크롤 방지 */
-        padding: 2rem;
+        overflow-x: auto; /* 가로 스크롤도 허용 (필요시) */
+        padding: 1rem;
+        background: linear-gradient(to bottom, 
+            rgba(10, 15, 27, 0.9),
+            rgba(26, 31, 46, 0.95));
     }
 
     /* 트리 컨테이너 */
     .tree-container {
         min-height: 100%;
+        min-width: 1400px; /* 최소 너비 보장 */
         position: relative;
         transition: transform 0.3s ease;
         transform-origin: top center;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     /* 노드 스타일 */
     .org-node {
         position: absolute;
-        background: rgba(26, 31, 46, 0.9);
+        background: rgba(26, 31, 46, 0.95);
         border: 1px solid rgba(0, 212, 255, 0.3);
         border-radius: 0.75rem;
-        padding: 1rem;
-        min-width: 200px;
+        padding: 0.875rem;
+        min-width: 160px;
+        max-width: 200px;
         cursor: pointer;
         transition: all 0.3s ease;
+        font-size: 0.875rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .org-node:hover {
@@ -628,15 +640,16 @@ const OrgChartState = {
 // 상수 정의
 const CONFIG = {
     MAX_VISIBLE_SIBLINGS: 12, // 최대 표시 형제 노드 수
-    NODE_WIDTH: 200,
-    NODE_HEIGHT: 120,
-    LEVEL_SPACING: 150,
-    SIBLING_SPACING: 20,
-    ZOOM_MIN: 50,
+    NODE_WIDTH: 180,  // 노드 너비 축소
+    NODE_HEIGHT: 100, // 노드 높이 축소
+    LEVEL_SPACING: 140,  // 레벨 간격 조정
+    SIBLING_SPACING: 15, // 형제 간격 축소
+    ZOOM_MIN: 30,  // 더 작게 축소 가능
     ZOOM_MAX: 200,
     ZOOM_STEP: 10,
     SEARCH_DELAY: 300,
     ANIMATION_DURATION: 300,
+    MAX_WIDTH_PER_LEVEL: 1200, // 레벨당 최대 너비 제한
 };
 
 // 초기화
@@ -849,25 +862,76 @@ function processOrgData(data) {
 
 // 레이아웃 계산 (Vertical Tree)
 function calculateLayout() {
-    const levels = new Map();
+    const levelMap = new Map();
+    let maxDepth = 0;
     
-    // 레벨별로 노드 그룹화
-    OrgChartState.nodes.forEach(node => {
-        if (!levels.has(node.level)) {
-            levels.set(node.level, []);
+    // 실제 트리 깊이 계산 및 레벨별로 노드 그룹화
+    function calculateDepth(node, depth = 0) {
+        node.treeDepth = depth;
+        maxDepth = Math.max(maxDepth, depth);
+        
+        if (!levelMap.has(depth)) {
+            levelMap.set(depth, []);
         }
-        levels.get(node.level).push(node);
+        levelMap.get(depth).push(node);
+        
+        // 자식 노드들의 깊이 계산
+        OrgChartState.nodes.forEach(childNode => {
+            if (childNode.parentId === node.id) {
+                calculateDepth(childNode, depth + 1);
+            }
+        });
+    }
+    
+    // 루트 노드부터 시작
+    OrgChartState.nodes.forEach(node => {
+        if (!node.parentId) {
+            calculateDepth(node, 0);
+        }
     });
     
-    // 각 레벨의 노드 위치 계산
-    levels.forEach((nodes, level) => {
-        const totalWidth = nodes.length * (CONFIG.NODE_WIDTH + CONFIG.SIBLING_SPACING);
-        const startX = -totalWidth / 2;
-        
-        nodes.forEach((node, index) => {
-            node.x = startX + index * (CONFIG.NODE_WIDTH + CONFIG.SIBLING_SPACING) + CONFIG.NODE_WIDTH / 2;
-            node.y = level * CONFIG.LEVEL_SPACING;
-        });
+    // 계층적 위치 계산 (부모 노드 중심으로 자식들 배치)
+    levelMap.forEach((nodes, depth) => {
+        if (depth === 0) {
+            // 루트 노드는 중앙에
+            nodes.forEach(node => {
+                node.x = 0;
+                node.y = 0;
+            });
+        } else {
+            // 부모별로 자식 노드 그룹화
+            const parentGroups = new Map();
+            nodes.forEach(node => {
+                const parentId = node.parentId;
+                if (!parentGroups.has(parentId)) {
+                    parentGroups.set(parentId, []);
+                }
+                parentGroups.get(parentId).push(node);
+            });
+            
+            // 각 부모 아래 자식들 배치
+            parentGroups.forEach((children, parentId) => {
+                const parent = OrgChartState.nodes.get(parentId);
+                if (parent) {
+                    const childCount = children.length;
+                    const spacing = CONFIG.NODE_WIDTH + CONFIG.SIBLING_SPACING;
+                    
+                    // 자식이 많을 때는 더 촘촘하게 배치
+                    const adjustedSpacing = childCount > 5 ? spacing * 0.8 : spacing;
+                    const totalWidth = childCount * adjustedSpacing;
+                    
+                    // 최대 너비 제한
+                    const maxWidth = CONFIG.MAX_WIDTH_PER_LEVEL;
+                    const scale = totalWidth > maxWidth ? maxWidth / totalWidth : 1;
+                    
+                    children.forEach((child, index) => {
+                        const offset = (index - (childCount - 1) / 2) * adjustedSpacing * scale;
+                        child.x = parent.x + offset;
+                        child.y = depth * CONFIG.LEVEL_SPACING;
+                    });
+                }
+            });
+        }
     });
     
     // 엣지 생성
@@ -917,15 +981,37 @@ function renderChart() {
 // 세로형 뷰 렌더링
 function renderVerticalView() {
     const container = document.getElementById('treeContainer');
-    const viewportWidth = document.getElementById('chartViewport').offsetWidth;
-    const centerX = viewportWidth / 2;
+    const viewport = document.getElementById('chartViewport');
+    const viewportWidth = viewport.offsetWidth;
+    
+    // 컨테이너 최소 크기 설정
+    let minX = 0, maxX = 0, maxY = 0;
+    
+    // 노드 위치 범위 계산
+    OrgChartState.nodes.forEach(node => {
+        if (shouldRenderNode(node)) {
+            minX = Math.min(minX, node.x);
+            maxX = Math.max(maxX, node.x);
+            maxY = Math.max(maxY, node.y);
+        }
+    });
+    
+    // 컨테이너 크기 설정
+    const containerWidth = Math.max(viewportWidth, (maxX - minX) + CONFIG.NODE_WIDTH + 200);
+    const containerHeight = maxY + CONFIG.NODE_HEIGHT + 200;
+    
+    container.style.width = `${containerWidth}px`;
+    container.style.height = `${containerHeight}px`;
+    
+    // 중앙 정렬 오프셋
+    const offsetX = containerWidth / 2;
     
     // 노드 렌더링
     OrgChartState.nodes.forEach(node => {
         if (shouldRenderNode(node)) {
             const nodeElement = createNodeElement(node);
-            nodeElement.style.left = `${centerX + node.x - CONFIG.NODE_WIDTH / 2}px`;
-            nodeElement.style.top = `${node.y}px`;
+            nodeElement.style.left = `${offsetX + node.x - CONFIG.NODE_WIDTH / 2}px`;
+            nodeElement.style.top = `${node.y + 50}px`; // 상단 여백
             container.appendChild(nodeElement);
         }
     });
@@ -933,10 +1019,15 @@ function renderVerticalView() {
     // 엣지 렌더링
     OrgChartState.edges.forEach(edge => {
         if (shouldRenderEdge(edge)) {
-            const edgeElement = createEdgeElement(edge, centerX);
+            const edgeElement = createEdgeElement(edge, offsetX);
             container.appendChild(edgeElement);
         }
     });
+    
+    // 초기 줌 설정 - 팀 레벨일 때 자동 축소
+    if (OrgChartState.currentLevel === 'team') {
+        updateZoom(50); // 50% 로 자동 축소
+    }
 }
 
 // 그리드 뷰 렌더링
@@ -1505,6 +1596,27 @@ function updateLevelFilter(level) {
     
     console.log('Current state after level filter update:', OrgChartState.currentLevel);
     console.log('Expanded nodes:', Array.from(OrgChartState.expandedNodes));
+    
+    // 레벨에 따른 자동 줌 조정
+    let autoZoom = 100;
+    switch(level) {
+        case 'executive':
+            autoZoom = 100;  // 임원급은 100%
+            break;
+        case 'division':
+            autoZoom = 90;   // 본부급은 90%
+            break;
+        case 'department':
+            autoZoom = 70;   // 부서급은 70%
+            break;
+        case 'team':
+            autoZoom = 50;   // 팀급은 50%로 축소
+            break;
+        default:
+            autoZoom = 80;   // 전체는 80%
+    }
+    
+    updateZoom(autoZoom);
     renderChart();
 }
 
