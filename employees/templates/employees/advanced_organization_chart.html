@@ -779,7 +779,7 @@ async function loadInitialData() {
     
     try {
         // API에서 초기 2레벨 데이터 로드
-        const response = await fetch('/employees/api/org/root?depth=2');
+        const response = await fetch('/employees/api/org/root?depth=5');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

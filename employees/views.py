@@ -530,7 +530,7 @@ def advanced_organization_chart(request):
 from django.db.models import Count, Q
 import json
 
-def org_tree_api(request):
+def org_tree_api(request, node_id=None):
     """조직 트리 데이터 API - 실제 조직구조 데이터 사용"""
     from django.http import JsonResponse
     
@@ -543,14 +543,12 @@ def org_tree_api(request):
         except Exception as db_error:
             print(f"OrganizationStructure table not accessible: {db_error}")
             # 테이블이 없거나 접근할 수 없으면 샘플 데이터 사용
-            node_id = request.GET.get('node_id', None)
             if node_id and node_id != 'root':
                 return JsonResponse({'children': []})
             else:
                 return JsonResponse(get_sample_org_data())
         
         depth = int(request.GET.get('depth', 2))
-        node_id = request.GET.get('node_id', None)
         
         def build_tree_from_org_structure(parent_id=None, current_depth=0):
             """실제 OrganizationStructure에서 트리 구조 생성"""
@@ -624,22 +622,39 @@ def org_tree_api(request):
         
         # 특정 노드 요청인지 전체 트리 요청인지 확인
         if node_id and node_id != 'root':
+            print(f"Loading children for node_id: {node_id}, type: {type(node_id)}")
             # 특정 노드의 자식들만 반환
             try:
                 # node_id를 정수로 변환 시도
                 try:
                     node_id_int = int(node_id)
-                except ValueError:
-                    return JsonResponse({'error': 'Invalid node ID format'}, status=400)
+                    print(f"Converted node_id to int: {node_id_int}")
+                except ValueError as ve:
+                    print(f"ValueError converting node_id: {node_id}, error: {ve}")
+                    return JsonResponse({'error': f'Invalid node ID format: {node_id}'}, status=400)
                 
-                parent_org = OrganizationStructure.objects.get(id=node_id_int, status='active')
+                # 조직 존재 확인
+                try:
+                    parent_org = OrganizationStructure.objects.get(id=node_id_int, status='active')
+                    print(f"Found parent org: {parent_org.org_name}")
+                except OrganizationStructure.DoesNotExist:
+                    print(f"OrganizationStructure with id={node_id_int} and status='active' not found")
+                    # status 상관없이 다시 시도
+                    try:
+                        parent_org = OrganizationStructure.objects.get(id=node_id_int)
+                        print(f"Found parent org (any status): {parent_org.org_name}, status: {parent_org.status}")
+                    except OrganizationStructure.DoesNotExist:
+                        print(f"OrganizationStructure with id={node_id_int} not found at all")
+                        return JsonResponse({'error': f'Node not found: {node_id}'}, status=404)
+                
                 tree_data = build_tree_from_org_structure(node_id_int, 0)
+                print(f"Built tree data with {len(tree_data)} children")
                 return JsonResponse({'children': tree_data})
-            except OrganizationStructure.DoesNotExist:
-                return JsonResponse({'error': 'Node not found'}, status=404)
             except Exception as e:
                 print(f"Error loading node children for node_id {node_id}: {e}")
-                return JsonResponse({'error': 'Failed to load node children'}, status=500)
+                import traceback
+                traceback.print_exc()
+                return JsonResponse({'error': f'Failed to load node children: {str(e)}'}, status=500)
         else:
             # 전체 트리 구조 반환
             tree_data = build_tree_from_org_structure(None, 0)
