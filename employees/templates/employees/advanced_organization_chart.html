@@ -1261,16 +1261,36 @@ async function toggleNode(nodeId) {
 async function loadNodeChildren(nodeId) {
     try {
         const response = await fetch(`/employees/api/org/node/${nodeId}?depth=1`);
+        
+        // 응답 상태 확인
+        if (!response.ok) {
+            console.error(`HTTP Error: ${response.status} ${response.statusText}`);
+            return;
+        }
+        
         const data = await response.json();
+        
+        // 에러 응답 확인
+        if (data.error) {
+            console.error('API Error:', data.error);
+            return;
+        }
         
         const node = OrgChartState.nodes.get(nodeId);
         if (node && data.children) {
             node.children = data.children;
             processOrgData({ ...node, children: data.children });
             calculateLayout();
+            console.log(`Successfully loaded ${data.children.length} children for node ${nodeId}`);
+        } else {
+            console.log(`No children found for node ${nodeId}`);
         }
     } catch (error) {
         console.error('Failed to load node children:', error);
+        console.error('Node ID:', nodeId);
+        
+        // 사용자에게 알림 (선택적)
+        // alert(`자식 노드를 로드하는데 실패했습니다: ${error.message}`);
     }
 }
 

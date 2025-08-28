@@ -537,6 +537,18 @@ def org_tree_api(request):
     try:
         from employees.models_organization import OrganizationStructure
         
+        # 테이블 존재 여부 확인
+        try:
+            OrganizationStructure.objects.count()
+        except Exception as db_error:
+            print(f"OrganizationStructure table not accessible: {db_error}")
+            # 테이블이 없거나 접근할 수 없으면 샘플 데이터 사용
+            node_id = request.GET.get('node_id', None)
+            if node_id and node_id != 'root':
+                return JsonResponse({'children': []})
+            else:
+                return JsonResponse(get_sample_org_data())
+        
         depth = int(request.GET.get('depth', 2))
         node_id = request.GET.get('node_id', None)
         
@@ -614,11 +626,20 @@ def org_tree_api(request):
         if node_id and node_id != 'root':
             # 특정 노드의 자식들만 반환
             try:
-                parent_org = OrganizationStructure.objects.get(id=node_id, status='active')
-                tree_data = build_tree_from_org_structure(node_id, 0)
+                # node_id를 정수로 변환 시도
+                try:
+                    node_id_int = int(node_id)
+                except ValueError:
+                    return JsonResponse({'error': 'Invalid node ID format'}, status=400)
+                
+                parent_org = OrganizationStructure.objects.get(id=node_id_int, status='active')
+                tree_data = build_tree_from_org_structure(node_id_int, 0)
                 return JsonResponse({'children': tree_data})
             except OrganizationStructure.DoesNotExist:
                 return JsonResponse({'error': 'Node not found'}, status=404)
+            except Exception as e:
+                print(f"Error loading node children for node_id {node_id}: {e}")
+                return JsonResponse({'error': 'Failed to load node children'}, status=500)
         else:
             # 전체 트리 구조 반환
             tree_data = build_tree_from_org_structure(None, 0)
@@ -636,8 +657,14 @@ def org_tree_api(request):
         return JsonResponse(get_sample_org_data())
     except Exception as e:
         print(f"Error in org_tree_api: {e}")
-        # 오류 발생 시 샘플 데이터 사용
-        return JsonResponse(get_sample_org_data())
+        import traceback
+        traceback.print_exc()
+        # 오류 발생 시 적절한 응답 반환
+        if node_id and node_id != 'root':
+            return JsonResponse({'error': f'Failed to load node children: {str(e)}'}, status=500)
+        else:
+            # 전체 트리 요청 시에만 샘플 데이터 사용
+            return JsonResponse(get_sample_org_data())
 
 def get_sample_org_data():
     """샘플 조직 데이터 반환"""
