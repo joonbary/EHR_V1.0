@@ -1,56 +1,209 @@
 {% extends 'base_revolutionary.html' %}
 {% load static %}
 
-{% block title %}보상 계산기 - EHR System{% endblock %}
+{% block title %}보상 계산기 - Revolutionary Design{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/revolutionary-design-system.css' %}">
+<style>
+/* Calculator Specific Styles */
+.calculator-page {
+    min-height: 100vh;
+    position: relative;
+}
+
+.calculator-hero {
+    background: 
+        linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.05) 100%),
+        var(--bg-gradient);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl);
+    margin-bottom: var(--spacing-2xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.calculator-hero::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+    animation: rotate-slow 20s linear infinite;
+    top: -25%;
+    left: -25%;
+}
+
+.employee-select-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    backdrop-filter: blur(10px);
+    transition: var(--transition-smooth);
+}
+
+.employee-select-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+}
+
+.employee-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.employee-item:hover {
+    background: rgba(0, 212, 255, 0.1);
+    border-color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.employee-item.active {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 153, 255, 0.1) 100%);
+    border-color: var(--primary-color);
+    box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.calculation-display {
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.total-compensation {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #00d4ff, #00ff88);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+    margin-bottom: var(--spacing-md);
+}
+
+.compensation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition-fast);
+}
+
+.compensation-item:hover {
+    background: rgba(0, 212, 255, 0.05);
+    border-color: var(--primary-color);
+    transform: scale(1.02);
+}
+
+.compensation-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.compensation-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.formula-display {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    font-family: 'Courier New', monospace;
+    color: var(--primary-color);
+    margin-top: var(--spacing-md);
+}
+
+/* Animated Background */
+.calc-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.02;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 35px,
+        rgba(0, 212, 255, 0.1) 35px,
+        rgba(0, 212, 255, 0.1) 70px
+    );
+    animation: slide 20s linear infinite;
+}
+
+@keyframes slide {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(70px); }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <!-- Page Header -->
-    <div class="page-header mb-4">
-        <div class="row align-items-center">
-            <div class="col">
-                <h1 class="page-title">
-                    <i class="fas fa-calculator"></i> 보상 계산기
+<div class="calculator-page">
+    <div class="calc-pattern"></div>
+    
+    <div class="container-fluid px-4 main-content">
+        <!-- Hero Section -->
+        <div class="calculator-hero fade-in">
+            <div class="hero-content" style="position: relative; z-index: 2;">
+                <h1 class="hero-title gradient-text text-center">
+                    <i class="fas fa-calculator"></i> AI 보상 계산기
                 </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'home' %}">홈</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'compensation:dashboard' %}">보상관리</a></li>
-                        <li class="breadcrumb-item active">보상 계산기</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-primary" onclick="runCalculation()">
-                    <i class="fas fa-play"></i> 계산 실행
-                </button>
+                <p class="hero-subtitle text-center" style="color: var(--text-secondary); margin-top: var(--spacing-md); letter-spacing: 2px; text-transform: uppercase;">
+                    Smart Compensation Calculator
+                </p>
+                <div class="text-center mt-4">
+                    <button class="btn-revolutionary" onclick="runCalculation()">
+                        <i class="fas fa-play"></i> 실시간 계산 실행
+                    </button>
+                    <button class="btn-outline-revolutionary ms-3" onclick="exportResults()">
+                        <i class="fas fa-download"></i> 결과 내보내기
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Calculator Section -->
-    <div class="row">
-        <!-- Employee Selection -->
-        <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">직원 선택</h5>
-                </div>
-                <div class="card-body">
+        <!-- Calculator Section -->
+        <div class="row mt-4">
+            <!-- Employee Selection -->
+            <div class="col-lg-4">
+                <div class="employee-select-card animate-slide-up animate-delay-1">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="section-title" style="font-size: 20px; margin-bottom: 0;">직원 선택</h3>
+                        <span class="pulse-dot"></span>
+                    </div>
                     <form id="calculatorForm">
                         <div class="mb-3">
-                            <label for="employeeSearch" class="form-label">직원 검색</label>
-                            <input type="text" class="form-control" id="employeeSearch" 
+                            <label for="employeeSearch" class="form-label-revolutionary">직원 검색</label>
+                            <input type="text" class="form-control-revolutionary" id="employeeSearch" 
                                    placeholder="이름 또는 사번으로 검색">
                         </div>
                         <div class="mb-3">
-                            <label for="payPeriod" class="form-label">급여 기간</label>
-                            <input type="month" class="form-control" id="payPeriod" 
+                            <label for="payPeriod" class="form-label-revolutionary">급여 기간</label>
+                            <input type="month" class="form-control-revolutionary" id="payPeriod" 
                                    value="{{ current_period }}">
                         </div>
                         <div class="mb-3">
-                            <label for="employmentType" class="form-label">고용 형태</label>
-                            <select class="form-select" id="employmentType">
+                            <label for="employmentType" class="form-label-revolutionary">고용 형태</label>
+                            <select class="form-control-revolutionary" id="employmentType">
                                 <option value="">전체</option>
                                 <option value="정규직">정규직</option>
                                 <option value="Non-PL">Non-PL</option>
@@ -61,112 +214,194 @@
                     </form>
 
                     <!-- Employee List -->
-                    <div class="employee-list mt-3" style="max-height: 400px; overflow-y: auto;">
-                        <div class="list-group" id="employeeList">
-                            <!-- Dynamic employee list -->
+                    <div class="employee-list mt-4" style="max-height: 400px; overflow-y: auto;">
+                        <div id="employeeList">
+                            <!-- Sample Employee Items -->
+                            <div class="employee-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong style="color: var(--text-primary);">김철수</strong>
+                                        <small class="d-block" style="color: var(--text-muted);">개발팀 · S등급</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="gradient-text">₩7.5M</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="employee-item active">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong style="color: var(--text-primary);">이영희</strong>
+                                        <small class="d-block" style="color: var(--text-muted);">영업팀 · A등급</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="gradient-text">₩6.2M</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- More employee items will be dynamically added -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculation Details -->
+            <div class="col-lg-8">
+                <div class="calculation-display animate-slide-up animate-delay-2">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="section-title" style="font-size: 20px; margin-bottom: 0;">보상 계산 상세</h3>
+                        <div>
+                            <span class="badge" style="background: var(--primary-gradient); padding: 8px 16px; border-radius: 20px;">
+                                <i class="fas fa-check-circle"></i> 실시간 계산
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div id="calculationDetails">
+                        <!-- Total Compensation Display -->
+                        <div class="text-center mb-4">
+                            <p class="text-muted mb-2">총 보상액</p>
+                            <div class="total-compensation">
+                                ₩ 6,200,000
+                            </div>
+                            <div class="metric-change positive" style="display: inline-flex;">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>전월 대비 +3.2%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Compensation Breakdown -->
+                        <div class="compensation-breakdown mt-5">
+                            <h4 style="color: var(--text-primary); font-size: 18px; margin-bottom: var(--spacing-lg);">구성 항목</h4>
+                            
+                            <div class="compensation-item">
+                                <div>
+                                    <div class="compensation-label">기본급</div>
+                                    <small style="color: var(--text-muted);">Base Salary</small>
+                                </div>
+                                <div class="compensation-value">₩3,720,000</div>
+                            </div>
+                            
+                            <div class="compensation-item">
+                                <div>
+                                    <div class="compensation-label">고정 OT</div>
+                                    <small style="color: var(--text-muted);">Fixed Overtime</small>
+                                </div>
+                                <div class="compensation-value">₩744,000</div>
+                            </div>
+                            
+                            <div class="compensation-item">
+                                <div>
+                                    <div class="compensation-label">직책급</div>
+                                    <small style="color: var(--text-muted);">Position Allowance</small>
+                                </div>
+                                <div class="compensation-value">₩496,000</div>
+                            </div>
+                            
+                            <div class="compensation-item">
+                                <div>
+                                    <div class="compensation-label">역량급</div>
+                                    <small style="color: var(--text-muted);">Skill Allowance</small>
+                                </div>
+                                <div class="compensation-value">₩310,000</div>
+                            </div>
+                            
+                            <div class="compensation-item">
+                                <div>
+                                    <div class="compensation-label">성과급</div>
+                                    <small style="color: var(--text-muted);">Performance Incentive</small>
+                                </div>
+                                <div class="compensation-value">₩930,000</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Formula Display -->
+                        <div class="formula-display">
+                            <strong>계산식:</strong><br>
+                            기본급(3,720,000) × 1.0 + 고정OT(20%) + 직책급(496,000) + 역량급(310,000) + PI(25%)
+                        </div>
+                    </div>
+                </div>
+
+                
+                <!-- Additional Stats -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="metric-card" style="height: 100%;">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="metric-value">62.5%</div>
+                            <div class="metric-label">기본급 비율</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="metric-card" style="height: 100%;">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="metric-value">15%</div>
+                            <div class="metric-label">성과급 비율</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Calculation Details -->
-        <div class="col-lg-8">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">보상 계산 상세</h5>
-                </div>
-                <div class="card-body" id="calculationDetails">
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-user-circle fa-3x mb-3"></i>
-                        <p>직원을 선택하면 보상 계산 내역이 표시됩니다.</p>
-                    </div>
-                </div>
-            </div>
+        <!-- Simulation Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="revolutionary-card animate-slide-up animate-delay-3">
+                    <h3 class="section-title" style="font-size: 20px;">
+                        <i class="fas fa-chart-line" style="color: var(--primary-color);"></i> 보상 시뮬레이션
+                    </h3>
+                    <div class="mt-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label-revolutionary">성장레벨 변경</label>
+                                <select class="form-control-revolutionary" id="simGrowthLevel">
+                                    <option value="">현재 유지</option>
+                                    <option value="1">레벨 1</option>
+                                    <option value="2">레벨 2</option>
+                                    <option value="3">레벨 3</option>
+                                    <option value="4">레벨 4</option>
+                                    <option value="5">레벨 5</option>
+                                    <option value="6">레벨 6</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label-revolutionary">평가등급 변경</label>
+                                <select class="form-control-revolutionary" id="simEvalGrade">
+                                    <option value="">현재 유지</option>
+                                    <option value="S">S</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A">A</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label-revolutionary">직책 변경</label>
+                                <select class="form-control-revolutionary" id="simPosition">
+                                    <option value="">현재 유지</option>
+                                    <option value="POS01">팀장</option>
+                                    <option value="POS02">부문장</option>
+                                    <option value="POS03">본부장</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn-revolutionary w-100" onclick="runSimulation()">
+                                    <i class="fas fa-sync"></i> 시뮬레이션 실행
+                                </button>
+                            </div>
+                        </div>
 
-            <!-- Calculation Breakdown -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">계산 내역</h5>
-                </div>
-                <div class="card-body" id="calculationBreakdown">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>구분</th>
-                                <th>항목</th>
-                                <th class="text-end">금액</th>
-                                <th>산식</th>
-                            </tr>
-                        </thead>
-                        <tbody id="breakdownTable">
-                            <tr>
-                                <td colspan="4" class="text-center text-muted">
-                                    계산 결과가 여기에 표시됩니다.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Simulation Section -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-line"></i> 시뮬레이션
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label class="form-label">성장레벨 변경</label>
-                            <select class="form-select" id="simGrowthLevel">
-                                <option value="">현재 유지</option>
-                                <option value="1">레벨 1</option>
-                                <option value="2">레벨 2</option>
-                                <option value="3">레벨 3</option>
-                                <option value="4">레벨 4</option>
-                                <option value="5">레벨 5</option>
-                                <option value="6">레벨 6</option>
-                            </select>
+                        <!-- Simulation Results -->
+                        <div class="mt-4" id="simulationResults">
+                            <!-- Dynamic simulation results -->
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">평가등급 변경</label>
-                            <select class="form-select" id="simEvalGrade">
-                                <option value="">현재 유지</option>
-                                <option value="S">S</option>
-                                <option value="A+">A+</option>
-                                <option value="A">A</option>
-                                <option value="B+">B+</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
-                                <option value="D">D</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">직책 변경</label>
-                            <select class="form-select" id="simPosition">
-                                <option value="">현재 유지</option>
-                                <option value="POS01">팀장</option>
-                                <option value="POS02">부문장</option>
-                                <option value="POS03">본부장</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 d-flex align-items-end">
-                            <button class="btn btn-info w-100" onclick="runSimulation()">
-                                <i class="fas fa-sync"></i> 시뮬레이션 실행
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Simulation Results -->
-                    <div class="mt-4" id="simulationResults">
-                        <!-- Dynamic simulation results -->
                     </div>
                 </div>
             </div>

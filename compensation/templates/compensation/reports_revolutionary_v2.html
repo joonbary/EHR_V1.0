@@ -1,0 +1,645 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}보상 리포트 - Revolutionary Design{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/revolutionary-design-system.css' %}">
+<style>
+/* Reports Page Specific Styles */
+.reports-page {
+    min-height: 100vh;
+    position: relative;
+}
+
+.reports-hero {
+    background: 
+        linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.05) 100%),
+        var(--bg-gradient);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl);
+    margin-bottom: var(--spacing-2xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.reports-hero::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 60%);
+    animation: rotate-slow 25s linear infinite;
+    top: -50%;
+    left: -50%;
+}
+
+.report-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    backdrop-filter: blur(10px);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+    height: 100%;
+}
+
+.report-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: var(--primary-color);
+    box-shadow: 
+        0 20px 40px rgba(0, 212, 255, 0.3),
+        inset 0 0 30px rgba(0, 212, 255, 0.1);
+}
+
+.report-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-gradient);
+    border-radius: var(--radius-lg);
+    font-size: 32px;
+    color: var(--bg-dark);
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+}
+
+.report-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.report-description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.report-stats {
+    display: flex;
+    justify-content: space-between;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.filter-card {
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.preview-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    backdrop-filter: blur(10px);
+    min-height: 600px;
+    position: relative;
+    overflow: hidden;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+    margin-bottom: var(--spacing-lg);
+}
+
+.export-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Chart Styles */
+.chart-container {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+}
+
+.chart-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(0, 212, 255, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Data Table Styles */
+.data-table-container {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .reports-page {
+        background: white !important;
+    }
+    
+    .report-card,
+    .preview-section {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Animated Background Pattern */
+.report-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.03;
+    pointer-events: none;
+    background-image: 
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 50px,
+            rgba(0, 212, 255, 0.05) 50px,
+            rgba(0, 212, 255, 0.05) 100px
+        );
+    animation: slide 10s linear infinite;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reports-page">
+    <div class="report-pattern"></div>
+    
+    <div class="container-fluid px-4 main-content">
+        <!-- Hero Section -->
+        <div class="reports-hero fade-in">
+            <div class="hero-content" style="position: relative; z-index: 2;">
+                <h1 class="hero-title gradient-text text-center">
+                    <i class="fas fa-chart-bar"></i> 보상 분석 리포트
+                </h1>
+                <p class="hero-subtitle text-center" style="color: var(--text-secondary); margin-top: var(--spacing-md); letter-spacing: 2px; text-transform: uppercase;">
+                    Compensation Analytics & Reports
+                </p>
+                <div class="text-center mt-4">
+                    <button class="btn-revolutionary" onclick="generateReport()">
+                        <i class="fas fa-file-export"></i> 리포트 생성
+                    </button>
+                    <button class="btn-outline-revolutionary ms-3" onclick="window.print()">
+                        <i class="fas fa-print"></i> 인쇄
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Types Grid -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="report-card animate-slide-up animate-delay-1" onclick="selectReport('summary')">
+                    <div class="report-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="report-title">보상 요약</h3>
+                    <p class="report-description">전체 보상 현황과 핵심 지표를 한눈에 확인</p>
+                    <div class="report-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">차트</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">월간</div>
+                            <div class="stat-label">주기</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value shimmer-text">HOT</div>
+                            <div class="stat-label">인기</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="report-card animate-slide-up animate-delay-2" onclick="selectReport('distribution')">
+                    <div class="report-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3 class="report-title">보상 분포</h3>
+                    <p class="report-description">등급별, 부서별 보상 분포 상세 분석</p>
+                    <div class="report-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">차트</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">분기</div>
+                            <div class="stat-label">주기</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">95%</div>
+                            <div class="stat-label">정확도</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="report-card animate-slide-up animate-delay-3" onclick="selectReport('comparison')">
+                    <div class="report-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3 class="report-title">비교 분석</h3>
+                    <p class="report-description">전년 대비, 업계 평균 비교 분석</p>
+                    <div class="report-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">지표</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">연간</div>
+                            <div class="stat-label">주기</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value pulse-dot" style="margin: 0 auto;"></div>
+                            <div class="stat-label">실시간</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="report-card animate-slide-up animate-delay-4" onclick="selectReport('forecast')">
+                    <div class="report-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="report-title">예측 분석</h3>
+                    <p class="report-description">AI 기반 보상 트렌드 예측</p>
+                    <div class="report-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">AI</div>
+                            <div class="stat-label">기반</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">6개월</div>
+                            <div class="stat-label">예측</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value gradient-text">NEW</div>
+                            <div class="stat-label">최신</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-card animate-slide-up">
+            <h3 class="section-title" style="font-size: 18px; margin-bottom: var(--spacing-lg);">
+                리포트 필터
+            </h3>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label-revolutionary">기간 선택</label>
+                    <input type="month" class="form-control-revolutionary" id="reportPeriod" value="2024-11">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-revolutionary">부서</label>
+                    <select class="form-control-revolutionary" id="reportDepartment">
+                        <option value="">전체</option>
+                        <option value="dev">개발팀</option>
+                        <option value="sales">영업팀</option>
+                        <option value="hr">인사팀</option>
+                        <option value="finance">재무팀</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-revolutionary">직급</label>
+                    <select class="form-control-revolutionary" id="reportGrade">
+                        <option value="">전체</option>
+                        <option value="S">S</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-revolutionary">형식</label>
+                    <select class="form-control-revolutionary" id="reportFormat">
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel</option>
+                        <option value="ppt">PowerPoint</option>
+                        <option value="web">웹 뷰어</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button class="btn-revolutionary" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i> 필터 적용
+                </button>
+                <button class="btn-outline-revolutionary ms-2" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i> 초기화
+                </button>
+            </div>
+        </div>
+
+        <!-- Report Preview Section -->
+        <div class="preview-section animate-slide-up">
+            <div class="preview-header">
+                <div>
+                    <h3 class="section-title" style="font-size: 24px; margin-bottom: 0;">
+                        2024년 11월 보상 요약 리포트
+                    </h3>
+                    <small style="color: var(--text-muted);">생성일: 2024-11-28 | 페이지: 1/12</small>
+                </div>
+                <div class="export-buttons">
+                    <button class="btn-revolutionary" style="padding: 8px 16px; font-size: 14px;">
+                        <i class="fas fa-download"></i> PDF
+                    </button>
+                    <button class="btn-outline-revolutionary" style="padding: 8px 16px; font-size: 14px;">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button class="btn-outline-revolutionary" style="padding: 8px 16px; font-size: 14px;">
+                        <i class="fas fa-share"></i> 공유
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Content -->
+            <div class="report-content">
+                <!-- Summary Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="metric-value">650</div>
+                            <div class="metric-label">총 직원수</div>
+                            <div class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+2.3%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                <i class="fas fa-won-sign"></i>
+                            </div>
+                            <div class="metric-value">₩4.28B</div>
+                            <div class="metric-label">총 인건비</div>
+                            <div class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+5.2%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="metric-value">₩6.59M</div>
+                            <div class="metric-label">평균 보상</div>
+                            <div class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+3.8%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="metric-value">₩529M</div>
+                            <div class="metric-label">성과급</div>
+                            <div class="metric-change negative">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>-2.1%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <h4 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">보상 구성 분석</h4>
+                            <canvas id="compensationMixChart" height="300"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <h4 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">등급별 분포</h4>
+                            <canvas id="gradeDistributionChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="data-table-container mt-4">
+                    <table class="table-revolutionary">
+                        <thead>
+                            <tr>
+                                <th>부서</th>
+                                <th>인원</th>
+                                <th>평균 보상</th>
+                                <th>총 보상</th>
+                                <th>전월 대비</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>개발팀</td>
+                                <td>120</td>
+                                <td class="gradient-text">₩7.2M</td>
+                                <td>₩864M</td>
+                                <td><span class="trend-up">+3.5%</span></td>
+                            </tr>
+                            <tr>
+                                <td>영업팀</td>
+                                <td>180</td>
+                                <td class="gradient-text">₩6.5M</td>
+                                <td>₩1.17B</td>
+                                <td><span class="trend-up">+5.2%</span></td>
+                            </tr>
+                            <tr>
+                                <td>인사팀</td>
+                                <td>45</td>
+                                <td class="gradient-text">₩5.8M</td>
+                                <td>₩261M</td>
+                                <td><span class="trend-down">-1.2%</span></td>
+                            </tr>
+                            <tr>
+                                <td>재무팀</td>
+                                <td>60</td>
+                                <td class="gradient-text">₩6.1M</td>
+                                <td>₩366M</td>
+                                <td><span class="trend-up">+2.8%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize Charts
+document.addEventListener('DOMContentLoaded', function() {
+    initReportCharts();
+});
+
+function initReportCharts() {
+    // Compensation Mix Chart
+    const mixCtx = document.getElementById('compensationMixChart').getContext('2d');
+    const mixGradient = mixCtx.createLinearGradient(0, 0, 0, 300);
+    mixGradient.addColorStop(0, '#00d4ff');
+    mixGradient.addColorStop(1, '#0099ff');
+    
+    new Chart(mixCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['기본급', '고정OT', '직책급', '역량급', '성과급'],
+            datasets: [{
+                data: [60, 12, 8, 5, 15],
+                backgroundColor: [
+                    'rgba(0, 212, 255, 0.8)',
+                    'rgba(102, 126, 234, 0.8)',
+                    'rgba(240, 147, 251, 0.8)',
+                    'rgba(79, 172, 254, 0.8)',
+                    'rgba(0, 255, 136, 0.8)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        padding: 15
+                    }
+                }
+            }
+        }
+    });
+    
+    // Grade Distribution Chart
+    const gradeCtx = document.getElementById('gradeDistributionChart').getContext('2d');
+    const gradeGradient = gradeCtx.createLinearGradient(0, 0, 0, 300);
+    gradeGradient.addColorStop(0, '#00d4ff');
+    gradeGradient.addColorStop(1, '#0099ff');
+    
+    new Chart(gradeCtx, {
+        type: 'bar',
+        data: {
+            labels: ['S', 'A+', 'A', 'B+', 'B', 'C', 'D'],
+            datasets: [{
+                label: '인원수',
+                data: [45, 78, 156, 189, 125, 45, 12],
+                backgroundColor: gradeGradient,
+                borderRadius: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.6)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.6)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function selectReport(type) {
+    console.log('Selected report type:', type);
+    // Update UI based on selected report type
+}
+
+function generateReport() {
+    // Show loading state
+    const btn = event.target;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
+    
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-file-export"></i> 리포트 생성';
+        alert('리포트가 생성되었습니다!');
+    }, 2000);
+}
+
+function applyFilters() {
+    console.log('Filters applied');
+    // Apply filters and refresh data
+}
+
+function resetFilters() {
+    document.getElementById('reportPeriod').value = '2024-11';
+    document.getElementById('reportDepartment').value = '';
+    document.getElementById('reportGrade').value = '';
+    document.getElementById('reportFormat').value = 'pdf';
+}
+</script>
+{% endblock %}

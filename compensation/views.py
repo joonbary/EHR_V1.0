@@ -417,7 +417,7 @@ def compensation_reports(request):
         'page_title': '보상 리포트',
         'description': '보상 관련 각종 리포트를 조회합니다.',
     }
-    return render(request, 'compensation/reports_revolutionary.html', context)
+    return render(request, 'compensation/reports_revolutionary_v2.html', context)
 
 
 def compensation_settings(request):
