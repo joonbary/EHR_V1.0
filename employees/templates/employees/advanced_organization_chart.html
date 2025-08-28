@@ -873,7 +873,22 @@ function renderChart() {
     const container = document.getElementById('treeContainer');
     container.innerHTML = '';
     
-    // 컨테이너 중앙 정렬을 위한 오프셋
+    // 뷰 모드에 따른 특화된 렌더링
+    if (OrgChartState.currentView === 'grid') {
+        renderGridView();
+    } else if (OrgChartState.currentView === 'radial') {
+        renderRadialView();
+    } else if (OrgChartState.currentView === 'compact') {
+        renderCompactView();
+    } else {
+        // 기본 세로형 뷰
+        renderVerticalView();
+    }
+}
+
+// 세로형 뷰 렌더링
+function renderVerticalView() {
+    const container = document.getElementById('treeContainer');
     const viewportWidth = document.getElementById('chartViewport').offsetWidth;
     const centerX = viewportWidth / 2;
     
@@ -896,6 +911,74 @@ function renderChart() {
     });
 }
 
+// 그리드 뷰 렌더링
+function renderGridView() {
+    const container = document.getElementById('treeContainer');
+    const nodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
+    const cols = 4;
+    
+    nodes.forEach((node, index) => {
+        const row = Math.floor(index / cols);
+        const col = index % cols;
+        const nodeElement = createGridNodeElement(node);
+        nodeElement.style.left = `${col * 250 + 50}px`;
+        nodeElement.style.top = `${row * 180 + 50}px`;
+        container.appendChild(nodeElement);
+    });
+}
+
+// 방사형 뷰 렌더링
+function renderRadialView() {
+    const container = document.getElementById('treeContainer');
+    const viewportWidth = document.getElementById('chartViewport').offsetWidth;
+    const viewportHeight = document.getElementById('chartViewport').offsetHeight;
+    const centerX = viewportWidth / 2;
+    const centerY = viewportHeight / 2;
+    
+    // 중앙에 루트 노드
+    const rootNode = OrgChartState.nodes.get('root');
+    if (rootNode && shouldRenderNode(rootNode)) {
+        const rootElement = createNodeElement(rootNode);
+        rootElement.style.left = `${centerX - CONFIG.NODE_WIDTH / 2}px`;
+        rootElement.style.top = `${centerY - CONFIG.NODE_HEIGHT / 2}px`;
+        container.appendChild(rootElement);
+        
+        // 자식 노드들을 원형으로 배치
+        const children = Array.from(OrgChartState.nodes.values())
+            .filter(n => n.parentId === 'root' && shouldRenderNode(n));
+        
+        const angleStep = (2 * Math.PI) / children.length;
+        const radius = 250;
+        
+        children.forEach((child, index) => {
+            const angle = index * angleStep - Math.PI / 2;
+            const x = centerX + radius * Math.cos(angle) - CONFIG.NODE_WIDTH / 2;
+            const y = centerY + radius * Math.sin(angle) - CONFIG.NODE_HEIGHT / 2;
+            
+            const childElement = createNodeElement(child);
+            childElement.style.left = `${x}px`;
+            childElement.style.top = `${y}px`;
+            container.appendChild(childElement);
+        });
+    }
+}
+
+// 컴팩트 뷰 렌더링
+function renderCompactView() {
+    const container = document.getElementById('treeContainer');
+    const nodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
+    
+    let y = 20;
+    nodes.forEach(node => {
+        const nodeElement = createCompactNodeElement(node);
+        nodeElement.style.left = `20px`;
+        nodeElement.style.top = `${y}px`;
+        nodeElement.style.width = 'calc(100% - 40px)';
+        container.appendChild(nodeElement);
+        y += 50;
+    });
+}
+
 // 노드 렌더링 여부 확인
 function shouldRenderNode(node) {
     // Progressive Disclosure: 펼쳐진 부모의 자식만 표시
@@ -908,7 +991,22 @@ function shouldRenderNode(node) {
     
     // 레벨 필터 적용
     if (OrgChartState.currentLevel !== 'all') {
-        // 레벨 필터 로직 구현
+        switch(OrgChartState.currentLevel) {
+            case 'executive':
+                // 임원급만 표시 (회사, 본부)
+                return node.type === 'company' || node.type === 'division';
+            case 'division':
+                // 본부급까지만 표시
+                return node.type === 'company' || node.type === 'division';
+            case 'department':
+                // 부서급까지 표시
+                return node.type !== 'team' && node.type !== 'person';
+            case 'team':
+                // 팀급까지 표시 (개인 제외)
+                return node.type !== 'person';
+            default:
+                return true;
+        }
     }
     
     return true;
@@ -917,6 +1015,49 @@ function shouldRenderNode(node) {
 // 엣지 렌더링 여부 확인
 function shouldRenderEdge(edge) {
     return shouldRenderNode(edge.source) && shouldRenderNode(edge.target);
+}
+
+// 그리드 뷰용 노드 엘리먼트
+function createGridNodeElement(node) {
+    const div = document.createElement('div');
+    div.className = 'org-node grid-node';
+    div.id = `node-grid-${node.id}`;
+    
+    const badgeClass = `node-type-badge ${node.type}`;
+    div.innerHTML = `
+        <div class="node-header">
+            <span class="${badgeClass}">${getNodeTypeLabel(node.type)}</span>
+        </div>
+        <div class="node-content">
+            <div class="node-name">${node.name}</div>
+            <div class="node-stats">
+                <div class="node-stat">
+                    <i class="fas fa-users node-stat-icon"></i>
+                    <span>${node.headcount || 0}명</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    div.addEventListener('click', () => focusNode(node.id));
+    return div;
+}
+
+// 컴팩트 뷰용 노드 엘리먼트
+function createCompactNodeElement(node) {
+    const div = document.createElement('div');
+    div.className = 'org-node compact-node';
+    div.id = `node-compact-${node.id}`;
+    div.style.cssText = 'display: flex; align-items: center; padding: 0.5rem 1rem; min-width: auto;';
+    
+    div.innerHTML = `
+        <span class="node-type-badge ${node.type}" style="margin-right: 1rem;">${getNodeTypeLabel(node.type)}</span>
+        <span style="flex: 1; color: white; font-weight: 500;">${node.name}</span>
+        <span style="color: #94a3b8; font-size: 0.875rem;">${node.headcount || 0}명</span>
+    `;
+    
+    div.addEventListener('click', () => focusNode(node.id));
+    return div;
 }
 
 // 노드 엘리먼트 생성
