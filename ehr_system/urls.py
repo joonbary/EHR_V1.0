@@ -3,12 +3,16 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
 
 from .views import DashboardView
 from .dashboard_views import leader_kpi_dashboard, workforce_comp_dashboard, workforce_comp_api
 from .health import health_check, readiness_check, liveness_check
 
 urlpatterns = [
+    # Favicon
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
+    
     path('admin/', admin.site.urls),
     
     # Health checks
