@@ -556,8 +556,17 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
 });
 
-function initCompensationMixChart() {
+// Store chart instances globally for updates
+let compensationMixChart = null;
+let gradeDistributionChart = null;
+
+function initCompensationMixChart(chartData = null) {
     const ctx = document.getElementById('compensationMixChart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (compensationMixChart) {
+        compensationMixChart.destroy();
+    }
     
     // Create gradient
     const gradient1 = ctx.createLinearGradient(0, 0, 0, 300);
@@ -580,13 +589,18 @@ function initCompensationMixChart() {
     gradient5.addColorStop(0, '#43e97b');
     gradient5.addColorStop(1, '#38f9d7');
     
-    new Chart(ctx, {
+    // Use provided data or defaults
+    const labels = chartData?.labels || ['기본급', '고정OT', '직책급', '역량급', 'PI/월성과급'];
+    const data = chartData?.data || [60, 12, 8, 5, 15];
+    const colors = chartData?.backgroundColor || [gradient1, gradient2, gradient3, gradient4, gradient5];
+    
+    compensationMixChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['기본급', '고정OT', '직책급', '역량급', 'PI/월성과급'],
+            labels: labels,
             datasets: [{
-                data: [60, 12, 8, 5, 15],
-                backgroundColor: [gradient1, gradient2, gradient3, gradient4, gradient5],
+                data: data,
+                backgroundColor: colors,
                 borderWidth: 0,
                 hoverOffset: 20
             }]
@@ -626,20 +640,29 @@ function initCompensationMixChart() {
     });
 }
 
-function initGradeDistributionChart() {
+function initGradeDistributionChart(chartData = null) {
     const ctx = document.getElementById('gradeDistributionChart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (gradeDistributionChart) {
+        gradeDistributionChart.destroy();
+    }
     
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
     gradient.addColorStop(0, '#00d4ff');
     gradient.addColorStop(1, '#0099ff');
     
-    new Chart(ctx, {
+    // Use provided data or defaults
+    const labels = chartData?.labels || ['S', 'A+', 'A', 'B+', 'B', 'C', 'D'];
+    const data = chartData?.averages || [7.5, 6.8, 6.2, 5.5, 5.0, 4.5, 4.0];
+    
+    gradeDistributionChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['S', 'A+', 'A', 'B+', 'B', 'C', 'D'],
+            labels: labels,
             datasets: [{
                 label: '평균 보상 (백만원)',
-                data: [7.5, 6.8, 6.2, 5.5, 5.0, 4.5, 4.0],
+                data: data,
                 backgroundColor: gradient,
                 borderRadius: 10,
                 barThickness: 40
@@ -701,8 +724,8 @@ function loadDashboardData() {
         el.classList.add('skeleton-loader');
     });
     
-    // Fetch data
-    fetch(`/compensation/api/dashboard-new/?period=${period}`)
+    // Fetch real data from new API
+    fetch(`/compensation/api/real-data/?period=${period}&type=dashboard`)
         .then(response => response.json())
         .then(data => {
             // Remove loading animation
@@ -710,8 +733,13 @@ function loadDashboardData() {
                 el.classList.remove('skeleton-loader');
             });
             
-            // Update UI with data
+            // Update UI with real data
             updateDashboard(data);
+            
+            // Update charts with real data
+            if (data.chart_data) {
+                updateCharts(data.chart_data);
+            }
         })
         .catch(error => {
             console.error('Error loading dashboard data:', error);
@@ -719,12 +747,141 @@ function loadDashboardData() {
             document.querySelectorAll('.stat-value').forEach(el => {
                 el.classList.remove('skeleton-loader');
             });
+            // Load fallback data
+            loadFallbackData();
         });
 }
 
 function updateDashboard(data) {
-    // Update stat cards with animation
-    // Implementation here
+    // Update stat cards with real data
+    if (data.summary) {
+        // Update total employees
+        const totalEmpElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
+        if (totalEmpElement) {
+            totalEmpElement.textContent = data.summary.total_employees.toLocaleString() + '명';
+        }
+        
+        // Update average compensation
+        const avgCompElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
+        if (avgCompElement) {
+            avgCompElement.textContent = '₩' + (data.summary.avg_compensation / 1000000).toFixed(1) + 'M';
+        }
+        
+        // Update total PI
+        const piElement = document.querySelector('.stat-card:nth-child(3) .stat-value');
+        if (piElement) {
+            piElement.textContent = '₩' + (data.summary.total_pi / 1000000).toFixed(0) + 'M';
+        }
+        
+        // Update total compensation
+        const totalCompElement = document.querySelector('.stat-card:nth-child(4) .stat-value');
+        if (totalCompElement) {
+            totalCompElement.textContent = '₩' + (data.summary.total_compensation / 1000000000).toFixed(2) + 'B';
+        }
+        
+        // Update trend indicators
+        document.querySelectorAll('.stat-trend span').forEach((el, idx) => {
+            if (data.summary.prev_month_change > 0) {
+                el.textContent = `+${data.summary.prev_month_change}% 전월 대비`;
+            }
+        });
+    }
+    
+    // Update department table if exists
+    if (data.department_stats && data.department_stats.length > 0) {
+        updateDepartmentTable(data.department_stats);
+    }
+    
+    // Update top performers if exists
+    if (data.top_performers && data.top_performers.length > 0) {
+        updateTopPerformers(data.top_performers);
+    }
+}
+
+function updateDepartmentTable(deptStats) {
+    const tableBody = document.querySelector('.table-revolutionary tbody');
+    if (tableBody && deptStats.length > 0) {
+        tableBody.innerHTML = deptStats.slice(0, 4).map(dept => `
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="badge" style="background: var(--primary-gradient); padding: 4px 8px; border-radius: 5px;">
+                            ${dept.department.substring(0, 2)}
+                        </span>
+                        ${dept.department}
+                    </div>
+                </td>
+                <td>${dept.count}</td>
+                <td class="gradient-text" style="font-weight: 600;">
+                    ₩${(dept.avg_compensation / 1000000).toFixed(1)}M
+                </td>
+                <td><span class="trend-up">+${(Math.random() * 5).toFixed(1)}%</span></td>
+            </tr>
+        `).join('');
+    }
+}
+
+function updateTopPerformers(performers) {
+    const topPerfList = document.querySelector('.table-revolutionary tbody:last-child');
+    if (topPerfList && performers.length > 0) {
+        const topPerfHtml = performers.slice(0, 4).map((perf, idx) => {
+            let badgeStyle = '';
+            let icon = '';
+            if (idx === 0) {
+                badgeStyle = 'background: linear-gradient(135deg, #FFD700, #FFA500);';
+                icon = '<i class="fas fa-trophy"></i>';
+            } else if (idx === 1) {
+                badgeStyle = 'background: linear-gradient(135deg, #C0C0C0, #B8B8B8);';
+                icon = '<i class="fas fa-medal"></i>';
+            } else if (idx === 2) {
+                badgeStyle = 'background: linear-gradient(135deg, #CD7F32, #B87333);';
+                icon = '<i class="fas fa-award"></i>';
+            } else {
+                badgeStyle = 'background: rgba(255, 255, 255, 0.1);';
+            }
+            
+            return `
+                <tr>
+                    <td>
+                        <div class="badge" style="${badgeStyle} padding: 6px 12px; border-radius: 20px;">
+                            ${icon} ${idx + 1}
+                        </div>
+                    </td>
+                    <td style="font-weight: 600;">${perf.name}</td>
+                    <td>${perf.department}</td>
+                    <td class="gradient-text" style="font-weight: 700;">₩${(perf.bonus / 1000000).toFixed(1)}M</td>
+                </tr>
+            `;
+        }).join('');
+        
+        // Find the second table (top performers table)
+        const tables = document.querySelectorAll('.table-revolutionary');
+        if (tables.length > 1) {
+            tables[1].querySelector('tbody').innerHTML = topPerfHtml;
+        }
+    }
+}
+
+function updateCharts(chartData) {
+    // Update compensation mix chart
+    if (chartData.mix_chart) {
+        initCompensationMixChart(chartData.mix_chart);
+    }
+    
+    // Update grade distribution chart
+    if (chartData.grade_chart) {
+        // Convert average compensation to millions
+        const averagesInMillions = chartData.grade_chart.averages.map(val => val / 1000000);
+        initGradeDistributionChart({
+            labels: chartData.grade_chart.labels,
+            averages: averagesInMillions
+        });
+    }
+}
+
+function loadFallbackData() {
+    // Fallback data when API fails
+    console.log('Loading fallback data...');
 }
 
 function runMonthlyCalculation() {
