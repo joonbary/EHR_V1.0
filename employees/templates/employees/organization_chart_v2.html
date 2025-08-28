@@ -1,0 +1,761 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}조직도 - OK금융그룹{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/revolutionary-design-system.css' %}">
+<style>
+    /* Revolutionary Organization Chart Styles */
+    .org-chart-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        position: relative;
+        overflow-x: auto;
+    }
+
+    .org-hero {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.05) 100%);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .org-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 60%);
+        animation: rotate-slow 20s linear infinite;
+    }
+
+    .org-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+        z-index: 1;
+    }
+
+    .org-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Control Panel */
+    .control-panel {
+        background: rgba(26, 31, 46, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .control-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .control-btn {
+        background: rgba(0, 212, 255, 0.1);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .control-btn:hover {
+        background: rgba(0, 212, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .control-btn.active {
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #0a0f1b;
+        border-color: #00d4ff;
+    }
+
+    /* Organization Tree Container */
+    .org-tree-container {
+        background: rgba(10, 15, 27, 0.6);
+        border: 1px solid rgba(0, 212, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        min-height: 600px;
+        overflow: auto;
+    }
+
+    /* Tree Structure */
+    .org-tree {
+        padding: 2rem;
+        overflow: auto;
+        min-width: 100%;
+    }
+
+    .org-tree ul {
+        position: relative;
+        padding: 1rem 0;
+        white-space: nowrap;
+        margin: 0;
+        list-style: none;
+        display: flex;
+        justify-content: center;
+    }
+
+    .org-tree li {
+        display: inline-block;
+        vertical-align: top;
+        text-align: center;
+        position: relative;
+        padding: 1rem 0.5rem;
+    }
+
+    /* Node Cards */
+    .org-node {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(10, 15, 27, 0.95) 100%);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        min-width: 220px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .org-node:hover {
+        transform: translateY(-5px) scale(1.02);
+        border-color: #00d4ff;
+        box-shadow: 0 10px 40px rgba(0, 212, 255, 0.4);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(26, 31, 46, 0.95) 100%);
+    }
+
+    .org-node-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .org-node-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.5rem;
+        color: #0a0f1b;
+        font-weight: bold;
+    }
+
+    .org-node-info h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 0.25rem;
+    }
+
+    .org-node-info .position {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+
+    .org-node-details {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .org-node-stat {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .org-node-stat label {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .org-node-stat value {
+        color: #00d4ff;
+        font-weight: 600;
+    }
+
+    /* Level Badge */
+    .level-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: linear-gradient(135deg, #00d4ff, #0099ff);
+        color: #0a0f1b;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        box-shadow: 0 3px 10px rgba(0, 212, 255, 0.4);
+    }
+
+    /* Connection Lines */
+    .org-tree li::before,
+    .org-tree li::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 2rem;
+        border-top: 2px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .org-tree li::before {
+        right: 50%;
+        border-right: 2px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .org-tree li::after {
+        left: 50%;
+        border-left: 2px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .org-tree li:only-child::before,
+    .org-tree li:only-child::after {
+        display: none;
+    }
+
+    .org-tree li:first-child::before,
+    .org-tree li:last-child::after {
+        border: 0 none;
+    }
+
+    .org-tree li:last-child::before {
+        border-right: 2px solid rgba(0, 212, 255, 0.3);
+        border-radius: 0 5px 0 0;
+    }
+
+    .org-tree li:first-child::after {
+        border-radius: 5px 0 0 0;
+    }
+
+    .org-tree ul ul::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        border-left: 2px solid rgba(0, 212, 255, 0.3);
+        width: 0;
+        height: 1rem;
+    }
+
+    /* Stats Cards */
+    .org-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(10, 15, 27, 0.95) 100%);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+
+    .stat-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+        position: relative;
+    }
+
+    /* Search Bar */
+    .org-search {
+        background: rgba(26, 31, 46, 0.95);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        color: #fff;
+        width: 300px;
+        transition: all 0.3s ease;
+    }
+
+    .org-search:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    /* Loading State */
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 3px solid rgba(0, 212, 255, 0.2);
+        border-top-color: #00d4ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes rotate-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .org-tree {
+            padding: 1rem;
+        }
+
+        .org-node {
+            min-width: 180px;
+            padding: 1rem;
+        }
+
+        .control-group {
+            justify-content: flex-start;
+        }
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: rgba(0, 212, 255, 0.5);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-message {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="org-chart-page">
+    <div class="container-fluid px-4">
+        <!-- Hero Section -->
+        <div class="org-hero">
+            <h1 class="org-title">조직도</h1>
+            <p class="org-subtitle">OK금융그룹 조직 구조</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="org-stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalEmployees">0</div>
+                <div class="stat-label">총 직원수</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalDepartments">0</div>
+                <div class="stat-label">부서</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalTeams">0</div>
+                <div class="stat-label">팀</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="dataSource">-</div>
+                <div class="stat-label">데이터 소스</div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="control-group">
+                <input type="text" class="org-search" id="searchInput" placeholder="🔍 이름, 부서, 직급으로 검색...">
+                <button class="control-btn" onclick="expandAll()">
+                    <i class="fas fa-expand"></i> 전체 펼치기
+                </button>
+                <button class="control-btn" onclick="collapseAll()">
+                    <i class="fas fa-compress"></i> 전체 접기
+                </button>
+                <button class="control-btn" onclick="resetView()">
+                    <i class="fas fa-redo"></i> 초기화
+                </button>
+                <button class="control-btn" onclick="exportChart()">
+                    <i class="fas fa-download"></i> 내보내기
+                </button>
+                <a href="{% url 'employees:organization_structure_upload' %}" class="control-btn">
+                    <i class="fas fa-upload"></i> 조직도 업로드
+                </a>
+            </div>
+        </div>
+
+        <!-- Organization Tree Container -->
+        <div class="org-tree-container">
+            <div id="loadingState" class="loading-container" style="display: none;">
+                <div class="loading-spinner"></div>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div class="empty-state-message">
+                    조직도 데이터가 없습니다.
+                </div>
+                <a href="{% url 'employees:organization_structure_upload' %}" class="control-btn">
+                    <i class="fas fa-upload"></i> 조직도 업로드하기
+                </a>
+            </div>
+
+            <div id="orgTree" class="org-tree"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let orgData = [];
+let expandedNodes = new Set();
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadOrganizationData();
+    setupSearch();
+});
+
+// Load Organization Data
+async function loadOrganizationData() {
+    showLoading(true);
+    
+    try {
+        const response = await fetch('{% url "employees:organization_data_api" %}');
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.length > 0) {
+            orgData = result.data;
+            updateStats(result);
+            renderOrganizationTree(orgData);
+            showLoading(false);
+            
+            // Update data source
+            const sourceEl = document.getElementById('dataSource');
+            if (result.source === 'OrganizationStructure') {
+                sourceEl.textContent = '업로드';
+                sourceEl.style.color = '#00d4ff';
+            } else {
+                sourceEl.textContent = 'DB';
+                sourceEl.style.color = '#ffa500';
+            }
+        } else {
+            showEmptyState();
+        }
+    } catch (error) {
+        console.error('Error loading organization data:', error);
+        showEmptyState();
+    }
+}
+
+// Render Organization Tree
+function renderOrganizationTree(data) {
+    const container = document.getElementById('orgTree');
+    container.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        showEmptyState();
+        return;
+    }
+    
+    const ul = document.createElement('ul');
+    data.forEach(node => {
+        ul.appendChild(createNodeElement(node));
+    });
+    container.appendChild(ul);
+}
+
+// Create Node Element
+function createNodeElement(node) {
+    const li = document.createElement('li');
+    
+    const nodeDiv = document.createElement('div');
+    nodeDiv.className = 'org-node';
+    nodeDiv.onclick = () => toggleNode(node.id);
+    
+    // Level Badge
+    if (node.level_name || node.level) {
+        const badge = document.createElement('div');
+        badge.className = 'level-badge';
+        badge.textContent = node.level_name || `Level ${node.level}`;
+        nodeDiv.appendChild(badge);
+    }
+    
+    // Node Header
+    const header = document.createElement('div');
+    header.className = 'org-node-header';
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'org-node-avatar';
+    avatar.innerHTML = node.name ? node.name.substring(0, 2) : '<i class="fas fa-building"></i>';
+    header.appendChild(avatar);
+    
+    const info = document.createElement('div');
+    info.className = 'org-node-info';
+    info.innerHTML = `
+        <h3>${node.name || '조직'}</h3>
+        <div class="position">${node.position || node.code || ''}</div>
+    `;
+    header.appendChild(info);
+    
+    nodeDiv.appendChild(header);
+    
+    // Node Details
+    const details = document.createElement('div');
+    details.className = 'org-node-details';
+    
+    if (node.department || node.employee_count !== undefined) {
+        if (node.department) {
+            details.innerHTML += `
+                <div class="org-node-stat">
+                    <label>부서</label>
+                    <value>${node.department}</value>
+                </div>
+            `;
+        }
+        
+        if (node.employee_count !== undefined) {
+            details.innerHTML += `
+                <div class="org-node-stat">
+                    <label>인원</label>
+                    <value>${node.employee_count}명</value>
+                </div>
+            `;
+        }
+        
+        if (node.leader) {
+            details.innerHTML += `
+                <div class="org-node-stat">
+                    <label>책임자</label>
+                    <value>${node.leader.name}</value>
+                </div>
+            `;
+        }
+    }
+    
+    if (details.innerHTML) {
+        nodeDiv.appendChild(details);
+    }
+    
+    li.appendChild(nodeDiv);
+    
+    // Children
+    if (node.children && node.children.length > 0) {
+        if (expandedNodes.has(node.id)) {
+            const childUl = document.createElement('ul');
+            node.children.forEach(child => {
+                childUl.appendChild(createNodeElement(child));
+            });
+            li.appendChild(childUl);
+        }
+    }
+    
+    return li;
+}
+
+// Toggle Node
+function toggleNode(nodeId) {
+    if (expandedNodes.has(nodeId)) {
+        expandedNodes.delete(nodeId);
+    } else {
+        expandedNodes.add(nodeId);
+    }
+    renderOrganizationTree(orgData);
+}
+
+// Expand All
+function expandAll() {
+    function addAllNodes(nodes) {
+        nodes.forEach(node => {
+            expandedNodes.add(node.id);
+            if (node.children && node.children.length > 0) {
+                addAllNodes(node.children);
+            }
+        });
+    }
+    addAllNodes(orgData);
+    renderOrganizationTree(orgData);
+}
+
+// Collapse All
+function collapseAll() {
+    expandedNodes.clear();
+    renderOrganizationTree(orgData);
+}
+
+// Reset View
+function resetView() {
+    expandedNodes.clear();
+    document.getElementById('searchInput').value = '';
+    renderOrganizationTree(orgData);
+}
+
+// Export Chart
+function exportChart() {
+    // Convert org data to CSV or JSON
+    const dataStr = JSON.stringify(orgData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = 'organization_chart.json';
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
+
+// Setup Search
+function setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        if (searchTerm) {
+            searchNodes(searchTerm);
+        } else {
+            renderOrganizationTree(orgData);
+        }
+    });
+}
+
+// Search Nodes
+function searchNodes(searchTerm) {
+    function filterNodes(nodes) {
+        return nodes.map(node => {
+            const matches = 
+                (node.name && node.name.toLowerCase().includes(searchTerm)) ||
+                (node.position && node.position.toLowerCase().includes(searchTerm)) ||
+                (node.department && node.department.toLowerCase().includes(searchTerm)) ||
+                (node.code && node.code.toLowerCase().includes(searchTerm));
+            
+            let filteredNode = {...node};
+            
+            if (node.children && node.children.length > 0) {
+                filteredNode.children = filterNodes(node.children);
+            }
+            
+            if (matches || (filteredNode.children && filteredNode.children.length > 0)) {
+                if (matches) expandedNodes.add(node.id);
+                return filteredNode;
+            }
+            
+            return null;
+        }).filter(node => node !== null);
+    }
+    
+    const filteredData = filterNodes(orgData);
+    renderOrganizationTree(filteredData);
+}
+
+// Update Stats
+function updateStats(result) {
+    // Calculate stats from data
+    let totalEmployees = 0;
+    let totalDepartments = new Set();
+    let totalTeams = 0;
+    
+    function countNodes(nodes) {
+        nodes.forEach(node => {
+            if (node.employee_count) {
+                totalEmployees += node.employee_count;
+            }
+            
+            if (node.level === 3 || node.level === 4) {
+                totalDepartments.add(node.name);
+            }
+            
+            if (node.level === 5) {
+                totalTeams++;
+            }
+            
+            if (node.children && node.children.length > 0) {
+                countNodes(node.children);
+            }
+        });
+    }
+    
+    if (result.data) {
+        countNodes(result.data);
+    }
+    
+    document.getElementById('totalEmployees').textContent = totalEmployees || '0';
+    document.getElementById('totalDepartments').textContent = totalDepartments.size || '0';
+    document.getElementById('totalTeams').textContent = totalTeams || '0';
+}
+
+// Show Loading
+function showLoading(show) {
+    document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
+    document.getElementById('orgTree').style.display = show ? 'none' : 'block';
+}
+
+// Show Empty State
+function showEmptyState() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('orgTree').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'block';
+}
+</script>
+{% endblock %}

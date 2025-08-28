@@ -520,8 +520,8 @@ def download_template(request):
     return response
 
 def organization_chart(request):
-    """D3.js 기반 조직도 페이지"""
-    return render(request, 'employees/organization_chart.html')
+    """Revolutionary Design 기반 조직도 페이지 v2"""
+    return render(request, 'employees/organization_chart_v2.html')
 
 def hierarchy_organization_view(request):
     """계층별 조직도 페이지 (Revolutionary Design)"""
