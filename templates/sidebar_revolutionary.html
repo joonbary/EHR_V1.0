@@ -48,34 +48,53 @@
             </div>
         </div>
         
-        <!-- Organization Chart -->
-        <div class="nav-section">
-            <div class="nav-section-title">
+        <!-- Organization Chart - Enhanced -->
+        <div class="nav-section expandable">
+            <div class="nav-section-title" onclick="toggleSection(this)">
                 <i class="fas fa-sitemap"></i> 조직도
+                <i class="fas fa-chevron-down section-arrow"></i>
             </div>
-            <a href="{% url 'employees:organization_chart' %}" class="nav-item">
-                <span class="nav-icon">🏢</span>
-                <span class="nav-text">기본 조직도</span>
-            </a>
-            <a href="{% url 'employees:organization_input' %}" class="nav-item">
-                <span class="nav-icon">✏️</span>
-                <span class="nav-text">조직 정보 입력</span>
-                <span class="badge-new">NEW</span>
-            </a>
-            <a href="{% url 'employees:organization_structure' %}" class="nav-item">
-                <span class="nav-icon">🏗️</span>
-                <span class="nav-text">조직 구조 관리</span>
-                <span class="badge-new">NEW</span>
-            </a>
-            <a href="{% url 'organization:organization_chart' %}" class="nav-item">
-                <span class="nav-icon">🔄</span>
-                <span class="nav-text">고급 조직도 관리</span>
-                <span class="badge-new">NEW</span>
-            </a>
-            <a href="{% url 'employees:hierarchy_organization' %}" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span class="nav-text">계층별 조직도</span>
-            </a>
+            <div class="nav-section-content">
+                <!-- 기본 조직도 -->
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">기본 조직도</div>
+                    <a href="{% url 'employees:organization_chart' %}" class="nav-subitem">
+                        <span class="nav-icon">🏢</span>
+                        <span class="nav-text">표준 조직도</span>
+                    </a>
+                    <a href="{% url 'employees:hierarchy_organization' %}" class="nav-subitem">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">계층별 조직도</span>
+                    </a>
+                </div>
+                
+                <!-- 차세대 조직도 -->
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">차세대 조직도</div>
+                    <a href="{% url 'employees:advanced_organization_chart' %}" class="nav-subitem">
+                        <span class="nav-icon">🚀</span>
+                        <span class="nav-text">대규모 조직 최적화</span>
+                        <span class="badge-new">NEW</span>
+                    </a>
+                    <a href="{% url 'organization:organization_chart' %}" class="nav-subitem">
+                        <span class="nav-icon">🔄</span>
+                        <span class="nav-text">What-if 분석</span>
+                    </a>
+                </div>
+                
+                <!-- 조직 관리 -->
+                <div class="nav-subsection">
+                    <div class="nav-subsection-title">조직 관리</div>
+                    <a href="{% url 'employees:organization_input' %}" class="nav-subitem">
+                        <span class="nav-icon">✏️</span>
+                        <span class="nav-text">조직 정보 입력</span>
+                    </a>
+                    <a href="{% url 'employees:organization_structure' %}" class="nav-subitem">
+                        <span class="nav-icon">🏗️</span>
+                        <span class="nav-text">조직 구조 관리</span>
+                    </a>
+                </div>
+            </div>
         </div>
         
         <!-- Performance Evaluation - Expanded -->

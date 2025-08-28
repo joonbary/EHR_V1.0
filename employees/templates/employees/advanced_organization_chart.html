@@ -1,0 +1,1301 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}차세대 조직도 | AI HRM{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 기본 레이아웃 */
+    .org-chart-container {
+        background: linear-gradient(135deg, #0a0f1b 0%, #1a1f2e 100%);
+        min-height: calc(100vh - 70px);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 툴바 스타일 */
+    .org-toolbar {
+        background: rgba(26, 31, 46, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        padding: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .toolbar-inner {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    /* 뷰 모드 선택 */
+    .view-modes {
+        display: flex;
+        gap: 0.5rem;
+        background: rgba(10, 15, 27, 0.6);
+        padding: 0.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .view-mode-btn {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        color: #94a3b8;
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .view-mode-btn.active {
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        color: white;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .view-mode-btn:hover:not(.active) {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+
+    /* 레벨 필터 */
+    .level-filters {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .level-filter-btn {
+        padding: 0.375rem 0.75rem;
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.813rem;
+    }
+
+    .level-filter-btn.active {
+        background: rgba(0, 212, 255, 0.2);
+        border-color: #00d4ff;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+    }
+
+    /* 검색 박스 */
+    .org-search-box {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+    }
+
+    .org-search-input {
+        width: 100%;
+        padding: 0.625rem 1rem 0.625rem 2.5rem;
+        background: rgba(10, 15, 27, 0.6);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 0.5rem;
+        color: white;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .org-search-input:focus {
+        border-color: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        outline: none;
+    }
+
+    .org-search-icon {
+        position: absolute;
+        left: 0.875rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    /* 자동완성 드롭다운 */
+    .search-autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 0.5rem;
+        background: rgba(26, 31, 46, 0.98);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 0.5rem;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1001;
+    }
+
+    .search-autocomplete.active {
+        display: block;
+    }
+
+    .autocomplete-item {
+        padding: 0.75rem 1rem;
+        color: #cbd5e1;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .autocomplete-item:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: white;
+    }
+
+    .autocomplete-item-name {
+        font-weight: 500;
+        color: white;
+    }
+
+    .autocomplete-item-path {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+    }
+
+    /* 줌 컨트롤 */
+    .zoom-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(10, 15, 27, 0.6);
+        padding: 0.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .zoom-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        color: #94a3b8;
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .zoom-btn:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+
+    .zoom-level {
+        color: #00d4ff;
+        font-size: 0.813rem;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    /* 메인 차트 영역 */
+    .chart-viewport {
+        flex: 1;
+        position: relative;
+        overflow-y: auto;
+        overflow-x: hidden; /* 가로 스크롤 방지 */
+        padding: 2rem;
+    }
+
+    /* 트리 컨테이너 */
+    .tree-container {
+        min-height: 100%;
+        position: relative;
+        transition: transform 0.3s ease;
+        transform-origin: top center;
+    }
+
+    /* 노드 스타일 */
+    .org-node {
+        position: absolute;
+        background: rgba(26, 31, 46, 0.9);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        min-width: 200px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .org-node:hover {
+        border-color: #00d4ff;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .org-node.focused {
+        border-color: #00d4ff;
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .org-node.collapsed .node-children-info {
+        display: block;
+    }
+
+    /* 노드 헤더 */
+    .node-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .node-type-badge {
+        display: inline-block;
+        padding: 0.125rem 0.5rem;
+        background: rgba(0, 212, 255, 0.2);
+        color: #00d4ff;
+        border-radius: 0.25rem;
+        font-size: 0.688rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .node-type-badge.company {
+        background: rgba(168, 85, 247, 0.2);
+        color: #a855f7;
+    }
+
+    .node-type-badge.division {
+        background: rgba(236, 72, 153, 0.2);
+        color: #ec4899;
+    }
+
+    .node-type-badge.department {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .node-type-badge.team {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+    }
+
+    /* 노드 콘텐츠 */
+    .node-content {
+        color: white;
+    }
+
+    .node-name {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .node-title {
+        font-size: 0.813rem;
+        color: #94a3b8;
+        margin-bottom: 0.5rem;
+    }
+
+    .node-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    .node-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .node-stat-icon {
+        color: #00d4ff;
+    }
+
+    /* 접기/펼치기 버튼 */
+    .node-toggle {
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 24px;
+        background: rgba(26, 31, 46, 0.95);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #00d4ff;
+        transition: all 0.2s ease;
+    }
+
+    .node-toggle:hover {
+        background: rgba(0, 212, 255, 0.2);
+        border-color: #00d4ff;
+    }
+
+    /* 하위 노드 정보 (접힌 상태) */
+    .node-children-info {
+        display: none;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(0, 212, 255, 0.1);
+        font-size: 0.813rem;
+        color: #00d4ff;
+    }
+
+    /* 오버플로우 클러스터 */
+    .overflow-cluster {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        margin-top: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .overflow-cluster:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+    }
+
+    .overflow-cluster-text {
+        color: #00d4ff;
+        font-size: 0.875rem;
+    }
+
+    /* 연결선 */
+    .org-edge {
+        position: absolute;
+        background: linear-gradient(to bottom, rgba(0, 212, 255, 0.3), transparent);
+        width: 2px;
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .org-edge.horizontal {
+        height: 2px;
+        width: auto;
+        background: linear-gradient(to right, transparent, rgba(0, 212, 255, 0.3), transparent);
+    }
+
+    /* 미니맵 */
+    .minimap {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 200px;
+        height: 120px;
+        background: rgba(26, 31, 46, 0.95);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        z-index: 900;
+    }
+
+    .minimap-viewport {
+        position: absolute;
+        background: rgba(0, 212, 255, 0.2);
+        border: 1px solid #00d4ff;
+        pointer-events: none;
+    }
+
+    /* 브레드크럼 */
+    .breadcrumb-nav {
+        background: rgba(10, 15, 27, 0.6);
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        overflow-x: auto;
+    }
+
+    .breadcrumb-item {
+        color: #64748b;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .breadcrumb-item:hover {
+        color: #00d4ff;
+    }
+
+    .breadcrumb-separator {
+        color: #475569;
+    }
+
+    .breadcrumb-item.active {
+        color: white;
+        font-weight: 500;
+    }
+
+    /* 로딩 상태 */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(10, 15, 27, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(0, 212, 255, 0.2);
+        border-top-color: #00d4ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .toolbar-inner {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .org-search-box {
+            max-width: 100%;
+        }
+
+        .minimap {
+            width: 150px;
+            height: 90px;
+        }
+    }
+
+    /* 시맨틱 줌 레벨 */
+    .tree-container.zoom-small .node-title,
+    .tree-container.zoom-small .node-stats {
+        display: none;
+    }
+
+    .tree-container.zoom-small .org-node {
+        padding: 0.5rem;
+        min-width: 150px;
+    }
+
+    .tree-container.zoom-large .org-node {
+        padding: 1.25rem;
+        min-width: 250px;
+    }
+
+    /* 키보드 내비게이션 포커스 */
+    .org-node:focus {
+        outline: 2px solid #00d4ff;
+        outline-offset: 2px;
+    }
+
+    /* 접근성 */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="org-chart-container">
+    <!-- 툴바 -->
+    <div class="org-toolbar">
+        <div class="toolbar-inner">
+            <!-- 뷰 모드 선택 -->
+            <div class="view-modes">
+                <button class="view-mode-btn active" data-mode="vertical">
+                    <i class="fas fa-sitemap"></i>
+                    <span>세로형</span>
+                </button>
+                <button class="view-mode-btn" data-mode="grid">
+                    <i class="fas fa-th"></i>
+                    <span>그리드</span>
+                </button>
+                <button class="view-mode-btn" data-mode="radial">
+                    <i class="fas fa-circle-notch"></i>
+                    <span>방사형</span>
+                </button>
+                <button class="view-mode-btn" data-mode="compact">
+                    <i class="fas fa-list"></i>
+                    <span>컴팩트</span>
+                </button>
+            </div>
+
+            <!-- 레벨 필터 -->
+            <div class="level-filters">
+                <span style="color: #94a3b8; font-size: 0.875rem;">레벨:</span>
+                <button class="level-filter-btn active" data-level="all">전체</button>
+                <button class="level-filter-btn" data-level="executive">임원</button>
+                <button class="level-filter-btn" data-level="division">본부</button>
+                <button class="level-filter-btn" data-level="department">부서</button>
+                <button class="level-filter-btn" data-level="team">팀</button>
+            </div>
+
+            <!-- 검색 -->
+            <div class="org-search-box">
+                <i class="fas fa-search org-search-icon"></i>
+                <input type="text" class="org-search-input" placeholder="이름, 부서, 직급으로 검색..." id="orgSearch">
+                <div class="search-autocomplete" id="searchAutocomplete"></div>
+            </div>
+
+            <!-- 줌 컨트롤 -->
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomOut">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <span class="zoom-level" id="zoomLevel">100%</span>
+                <button class="zoom-btn" id="zoomIn">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="zoom-btn" id="zoomReset">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 브레드크럼 네비게이션 -->
+    <div class="breadcrumb-nav" id="breadcrumbNav">
+        <span class="breadcrumb-item active">전체 조직</span>
+    </div>
+
+    <!-- 메인 차트 영역 -->
+    <div class="chart-viewport" id="chartViewport">
+        <div class="tree-container" id="treeContainer">
+            <!-- 동적으로 생성될 조직도 노드들 -->
+        </div>
+
+        <!-- 로딩 오버레이 -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- 미니맵 -->
+    <div class="minimap" id="minimap">
+        <div class="minimap-viewport"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 전역 상태 관리
+const OrgChartState = {
+    currentView: 'vertical',
+    currentLevel: 'all',
+    zoomLevel: 100,
+    focusedNode: null,
+    expandedNodes: new Set(['root', 'division-1', 'division-2']), // 초기 2레벨만 펼침
+    searchQuery: '',
+    nodes: new Map(),
+    edges: [],
+    clusteredSiblings: new Map(), // 오버플로우 클러스터링 상태
+};
+
+// 상수 정의
+const CONFIG = {
+    MAX_VISIBLE_SIBLINGS: 12, // 최대 표시 형제 노드 수
+    NODE_WIDTH: 200,
+    NODE_HEIGHT: 120,
+    LEVEL_SPACING: 150,
+    SIBLING_SPACING: 20,
+    ZOOM_MIN: 50,
+    ZOOM_MAX: 200,
+    ZOOM_STEP: 10,
+    SEARCH_DELAY: 300,
+    ANIMATION_DURATION: 300,
+};
+
+// 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    initializeChart();
+    setupEventListeners();
+    setupKeyboardNavigation();
+    loadInitialData();
+});
+
+// 차트 초기화
+function initializeChart() {
+    // 초기 뷰 설정
+    updateViewMode('vertical');
+    updateZoom(100);
+}
+
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 뷰 모드 변경
+    document.querySelectorAll('.view-mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const mode = this.dataset.mode;
+            updateViewMode(mode);
+        });
+    });
+
+    // 레벨 필터
+    document.querySelectorAll('.level-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const level = this.dataset.level;
+            updateLevelFilter(level);
+        });
+    });
+
+    // 검색
+    const searchInput = document.getElementById('orgSearch');
+    let searchTimeout;
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch(e.target.value);
+        }, CONFIG.SEARCH_DELAY);
+    });
+
+    // 줌 컨트롤
+    document.getElementById('zoomIn').addEventListener('click', () => {
+        updateZoom(Math.min(OrgChartState.zoomLevel + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX));
+    });
+
+    document.getElementById('zoomOut').addEventListener('click', () => {
+        updateZoom(Math.max(OrgChartState.zoomLevel - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN));
+    });
+
+    document.getElementById('zoomReset').addEventListener('click', () => {
+        updateZoom(100);
+    });
+
+    // 마우스 휠 줌
+    document.getElementById('chartViewport').addEventListener('wheel', function(e) {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -CONFIG.ZOOM_STEP : CONFIG.ZOOM_STEP;
+            updateZoom(Math.max(CONFIG.ZOOM_MIN, Math.min(CONFIG.ZOOM_MAX, OrgChartState.zoomLevel + delta)));
+        }
+    });
+}
+
+// 키보드 내비게이션 설정
+function setupKeyboardNavigation() {
+    document.addEventListener('keydown', function(e) {
+        if (OrgChartState.focusedNode) {
+            const node = OrgChartState.nodes.get(OrgChartState.focusedNode);
+            if (!node) return;
+
+            switch(e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    navigateToSibling(node, -1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    navigateToSibling(node, 1);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (node.hasChildren && !OrgChartState.expandedNodes.has(node.id)) {
+                        toggleNode(node.id);
+                    } else if (node.children && node.children.length > 0) {
+                        focusNode(node.children[0]);
+                    }
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    if (OrgChartState.expandedNodes.has(node.id)) {
+                        toggleNode(node.id);
+                    } else if (node.parentId) {
+                        focusNode(node.parentId);
+                    }
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (node.hasChildren) {
+                        toggleNode(node.id);
+                    }
+                    break;
+                case '/':
+                    e.preventDefault();
+                    document.getElementById('orgSearch').focus();
+                    break;
+            }
+        }
+    });
+}
+
+// 초기 데이터 로드
+async function loadInitialData() {
+    showLoading(true);
+    
+    try {
+        // API에서 초기 2레벨 데이터 로드
+        const response = await fetch('/employees/api/org/root?depth=2');
+        const data = await response.json();
+        
+        // 노드 생성 및 렌더링
+        processOrgData(data);
+        renderChart();
+        
+    } catch (error) {
+        console.error('Failed to load organization data:', error);
+        showError('조직 데이터를 불러오는데 실패했습니다.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// 조직 데이터 처리
+function processOrgData(data) {
+    // 재귀적으로 노드 처리
+    function processNode(node, parentId = null, level = 0) {
+        const processedNode = {
+            ...node,
+            parentId,
+            level,
+            x: 0,
+            y: level * CONFIG.LEVEL_SPACING,
+        };
+        
+        OrgChartState.nodes.set(node.id, processedNode);
+        
+        if (node.children && node.children.length > 0) {
+            // 오버플로우 클러스터링 적용
+            if (node.children.length > CONFIG.MAX_VISIBLE_SIBLINGS) {
+                const visibleChildren = node.children.slice(0, CONFIG.MAX_VISIBLE_SIBLINGS);
+                const hiddenCount = node.children.length - CONFIG.MAX_VISIBLE_SIBLINGS;
+                
+                // 클러스터 노드 추가
+                const clusterId = `${node.id}-cluster`;
+                OrgChartState.clusteredSiblings.set(clusterId, node.children.slice(CONFIG.MAX_VISIBLE_SIBLINGS));
+                
+                visibleChildren.forEach(child => processNode(child, node.id, level + 1));
+                
+                // 클러스터 표시 노드 추가
+                const clusterNode = {
+                    id: clusterId,
+                    name: `+${hiddenCount}개 더보기`,
+                    type: 'cluster',
+                    parentId: node.id,
+                    level: level + 1,
+                    isCluster: true,
+                };
+                OrgChartState.nodes.set(clusterId, clusterNode);
+            } else {
+                node.children.forEach(child => processNode(child, node.id, level + 1));
+            }
+        }
+    }
+    
+    processNode(data);
+    
+    // 레이아웃 계산
+    calculateLayout();
+}
+
+// 레이아웃 계산 (Vertical Tree)
+function calculateLayout() {
+    const levels = new Map();
+    
+    // 레벨별로 노드 그룹화
+    OrgChartState.nodes.forEach(node => {
+        if (!levels.has(node.level)) {
+            levels.set(node.level, []);
+        }
+        levels.get(node.level).push(node);
+    });
+    
+    // 각 레벨의 노드 위치 계산
+    levels.forEach((nodes, level) => {
+        const totalWidth = nodes.length * (CONFIG.NODE_WIDTH + CONFIG.SIBLING_SPACING);
+        const startX = -totalWidth / 2;
+        
+        nodes.forEach((node, index) => {
+            node.x = startX + index * (CONFIG.NODE_WIDTH + CONFIG.SIBLING_SPACING) + CONFIG.NODE_WIDTH / 2;
+            node.y = level * CONFIG.LEVEL_SPACING;
+        });
+    });
+    
+    // 엣지 생성
+    OrgChartState.edges = [];
+    OrgChartState.nodes.forEach(node => {
+        if (node.parentId) {
+            const parent = OrgChartState.nodes.get(node.parentId);
+            if (parent) {
+                OrgChartState.edges.push({
+                    source: parent,
+                    target: node,
+                });
+            }
+        }
+    });
+}
+
+// 차트 렌더링
+function renderChart() {
+    const container = document.getElementById('treeContainer');
+    container.innerHTML = '';
+    
+    // 컨테이너 중앙 정렬을 위한 오프셋
+    const viewportWidth = document.getElementById('chartViewport').offsetWidth;
+    const centerX = viewportWidth / 2;
+    
+    // 노드 렌더링
+    OrgChartState.nodes.forEach(node => {
+        if (shouldRenderNode(node)) {
+            const nodeElement = createNodeElement(node);
+            nodeElement.style.left = `${centerX + node.x - CONFIG.NODE_WIDTH / 2}px`;
+            nodeElement.style.top = `${node.y}px`;
+            container.appendChild(nodeElement);
+        }
+    });
+    
+    // 엣지 렌더링
+    OrgChartState.edges.forEach(edge => {
+        if (shouldRenderEdge(edge)) {
+            const edgeElement = createEdgeElement(edge, centerX);
+            container.appendChild(edgeElement);
+        }
+    });
+}
+
+// 노드 렌더링 여부 확인
+function shouldRenderNode(node) {
+    // Progressive Disclosure: 펼쳐진 부모의 자식만 표시
+    if (node.parentId) {
+        const parent = OrgChartState.nodes.get(node.parentId);
+        if (!parent || !OrgChartState.expandedNodes.has(node.parentId)) {
+            return false;
+        }
+    }
+    
+    // 레벨 필터 적용
+    if (OrgChartState.currentLevel !== 'all') {
+        // 레벨 필터 로직 구현
+    }
+    
+    return true;
+}
+
+// 엣지 렌더링 여부 확인
+function shouldRenderEdge(edge) {
+    return shouldRenderNode(edge.source) && shouldRenderNode(edge.target);
+}
+
+// 노드 엘리먼트 생성
+function createNodeElement(node) {
+    const div = document.createElement('div');
+    div.className = 'org-node';
+    div.id = `node-${node.id}`;
+    div.setAttribute('role', 'treeitem');
+    div.setAttribute('aria-expanded', OrgChartState.expandedNodes.has(node.id));
+    div.setAttribute('aria-level', node.level);
+    div.tabIndex = 0;
+    
+    if (node.id === OrgChartState.focusedNode) {
+        div.classList.add('focused');
+    }
+    
+    if (!OrgChartState.expandedNodes.has(node.id) && node.hasChildren) {
+        div.classList.add('collapsed');
+    }
+    
+    // 클러스터 노드 특별 처리
+    if (node.isCluster) {
+        div.innerHTML = `
+            <div class="overflow-cluster">
+                <div class="overflow-cluster-text">${node.name}</div>
+            </div>
+        `;
+        div.addEventListener('click', () => expandCluster(node.id));
+    } else {
+        // 일반 노드 콘텐츠
+        const badgeClass = `node-type-badge ${node.type}`;
+        div.innerHTML = `
+            <div class="node-header">
+                <span class="${badgeClass}">${getNodeTypeLabel(node.type)}</span>
+            </div>
+            <div class="node-content">
+                <div class="node-name">${node.name}</div>
+                ${node.title ? `<div class="node-title">${node.title}</div>` : ''}
+                <div class="node-stats">
+                    ${node.headcount ? `
+                        <div class="node-stat">
+                            <i class="fas fa-users node-stat-icon"></i>
+                            <span>${node.headcount}명</span>
+                        </div>
+                    ` : ''}
+                    ${node.childrenCount ? `
+                        <div class="node-stat">
+                            <i class="fas fa-sitemap node-stat-icon"></i>
+                            <span>${node.childrenCount}개</span>
+                        </div>
+                    ` : ''}
+                </div>
+                ${!OrgChartState.expandedNodes.has(node.id) && node.hasChildren ? `
+                    <div class="node-children-info">
+                        <i class="fas fa-chevron-down"></i> ${node.childrenCount}개 하위 조직
+                    </div>
+                ` : ''}
+            </div>
+            ${node.hasChildren ? `
+                <button class="node-toggle" aria-label="${OrgChartState.expandedNodes.has(node.id) ? '접기' : '펼치기'}">
+                    <i class="fas fa-chevron-${OrgChartState.expandedNodes.has(node.id) ? 'up' : 'down'}"></i>
+                </button>
+            ` : ''}
+        `;
+        
+        // 이벤트 리스너
+        div.addEventListener('click', () => focusNode(node.id));
+        
+        const toggleBtn = div.querySelector('.node-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleNode(node.id);
+            });
+        }
+    }
+    
+    return div;
+}
+
+// 엣지 엘리먼트 생성
+function createEdgeElement(edge, centerX) {
+    const div = document.createElement('div');
+    div.className = 'org-edge';
+    
+    const sourceX = centerX + edge.source.x;
+    const sourceY = edge.source.y + CONFIG.NODE_HEIGHT;
+    const targetX = centerX + edge.target.x;
+    const targetY = edge.target.y;
+    
+    // 수직선
+    div.style.left = `${sourceX - 1}px`;
+    div.style.top = `${sourceY}px`;
+    div.style.height = `${targetY - sourceY}px`;
+    
+    return div;
+}
+
+// 노드 타입 레이블
+function getNodeTypeLabel(type) {
+    const labels = {
+        'company': '회사',
+        'division': '본부',
+        'department': '부서',
+        'team': '팀',
+        'person': '직원',
+    };
+    return labels[type] || type;
+}
+
+// 노드 토글
+async function toggleNode(nodeId) {
+    const node = OrgChartState.nodes.get(nodeId);
+    if (!node || !node.hasChildren) return;
+    
+    if (OrgChartState.expandedNodes.has(nodeId)) {
+        // 접기
+        OrgChartState.expandedNodes.delete(nodeId);
+    } else {
+        // 펼치기
+        OrgChartState.expandedNodes.add(nodeId);
+        
+        // Lazy Load: 자식이 없으면 서버에서 로드
+        if (!node.children || node.children.length === 0) {
+            await loadNodeChildren(nodeId);
+        }
+    }
+    
+    renderChart();
+}
+
+// 노드 자식 로드 (Lazy Loading)
+async function loadNodeChildren(nodeId) {
+    try {
+        const response = await fetch(`/employees/api/org/node/${nodeId}?depth=1`);
+        const data = await response.json();
+        
+        const node = OrgChartState.nodes.get(nodeId);
+        if (node && data.children) {
+            node.children = data.children;
+            processOrgData({ ...node, children: data.children });
+            calculateLayout();
+        }
+    } catch (error) {
+        console.error('Failed to load node children:', error);
+    }
+}
+
+// 노드 포커스
+function focusNode(nodeId) {
+    OrgChartState.focusedNode = nodeId;
+    
+    // 모든 노드에서 포커스 클래스 제거
+    document.querySelectorAll('.org-node').forEach(el => {
+        el.classList.remove('focused');
+    });
+    
+    // 새 노드에 포커스 클래스 추가
+    const nodeElement = document.getElementById(`node-${nodeId}`);
+    if (nodeElement) {
+        nodeElement.classList.add('focused');
+        nodeElement.focus();
+        
+        // 브레드크럼 업데이트
+        updateBreadcrumb(nodeId);
+        
+        // 포커스 경로 펼치기
+        expandPath(nodeId);
+        
+        // 스크롤 조정
+        nodeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// 경로 펼치기 (포커스된 노드까지)
+function expandPath(nodeId) {
+    const node = OrgChartState.nodes.get(nodeId);
+    if (!node) return;
+    
+    const path = [];
+    let current = node;
+    while (current) {
+        path.unshift(current.id);
+        current = current.parentId ? OrgChartState.nodes.get(current.parentId) : null;
+    }
+    
+    // 경로상의 모든 노드 펼치기
+    path.forEach(id => {
+        if (!OrgChartState.expandedNodes.has(id)) {
+            const n = OrgChartState.nodes.get(id);
+            if (n && n.hasChildren) {
+                OrgChartState.expandedNodes.add(id);
+            }
+        }
+    });
+    
+    renderChart();
+}
+
+// 브레드크럼 업데이트
+function updateBreadcrumb(nodeId) {
+    const breadcrumb = document.getElementById('breadcrumbNav');
+    const node = OrgChartState.nodes.get(nodeId);
+    if (!node) return;
+    
+    const path = [];
+    let current = node;
+    while (current) {
+        path.unshift(current);
+        current = current.parentId ? OrgChartState.nodes.get(current.parentId) : null;
+    }
+    
+    breadcrumb.innerHTML = path.map((n, index) => `
+        <span class="breadcrumb-item ${index === path.length - 1 ? 'active' : ''}" 
+              onclick="focusNode('${n.id}')">
+            ${n.name}
+        </span>
+        ${index < path.length - 1 ? '<span class="breadcrumb-separator">›</span>' : ''}
+    `).join('');
+}
+
+// 형제 노드 탐색
+function navigateToSibling(node, direction) {
+    if (!node.parentId) return;
+    
+    const parent = OrgChartState.nodes.get(node.parentId);
+    if (!parent || !parent.children) return;
+    
+    const currentIndex = parent.children.findIndex(c => c.id === node.id);
+    if (currentIndex === -1) return;
+    
+    const newIndex = currentIndex + direction;
+    if (newIndex >= 0 && newIndex < parent.children.length) {
+        focusNode(parent.children[newIndex].id);
+    }
+}
+
+// 검색 수행
+async function performSearch(query) {
+    OrgChartState.searchQuery = query;
+    
+    if (!query || query.length < 2) {
+        document.getElementById('searchAutocomplete').classList.remove('active');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/employees/api/org/search?q=${encodeURIComponent(query)}`);
+        const results = await response.json();
+        
+        showSearchResults(results);
+    } catch (error) {
+        console.error('Search failed:', error);
+    }
+}
+
+// 검색 결과 표시
+function showSearchResults(results) {
+    const autocomplete = document.getElementById('searchAutocomplete');
+    
+    if (!results || results.length === 0) {
+        autocomplete.classList.remove('active');
+        return;
+    }
+    
+    autocomplete.innerHTML = results.slice(0, 10).map(result => `
+        <div class="autocomplete-item" onclick="selectSearchResult('${result.id}')">
+            <div class="autocomplete-item-name">${result.name}</div>
+            <div class="autocomplete-item-path">${result.path.join(' › ')}</div>
+        </div>
+    `).join('');
+    
+    autocomplete.classList.add('active');
+}
+
+// 검색 결과 선택
+function selectSearchResult(nodeId) {
+    document.getElementById('searchAutocomplete').classList.remove('active');
+    document.getElementById('orgSearch').value = '';
+    
+    // 경로 펼치고 포커스
+    expandPath(nodeId);
+    focusNode(nodeId);
+}
+
+// 뷰 모드 변경
+function updateViewMode(mode) {
+    OrgChartState.currentView = mode;
+    
+    // 버튼 상태 업데이트
+    document.querySelectorAll('.view-mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    
+    // 뷰에 따른 레이아웃 재계산
+    if (mode === 'vertical') {
+        calculateLayout();
+    } else if (mode === 'radial') {
+        calculateRadialLayout();
+    } else if (mode === 'grid') {
+        calculateGridLayout();
+    } else if (mode === 'compact') {
+        calculateCompactLayout();
+    }
+    
+    renderChart();
+}
+
+// 레벨 필터 업데이트
+function updateLevelFilter(level) {
+    OrgChartState.currentLevel = level;
+    
+    // 버튼 상태 업데이트
+    document.querySelectorAll('.level-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.level === level);
+    });
+    
+    renderChart();
+}
+
+// 줌 업데이트
+function updateZoom(level) {
+    OrgChartState.zoomLevel = level;
+    document.getElementById('zoomLevel').textContent = `${level}%`;
+    
+    const container = document.getElementById('treeContainer');
+    container.style.transform = `scale(${level / 100})`;
+    
+    // 시맨틱 줌 클래스 적용
+    container.classList.remove('zoom-small', 'zoom-large');
+    if (level < 80) {
+        container.classList.add('zoom-small');
+    } else if (level > 120) {
+        container.classList.add('zoom-large');
+    }
+}
+
+// 클러스터 확장
+function expandCluster(clusterId) {
+    const clusteredNodes = OrgChartState.clusteredSiblings.get(clusterId);
+    if (!clusteredNodes) return;
+    
+    // 클러스터 노드를 실제 노드로 교체
+    const clusterNode = OrgChartState.nodes.get(clusterId);
+    if (clusterNode) {
+        const parentId = clusterNode.parentId;
+        const level = clusterNode.level;
+        
+        // 클러스터 노드 제거
+        OrgChartState.nodes.delete(clusterId);
+        
+        // 숨겨진 노드들 추가
+        clusteredNodes.forEach(node => {
+            processOrgData({ ...node, parentId, level });
+        });
+        
+        // 클러스터 상태 제거
+        OrgChartState.clusteredSiblings.delete(clusterId);
+        
+        // 레이아웃 재계산 및 렌더링
+        calculateLayout();
+        renderChart();
+    }
+}
+
+// 로딩 표시
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = show ? 'flex' : 'none';
+}
+
+// 에러 표시
+function showError(message) {
+    // 에러 메시지 표시 구현
+    console.error(message);
+}
+
+// 기타 레이아웃 계산 함수들 (간단한 구현)
+function calculateRadialLayout() {
+    // 방사형 레이아웃 계산 로직
+}
+
+function calculateGridLayout() {
+    // 그리드 레이아웃 계산 로직
+}
+
+function calculateCompactLayout() {
+    // 컴팩트 레이아웃 계산 로직
+}
+</script>
+{% endblock %}

@@ -20,9 +20,15 @@ urlpatterns = [
     path('bulk-upload/', views.BulkUploadView.as_view(), name='employee_bulk_upload'),
     path('download-template/', views.download_template, name='employee_download_template'),
     path('org-chart/', views.organization_chart, name='organization_chart'),
+    path('advanced-org-chart/', views.advanced_organization_chart, name='advanced_organization_chart'),
     path('hierarchy/', views.hierarchy_organization_view, name='hierarchy_organization'),
     path('api/organization-data/', views.organization_data_api, name='organization_data_api'),
     path('api/hierarchy-data/', views.hierarchy_organization_api, name='hierarchy_organization_api'),
+    
+    # Advanced Org Chart APIs
+    path('api/org/root', views.org_tree_api, name='org_tree_api'),
+    path('api/org/node/<str:node_id>/', views.org_tree_api, name='org_node_api'),
+    path('api/org/search', views.org_search_api, name='org_search_api'),
     
     # Organization Input
     path('organization/input/', views.organization_input_view, name='organization_input'),

@@ -523,6 +523,164 @@ def organization_chart(request):
     """Revolutionary Design 기반 조직도 페이지 v3 - 다양한 레이아웃 옵션"""
     return render(request, 'employees/organization_chart_v3.html')
 
+def advanced_organization_chart(request):
+    """차세대 조직도 - 대규모 조직 최적화 버전"""
+    return render(request, 'employees/advanced_organization_chart.html')
+
+from django.db.models import Count, Q
+import json
+
+def org_tree_api(request):
+    """조직 트리 데이터 API - Lazy Loading 지원"""
+    depth = int(request.GET.get('depth', 2))
+    node_id = request.GET.get('node_id', None)
+    
+    def build_org_node(employees, node_type='department', parent_id=None):
+        """직원 리스트에서 조직 노드 생성"""
+        if not employees:
+            return None
+            
+        # 부서/팀별로 그룹화
+        org_groups = {}
+        for emp in employees:
+            key = emp.department or '미지정'
+            if key not in org_groups:
+                org_groups[key] = []
+            org_groups[key].append(emp)
+        
+        nodes = []
+        for dept_name, dept_employees in org_groups.items():
+            # 부서장 찾기
+            leader = None
+            for emp in dept_employees:
+                if emp.new_position in ['본부장', '부장', '팀장']:
+                    leader = emp
+                    break
+            
+            node = {
+                'id': f'dept-{dept_name}',
+                'name': dept_name,
+                'type': node_type,
+                'title': leader.new_position if leader else None,
+                'headcount': len(dept_employees),
+                'childrenCount': 0,  # 하위 팀 수 (추후 계산)
+                'hasChildren': False,
+                'parentId': parent_id,
+                'path': [dept_name],
+                'leader': leader.name if leader else None,
+            }
+            nodes.append(node)
+        
+        return nodes
+    
+    if node_id:
+        # 특정 노드의 자식 노드 로드 (Lazy Loading)
+        # 실제 구현에서는 node_id를 파싱해서 해당 부서/팀의 하위 조직 반환
+        children = []
+        return JsonResponse({'children': children})
+    else:
+        # 루트 노드와 depth만큼의 하위 노드 로드
+        # 회사 전체 구조
+        root_node = {
+            'id': 'root',
+            'name': 'OK금융그룹',
+            'type': 'company',
+            'title': 'CEO',
+            'headcount': Employee.objects.filter(employment_status='재직').count(),
+            'childrenCount': 5,  # 본부 수
+            'hasChildren': True,
+            'parentId': None,
+            'path': ['OK금융그룹'],
+            'children': []
+        }
+        
+        if depth >= 1:
+            # 본부 레벨
+            divisions = [
+                {'name': '경영지원본부', 'positions': ['본부장', '부장']},
+                {'name': '영업본부', 'positions': ['본부장', '부장']},
+                {'name': 'IT본부', 'positions': ['본부장', '부장']},
+                {'name': '리스크관리본부', 'positions': ['본부장', '부장']},
+                {'name': '전략기획본부', 'positions': ['본부장', '부장']},
+            ]
+            
+            for div in divisions:
+                div_employees = Employee.objects.filter(
+                    department__contains=div['name'].replace('본부', ''),
+                    employment_status='재직'
+                )
+                
+                if div_employees.exists():
+                    div_node = {
+                        'id': f"division-{div['name']}",
+                        'name': div['name'],
+                        'type': 'division',
+                        'headcount': div_employees.count(),
+                        'childrenCount': div_employees.values('department').distinct().count(),
+                        'hasChildren': depth < 2,  # depth 2 이상이면 자식 로드
+                        'parentId': 'root',
+                        'path': ['OK금융그룹', div['name']],
+                        'children': []
+                    }
+                    
+                    if depth >= 2:
+                        # 부서 레벨 추가
+                        departments = div_employees.values('department').annotate(
+                            count=Count('id')
+                        ).order_by('-count')[:12]  # 최대 12개만 초기 로드
+                        
+                        for dept in departments:
+                            dept_node = {
+                                'id': f"dept-{dept['department']}",
+                                'name': dept['department'],
+                                'type': 'department',
+                                'headcount': dept['count'],
+                                'childrenCount': 0,
+                                'hasChildren': False,
+                                'parentId': div_node['id'],
+                                'path': ['OK금융그룹', div['name'], dept['department']],
+                            }
+                            div_node['children'].append(dept_node)
+                    
+                    root_node['children'].append(div_node)
+        
+        return JsonResponse(root_node)
+
+def org_search_api(request):
+    """조직도 검색 API"""
+    query = request.GET.get('q', '').strip()
+    
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    # 직원 검색
+    employees = Employee.objects.filter(
+        Q(name__icontains=query) |
+        Q(department__icontains=query) |
+        Q(new_position__icontains=query),
+        employment_status='재직'
+    )[:20]  # 최대 20개 결과
+    
+    results = []
+    for emp in employees:
+        path = ['OK금융그룹']
+        if '본부' in emp.department:
+            path.append(emp.department.split('부')[0] + '부')
+        if emp.department:
+            path.append(emp.department)
+        path.append(emp.name)
+        
+        results.append({
+            'id': f'emp-{emp.id}',
+            'name': emp.name,
+            'position': emp.new_position,
+            'department': emp.department,
+            'path': path,
+            'snippet': f'{emp.name} - {emp.new_position} ({emp.department})'
+        })
+    
+    return JsonResponse({'results': results})
+
 def hierarchy_organization_view(request):
     """계층별 조직도 페이지 (Revolutionary Design)"""
     return render(request, 'employees/hierarchy_organization_revolutionary.html')
