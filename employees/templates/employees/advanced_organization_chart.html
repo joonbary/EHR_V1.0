@@ -1019,22 +1019,32 @@ function shouldRenderNode(node) {
     
     // 레벨 필터 적용
     if (OrgChartState.currentLevel !== 'all') {
+        console.log(`Filtering node ${node.name} (type: ${node.type}) with filter: ${OrgChartState.currentLevel}`);
+        
+        let shouldShow = false;
         switch(OrgChartState.currentLevel) {
             case 'executive':
                 // 임원급만 표시 (회사, 본부)
-                return node.type === 'company' || node.type === 'division';
+                shouldShow = node.type === 'company' || node.type === 'division';
+                break;
             case 'division':
                 // 본부급까지만 표시
-                return node.type === 'company' || node.type === 'division';
+                shouldShow = node.type === 'company' || node.type === 'division';
+                break;
             case 'department':
                 // 부서급까지 표시
-                return node.type !== 'team' && node.type !== 'person';
+                shouldShow = node.type === 'company' || node.type === 'division' || node.type === 'department';
+                break;
             case 'team':
                 // 팀급까지 표시 (개인 제외)
-                return node.type !== 'person';
+                shouldShow = node.type !== 'person';
+                break;
             default:
-                return true;
+                shouldShow = true;
         }
+        
+        console.log(`Node ${node.name} - Show: ${shouldShow}`);
+        return shouldShow;
     }
     
     return true;
@@ -1508,23 +1518,57 @@ function useSampleData() {
                 children: [
                     {
                         id: 'dept-1-1',
-                        name: '인사팀',
+                        name: '인사부',
                         type: 'department',
                         headcount: 45,
-                        childrenCount: 0,
-                        hasChildren: false,
+                        childrenCount: 2,
+                        hasChildren: true,
                         parentId: 'division-1',
-                        path: ['OK금융그룹', '경영지원본부', '인사팀']
+                        path: ['OK금융그룹', '경영지원본부', '인사부'],
+                        children: [
+                            {
+                                id: 'team-1-1-1',
+                                name: '채용팀',
+                                type: 'team',
+                                headcount: 12,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-1-1',
+                                path: ['OK금융그룹', '경영지원본부', '인사부', '채용팀']
+                            },
+                            {
+                                id: 'team-1-1-2',
+                                name: '교육팀',
+                                type: 'team',
+                                headcount: 8,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-1-1',
+                                path: ['OK금융그룹', '경영지원본부', '인사부', '교육팀']
+                            }
+                        ]
                     },
                     {
                         id: 'dept-1-2',
-                        name: '재무팀',
+                        name: '재무부',
                         type: 'department',
                         headcount: 38,
-                        childrenCount: 0,
-                        hasChildren: false,
+                        childrenCount: 1,
+                        hasChildren: true,
                         parentId: 'division-1',
-                        path: ['OK금융그룹', '경영지원본부', '재무팀']
+                        path: ['OK금융그룹', '경영지원본부', '재무부'],
+                        children: [
+                            {
+                                id: 'team-1-2-1',
+                                name: '회계팀',
+                                type: 'team',
+                                headcount: 15,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-1-2',
+                                path: ['OK금융그룹', '경영지원본부', '재무부', '회계팀']
+                            }
+                        ]
                     }
                 ]
             },
@@ -1540,23 +1584,57 @@ function useSampleData() {
                 children: [
                     {
                         id: 'dept-2-1',
-                        name: '개발1팀',
+                        name: '개발부',
                         type: 'department',
                         headcount: 62,
-                        childrenCount: 0,
-                        hasChildren: false,
+                        childrenCount: 2,
+                        hasChildren: true,
                         parentId: 'division-2',
-                        path: ['OK금융그룹', 'IT본부', '개발1팀']
+                        path: ['OK금융그룹', 'IT본부', '개발부'],
+                        children: [
+                            {
+                                id: 'team-2-1-1',
+                                name: '프론트엔드팀',
+                                type: 'team',
+                                headcount: 18,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-2-1',
+                                path: ['OK금융그룹', 'IT본부', '개발부', '프론트엔드팀']
+                            },
+                            {
+                                id: 'team-2-1-2',
+                                name: '백엔드팀',
+                                type: 'team',
+                                headcount: 25,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-2-1',
+                                path: ['OK금융그룹', 'IT본부', '개발부', '백엔드팀']
+                            }
+                        ]
                     },
                     {
                         id: 'dept-2-2',
-                        name: '인프라팀',
+                        name: '인프라부',
                         type: 'department',
                         headcount: 35,
-                        childrenCount: 0,
-                        hasChildren: false,
+                        childrenCount: 1,
+                        hasChildren: true,
                         parentId: 'division-2',
-                        path: ['OK금융그룹', 'IT본부', '인프라팀']
+                        path: ['OK금융그룹', 'IT본부', '인프라부'],
+                        children: [
+                            {
+                                id: 'team-2-2-1',
+                                name: '클라우드팀',
+                                type: 'team',
+                                headcount: 12,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-2-2',
+                                path: ['OK금융그룹', 'IT본부', '인프라부', '클라우드팀']
+                            }
+                        ]
                     }
                 ]
             },
