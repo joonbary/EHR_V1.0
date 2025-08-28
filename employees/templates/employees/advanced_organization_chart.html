@@ -641,14 +641,23 @@ const CONFIG = {
 
 // 초기화
 document.addEventListener('DOMContentLoaded', function() {
-    initializeChart();
-    setupEventListeners();
-    setupKeyboardNavigation();
-    // API 데이터 로드를 시도하고, 실패하면 샘플 데이터 사용
-    loadInitialData().catch(() => {
-        console.log('Using sample data...');
+    console.log('Advanced Org Chart: DOM loaded, initializing...');
+    
+    try {
+        initializeChart();
+        setupEventListeners();
+        setupKeyboardNavigation();
+        
+        // API 데이터 로드를 시도하고, 실패하면 샘플 데이터 사용
+        loadInitialData().catch((error) => {
+            console.log('API failed, using sample data...', error);
+            useSampleData();
+        });
+    } catch (error) {
+        console.error('Initialization error:', error);
+        // 초기화 실패 시 샘플 데이터로 백업
         useSampleData();
-    });
+    }
 });
 
 // 차트 초기화
@@ -660,17 +669,25 @@ function initializeChart() {
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    
     // 뷰 모드 변경
-    document.querySelectorAll('.view-mode-btn').forEach(btn => {
+    const viewModeBtns = document.querySelectorAll('.view-mode-btn');
+    console.log(`Found ${viewModeBtns.length} view mode buttons`);
+    viewModeBtns.forEach(btn => {
         btn.addEventListener('click', function() {
+            console.log('View mode clicked:', this.dataset.mode);
             const mode = this.dataset.mode;
             updateViewMode(mode);
         });
     });
 
     // 레벨 필터
-    document.querySelectorAll('.level-filter-btn').forEach(btn => {
+    const levelFilterBtns = document.querySelectorAll('.level-filter-btn');
+    console.log(`Found ${levelFilterBtns.length} level filter buttons`);
+    levelFilterBtns.forEach(btn => {
         btn.addEventListener('click', function() {
+            console.log('Level filter clicked:', this.dataset.level);
             const level = this.dataset.level;
             updateLevelFilter(level);
         });
@@ -870,8 +887,19 @@ function calculateLayout() {
 
 // 차트 렌더링
 function renderChart() {
+    console.log('Rendering chart. Current view:', OrgChartState.currentView, 'Current level:', OrgChartState.currentLevel);
+    
     const container = document.getElementById('treeContainer');
+    if (!container) {
+        console.error('Tree container not found!');
+        return;
+    }
+    
     container.innerHTML = '';
+    
+    // 렌더링할 노드 수 확인
+    const visibleNodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
+    console.log(`Rendering ${visibleNodes.length} visible nodes out of ${OrgChartState.nodes.size} total nodes`);
     
     // 뷰 모드에 따른 특화된 렌더링
     if (OrgChartState.currentView === 'grid') {
@@ -1348,6 +1376,7 @@ function selectSearchResult(nodeId) {
 
 // 뷰 모드 변경
 function updateViewMode(mode) {
+    console.log('Updating view mode to:', mode);
     OrgChartState.currentView = mode;
     
     // 버튼 상태 업데이트
@@ -1366,11 +1395,13 @@ function updateViewMode(mode) {
         calculateCompactLayout();
     }
     
+    console.log('Rendering chart with view mode:', mode);
     renderChart();
 }
 
 // 레벨 필터 업데이트
 function updateLevelFilter(level) {
+    console.log('Updating level filter to:', level);
     OrgChartState.currentLevel = level;
     
     // 버튼 상태 업데이트
@@ -1378,6 +1409,7 @@ function updateLevelFilter(level) {
         btn.classList.toggle('active', btn.dataset.level === level);
     });
     
+    console.log('Current state after level filter update:', OrgChartState.currentLevel);
     renderChart();
 }
 
