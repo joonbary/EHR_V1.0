@@ -1658,20 +1658,21 @@ function shouldRenderNode(node) {
             const zoomFactor = OrgChartState.zoomLevel / 100;
             const effectiveViewportWidth = viewportWidth / zoomFactor;
             
-            // Dense 모드에서는 더 많은 노드를 표시하기 위해 관대한 경계 적용
+            // Dense 모드에서는 더 많은 노드를 표시하기 위해 매우 관대한 경계 적용
             if (isDenseMode) {
-                // Dense 모드: 92px 카드로 더 많이 표시 가능
-                const maxVisibleNodes = Math.floor(effectiveViewportWidth / (CONFIG.NODE_WIDTH_DENSE + 24));
-                const estimatedMaxX = maxVisibleNodes * (CONFIG.NODE_WIDTH_DENSE + 24);
+                // Dense 모드: 모든 84개 노드를 수용할 수 있도록 충분히 큰 경계 설정
+                // 92px 카드로 100개까지 허용 (약 11600px)
+                const maxAllowableX = 100 * (CONFIG.NODE_WIDTH_DENSE + 24); // ~11600px
                 
-                if (Math.abs(node.x) > estimatedMaxX) {
-                    console.log(`Dense mode: Node ${node.name} filtered out - x=${node.x} exceeds ${estimatedMaxX}`);
+                if (Math.abs(node.x) > maxAllowableX) {
+                    console.log(`Dense mode: Node ${node.name} filtered out - x=${node.x} exceeds ${maxAllowableX}`);
                     return false;
                 }
             } else {
-                // Normal 모드: 더 엄격한 경계 적용
-                if (Math.abs(node.x) > effectiveViewportWidth * 1.2 || node.y > 3000) {
-                    console.log(`Normal mode: Node ${node.name} filtered out - x=${node.x}, y=${node.y} (viewport: ${effectiveViewportWidth})`);
+                // Normal 모드: 더 관대한 경계 적용 (4배 뷰포트 너비)
+                const maxNormalX = effectiveViewportWidth * 4; // 4x viewport width
+                if (Math.abs(node.x) > maxNormalX || node.y > 5000) {
+                    console.log(`Normal mode: Node ${node.name} filtered out - x=${node.x}, y=${node.y} (max: ${maxNormalX})`);
                     return false;
                 }
             }
