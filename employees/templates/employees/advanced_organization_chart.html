@@ -871,11 +871,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 차트 초기화
 function initializeChart() {
-    // 초기 뷰 설정 (전체 조직도가 보이도록 30% 줌으로 시작)
+    // 초기 뷰 설정 (vertical 모드로 렌더링)
     updateViewMode('vertical');
-    updateZoom(30); // 30% 줌으로 전체 조직도를 한눈에 표시
     
-    console.log('💡 고급 조직도 초기화 완료 - 전체 뷰 모드 (30% 줌)');
+    // 렌더링 완료 후 줌 적용 (비동기)
+    setTimeout(() => {
+        updateZoom(30); // 30% 줌으로 전체 조직도를 한눈에 표시
+        console.log('💡 고급 조직도 초기화 완료 - 30% 줌 적용됨');
+    }, 100);
 }
 
 // 이벤트 리스너 설정
@@ -1218,24 +1221,34 @@ function calculateLayout() {
             console.log(`Placed ${children.length} children of ${parent.name} at y=${childY}`);
         });
         
-        // 같은 레벨에서 겹침 방지
+        // 같은 레벨에서 겹침 방지 + 적응형 간격 조정
         const levelY = rootNodes[0].y + (depth + 1) * (nodeHeight + CONFIG.LEVEL_SPACING);
         const sameLevelNodes = nextLevelNodes.filter(n => n.x !== undefined);
         
         if (sameLevelNodes.length > 1) {
             sameLevelNodes.sort((a, b) => a.x - b.x);
             
+            // 적응형 간격: 노드가 많을수록 간격을 줄임
+            let adaptiveSiblingSpacing = siblingSpacing;
+            if (sameLevelNodes.length > 20) {
+                adaptiveSiblingSpacing = Math.max(10, siblingSpacing * 0.5); // 50% 감소, 최소 10px
+            } else if (sameLevelNodes.length > 10) {
+                adaptiveSiblingSpacing = Math.max(15, siblingSpacing * 0.7); // 30% 감소, 최소 15px
+            }
+            
+            console.log(`Level ${depth + 1}: ${sameLevelNodes.length} nodes, adaptive spacing: ${adaptiveSiblingSpacing}px`);
+            
             for (let i = 1; i < sameLevelNodes.length; i++) {
                 const prev = sameLevelNodes[i - 1];
                 const curr = sameLevelNodes[i];
-                const minDistance = nodeWidth + siblingSpacing;
+                const minDistance = nodeWidth + adaptiveSiblingSpacing;
                 
                 if (curr.x - prev.x < minDistance) {
                     const shift = minDistance - (curr.x - prev.x);
                     for (let j = i; j < sameLevelNodes.length; j++) {
                         sameLevelNodes[j].x += shift;
                     }
-                    console.log(`Adjusted spacing at level ${depth + 1}`);
+                    console.log(`Adjusted spacing at level ${depth + 1} with adaptive spacing ${adaptiveSiblingSpacing}px`);
                 }
             }
         }
