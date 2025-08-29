@@ -1290,11 +1290,15 @@ function renderVerticalView() {
     const viewport = document.getElementById('chartViewport');
     const viewportWidth = viewport.offsetWidth;
     
+    console.log(`renderVerticalView - Viewport width: ${viewportWidth}, Container found: ${!!container}`);
+    
     // Dense 모드 판별 (줌 < 95% 또는 Compact Dense 뷰)
     const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
                         OrgChartState.currentView === 'compact';
     const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
     const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;
+    
+    console.log(`Dense mode: ${isDenseMode}, Zoom: ${OrgChartState.zoomLevel}%, Node width: ${nodeWidth}`);
     
     // 컨테이너 최소 크기 설정
     let minX = 0, maxX = 0, maxY = 0;
@@ -1315,10 +1319,14 @@ function renderVerticalView() {
     container.style.width = `${containerWidth}px`;
     container.style.height = `${containerHeight}px`;
     
+    console.log(`Container size set to: ${containerWidth} x ${containerHeight}px`);
+    console.log(`Node position range: X(${minX} to ${maxX}), Y(0 to ${maxY})`);
+    
     // 중앙 정렬 오프셋
     const offsetX = containerWidth / 2;
     
     // 노드 렌더링 (Dense 또는 Normal 모드)
+    let renderedCount = 0;
     OrgChartState.nodes.forEach(node => {
         if (shouldRenderNode(node)) {
             // Dense 모드일 때는 createDenseNodeElement 사용
@@ -1326,11 +1334,20 @@ function renderVerticalView() {
                 createDenseNodeElement(node) : 
                 createNodeElement(node);
             
-            nodeElement.style.left = `${offsetX + node.x - nodeWidth / 2}px`;
-            nodeElement.style.top = `${node.y + 50}px`; // 상단 여백
+            const leftPos = offsetX + node.x - nodeWidth / 2;
+            const topPos = node.y + 50;
+            
+            nodeElement.style.left = `${leftPos}px`;
+            nodeElement.style.top = `${topPos}px`; // 상단 여백
             container.appendChild(nodeElement);
+            
+            renderedCount++;
+            if (renderedCount <= 5) { // 처음 5개 노드만 로그
+                console.log(`Rendered node ${node.name} at (${leftPos}, ${topPos}), isDense: ${isDenseMode}`);
+            }
         }
     });
+    console.log(`Total nodes rendered to DOM: ${renderedCount}`);
     
     // 엣지 렌더링
     OrgChartState.edges.forEach(edge => {
@@ -1575,10 +1592,9 @@ function createDenseNodeElement(node) {
     }
     
     // Dense 모드에서는 40px 초슬림 카드로 고정
+    // 위치는 renderVerticalView에서 설정하므로 여기서는 설정하지 않음
     div.style.cssText = `
         position: absolute;
-        left: ${node.x}px;
-        top: ${node.y}px;
         width: ${CONFIG.NODE_WIDTH_DENSE}px;
         height: auto;
         min-height: 160px;
