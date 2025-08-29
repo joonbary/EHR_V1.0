@@ -863,11 +863,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 차트 초기화
 function initializeChart() {
-    // 초기 뷰 설정 (Dense 모드 강제 활성화를 위해 80% 줌으로 시작)
+    // 초기 뷰 설정 (적절한 균형을 위해 70% 줌으로 시작)
     updateViewMode('vertical');
-    updateZoom(80); // Dense 모드 활성화 (95% 미만)
+    updateZoom(70); // Dense 모드 활성화하되 더 작은 줌으로 전체 뷰 제공
     
-    console.log('💡 고급 조직도 초기화 완료 - Dense 모드 강제 활성화 (80% 줌)');
+    console.log('💡 고급 조직도 초기화 완료 - Dense 모드 활성화 (70% 줌)');
 }
 
 // 이벤트 리스너 설정
@@ -1139,7 +1139,7 @@ function calculateLayout() {
                 node.y = 250; // 루트 아래 적당한 거리
             });
         } else {
-            // 하위 레벨들은 부모 아래 수직으로 배치 (PDF처럼)
+            // 하위 레벨들은 부모 아래에 수평으로 펼쳐서 배치
             const parentGroups = new Map();
             nodes.forEach(node => {
                 const parentId = node.parentId;
@@ -1149,17 +1149,43 @@ function calculateLayout() {
                 parentGroups.get(parentId).push(node);
             });
             
+            // 각 레벨의 총 너비 계산을 위한 부모별 자식 수 확인
+            let levelTotalWidth = 0;
+            const parentWidths = new Map();
+            
             parentGroups.forEach((children, parentId) => {
+                const childWidth = children.length * (nodeWidth + siblingSpacing);
+                parentWidths.set(parentId, childWidth);
+                levelTotalWidth += childWidth;
+            });
+            
+            // 부모들을 X 위치 순으로 정렬
+            const sortedParents = Array.from(parentGroups.keys()).sort((a, b) => {
+                const parentA = OrgChartState.nodes.get(a);
+                const parentB = OrgChartState.nodes.get(b);
+                return (parentA?.x || 0) - (parentB?.x || 0);
+            });
+            
+            // 각 부모 그룹의 시작 X 위치 계산
+            let currentX = -(levelTotalWidth / 2) + (nodeWidth / 2);
+            
+            sortedParents.forEach(parentId => {
                 const parent = OrgChartState.nodes.get(parentId);
-                if (!parent) return;
+                const children = parentGroups.get(parentId);
+                if (!parent || !children) return;
                 
-                const verticalSpacing = nodeHeight + 20;
-                const startY = parent.y + 200; // 부모 아래 거리
+                // 자식들을 수평으로 배치
+                const childCount = children.length;
+                const groupWidth = childCount * (nodeWidth + siblingSpacing);
+                const startX = currentX;
                 
                 children.forEach((child, index) => {
-                    child.x = parent.x; // 부모와 같은 X 위치 (수직 정렬)
-                    child.y = startY + index * verticalSpacing;
+                    child.x = startX + index * (nodeWidth + siblingSpacing);
+                    child.y = parent.y + CONFIG.LEVEL_SPACING;
                 });
+                
+                // 다음 그룹을 위한 X 위치 업데이트
+                currentX += groupWidth + siblingSpacing * 2; // 그룹 간 추가 간격
             });
         }
     });
@@ -1550,20 +1576,31 @@ function createDenseNodeElement(node) {
                 border-radius: 1rem 0 0 1rem;
             "></div>
             
-            <!-- 노드 콘텐츠 (세로 글자) -->
-            <div class="node-content">
+            <!-- 노드 콘텐츠 (세로 글자) - 작업지시서 스펙 준수 -->
+            <div class="node-content" style="
+                margin-left: 6px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+                height: 100%;
+                padding: 0.5rem 0.25rem;
+            ">
                 <!-- 이름 (세로 글자 - CJK 최적화) -->
                 <div class="vertical-cjk" style="
                     font-size: 12px;
                     font-weight: 600;
                     color: rgba(255, 255, 255, 0.9);
                     line-height: 1.2;
+                    flex: 1;
+                    max-height: 220px;
+                    overflow: hidden;
                 ">${node.name}</div>
                 
-                <!-- 통계 (세로) -->
-                <div class="node-stats">
-                    <div class="v-chip">인원 ${headcount}</div>
-                    <div class="v-chip">하위 ${childrenCount}</div>
+                <!-- 통계 (세로) - 컴팩트하게 -->
+                <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                    <div class="v-chip" style="padding: 0.125rem;">인원 ${headcount}</div>
+                    <div class="v-chip" style="padding: 0.125rem;">하위 ${childrenCount}</div>
                 </div>
             </div>
             
