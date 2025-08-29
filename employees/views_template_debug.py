@@ -3,8 +3,9 @@
 """
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
-from django.template import TemplateDoesNotExist
+from django.template.exceptions import TemplateDoesNotExist
 import os
+import traceback
 
 def template_debug(request):
     """템플릿 로딩 상태 확인"""
@@ -13,12 +14,16 @@ def template_debug(request):
         'status': 'checking',
         'templates': {},
         'template_dirs': [],
-        'file_system_check': {}
+        'file_system_check': {},
+        'errors': []
     }
     
-    # Django 템플릿 디렉토리 확인
-    from django.conf import settings
-    debug_info['template_dirs'] = settings.TEMPLATES[0].get('DIRS', [])
+    try:
+        # Django 템플릿 디렉토리 확인
+        from django.conf import settings
+        debug_info['template_dirs'] = settings.TEMPLATES[0].get('DIRS', [])
+    except Exception as e:
+        debug_info['errors'].append(f"Settings error: {str(e)}")
     
     # 템플릿 로딩 테스트
     templates_to_check = [
@@ -41,28 +46,33 @@ def template_debug(request):
                 'path': None
             }
     
-    # 파일 시스템 직접 확인
-    app_dir = os.path.dirname(os.path.abspath(__file__))
-    template_dir = os.path.join(app_dir, 'templates', 'employees')
-    
-    debug_info['file_system_check']['template_dir'] = template_dir
-    debug_info['file_system_check']['dir_exists'] = os.path.exists(template_dir)
-    
-    if os.path.exists(template_dir):
-        files = os.listdir(template_dir)
-        debug_info['file_system_check']['files'] = files[:20]  # 처음 20개만
-        debug_info['file_system_check']['advanced_exists'] = 'advanced_organization_chart.html' in files
-    else:
-        debug_info['file_system_check']['files'] = []
-        debug_info['file_system_check']['advanced_exists'] = False
-    
-    # 실제 경로에서 파일 존재 확인
-    advanced_path = os.path.join(template_dir, 'advanced_organization_chart.html')
-    debug_info['file_system_check']['advanced_full_path'] = advanced_path
-    debug_info['file_system_check']['advanced_file_exists'] = os.path.exists(advanced_path)
-    
-    if os.path.exists(advanced_path):
-        debug_info['file_system_check']['advanced_file_size'] = os.path.getsize(advanced_path)
+    try:
+        # 파일 시스템 직접 확인
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        template_dir = os.path.join(app_dir, 'templates', 'employees')
+        
+        debug_info['file_system_check']['app_dir'] = app_dir
+        debug_info['file_system_check']['template_dir'] = template_dir
+        debug_info['file_system_check']['dir_exists'] = os.path.exists(template_dir)
+        
+        if os.path.exists(template_dir):
+            files = os.listdir(template_dir)
+            debug_info['file_system_check']['files'] = files[:20]  # 처음 20개만
+            debug_info['file_system_check']['advanced_exists'] = 'advanced_organization_chart.html' in files
+        else:
+            debug_info['file_system_check']['files'] = []
+            debug_info['file_system_check']['advanced_exists'] = False
+        
+        # 실제 경로에서 파일 존재 확인
+        advanced_path = os.path.join(template_dir, 'advanced_organization_chart.html')
+        debug_info['file_system_check']['advanced_full_path'] = advanced_path
+        debug_info['file_system_check']['advanced_file_exists'] = os.path.exists(advanced_path)
+        
+        if os.path.exists(advanced_path):
+            debug_info['file_system_check']['advanced_file_size'] = os.path.getsize(advanced_path)
+    except Exception as e:
+        debug_info['errors'].append(f"File system error: {str(e)}")
+        debug_info['errors'].append(traceback.format_exc())
     
     return JsonResponse(debug_info, json_dumps_params={'indent': 2})
 

@@ -12,6 +12,7 @@ from . import views_debug
 from . import views_system_debug
 from . import views_deployment_debug
 from . import views_template_debug
+from . import views_simple_debug
 
 app_name = 'employees'
 
@@ -89,6 +90,7 @@ urlpatterns = [
     # Template debug
     path('template/debug/', views_template_debug.template_debug, name='template_debug'),
     path('advanced-org-chart-test/', views_template_debug.render_advanced_org_chart, name='advanced_org_chart_test'),
+    path('simple/debug/', views_simple_debug.simple_debug, name='simple_debug'),
 ]
 
 # 인재 관리 API URL 추가
