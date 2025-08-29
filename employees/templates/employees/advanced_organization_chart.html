@@ -1183,6 +1183,16 @@ function calculateLayout() {
         
         console.log(`Processing depth ${depth} -> ${depth + 1}`);
         
+        // 적응형 간격 계산 (전체 레벨 노드 개수 기반)
+        let levelAdaptiveSpacing = siblingSpacing;
+        if (nextLevelNodes.length > 20) {
+            levelAdaptiveSpacing = Math.max(10, siblingSpacing * 0.5); // 50% 감소, 최소 10px
+        } else if (nextLevelNodes.length > 10) {
+            levelAdaptiveSpacing = Math.max(15, siblingSpacing * 0.7); // 30% 감소, 최소 15px
+        }
+        
+        console.log(`Level ${depth + 1}: ${nextLevelNodes.length} nodes, adaptive spacing: ${levelAdaptiveSpacing}px (applied during placement)`);
+        
         // 부모별로 자식 노드 그룹화
         const childrenByParent = new Map();
         nextLevelNodes.forEach(child => {
@@ -1208,12 +1218,12 @@ function calculateLayout() {
                 children[0].x = parent.x;
                 children[0].y = childY;
             } else {
-                // 여러 자식을 부모 중심으로 배치
-                const totalWidth = childCount * nodeWidth + (childCount - 1) * siblingSpacing;
+                // 여러 자식을 부모 중심으로 배치 (적응형 간격 적용)
+                const totalWidth = childCount * nodeWidth + (childCount - 1) * levelAdaptiveSpacing;
                 const startX = parent.x - totalWidth / 2 + nodeWidth / 2;
                 
                 children.forEach((child, index) => {
-                    child.x = startX + index * (nodeWidth + siblingSpacing);
+                    child.x = startX + index * (nodeWidth + levelAdaptiveSpacing);
                     child.y = childY;
                 });
             }
@@ -1221,34 +1231,24 @@ function calculateLayout() {
             console.log(`Placed ${children.length} children of ${parent.name} at y=${childY}`);
         });
         
-        // 같은 레벨에서 겹침 방지 + 적응형 간격 조정
+        // 같은 레벨에서 겹침 방지 (이미 적응형 간격이 적용됨)
         const levelY = rootNodes[0].y + (depth + 1) * (nodeHeight + CONFIG.LEVEL_SPACING);
         const sameLevelNodes = nextLevelNodes.filter(n => n.x !== undefined);
         
         if (sameLevelNodes.length > 1) {
             sameLevelNodes.sort((a, b) => a.x - b.x);
             
-            // 적응형 간격: 노드가 많을수록 간격을 줄임
-            let adaptiveSiblingSpacing = siblingSpacing;
-            if (sameLevelNodes.length > 20) {
-                adaptiveSiblingSpacing = Math.max(10, siblingSpacing * 0.5); // 50% 감소, 최소 10px
-            } else if (sameLevelNodes.length > 10) {
-                adaptiveSiblingSpacing = Math.max(15, siblingSpacing * 0.7); // 30% 감소, 최소 15px
-            }
-            
-            console.log(`Level ${depth + 1}: ${sameLevelNodes.length} nodes, adaptive spacing: ${adaptiveSiblingSpacing}px`);
-            
             for (let i = 1; i < sameLevelNodes.length; i++) {
                 const prev = sameLevelNodes[i - 1];
                 const curr = sameLevelNodes[i];
-                const minDistance = nodeWidth + adaptiveSiblingSpacing;
+                const minDistance = nodeWidth + levelAdaptiveSpacing;
                 
                 if (curr.x - prev.x < minDistance) {
                     const shift = minDistance - (curr.x - prev.x);
                     for (let j = i; j < sameLevelNodes.length; j++) {
                         sameLevelNodes[j].x += shift;
                     }
-                    console.log(`Adjusted spacing at level ${depth + 1} with adaptive spacing ${adaptiveSiblingSpacing}px`);
+                    console.log(`Fine-adjusted spacing at level ${depth + 1} with adaptive spacing ${levelAdaptiveSpacing}px`);
                 }
             }
         }
