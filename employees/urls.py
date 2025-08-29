@@ -13,6 +13,7 @@ from . import views_system_debug
 from . import views_deployment_debug
 from . import views_template_debug
 from . import views_simple_debug
+from . import views_final_debug
 
 app_name = 'employees'
 
@@ -24,6 +25,8 @@ urlpatterns = [
     path('download-template/', views.download_template, name='employee_download_template'),
     path('org-chart/', views.organization_chart, name='organization_chart'),
     path('advanced-org-chart/', views.advanced_organization_chart, name='advanced_organization_chart'),
+    path('advanced-org-chart-v2/', views_final_debug.test_advanced_org_chart, name='advanced_org_chart_v2'),
+    path('verify-import/', views_final_debug.verify_view_import, name='verify_import'),
     path('hierarchy/', views.hierarchy_organization_view, name='hierarchy_organization'),
     path('api/organization-data/', views.organization_data_api, name='organization_data_api'),
     path('api/hierarchy-data/', views.hierarchy_organization_api, name='hierarchy_organization_api'),

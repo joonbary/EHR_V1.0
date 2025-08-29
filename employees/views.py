@@ -18,6 +18,8 @@ from django.conf import settings
 import os
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.encoding import smart_str
+from django.db.models import Count, Q
+import json
 import re
 import json
 from datetime import date
@@ -526,9 +528,6 @@ def organization_chart(request):
 def advanced_organization_chart(request):
     """차세대 조직도 - 대규모 조직 최적화 버전"""
     return render(request, 'employees/advanced_organization_chart.html')
-
-from django.db.models import Count, Q
-import json
 
 def org_tree_api(request, node_id=None):
     """조직 트리 데이터 API - 실제 조직구조 데이터 사용"""
