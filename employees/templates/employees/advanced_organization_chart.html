@@ -625,19 +625,20 @@
         line-height: 1 !important;
     }
     
-    /* DenseTallNode 스타일 - 초슬림 세로 카드 (40px 폭으로 더 축소) */
+    /* DenseTallNode 스타일 - 초슬림 세로 카드 (92px 폭) - 작업지시서 사양 */
     .dense-node {
-        width: 40px !important;
-        min-height: 200px !important;
-        max-height: 280px !important;
-        padding: 0.25rem !important;
-        background: rgba(14, 23, 40, 0.9) !important;
+        width: 92px !important;
+        min-height: 300px !important;
+        max-height: 460px !important;
+        padding: 0.5rem !important;
+        background: rgba(14, 23, 40, 0.8) !important;
         border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        border-radius: 1rem !important;
     }
     
     .dense-node .node-content {
-        padding: 0.5rem !important;
-        padding-left: 1rem !important;
+        padding: 0.75rem !important;
+        margin-left: 6px !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
@@ -787,57 +788,157 @@ const OrgChartState = {
     clusteredSiblings: new Map(), // 오버플로우 클러스터링 상태
 };
 
-// 상수 정의 - ELK 레이아웃용 파라미터 강화
+// ELK 스타일 세로 레이아웃 설정 (작업지시서 사양)
+const ELK_CONFIG = {
+    algorithm: "layered",
+    direction: "DOWN", // 세로 레이아웃 고정
+    nodeNodeSpacing: 24, // Dense 모드 간격
+    layerSpacing: 140, // 레이어 간 간격
+    nodePlacement: "BRANDES_KOEPF", // 노드 배치 전략
+    portConstraints: "FIXED_SIDE",
+    edgeRouting: "ORTHOGONAL",
+    padding: 48
+};
+
+// 상수 정의 - ELK 레이아웃용 파라미터 강화 (작업지시서 사양 적용)
 const CONFIG = {
     MAX_VISIBLE_SIBLINGS: 12, // 최대 표시 형제 노드 수 (초과시 버킷 그룹화)
-    NODE_WIDTH: 120,  // TallNode 너비 (일반 모드) - 더 축소
-    NODE_WIDTH_DENSE: 40, // DenseTallNode 너비 (초슬림 모드) - 40px로 축소
-    NODE_HEIGHT: 300, // 노드 높이 (세로 길쭉한 형태)
+    NODE_WIDTH: 180,  // TallNode 너비 (일반 모드) - 작업지시서 사양
+    NODE_WIDTH_DENSE: 92, // DenseTallNode 너비 (초슬림 모드) - 작업지시서 사양 92px
+    NODE_HEIGHT: 300, // 노드 높이 (세로 길쭉한 형태) - 작업지시서 사양
     NODE_HEIGHT_DENSE: 300, // Dense 모드에서도 동일 높이
-    LEVEL_SPACING: 120,  // 레벨 간격 (레이어 간 거리) - 축소
-    SIBLING_SPACING: 30, // 형제 간격 (일반 모드) - 축소
-    SIBLING_SPACING_DENSE: 15, // 형제 간격 (Dense 모드) - 더 축소
+    LEVEL_SPACING: 140,  // 레벨 간격 - 작업지시서 사양
+    SIBLING_SPACING: 48, // 형제 간격 (일반 모드) - 작업지시서 사양
+    SIBLING_SPACING_DENSE: 24, // 형제 간격 (Dense 모드) - 작업지시서 사양
     ZOOM_MIN: 30,  // 더 작게 축소 가능
     ZOOM_MAX: 200,
     ZOOM_STEP: 10,
-    ZOOM_DENSE_THRESHOLD: 95, // 95% 미만일 때 DenseTallNode 사용
+    ZOOM_DENSE_THRESHOLD: 95, // 95% 미만일 때 DenseTallNode 사용 - 작업지시서 사양
     SEARCH_DELAY: 300,
     ANIMATION_DURATION: 300,
     MAX_WIDTH_PER_LEVEL: 2400, // 레벨당 최대 너비 증가
     MIN_SPACING_RATIO: 0.6, // 최소 간격 비율 (자식이 많을 때)
     COLLISION_PADDING: 20, // 충돌 감지 여백
     BUCKET_THRESHOLD: 12, // 버킷 그룹화 임계값 (>12 형제)
+    PADDING: 48, // 패딩 - 작업지시서 사양
 };
 
-// 그래프 검증 유틸리티 - 체인(직렬) 엣지 검출
-function validateGraph(edges) {
-    const childCount = new Map();
-    edges.forEach(e => {
-        childCount.set(e.source.id || e.source, 
-            (childCount.get(e.source.id || e.source) || 0) + 1);
-    });
+// ELK 스타일 세로 레이아웃 계산기 (작업지시서 사양)
+function computeVerticalLayout(graph, mode = "normal") {
+    console.log(`🎯 Computing ELK-style vertical layout in ${mode} mode`);
     
-    // 부모가 계속 1명 자식만 가지는 구간은 체인 의심
-    const singleChildParents = [];
-    childCount.forEach((count, id) => {
-        if (count === 1) {
-            singleChildParents.push(id);
+    const nodeWidth = mode === "dense" ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
+    const nodeHeight = CONFIG.NODE_HEIGHT;
+    const spacingX = mode === "dense" ? ELK_CONFIG.nodeNodeSpacing : CONFIG.SIBLING_SPACING;
+    
+    // ELK 스타일 레이아웃 옵션 적용
+    const layoutOptions = {
+        algorithm: ELK_CONFIG.algorithm,
+        direction: ELK_CONFIG.direction,
+        nodeNodeSpacing: spacingX,
+        layerSpacing: ELK_CONFIG.layerSpacing,
+        nodePlacement: ELK_CONFIG.nodePlacement,
+        padding: ELK_CONFIG.padding
+    };
+    
+    console.log(`ELK Layout options:`, layoutOptions);
+    console.log(`Node dimensions: ${nodeWidth}x${nodeHeight}, spacing: ${spacingX}px`);
+    
+    // 현재 calculateLayout 함수를 ELK 스타일로 호출
+    calculateLayout();
+    
+    return {
+        nodes: Array.from(OrgChartState.nodes.values()).map(n => ({
+            id: n.id,
+            position: { x: n.x || 0, y: n.y || 0 },
+            data: n,
+            type: mode === "dense" ? "dense" : "tall"
+        })),
+        edges: OrgChartState.edges.map(e => ({
+            id: `${e.source.id}-${e.target.id}`,
+            source: e.source.id,
+            target: e.target.id
+        }))
+    };
+}
+
+// 조직 데이터에서 그래프 생성 (작업지시서 사양)
+function buildGraph(rows) {
+    console.log('🏗️ Building organization graph from rows:', rows.length);
+    
+    const nodes = rows.map(r => ({
+        id: r.id,
+        type: "tall", // 기본 노드 타입
+        data: {
+            name: r.name,
+            type: r.type || "company", // company|division|department|team|person
+            headcount: r.headcount || 0,
+            childrenCount: r.childrenCount || 0
+        }
+    }));
+    
+    const edges = rows
+        .filter(r => r.parentId) // 부모가 있는 노드만
+        .map(r => ({
+            id: `${r.parentId}-${r.id}`,
+            source: r.parentId,
+            target: r.id
+        }));
+    
+    console.log(`Built graph: ${nodes.length} nodes, ${edges.length} edges`);
+    return { nodes, edges };
+}
+
+// 그래프 검증 유틸리티 - 체인(직렬) 엣지 검출 (작업지시서 사양)
+function validateGraph(edges) {
+    console.log('🔍 Validating graph structure...');
+    
+    const childCount = new Map();
+    
+    // 각 부모의 자식 수 계산
+    edges.forEach(e => {
+        const sourceId = e.source && typeof e.source === 'object' ? e.source.id : e.source;
+        const targetId = e.target && typeof e.target === 'object' ? e.target.id : e.target;
+        
+        if (sourceId) {
+            childCount.set(sourceId, (childCount.get(sourceId) || 0) + 1);
         }
     });
     
-    // 체인 길이 계산
-    const chainLength = singleChildParents.length;
-    const hasLongChain = chainLength > 3; // 3개 이상 연속이면 경고
+    // 부모가 계속 1명 자식만 가지는 구간은 체인 의심 (작업지시서 사양)
+    const singleChildParents = [...childCount.entries()]
+        .filter(([parentId, count]) => count === 1)
+        .map(([parentId]) => parentId);
     
-    if (hasLongChain) {
-        console.warn(`Graph validation warning: Found chain of ${chainLength} single-child parents`, singleChildParents);
+    // 체인 길이 및 건강도 평가
+    const chainLength = singleChildParents.length;
+    const totalParents = childCount.size;
+    const chainRatio = totalParents > 0 ? chainLength / totalParents : 0;
+    
+    // 경고 임계값 (작업지시서: 루트~본부 구간에서 길게 이어지지 않음)
+    const hasLongChain = chainLength > 5; // 5개 이상 연속 체인은 구조적 문제
+    const hasHighChainRatio = chainRatio > 0.7; // 70% 이상이 단일 자식이면 문제
+    
+    const isValid = !hasLongChain && !hasHighChainRatio;
+    
+    if (!isValid) {
+        console.warn(`⚠️ Graph structure warning:`, {
+            chainLength,
+            chainRatio: (chainRatio * 100).toFixed(1) + '%',
+            singleChildParents
+        });
+    } else {
+        console.log(`✅ Graph structure healthy: ${chainLength} single-child parents out of ${totalParents}`);
     }
     
     return { 
-        singleChildParents, 
+        singleChildParents,
         chainLength,
+        chainRatio,
         hasLongChain,
-        isValid: !hasLongChain
+        hasHighChainRatio,
+        isValid,
+        totalParents
     };
 }
 
@@ -1616,14 +1717,14 @@ function createDenseNodeElement(node) {
         div.classList.add('collapsed');
     }
     
-    // Dense 모드에서는 40px 초슬림 카드로 고정
+    // Dense 모드에서는 92px 초슬림 카드로 고정 (작업지시서 사양)
     // 위치는 renderVerticalView에서 설정하므로 여기서는 설정하지 않음
     div.style.cssText = `
         position: absolute;
         width: ${CONFIG.NODE_WIDTH_DENSE}px;
         height: auto;
-        min-height: 160px;
-        max-height: 240px;
+        min-height: 300px;
+        max-height: 460px;
         padding: 0.125rem;
         background: rgba(14, 23, 40, 0.95);
         backdrop-filter: blur(8px);
@@ -2342,18 +2443,47 @@ function updateLevelFilter(level) {
 
 // 줌 업데이트
 function updateZoom(level) {
+    console.log(`🔍 Updating zoom from ${OrgChartState.zoomLevel}% to ${level}%`);
+    
+    const previousLevel = OrgChartState.zoomLevel;
     OrgChartState.zoomLevel = level;
     document.getElementById('zoomLevel').textContent = `${level}%`;
+    
+    // Dense 모드 전환 임계값 체크 (작업지시서 사양: 95%)
+    const wasDense = previousLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
+    const isDense = level < CONFIG.ZOOM_DENSE_THRESHOLD;
+    
+    if (wasDense !== isDense) {
+        console.log(`🎯 Mode switching: ${wasDense ? 'Dense' : 'Normal'} → ${isDense ? 'Dense' : 'Normal'}`);
+        
+        // ELK 스타일 레이아웃 재계산 (모드 전환 시)
+        const layoutMode = isDense ? "dense" : "normal";
+        const layoutResult = computeVerticalLayout(null, layoutMode);
+        
+        console.log(`ELK-style layout computed in ${layoutMode} mode:`, {
+            nodes: layoutResult.nodes.length,
+            edges: layoutResult.edges.length
+        });
+        
+        // 차트 재렌더링 (새로운 노드 타입 적용)
+        renderChart();
+    }
     
     const container = document.getElementById('treeContainer');
     container.style.transform = `scale(${level / 100})`;
     
     // 시맨틱 줌 클래스 적용
-    container.classList.remove('zoom-small', 'zoom-large');
+    container.classList.remove('zoom-small', 'zoom-large', 'dense-mode');
     if (level < 80) {
         container.classList.add('zoom-small');
     } else if (level > 120) {
         container.classList.add('zoom-large');
+    }
+    
+    // Dense 모드 마커 클래스 추가 (CSS 스타일링용)
+    if (isDense) {
+        container.classList.add('dense-mode');
+        console.log(`🎯 Dense mode activated: Using ${CONFIG.NODE_WIDTH_DENSE}px wide cards`);
     }
 }
 
