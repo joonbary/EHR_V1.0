@@ -607,55 +607,71 @@
         border: 0;
     }
     
-    /* 세로 글자 유틸리티 (DenseTallNode용) - CJK 최적화 */
+    /* 세로 글자 유틸리티 (DenseTallNode용) - CJK 최적화 - 작업지시서 사양 */
     .vertical-cjk {
-        writing-mode: vertical-rl;
-        text-orientation: upright; /* CJK 문자 직립 */
+        writing-mode: vertical-rl !important;
+        text-orientation: upright !important; /* CJK 문자 직립 */
     }
     
     .vertical-mixed {
-        writing-mode: vertical-rl;
-        text-orientation: mixed; /* 영문/숫자 섞일 때 */
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important; /* 영문/숫자 섞일 때 */
     }
     
     .v-chip {
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-        font-size: 10px;
-        line-height: 1;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        font-size: 10px !important;
+        line-height: 1 !important;
     }
     
-    /* DenseTallNode 스타일 - 초슬림 세로 카드 */
+    /* DenseTallNode 스타일 - 초슬림 세로 카드 (92px 폭) */
     .dense-node {
         width: 92px !important;
-        min-height: 300px;
-        max-height: 460px;
-        padding: 0.5rem;
+        min-height: 300px !important;
+        max-height: 460px !important;
+        padding: 0.5rem !important;
+        background: rgba(14, 23, 40, 0.8) !important;
     }
     
     .dense-node .node-content {
-        padding: 0.5rem;
-        padding-left: 1rem;
+        padding: 0.5rem !important;
+        padding-left: 1rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        height: 100% !important;
     }
     
-    .dense-node .node-name {
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-        max-height: 220px;
-        overflow: hidden;
+    /* Dense 노드 이름 - 세로쓰기 강제 적용 */
+    .dense-node .node-name,
+    .dense-node .vertical-cjk {
+        writing-mode: vertical-rl !important;
+        text-orientation: upright !important; /* 작업지시서: CJK upright */
+        max-height: 220px !important;
+        overflow: hidden !important;
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
     }
     
     .dense-node .node-stats {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.25rem !important;
     }
     
-    .dense-node .node-stat {
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-        font-size: 10px;
-        padding: 0.25rem;
+    /* Dense 노드 통계 칩 - 세로쓰기 강제 적용 */
+    .dense-node .node-stat,
+    .dense-node .v-chip {
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        font-size: 10px !important;
+        padding: 0.25rem !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        border-radius: 0.25rem !important;
     }
 </style>
 {% endblock %}
@@ -1535,31 +1551,19 @@ function createDenseNodeElement(node) {
             "></div>
             
             <!-- 노드 콘텐츠 (세로 글자) -->
-            <div class="node-content" style="margin-left: 8px; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+            <div class="node-content">
                 <!-- 이름 (세로 글자 - CJK 최적화) -->
                 <div class="vertical-cjk" style="
                     font-size: 12px;
                     font-weight: 600;
                     color: rgba(255, 255, 255, 0.9);
                     line-height: 1.2;
-                    max-height: 220px;
-                    overflow: hidden;
                 ">${node.name}</div>
                 
                 <!-- 통계 (세로) -->
-                <div style="display: flex; gap: 0.25rem;">
-                    <div class="v-chip" style="
-                        background: rgba(255, 255, 255, 0.05);
-                        color: rgba(255, 255, 255, 0.7);
-                        border-radius: 0.25rem;
-                        padding: 0.25rem;
-                    ">인원${headcount}</div>
-                    <div class="v-chip" style="
-                        background: rgba(255, 255, 255, 0.05);
-                        color: rgba(255, 255, 255, 0.7);
-                        border-radius: 0.25rem;
-                        padding: 0.25rem;
-                    ">하위${childrenCount}</div>
+                <div class="node-stats">
+                    <div class="v-chip">인원 ${headcount}</div>
+                    <div class="v-chip">하위 ${childrenCount}</div>
                 </div>
             </div>
             
@@ -1633,87 +1637,58 @@ function createNodeElement(node) {
         `;
         div.addEventListener('click', () => expandCluster(node.id));
     } else {
-        // DenseTallNode 콘텐츠 (초슬림 세로 글자 노드) - 92px 폭
+        // TallNode 콘텐츠 (일반 가로 글자 노드) - 180px 폭
         const headcount = node.headcount || 0;
         const childrenCount = node.childrenCount || 0;
         const badges = node.badges || [];
-        const typeColor = {
-            'company': '#00d4ff',
-            'division': '#d946ef', 
-            'department': '#14b8a6',
-            'team': '#64748b',
-            'person': '#f59e0b'
-        }[node.type] || '#00d4ff';
         
         div.innerHTML = `
             <!-- 왼쪽 세로 spine (타입 표시) -->
-            <div class="node-spine ${node.type}" style="
-                position: absolute;
-                left: 0;
-                top: 0;
-                height: 100%;
-                width: 6px;
-                background: linear-gradient(to bottom, ${typeColor}, transparent);
-                opacity: 0.7;
-                border-radius: 1rem 0 0 1rem;
-            "></div>
+            <div class="node-spine ${node.type}"></div>
             
-            <!-- 노드 콘텐츠 (세로 글자) -->
-            <div class="node-content" style="margin-left: 8px; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; height: 100%;">
-                <!-- 이름 (세로 글자 - CJK 최적화) -->
-                <div class="vertical-cjk" style="
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: rgba(255, 255, 255, 0.9);
-                    line-height: 1.2;
-                    max-height: 220px;
-                    overflow: hidden;
-                    flex: 1;
-                    display: flex;
-                    align-items: center;
-                ">${node.name}</div>
+            <!-- 노드 콘텐츠 (가로 글자) -->
+            <div class="node-content">
+                <!-- 이름 (3줄 클램프) -->
+                <div class="node-name">${node.name}</div>
                 
-                <!-- 통계 (세로) -->
-                <div style="display: flex; gap: 0.25rem; flex-direction: column;">
-                    <div class="v-chip" style="
-                        background: rgba(255, 255, 255, 0.05);
-                        color: rgba(255, 255, 255, 0.7);
-                        border-radius: 0.25rem;
-                        padding: 0.25rem;
-                        font-size: 10px;
-                        line-height: 1;
-                        writing-mode: vertical-rl;
-                        text-orientation: mixed;
-                    ">인원 ${headcount}</div>
-                    <div class="v-chip" style="
-                        background: rgba(255, 255, 255, 0.05);
-                        color: rgba(255, 255, 255, 0.7);
-                        border-radius: 0.25rem;
-                        padding: 0.25rem;
-                        font-size: 10px;
-                        line-height: 1;
-                        writing-mode: vertical-rl;
-                        text-orientation: mixed;
-                    ">하위 ${childrenCount}</div>
+                <!-- 직급/타이틀 (2줄 클램프) -->
+                ${node.title ? `<div class="node-title">${node.title}</div>` : ''}
+                
+                <!-- 통계 그리드 -->
+                <div class="node-stats">
+                    <div class="node-stat">인원 ${headcount}</div>
+                    <div class="node-stat">하위 ${childrenCount}</div>
                 </div>
+                
+                <!-- 배지 (최대 3개 표시) -->
+                ${badges.length > 0 ? `
+                    <div class="node-badges">
+                        ${badges.slice(0, 3).map(badge => 
+                            `<span class="node-badge">${badge}</span>`
+                        ).join('')}
+                        ${badges.length > 3 ? 
+                            `<span class="node-badge">+${badges.length - 3}</span>` : ''
+                        }
+                    </div>
+                ` : ''}
+                
+                <!-- 접힌 상태에서 하위 조직 정보 -->
+                ${!OrgChartState.expandedNodes.has(node.id) && node.hasChildren ? `
+                    <div class="node-children-info" style="
+                        margin-top: 0.5rem;
+                        padding-top: 0.5rem;
+                        border-top: 1px solid rgba(0, 212, 255, 0.1);
+                        font-size: 0.813rem;
+                        color: #00d4ff;
+                    ">
+                        <i class="fas fa-chevron-down"></i> ${childrenCount}개 하위 조직
+                    </div>
+                ` : ''}
             </div>
             
             <!-- 접기/펼치기 버튼 -->
             ${node.hasChildren ? `
-                <button class="node-toggle" aria-label="${OrgChartState.expandedNodes.has(node.id) ? '접기' : '펼치기'}" style="
-                    position: absolute;
-                    bottom: -12px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: rgba(0, 212, 255, 0.8);
-                    border: none;
-                    border-radius: 50%;
-                    width: 24px;
-                    height: 24px;
-                    color: white;
-                    font-size: 12px;
-                    cursor: pointer;
-                ">
+                <button class="node-toggle" aria-label="${OrgChartState.expandedNodes.has(node.id) ? '접기' : '펼치기'}">
                     <i class="fas fa-chevron-${OrgChartState.expandedNodes.has(node.id) ? 'up' : 'down'}"></i>
                 </button>
             ` : ''}
@@ -1864,7 +1839,7 @@ async function loadNodeChildren(nodeId, depth = 1) {
 
 // 특정 깊이까지 노드 확장 (expandToDepth) - 큐 기반 BFS 최적화
 async function expandToDepth(rootId, targetDepth = 3) {
-    console.log(`Expanding node ${rootId} to depth ${targetDepth}`);
+    console.log(`🔄 Expanding node ${rootId} to depth ${targetDepth} - Dense mode test`);
     
     showLoading(true);
     
@@ -1922,6 +1897,16 @@ async function expandToDepth(rootId, targetDepth = 3) {
     }
     
     showLoading(false);
+    
+    // 확장 후 상태 체크
+    console.log(`📊 Current zoom: ${OrgChartState.zoomLevel}% (Dense mode: ${OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD})`);
+    
+    // 확장 후 Dense 모드 강제 확인 (초슬림 카드 테스트용)
+    if (OrgChartState.zoomLevel >= CONFIG.ZOOM_DENSE_THRESHOLD) {
+        console.log('🔥 Forcing Dense mode for ultra-slim cards verification');
+        updateZoom(80); // Dense 모드 강제 활성화
+        return; // updateZoom에서 이미 렌더링됨
+    }
     
     // 레이아웃 재계산 및 렌더링
     calculateLayout();
