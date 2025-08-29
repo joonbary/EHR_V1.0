@@ -976,12 +976,25 @@ function initializeChart() {
     updateViewMode('vertical');
     
     // 렌더링 완료 후 줌 적용 (비동기)
-    setTimeout(() => {
-        console.log('🔍 줌 적용 전 상태 확인:', OrgChartState.zoomLevel);
-        updateZoom(30); // 30% 줌으로 전체 조직도를 한눈에 표시
-        console.log('🔍 줌 적용 후 상태 확인:', OrgChartState.zoomLevel);
-        console.log('💡 고급 조직도 초기화 완료 - 30% 줌 적용 시도됨');
-    }, 500); // 시간을 500ms로 증가
+    // 초기 줌을 30%로 설정하여 Dense 모드 강제 활성화
+    console.log('🔍 줌 적용 전 상태 확인:', OrgChartState.zoomLevel);
+    
+    // Dense 모드로 바로 시작 (92px 초슬림 카드)
+    OrgChartState.zoomLevel = 30;
+    document.getElementById('zoomLevel').textContent = '30%';
+    
+    // 레이아웃 재계산 (Dense 모드 적용)
+    calculateLayout();
+    renderChart();
+    
+    // CSS 변환 적용 (시각적 줌)
+    const container = document.getElementById('treeContainer');
+    container.style.transform = 'scale(0.3)';
+    container.classList.add('dense-mode');
+    
+    console.log('🔍 줌 적용 후 상태 확인:', OrgChartState.zoomLevel);
+    console.log('🎯 Dense 모드 강제 활성화: 92px 초슬림 카드');
+    console.log('💡 고급 조직도 초기화 완료 - Dense 모드로 시작'); // 시간을 500ms로 증가
 }
 
 // 이벤트 리스너 설정
@@ -1286,10 +1299,26 @@ function calculateLayout() {
         
         console.log(`Processing depth ${depth} -> ${depth + 1}`);
         
-        // 적응형 간격 계산 (전체 레벨 노드 개수 기반) - 더 공격적인 압축
+        // 뷰포트 기반 적응형 간격 계산 (차세대 조직도 사양)
+        const viewport = document.getElementById('chartViewport');
+        const viewportWidth = viewport ? viewport.clientWidth : 1200;
+        const zoomFactor = OrgChartState.zoomLevel / 100;
+        const effectiveViewportWidth = viewportWidth / zoomFactor;
+        
+        // 뷰포트에 맞는 최대 노드 수 계산
+        const maxNodesPerRow = Math.floor(effectiveViewportWidth / (nodeWidth + siblingSpacing));
+        
         let levelAdaptiveSpacing = siblingSpacing;
-        if (nextLevelNodes.length > 40) {
-            levelAdaptiveSpacing = Math.max(8, siblingSpacing * 0.3); // 70% 감소, 최소 8px (매우 조밀)
+        
+        // 뷰포트 기반 동적 간격 조정
+        if (nextLevelNodes.length > maxNodesPerRow) {
+            // 뷰포트 초과 시 간격을 줄여 맞춤
+            const requiredWidth = nextLevelNodes.length * nodeWidth;
+            const availableSpacing = effectiveViewportWidth - requiredWidth;
+            levelAdaptiveSpacing = Math.max(5, availableSpacing / (nextLevelNodes.length - 1));
+            console.log(`🎯 Viewport-constrained spacing: ${levelAdaptiveSpacing}px for ${nextLevelNodes.length} nodes (viewport: ${effectiveViewportWidth}px)`);
+        } else if (nextLevelNodes.length > 40) {
+            levelAdaptiveSpacing = Math.max(8, siblingSpacing * 0.3); // 70% 감소, 최소 8px
         } else if (nextLevelNodes.length > 20) {
             levelAdaptiveSpacing = Math.max(10, siblingSpacing * 0.4); // 60% 감소, 최소 10px
         } else if (nextLevelNodes.length > 10) {
@@ -1618,10 +1647,34 @@ function shouldRenderNode(node) {
         }
     }
     
-    // 노드가 화면 범위를 벗어났는지 체크 (디버깅용)
+    // 뷰포트 기반 동적 경계 체크 (줌 레벨과 뷰포트 크기 고려)
     if (node.x !== undefined && node.y !== undefined) {
-        if (Math.abs(node.x) > 5000 || node.y > 5000) {
-            console.warn(`Node ${node.name} is out of bounds: x=${node.x}, y=${node.y}`);
+        const viewport = document.getElementById('chartViewport');
+        if (viewport) {
+            const viewportWidth = viewport.clientWidth || 1200;
+            const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
+            
+            // 줌 레벨에 따른 효과적인 뷰포트 크기 계산
+            const zoomFactor = OrgChartState.zoomLevel / 100;
+            const effectiveViewportWidth = viewportWidth / zoomFactor;
+            
+            // Dense 모드에서는 더 많은 노드를 표시하기 위해 관대한 경계 적용
+            if (isDenseMode) {
+                // Dense 모드: 92px 카드로 더 많이 표시 가능
+                const maxVisibleNodes = Math.floor(effectiveViewportWidth / (CONFIG.NODE_WIDTH_DENSE + 24));
+                const estimatedMaxX = maxVisibleNodes * (CONFIG.NODE_WIDTH_DENSE + 24);
+                
+                if (Math.abs(node.x) > estimatedMaxX) {
+                    console.log(`Dense mode: Node ${node.name} filtered out - x=${node.x} exceeds ${estimatedMaxX}`);
+                    return false;
+                }
+            } else {
+                // Normal 모드: 더 엄격한 경계 적용
+                if (Math.abs(node.x) > effectiveViewportWidth * 1.2 || node.y > 3000) {
+                    console.log(`Normal mode: Node ${node.name} filtered out - x=${node.x}, y=${node.y} (viewport: ${effectiveViewportWidth})`);
+                    return false;
+                }
+            }
         }
     }
     
