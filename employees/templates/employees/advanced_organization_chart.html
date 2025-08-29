@@ -1797,11 +1797,12 @@ function createEdgeElement(edge, centerX) {
     const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
                         OrgChartState.currentView === 'compact';
     const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;
+    const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
     
-    const sourceX = centerX + edge.source.x;
-    const sourceY = edge.source.y + nodeHeight - 20; // 노드 하단
-    const targetX = centerX + edge.target.x;
-    const targetY = edge.target.y + 20; // 노드 상단
+    const sourceX = centerX + edge.source.x - nodeWidth / 2;
+    const sourceY = edge.source.y + 50 + nodeHeight; // 노드 하단 (상단 여백 50px 고려)
+    const targetX = centerX + edge.target.x - nodeWidth / 2;
+    const targetY = edge.target.y + 50; // 노드 상단 (상단 여백 50px 고려)
     
     if (edge.type === 'orthogonal' && sourceX !== targetX) {
         // 직각 연결선 (ㄱ자 형태)
@@ -1906,8 +1907,39 @@ async function loadNodeChildren(nodeId, depth = 1) {
         const node = OrgChartState.nodes.get(nodeId);
         if (node && data.children) {
             node.children = data.children;
-            processOrgData({ ...node, children: data.children });
+            
+            // 자식 노드만 처리 (부모 노드는 이미 존재하므로 다시 처리하지 않음)
+            data.children.forEach(child => {
+                const childNode = {
+                    ...child,
+                    parentId: nodeId,  // 부모 ID를 명확히 설정
+                    level: node.level + 1,
+                    // x, y 좌표는 calculateLayout에서 계산
+                };
+                OrgChartState.nodes.set(child.id, childNode);
+                
+                // 자식의 자식들도 재귀적으로 처리
+                if (child.children && child.children.length > 0) {
+                    function processChildrenRecursive(children, parentId, level) {
+                        children.forEach(c => {
+                            const processedChild = {
+                                ...c,
+                                parentId: parentId,
+                                level: level,
+                            };
+                            OrgChartState.nodes.set(c.id, processedChild);
+                            
+                            if (c.children) {
+                                processChildrenRecursive(c.children, c.id, level + 1);
+                            }
+                        });
+                    }
+                    processChildrenRecursive(child.children, child.id, node.level + 2);
+                }
+            });
+            
             calculateLayout();
+            renderChart();
             console.log(`Successfully loaded ${data.children.length} children for node ${nodeId} with depth ${depth}`);
         } else {
             console.log(`No children found for node ${nodeId}`);
@@ -2363,7 +2395,7 @@ function useSampleData() {
                 headcount: 320,
                 childrenCount: 8,
                 hasChildren: true,
-                parentId: 'root',
+                parentId: 'OK금융그룹',
                 path: ['OK금융그룹', '경영지원본부'],
                 children: [
                     {
@@ -2429,7 +2461,7 @@ function useSampleData() {
                 headcount: 450,
                 childrenCount: 10,
                 hasChildren: true,
-                parentId: 'root',
+                parentId: 'OK금융그룹',
                 path: ['OK금융그룹', 'IT본부'],
                 children: [
                     {
@@ -2495,7 +2527,7 @@ function useSampleData() {
                 headcount: 580,
                 childrenCount: 15,
                 hasChildren: true,
-                parentId: 'root',
+                parentId: 'OK금융그룹',
                 path: ['OK금융그룹', '영업본부'],
                 children: []
             }
