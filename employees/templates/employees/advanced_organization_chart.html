@@ -846,19 +846,26 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Advanced Org Chart: DOM loaded, initializing...');
     
     try {
-        initializeChart();
+        // 이벤트 리스너와 키보드 네비게이션 먼저 설정
         setupEventListeners();
         setupKeyboardNavigation();
         
         // API 데이터 로드를 시도하고, 실패하면 샘플 데이터 사용
-        loadInitialData().catch((error) => {
+        // 데이터 로드 후 차트 초기화
+        loadInitialData().then(() => {
+            // 데이터 로드 성공 후 차트 초기화
+            initializeChart();
+        }).catch((error) => {
             console.log('API failed, using sample data...', error);
             useSampleData();
+            // 샘플 데이터 로드 후 차트 초기화
+            initializeChart();
         });
     } catch (error) {
         console.error('Initialization error:', error);
         // 초기화 실패 시 샘플 데이터로 백업
         useSampleData();
+        initializeChart();
     }
 });
 
