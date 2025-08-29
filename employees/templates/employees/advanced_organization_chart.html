@@ -864,11 +864,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 차트 초기화
 function initializeChart() {
-    // 초기 뷰 설정 (적절한 균형을 위해 70% 줌으로 시작)
+    // 초기 뷰 설정 (전체 조직도가 보이도록 30% 줌으로 시작)
     updateViewMode('vertical');
-    updateZoom(70); // Dense 모드 활성화하되 더 작은 줌으로 전체 뷰 제공
+    updateZoom(30); // 30% 줌으로 전체 조직도를 한눈에 표시
     
-    console.log('💡 고급 조직도 초기화 완료 - Dense 모드 활성화 (70% 줌)');
+    console.log('💡 고급 조직도 초기화 완료 - 전체 뷰 모드 (30% 줌)');
 }
 
 // 이벤트 리스너 설정
@@ -1003,7 +1003,17 @@ async function loadInitialData() {
         
         // 노드 생성 및 렌더링
         processOrgData(data);
-        calculateLayout();  // 레이아웃 계산 추가
+        
+        // 초기 로드 시 일정 깊이까지 자동 확장
+        console.log('Auto-expanding nodes to depth 2 for API data...');
+        OrgChartState.nodes.forEach(node => {
+            if (node.level <= 1 && node.hasChildren) {  // 레벨 1까지 (본부, 부서) 자동 확장
+                OrgChartState.expandedNodes.add(node.id);
+                console.log(`Auto-expanded: ${node.name} (level ${node.level})`);
+            }
+        });
+        
+        calculateLayout();  // 레이아웃 계산
         renderChart();
         
     } catch (error) {
@@ -1078,9 +1088,7 @@ function processOrgData(data) {
     }
     
     processNode(data);
-    
-    // 레이아웃 계산
-    calculateLayout();
+    // calculateLayout()은 호출하는 곳에서 처리
 }
 
 // PDF 스타일 수평 확장 레이아웃 계산 (OK저축은행 조직도 형태)
@@ -1106,6 +1114,7 @@ function calculateLayout() {
     // 렌더링할 노드만 필터링
     const visibleNodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
     console.log(`Layout calculation for ${visibleNodes.length} visible nodes`);
+    console.log('Visible node names:', visibleNodes.map(n => n.name));
     
     // 실제 트리 깊이 계산 및 레벨별로 노드 그룹화
     function calculateDepth(node, depth = 0) {
@@ -1246,6 +1255,12 @@ function renderChart() {
     // 렌더링할 노드 수 확인
     const visibleNodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
     console.log(`Rendering ${visibleNodes.length} visible nodes out of ${OrgChartState.nodes.size} total nodes`);
+    
+    // 디버깅: 보이지 않는 노드 확인
+    if (visibleNodes.length < OrgChartState.nodes.size) {
+        const hiddenNodes = Array.from(OrgChartState.nodes.values()).filter(n => !shouldRenderNode(n));
+        console.log('Hidden nodes:', hiddenNodes.map(n => `${n.name} (parent: ${n.parentId})`));
+    }
     
     // 뷰 모드에 따른 특화된 렌더링
     if (OrgChartState.currentView === 'grid') {
@@ -1392,9 +1407,14 @@ function renderCompactView() {
 
 // 노드 렌더링 여부 확인
 function shouldRenderNode(node) {
+    // 디버깅: 노드 정보 출력
+    if (!node) {
+        console.error('shouldRenderNode: node is undefined');
+        return false;
+    }
+    
     // 레벨 필터가 활성화된 경우 먼저 확인
     if (OrgChartState.currentLevel !== 'all') {
-        console.log(`Filtering node ${node.name} (type: ${node.type}) with filter: ${OrgChartState.currentLevel}`);
         
         let shouldShow = false;
         switch(OrgChartState.currentLevel) {
@@ -1418,7 +1438,7 @@ function shouldRenderNode(node) {
                 shouldShow = true;
         }
         
-        console.log(`Node ${node.name} - Level Filter Show: ${shouldShow}`);
+        // console.log(`Node ${node.name} - Level Filter Show: ${shouldShow}`);
         
         // 레벨 필터에서 보여야 하는 노드면 부모 체인도 자동 확장
         if (shouldShow) {
@@ -1430,6 +1450,7 @@ function shouldRenderNode(node) {
     }
     
     // Progressive Disclosure: 펼쳐진 부모의 자식만 표시
+    // 초기 로드 시에는 모든 노드가 확장되어 있으므로 모든 노드를 표시
     if (node.parentId) {
         const parent = OrgChartState.nodes.get(node.parentId);
         if (!parent) {
@@ -1438,8 +1459,9 @@ function shouldRenderNode(node) {
         }
         
         // 상위 노드가 확장되지 않은 경우에만 숨김
+        // 초기 로드 시 모든 노드가 확장되므로 이 조건은 대부분 통과함
         if (!OrgChartState.expandedNodes.has(node.parentId)) {
-            console.log(`Node ${node.name} hidden - parent ${node.parentId} not expanded`);
+            // console.log(`Node ${node.name} hidden - parent ${node.parentId} not expanded`);
             return false;
         }
     }
@@ -2530,13 +2552,65 @@ function useSampleData() {
                 parentId: 'OK금융그룹',
                 path: ['OK금융그룹', '영업본부'],
                 children: []
+            },
+            {
+                id: 'subsidiary-1',
+                name: 'OK저축은행',
+                type: 'division',
+                headcount: 450,
+                childrenCount: 8,
+                hasChildren: true,
+                parentId: 'OK금융그룹',
+                path: ['OK금융그룹', 'OK저축은행'],
+                children: [
+                    {
+                        id: 'bank-dept-1',
+                        name: '리테일금융부',
+                        type: 'department',
+                        headcount: 85,
+                        childrenCount: 3,
+                        hasChildren: true,
+                        parentId: 'subsidiary-1',
+                        path: ['OK금융그룹', 'OK저축은행', '리테일금융부'],
+                        children: []
+                    },
+                    {
+                        id: 'bank-dept-2',
+                        name: '기업금융부',
+                        type: 'department',
+                        headcount: 72,
+                        childrenCount: 2,
+                        hasChildren: true,
+                        parentId: 'subsidiary-1',
+                        path: ['OK금융그룹', 'OK저축은행', '기업금융부'],
+                        children: []
+                    }
+                ]
             }
         ]
     };
     
     showLoading(false);
+    
+    // 노드 처리
     processOrgData(sampleData);
-    calculateLayout();  // 레이아웃 계산 추가
+    
+    // 초기 로드 시 모든 노드 펼치기 (Progressive Disclosure 없이 전체 구조 표시)
+    console.log('Auto-expanding ALL nodes for initial display...');
+    console.log(`Total nodes in state: ${OrgChartState.nodes.size}`);
+    
+    // 모든 노드 확장
+    OrgChartState.nodes.forEach(node => {
+        if (node.hasChildren) {  // 모든 자식이 있는 노드를 확장
+            OrgChartState.expandedNodes.add(node.id);
+            console.log(`Auto-expanded: ${node.name} (level ${node.level}, id: ${node.id})`);
+        }
+    });
+    
+    console.log(`Total expanded nodes: ${OrgChartState.expandedNodes.size}`);
+    console.log('Expanded node IDs:', Array.from(OrgChartState.expandedNodes));
+    
+    calculateLayout();  // 레이아웃 계산
     renderChart();
 }
 

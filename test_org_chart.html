@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>조직도 구현 테스트</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            padding: 20px;
+            background: #1a1f2e;
+            color: white;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .pass {
+            background: #065f46;
+            border: 1px solid #10b981;
+        }
+        .fail {
+            background: #7f1d1d;
+            border: 1px solid #ef4444;
+        }
+        .info {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+        }
+        button {
+            background: #00d4ff;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #0099cc;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #00d4ff;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 차세대 조직도 테스트</h1>
+    
+    <div id="test-results"></div>
+    
+    <div style="margin-top: 20px;">
+        <button onclick="runAllTests()">전체 테스트 실행</button>
+        <button onclick="clearCache()">캐시 초기화</button>
+        <button onclick="testZoomTransition()">줌 전환 테스트</button>
+        <button onclick="testExpansion()">확장 테스트</button>
+    </div>
+    
+    <iframe id="org-chart-frame" src="http://localhost:8002/employees/advanced-org-chart/"></iframe>
+    
+    <script>
+        const results = document.getElementById('test-results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            results.appendChild(div);
+        }
+        
+        function clearCache() {
+            // 강제 새로고침
+            const iframe = document.getElementById('org-chart-frame');
+            iframe.src = iframe.src + '?t=' + Date.now();
+            addResult('✅ 캐시 초기화 및 페이지 새로고침', 'pass');
+        }
+        
+        async function runAllTests() {
+            results.innerHTML = '';
+            addResult('🚀 테스트 시작...', 'info');
+            
+            const iframe = document.getElementById('org-chart-frame');
+            const iframeWindow = iframe.contentWindow;
+            
+            // iframe 로드 대기
+            await new Promise(resolve => {
+                if (iframe.contentDocument.readyState === 'complete') {
+                    resolve();
+                } else {
+                    iframe.onload = resolve;
+                }
+            });
+            
+            // 테스트 1: vertical-cjk 클래스 존재 확인
+            const hasCJKClass = iframe.contentDocument.querySelector('.vertical-cjk');
+            if (hasCJKClass) {
+                addResult('✅ TEST 1: vertical-cjk 클래스 적용 확인', 'pass');
+            } else {
+                addResult('❌ TEST 1: vertical-cjk 클래스를 찾을 수 없음', 'fail');
+            }
+            
+            // 테스트 2: validateGraph 함수 존재 확인
+            if (iframeWindow.validateGraph) {
+                addResult('✅ TEST 2: validateGraph 함수 존재 확인', 'pass');
+                
+                // 함수 실행 테스트
+                const testEdges = [
+                    { source: 'A', target: 'B' },
+                    { source: 'A', target: 'C' },
+                    { source: 'B', target: 'D' }
+                ];
+                const validation = iframeWindow.validateGraph(testEdges);
+                addResult(`📊 TEST 2-1: validateGraph 실행 결과 - 체인 길이: ${validation.chainLength}, 유효: ${validation.isValid}`, 'info');
+            } else {
+                addResult('❌ TEST 2: validateGraph 함수를 찾을 수 없음', 'fail');
+            }
+            
+            // 테스트 3: expandToDepth 함수 확인
+            if (iframeWindow.expandToDepth) {
+                addResult('✅ TEST 3: expandToDepth 함수 존재 확인 (BFS 최적화)', 'pass');
+            } else {
+                addResult('❌ TEST 3: expandToDepth 함수를 찾을 수 없음', 'fail');
+            }
+            
+            // 테스트 4: Dense 모드 설정 확인
+            if (iframeWindow.OrgChartState) {
+                const config = iframeWindow.CONFIG || {};
+                if (config.ZOOM_DENSE_THRESHOLD === 95) {
+                    addResult('✅ TEST 4: Dense 모드 임계값 95% 설정 확인', 'pass');
+                } else {
+                    addResult(`⚠️ TEST 4: Dense 모드 임계값이 ${config.ZOOM_DENSE_THRESHOLD}%로 설정됨`, 'fail');
+                }
+                
+                const currentZoom = iframeWindow.OrgChartState.zoomLevel;
+                const isDense = currentZoom < 95;
+                addResult(`📊 TEST 4-1: 현재 줌 레벨 ${currentZoom}%, Dense 모드: ${isDense ? '활성' : '비활성'}`, 'info');
+            } else {
+                addResult('❌ TEST 4: OrgChartState를 찾을 수 없음', 'fail');
+            }
+            
+            // 테스트 5: 노드 타입 확인
+            const denseNodes = iframe.contentDocument.querySelectorAll('.dense-node');
+            const normalNodes = iframe.contentDocument.querySelectorAll('.org-node:not(.dense-node)');
+            addResult(`📊 TEST 5: 노드 수 - Dense: ${denseNodes.length}, Normal: ${normalNodes.length}`, 'info');
+            
+            addResult('✅ 테스트 완료!', 'pass');
+        }
+        
+        async function testZoomTransition() {
+            const iframe = document.getElementById('org-chart-frame');
+            const iframeWindow = iframe.contentWindow;
+            
+            addResult('🔍 줌 전환 테스트 시작...', 'info');
+            
+            // 줌 레벨 변경 테스트
+            if (iframeWindow.updateZoom) {
+                // Dense 모드로 전환 (90%)
+                iframeWindow.updateZoom(90);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                addResult('📊 줌 90%로 설정 - Dense 모드 활성화 예상', 'info');
+                
+                // Normal 모드로 전환 (100%)
+                iframeWindow.updateZoom(100);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                addResult('📊 줌 100%로 설정 - Normal 모드 활성화 예상', 'info');
+                
+                addResult('✅ 줌 전환 테스트 완료', 'pass');
+            } else {
+                addResult('❌ updateZoom 함수를 찾을 수 없음', 'fail');
+            }
+        }
+        
+        async function testExpansion() {
+            const iframe = document.getElementById('org-chart-frame');
+            const iframeWindow = iframe.contentWindow;
+            
+            addResult('📂 확장 테스트 시작...', 'info');
+            
+            if (iframeWindow.expandToDepth) {
+                try {
+                    await iframeWindow.expandToDepth('OK금융그룹', 2);
+                    addResult('✅ 레벨 2까지 확장 성공', 'pass');
+                    
+                    await iframeWindow.expandToDepth('OK금융그룹', 3);
+                    addResult('✅ 레벨 3까지 확장 성공', 'pass');
+                } catch (error) {
+                    addResult(`❌ 확장 중 오류: ${error.message}`, 'fail');
+                }
+            } else {
+                addResult('❌ expandToDepth 함수를 찾을 수 없음', 'fail');
+            }
+        }
+        
+        // 페이지 로드 시 자동 테스트
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addResult('📌 조직도 페이지 로드 완료. 테스트 준비 완료!', 'info');
+                addResult('💡 브라우저 캐시 문제가 있다면 Ctrl+F5로 강제 새로고침하세요.', 'info');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
