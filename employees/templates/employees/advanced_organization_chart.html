@@ -1001,17 +1001,21 @@ async function loadInitialData() {
         
         console.log('Loaded org data:', data); // 디버깅용
         
-        // 노드 생성 및 렌더링
-        processOrgData(data);
+        // 노드 생성 및 렌더링 (초기 로드 시 버킷 클러스터링 비활성화)
+        processOrgData(data, true);
         
-        // 초기 로드 시 일정 깊이까지 자동 확장
-        console.log('Auto-expanding nodes to depth 2 for API data...');
+        // 초기 로드 시 모든 노드 자동 확장 (전체 조직도 표시)
+        console.log('Auto-expanding ALL nodes for API data...');
+        console.log(`Total nodes loaded from API: ${OrgChartState.nodes.size}`);
+        
         OrgChartState.nodes.forEach(node => {
-            if (node.level <= 1 && node.hasChildren) {  // 레벨 1까지 (본부, 부서) 자동 확장
+            if (node.hasChildren) {  // 모든 자식이 있는 노드를 확장
                 OrgChartState.expandedNodes.add(node.id);
-                console.log(`Auto-expanded: ${node.name} (level ${node.level})`);
+                console.log(`Auto-expanded: ${node.name} (level ${node.level}, id: ${node.id})`);
             }
         });
+        
+        console.log(`Total expanded nodes: ${OrgChartState.expandedNodes.size}`);
         
         calculateLayout();  // 레이아웃 계산
         renderChart();
@@ -1025,10 +1029,15 @@ async function loadInitialData() {
 }
 
 // 조직 데이터 처리 (버킷 클러스터링 적용)
-function processOrgData(data) {
+function processOrgData(data, skipBucketing = false) {
     // 형제 노드 버킷 처리 함수
     function bucketSiblings(children, parentId, level) {
         if (!children || children.length === 0) return [];
+        
+        // 초기 로드 시에는 버킷 클러스터링 비활성화
+        if (skipBucketing) {
+            return children;
+        }
         
         // BUCKET_THRESHOLD를 초과하면 버킷 그룹화
         if (children.length > CONFIG.BUCKET_THRESHOLD) {
@@ -2592,8 +2601,8 @@ function useSampleData() {
     
     showLoading(false);
     
-    // 노드 처리
-    processOrgData(sampleData);
+    // 노드 처리 (초기 로드 시 버킷 클러스터링 비활성화)
+    processOrgData(sampleData, true);
     
     // 초기 로드 시 모든 노드 펼치기 (Progressive Disclosure 없이 전체 구조 표시)
     console.log('Auto-expanding ALL nodes for initial display...');
