@@ -776,6 +776,7 @@
 {% block extra_js %}
 <script>
 // 전역 상태 관리
+console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
 const OrgChartState = {
     currentView: 'vertical',
     currentLevel: 'all',
@@ -1669,9 +1670,9 @@ function shouldRenderNode(node) {
                     return false;
                 }
             } else {
-                // Normal 모드: 더 관대한 경계 적용 (4배 뷰포트 너비)
-                const maxNormalX = effectiveViewportWidth * 4; // 4x viewport width
-                if (Math.abs(node.x) > maxNormalX || node.y > 5000) {
+                // Normal 모드: 매우 관대한 경계 적용 (10배 뷰포트 너비)
+                const maxNormalX = Math.max(effectiveViewportWidth * 10, 15000); // 10x viewport width or 15000px minimum
+                if (Math.abs(node.x) > maxNormalX || node.y > 10000) {
                     console.log(`Normal mode: Node ${node.name} filtered out - x=${node.x}, y=${node.y} (max: ${maxNormalX})`);
                     return false;
                 }
