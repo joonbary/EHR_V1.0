@@ -1003,6 +1003,7 @@ async function loadInitialData() {
         
         // 노드 생성 및 렌더링
         processOrgData(data);
+        calculateLayout();  // 레이아웃 계산 추가
         renderChart();
         
     } catch (error) {
@@ -1157,43 +1158,40 @@ function calculateLayout() {
                 
                 // 자식들의 총 너비 계산
                 const totalWidth = children.length * (nodeWidth + siblingSpacing) - siblingSpacing;
-                const startX = parent.x - (totalWidth / 2) + (nodeWidth / 2);
+                const startX = parent.x - (totalWidth / 2);
                 
                 // 각 자식 노드 배치
                 children.forEach((child, index) => {
-                    child.x = startX + index * (nodeWidth + siblingSpacing);
+                    child.x = startX + index * (nodeWidth + siblingSpacing) + (nodeWidth / 2);
                     child.y = levelY;
+                    console.log(`Placed ${child.name} at x=${child.x}, y=${child.y} (parent: ${parent.name} at x=${parent.x})`);
                 });
             });
             
             // 겹침 방지를 위한 충돌 감지 및 조정
-            const nodesByLevel = new Map();
-            nodes.forEach(node => {
-                const level = Math.round(node.y / CONFIG.LEVEL_SPACING);
-                if (!nodesByLevel.has(level)) {
-                    nodesByLevel.set(level, []);
-                }
-                nodesByLevel.get(level).push(node);
-            });
+            // 같은 Y 레벨의 노드들을 그룹화
+            const sameLevelNodes = nodes.filter(n => Math.abs(n.y - levelY) < 1);
             
-            // 각 레벨에서 겹침 해결
-            nodesByLevel.forEach((levelNodes, level) => {
-                levelNodes.sort((a, b) => a.x - b.x);
+            if (sameLevelNodes.length > 1) {
+                // X 좌표 기준으로 정렬
+                sameLevelNodes.sort((a, b) => a.x - b.x);
                 
-                for (let i = 1; i < levelNodes.length; i++) {
-                    const prev = levelNodes[i - 1];
-                    const curr = levelNodes[i];
+                // 겹침 해결
+                for (let i = 1; i < sameLevelNodes.length; i++) {
+                    const prev = sameLevelNodes[i - 1];
+                    const curr = sameLevelNodes[i];
                     const minDistance = nodeWidth + siblingSpacing;
                     
                     if (curr.x - prev.x < minDistance) {
                         // 겹침 발생 - 오른쪽으로 이동
                         const shift = minDistance - (curr.x - prev.x);
-                        for (let j = i; j < levelNodes.length; j++) {
-                            levelNodes[j].x += shift;
+                        console.log(`Collision detected: moving ${curr.name} by ${shift}px`);
+                        for (let j = i; j < sameLevelNodes.length; j++) {
+                            sameLevelNodes[j].x += shift;
                         }
                     }
                 }
-            });
+            }
         }
     });
     
@@ -2488,6 +2486,7 @@ function useSampleData() {
     
     showLoading(false);
     processOrgData(sampleData);
+    calculateLayout();  // 레이아웃 계산 추가
     renderChart();
 }
 
