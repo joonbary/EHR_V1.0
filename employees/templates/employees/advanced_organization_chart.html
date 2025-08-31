@@ -1920,7 +1920,7 @@ function createNodeElement(node) {
     
     // 버킷 노드 특별 처리
     if (node.isCluster || node.type === 'bucket') {
-        div.style.cssText = 'width: 120px; height: 80px; min-height: 80px;';
+        div.style.cssText = 'position: absolute; width: 120px; height: 80px; min-height: 80px;';
         div.innerHTML = `
             <div style="
                 width: 100%;
@@ -1946,6 +1946,9 @@ function createNodeElement(node) {
         const headcount = node.headcount || 0;
         const childrenCount = node.childrenCount || 0;
         const badges = node.badges || [];
+        
+        // position: absolute를 명시적으로 설정
+        div.style.position = 'absolute';
         
         div.innerHTML = `
             <!-- 왼쪽 세로 spine (타입 표시) -->
