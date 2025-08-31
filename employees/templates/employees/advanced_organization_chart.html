@@ -224,10 +224,7 @@
         position: relative;
         transition: transform 0.3s ease;
         transform-origin: top center; /* 확대 기준점 */
-        padding: 50px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        /* flex와 padding 제거 - absolute positioning을 위해 */
     }
 
     /* TallNode 스타일 - 세로 길쭉한 카드 (180×300) */
@@ -1448,6 +1445,18 @@ function renderVerticalView() {
     
     console.log(`renderVerticalView - Viewport width: ${viewportWidth}, Container found: ${!!container}`);
     
+    // 컨테이너 스타일 확인
+    if (container) {
+        console.log('Container styles:', {
+            position: window.getComputedStyle(container).position,
+            display: window.getComputedStyle(container).display,
+            visibility: window.getComputedStyle(container).visibility,
+            opacity: window.getComputedStyle(container).opacity,
+            overflow: window.getComputedStyle(container).overflow,
+            zIndex: window.getComputedStyle(container).zIndex
+        });
+    }
+    
     // Dense 모드 판별 (줌 < 95% 또는 Compact Dense 뷰)
     const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
                         OrgChartState.currentView === 'compact';
@@ -1495,15 +1504,32 @@ function renderVerticalView() {
             
             nodeElement.style.left = `${leftPos}px`;
             nodeElement.style.top = `${topPos}px`; // 상단 여백
+            
+            // 디버깅: 노드 스타일 확인
+            if (renderedCount === 0) {
+                console.log('First node element styles:', {
+                    position: nodeElement.style.position,
+                    left: nodeElement.style.left,
+                    top: nodeElement.style.top,
+                    width: nodeElement.style.width || nodeElement.offsetWidth,
+                    height: nodeElement.style.height || nodeElement.offsetHeight,
+                    className: nodeElement.className,
+                    id: nodeElement.id,
+                    innerHTML: nodeElement.innerHTML.substring(0, 100) + '...'
+                });
+            }
+            
             container.appendChild(nodeElement);
             
             renderedCount++;
             if (renderedCount <= 5) { // 처음 5개 노드만 로그
-                console.log(`Rendered node ${node.name} at (${leftPos}, ${topPos}), isDense: ${isDenseMode}`);
+                console.log(`Rendered node ${node.name} at (${leftPos}, ${topPos}), isDense: ${isDenseMode}, element exists: ${!!document.getElementById(nodeElement.id)}`);
             }
         }
     });
     console.log(`Total nodes rendered to DOM: ${renderedCount}`);
+    console.log(`Container children count: ${container.children.length}`);
+    console.log(`Container dimensions: ${container.style.width} x ${container.style.height}`);
     
     // 엣지 렌더링
     OrgChartState.edges.forEach(edge => {
