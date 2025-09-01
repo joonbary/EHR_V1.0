@@ -620,20 +620,20 @@
         line-height: 1 !important;
     }
     
-    /* DenseTallNode 스타일 - 초슬림 세로 카드 (92px 폭) - 작업지시서 사양 */
+    /* DenseTallNode 스타일 - 초슬림 세로 카드 (60px 폭) - 사용자 요청 */
     .dense-node {
-        width: 92px !important;
+        width: 60px !important;
         min-height: 300px !important;
         max-height: 460px !important;
-        padding: 0.5rem !important;
+        padding: 0.25rem !important;
         background: rgba(14, 23, 40, 0.8) !important;
         border: 1px solid rgba(0, 212, 255, 0.3) !important;
         border-radius: 1rem !important;
     }
     
     .dense-node .node-content {
-        padding: 0.75rem !important;
-        margin-left: 6px !important;
+        padding: 0.25rem !important;
+        margin-left: 3px !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
@@ -664,7 +664,7 @@
     .dense-node .v-chip {
         writing-mode: vertical-rl !important;
         text-orientation: mixed !important;
-        font-size: 10px !important;
+        font-size: 8px !important;
         padding: 0.25rem !important;
         background: rgba(255, 255, 255, 0.05) !important;
         color: rgba(255, 255, 255, 0.7) !important;
@@ -806,11 +806,11 @@ const CONFIG = {
     LEVEL_SPACING: 140,  // 레벨 간격 - 작업지시서 사양
     SIBLING_SPACING: 30, // 형제 간격 (일반 모드) - 기본값
     SIBLING_SPACING_DENSE: 8, // 형제 간격 (Dense 모드) - 같은 부모 내 최소 간격
-    // 계층별 간격 설정
+    // 계층별 간격 설정 - 더 극적인 차이
     GROUP_SPACING_MULTIPLIER: {
         SAME_PARENT: 1.0,      // 같은 부모 내 형제 간격 (기본)
-        SAME_GRANDPARENT: 2.0, // 같은 조부모 내 다른 부모의 자식들 간격
-        DIFFERENT_ROOT: 3.5    // 다른 최상위 그룹 간격
+        SAME_GRANDPARENT: 3.0, // 같은 조부모 내 다른 부모의 자식들 간격 (증가)
+        DIFFERENT_ROOT: 5.0    // 다른 최상위 그룹 간격 (더 증가)
     },
     ZOOM_MIN: 30,  // 더 작게 축소 가능
     ZOOM_MAX: 200,
