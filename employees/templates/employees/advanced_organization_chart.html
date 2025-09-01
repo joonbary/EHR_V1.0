@@ -215,8 +215,6 @@
         background: linear-gradient(to bottom, 
             rgba(10, 15, 27, 0.9),
             rgba(26, 31, 46, 0.95));
-        /* 디버깅용 */
-        border: 3px solid yellow;
     }
 
     /* 트리 컨테이너 - 확대 기준 상단 좌측 */
@@ -225,9 +223,6 @@
         position: relative;
         transition: transform 0.3s ease;
         transform-origin: top left; /* 확대 기준점을 좌측으로 변경 */
-        /* 디버깅용 */
-        border: 3px solid lime;
-        background: rgba(255, 0, 0, 0.1); /* 반투명 빨간 배경 */
     }
 
     /* TallNode 스타일 - 세로 길쭉한 카드 (180×300) */
@@ -306,11 +301,11 @@
 
     .node-type-badge {
         display: inline-block;
-        padding: 0.125rem 0.5rem;
-        background: rgba(0, 212, 255, 0.2);
+        padding: 0.25rem 0.625rem;
+        background: rgba(0, 212, 255, 0.25);
         color: #00d4ff;
-        border-radius: 0.25rem;
-        font-size: 0.688rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem; /* 12px로 증가 */
         font-weight: 500;
         text-transform: uppercase;
     }
@@ -347,10 +342,10 @@
     }
 
     .node-name {
-        font-size: 0.75rem; /* text-[12px] */
-        font-weight: 600;
-        line-height: 1.2;
-        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.875rem; /* 14px로 증가 */
+        font-weight: 700;
+        line-height: 1.3;
+        color: rgba(255, 255, 255, 0.95);
         /* 3줄 클램프 */
         display: -webkit-box;
         -webkit-line-clamp: 3;
@@ -360,8 +355,8 @@
     }
 
     .node-title {
-        font-size: 0.688rem; /* text-[11px] */
-        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.75rem; /* 12px로 증가 */
+        color: rgba(255, 255, 255, 0.7);
         line-height: 1.4;
         /* 2줄 클램프 */
         display: -webkit-box;
@@ -380,11 +375,11 @@
     }
 
     .node-stat {
-        background: rgba(255, 255, 255, 0.05);
-        color: rgba(255, 255, 255, 0.7);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-size: 0.625rem; /* text-[10px] */
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.375rem 0.625rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem; /* 12px로 증가 */
         text-align: center;
     }
 
@@ -1824,17 +1819,18 @@ function createDenseNodeElement(node) {
         position: absolute;
         width: ${CONFIG.NODE_WIDTH_DENSE}px;
         height: auto;
-        min-height: 300px;
-        max-height: 460px;
-        padding: 0.125rem;
-        background: rgba(14, 23, 40, 0.95);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 212, 255, 0.4);
-        border-radius: 0.375rem;
+        min-height: 280px;
+        max-height: 400px;
+        padding: 0.5rem 0.25rem;
+        background: linear-gradient(135deg, rgba(14, 23, 40, 0.98), rgba(20, 30, 48, 0.95));
+        backdrop-filter: blur(10px);
+        border: 1.5px solid rgba(0, 212, 255, 0.5);
+        border-radius: 0.5rem;
         transition: all 0.2s ease;
         cursor: pointer;
         z-index: ${node.type === 'company' ? '100' : '10'};
         overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     `;
     
     // 버킷 노드 특별 처리
@@ -1902,19 +1898,20 @@ function createDenseNodeElement(node) {
             ">
                 <!-- 이름 (세로 글자 - CJK 최적화) -->
                 <div class="vertical-cjk" style="
-                    font-size: 11px;
-                    font-weight: 600;
-                    color: rgba(255, 255, 255, 0.9);
-                    line-height: 1.1;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: rgba(255, 255, 255, 0.95);
+                    line-height: 1.2;
                     flex: 1;
-                    max-height: 200px;
+                    max-height: 220px;
                     overflow: hidden;
+                    text-align: center;
                 ">${node.name}</div>
                 
                 <!-- 통계 (세로) - 미니말 -->
                 <div style="display: flex; flex-direction: column; gap: 0.1rem;">
-                    <div class="v-chip" style="padding: 0.1rem; font-size: 9px;">${headcount}</div>
-                    <div class="v-chip" style="padding: 0.1rem; font-size: 9px;">${childrenCount}</div>
+                    <div class="v-chip" style="padding: 0.25rem; font-size: 11px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">인원 ${headcount}</div>
+                    <div class="v-chip" style="padding: 0.25rem; font-size: 11px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">하위 ${childrenCount}</div>
                 </div>
             </div>
             
@@ -2076,7 +2073,7 @@ function createEdgeElement(edge, offsetX) {
     const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;
     const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
     
-    // 소스와 타겟 노드의 실제 위치 계산 (offsetX 적용)
+    // 노드 중앙에서 연결되도록 수정 (offsetX 적용)
     const sourceX = offsetX + edge.source.x;
     const sourceY = edge.source.y + nodeHeight; // 노드 하단
     const targetX = offsetX + edge.target.x;
