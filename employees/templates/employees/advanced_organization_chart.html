@@ -1228,16 +1228,12 @@ function processOrgData(data, skipBucketing = false) {
     // calculateLayout()은 호출하는 곳에서 처리
 }
 
-// PDF 스타일 수평 확장 레이아웃 계산 (OK저축은행 조직도 형태)
+// 트리 구조 기반 재귀적 레이아웃 계산 (부모-자식 관계 우선)
 function calculateLayout() {
-    const levelMap = new Map();
-    let maxDepth = 0;
-    
-    // Dense 모드 판별 - 줌 레벨과 뷰모드에 따라 결정
+    // Dense 모드 판별
     const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
                        OrgChartState.currentView === 'compact';
     
-    // 노드 크기 설정 (Dense 모드일 때 초슬림 카드)
     const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
     const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;  
     const siblingSpacing = isDenseMode ? CONFIG.SIBLING_SPACING_DENSE : CONFIG.SIBLING_SPACING;
@@ -1246,178 +1242,162 @@ function calculateLayout() {
     OrgChartState.nodes.forEach(node => {
         node.x = undefined;
         node.y = undefined;
+        node.width = nodeWidth;
+        node.height = nodeHeight;
     });
     
-    // 렌더링할 노드만 필터링
+    console.log('🌲 Starting tree-based recursive layout calculation');
+    
+    // 트리 구조 빌드 - 부모-자식 관계 매핑
+    const childrenMap = new Map();
     const visibleNodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
-    console.log(`Layout calculation for ${visibleNodes.length} visible nodes`);
-    console.log('Visible node names:', visibleNodes.map(n => n.name));
     
-    // 실제 트리 깊이 계산 및 레벨별로 노드 그룹화
-    function calculateDepth(node, depth = 0) {
-        if (!shouldRenderNode(node)) return; // 렌더링하지 않을 노드는 스킵
-        
-        node.treeDepth = depth;
-        maxDepth = Math.max(maxDepth, depth);
-        
-        if (!levelMap.has(depth)) {
-            levelMap.set(depth, []);
-        }
-        levelMap.get(depth).push(node);
-        
-        // 자식 노드들의 깊이 계산
-        visibleNodes.forEach(childNode => {
-            if (childNode.parentId === node.id) {
-                calculateDepth(childNode, depth + 1);
-            }
-        });
-    }
-    
-    // 루트 노드부터 시작
     visibleNodes.forEach(node => {
-        if (!node.parentId) {
-            calculateDepth(node, 0);
+        if (node.parentId) {
+            if (!childrenMap.has(node.parentId)) {
+                childrenMap.set(node.parentId, []);
+            }
+            childrenMap.get(node.parentId).push(node);
         }
     });
     
-    // Top-down 방식의 레이아웃 계산
-    console.log('Starting top-down layout calculation');
-    
-    // 1단계: 루트 노드 배치
-    const rootNodes = visibleNodes.filter(n => !n.parentId);
-    rootNodes.forEach(root => {
-        root.x = 0;
-        root.y = 50;
-        console.log(`Root node ${root.name} at x=${root.x}, y=${root.y}`);
+    // 각 부모의 자식들을 이름순으로 정렬
+    childrenMap.forEach(children => {
+        children.sort((a, b) => a.name.localeCompare(b.name));
     });
     
-    // 2단계: BFS로 각 레벨을 순차적으로 처리
-    for (let depth = 0; depth <= maxDepth; depth++) {
-        const currentLevelNodes = levelMap.get(depth) || [];
-        const nextLevelNodes = levelMap.get(depth + 1) || [];
+    // 재귀적으로 서브트리 크기 계산 (bottom-up)
+    function calculateSubtreeWidth(node) {
+        const children = childrenMap.get(node.id) || [];
         
-        if (nextLevelNodes.length === 0) continue;
-        
-        console.log(`Processing depth ${depth} -> ${depth + 1}`);
-        
-        // 뷰포트 기반 적응형 간격 계산 (차세대 조직도 사양)
-        const viewport = document.getElementById('chartViewport');
-        const viewportWidth = viewport ? viewport.clientWidth : 1200;
-        const zoomFactor = OrgChartState.zoomLevel / 100;
-        const effectiveViewportWidth = viewportWidth / zoomFactor;
-        
-        // 뷰포트에 맞는 최대 노드 수 계산
-        const maxNodesPerRow = Math.floor(effectiveViewportWidth / (nodeWidth + siblingSpacing));
-        
-        let levelAdaptiveSpacing = siblingSpacing;
-        
-        // 뷰포트 기반 동적 간격 조정
-        if (nextLevelNodes.length > maxNodesPerRow) {
-            // 뷰포트 초과 시 간격을 줄여 맞춤
-            const requiredWidth = nextLevelNodes.length * nodeWidth;
-            const availableSpacing = effectiveViewportWidth - requiredWidth;
-            levelAdaptiveSpacing = Math.max(5, availableSpacing / (nextLevelNodes.length - 1));
-            console.log(`🎯 Viewport-constrained spacing: ${levelAdaptiveSpacing}px for ${nextLevelNodes.length} nodes (viewport: ${effectiveViewportWidth}px)`);
-        } else if (nextLevelNodes.length > 40) {
-            levelAdaptiveSpacing = Math.max(8, siblingSpacing * 0.3); // 70% 감소, 최소 8px
-        } else if (nextLevelNodes.length > 20) {
-            levelAdaptiveSpacing = Math.max(10, siblingSpacing * 0.4); // 60% 감소, 최소 10px
-        } else if (nextLevelNodes.length > 10) {
-            levelAdaptiveSpacing = Math.max(15, siblingSpacing * 0.7); // 30% 감소, 최소 15px
+        if (children.length === 0) {
+            // 리프 노드
+            node.subtreeWidth = nodeWidth;
+            return nodeWidth;
         }
         
-        console.log(`Level ${depth + 1}: ${nextLevelNodes.length} nodes, adaptive spacing: ${levelAdaptiveSpacing}px (applied during placement)`);
-        
-        // 부모별로 자식 노드 그룹화
-        const childrenByParent = new Map();
-        nextLevelNodes.forEach(child => {
-            if (!childrenByParent.has(child.parentId)) {
-                childrenByParent.set(child.parentId, []);
+        // 자식들의 서브트리 너비 합산
+        let totalChildrenWidth = 0;
+        children.forEach((child, index) => {
+            const childWidth = calculateSubtreeWidth(child);
+            totalChildrenWidth += childWidth;
+            if (index < children.length - 1) {
+                totalChildrenWidth += siblingSpacing;
             }
-            childrenByParent.get(child.parentId).push(child);
         });
         
-        // 각 부모의 자식들 배치
-        childrenByParent.forEach((children, parentId) => {
-            const parent = OrgChartState.nodes.get(parentId);
-            if (!parent) {
-                console.error(`Parent ${parentId} not found in nodes map`);
-                return;
-            }
-            
-            // 부모 노드가 아직 위치가 설정되지 않았다면 기본값 설정
-            if (parent.x === undefined || parent.y === undefined) {
-                console.warn(`Parent ${parent.name} (${parentId}) not positioned yet, setting default position`);
-                // 기본 위치 설정 (부모의 레벨에 따라)
-                const parentLevel = parent.treeDepth || 0;
-                parent.x = 0;
-                parent.y = 50 + parentLevel * (nodeHeight + CONFIG.LEVEL_SPACING);
-                console.log(`Set default position for ${parent.name}: x=${parent.x}, y=${parent.y}`);
-            }
-            
-            const childY = parent.y + nodeHeight + CONFIG.LEVEL_SPACING;
-            const childCount = children.length;
-            
-            // 자식 노드들을 이름 순으로 정렬하여 일관성 유지
-            children.sort((a, b) => a.name.localeCompare(b.name));
-            
-            if (childCount === 1) {
-                // 자식이 하나면 부모 바로 아래
-                children[0].x = parent.x;
-                children[0].y = childY;
-                console.log(`Single child ${children[0].name} positioned at x=${children[0].x}, y=${children[0].y}`);
-            } else {
-                // 여러 자식을 부모 중심으로 배치 (적응형 간격 적용)
-                const totalWidth = childCount * nodeWidth + (childCount - 1) * levelAdaptiveSpacing;
-                const startX = parent.x - totalWidth / 2 + nodeWidth / 2;
-                
-                children.forEach((child, index) => {
-                    child.x = startX + index * (nodeWidth + levelAdaptiveSpacing);
-                    child.y = childY;
-                    console.log(`Child ${child.name} positioned at x=${child.x}, y=${child.y}`);
-                });
-            }
-            
-            console.log(`✅ Placed ${children.length} children of ${parent.name} at y=${childY}`);
-        });
+        // 노드 자체 너비와 자식들 너비 중 큰 값 선택
+        node.subtreeWidth = Math.max(nodeWidth, totalChildrenWidth);
+        return node.subtreeWidth;
+    }
+    
+    // 재귀적으로 위치 할당 (top-down)
+    function assignPositions(node, x, y) {
+        // 노드 위치 설정
+        node.x = x;
+        node.y = y;
         
-        // 같은 레벨에서 겹침 방지 (이미 적응형 간격이 적용됨)
-        const levelY = rootNodes[0].y + (depth + 1) * (nodeHeight + CONFIG.LEVEL_SPACING);
-        const sameLevelNodes = nextLevelNodes.filter(n => n.x !== undefined);
+        const children = childrenMap.get(node.id) || [];
+        if (children.length === 0) return;
         
-        if (sameLevelNodes.length > 1) {
-            sameLevelNodes.sort((a, b) => a.x - b.x);
+        // 자식들을 위한 Y 위치
+        const childY = y + nodeHeight + CONFIG.LEVEL_SPACING;
+        
+        if (children.length === 1) {
+            // 자식이 하나면 부모 바로 아래 중앙에
+            assignPositions(children[0], x, childY);
+        } else {
+            // 여러 자식을 부모 중심으로 배치
+            let currentX = x - node.subtreeWidth / 2;
             
-            for (let i = 1; i < sameLevelNodes.length; i++) {
-                const prev = sameLevelNodes[i - 1];
-                const curr = sameLevelNodes[i];
-                const minDistance = nodeWidth + levelAdaptiveSpacing;
+            children.forEach((child, index) => {
+                // 자식의 서브트리 중심에 자식 노드 배치
+                const childCenterX = currentX + child.subtreeWidth / 2;
+                assignPositions(child, childCenterX, childY);
                 
-                if (curr.x - prev.x < minDistance) {
-                    const shift = minDistance - (curr.x - prev.x);
-                    for (let j = i; j < sameLevelNodes.length; j++) {
-                        sameLevelNodes[j].x += shift;
-                    }
-                    console.log(`Fine-adjusted spacing at level ${depth + 1} with adaptive spacing ${levelAdaptiveSpacing}px`);
+                // 다음 자식을 위한 X 위치 업데이트
+                currentX += child.subtreeWidth;
+                if (index < children.length - 1) {
+                    currentX += siblingSpacing;
                 }
-            }
+            });
         }
     }
     
-    // 엣지 생성 (직선 연결)
+    // 루트 노드들 찾기
+    const rootNodes = visibleNodes.filter(n => !n.parentId);
+    
+    if (rootNodes.length === 0) {
+        console.warn('No root nodes found');
+        return;
+    }
+    
+    // 각 루트 노드에 대해 레이아웃 계산
+    let currentRootX = 0;
+    rootNodes.forEach((root, index) => {
+        // 서브트리 너비 계산
+        calculateSubtreeWidth(root);
+        
+        // 위치 할당
+        const rootX = currentRootX + root.subtreeWidth / 2;
+        assignPositions(root, rootX, 50);
+        
+        // 다음 루트를 위한 X 위치 업데이트
+        currentRootX += root.subtreeWidth + siblingSpacing * 2;
+        
+        console.log(`✅ Root ${root.name}: positioned at (${rootX}, 50), subtree width: ${root.subtreeWidth}`);
+    });
+    
+    // 부모 위치 재조정 - 자식들의 중앙에 오도록
+    function adjustParentPosition(node) {
+        const children = childrenMap.get(node.id) || [];
+        
+        if (children.length > 1) {
+            // 자식들의 평균 X 위치 계산
+            let sumX = 0;
+            children.forEach(child => {
+                adjustParentPosition(child); // 먼저 자식들 조정
+                sumX += child.x;
+            });
+            
+            // 부모를 자식들의 중앙으로 이동
+            const avgX = sumX / children.length;
+            node.x = avgX;
+            console.log(`📍 Adjusted ${node.name} to center of children at x=${avgX}`);
+        } else if (children.length === 1) {
+            // 자식이 하나면 재귀 호출만
+            adjustParentPosition(children[0]);
+        }
+    }
+    
+    // 루트부터 부모 위치 재조정
+    rootNodes.forEach(root => {
+        adjustParentPosition(root);
+    });
+    
+    // 디버깅 정보 출력
+    console.log('🎯 Layout calculation complete. Node positions:');
+    visibleNodes.forEach(node => {
+        const children = childrenMap.get(node.id) || [];
+        console.log(`  ${node.name}: (${node.x?.toFixed(0)}, ${node.y}) - ${children.length} children`);
+    });
+    
+    // 엣지 생성
     OrgChartState.edges = [];
-    OrgChartState.nodes.forEach(node => {
+    visibleNodes.forEach(node => {
         if (node.parentId) {
             const parent = OrgChartState.nodes.get(node.parentId);
-            if (parent) {
+            if (parent && shouldRenderNode(parent)) {
                 OrgChartState.edges.push({
                     source: parent,
                     target: node,
-                    type: 'straight' // PDF처럼 직선 연결
+                    type: node.x === parent.x ? 'straight' : 'orthogonal'
                 });
             }
         }
     });
+    
+    console.log(`📊 Created ${OrgChartState.edges.length} edges`);
 }
 
 // 차트 렌더링
