@@ -206,16 +206,17 @@
         text-align: center;
     }
 
-    /* 메인 차트 영역 - 가로 스크롤 금지 */
+    /* 메인 차트 영역 */
     .chart-viewport {
         flex: 1;
         position: relative;
-        overflow-y: auto;
-        overflow-x: hidden; /* 가로 스크롤 금지 */
+        overflow: auto; /* 가로/세로 스크롤 모두 허용 */
         padding: 1rem;
         background: linear-gradient(to bottom, 
             rgba(10, 15, 27, 0.9),
             rgba(26, 31, 46, 0.95));
+        /* 디버깅용 */
+        border: 3px solid yellow;
     }
 
     /* 트리 컨테이너 - 확대 기준 상단 중앙 */
@@ -224,13 +225,15 @@
         position: relative;
         transition: transform 0.3s ease;
         transform-origin: top center; /* 확대 기준점 */
-        /* flex와 padding 제거 - absolute positioning을 위해 */
+        /* 디버깅용 */
+        border: 3px solid lime;
+        background: rgba(255, 0, 0, 0.1); /* 반투명 빨간 배경 */
     }
 
     /* TallNode 스타일 - 세로 길쭉한 카드 (180×300) */
     .org-node {
         position: absolute;
-        background: rgba(14, 23, 40, 0.8); /* #0e1728/80 */
+        background: rgba(14, 23, 40, 0.95) !important; /* 더 진한 배경 */
         border: 1px solid rgba(0, 212, 255, 0.3);
         border-radius: 1rem; /* rounded-2xl */
         width: 180px;
@@ -1517,6 +1520,28 @@ function renderVerticalView() {
                     id: nodeElement.id,
                     innerHTML: nodeElement.innerHTML.substring(0, 100) + '...'
                 });
+                
+                // 실제 계산된 스타일도 확인
+                setTimeout(() => {
+                    const elem = document.getElementById(nodeElement.id);
+                    if (elem) {
+                        const computed = window.getComputedStyle(elem);
+                        const rect = elem.getBoundingClientRect();
+                        console.log('First node computed styles:', {
+                            display: computed.display,
+                            visibility: computed.visibility,
+                            opacity: computed.opacity,
+                            position: computed.position,
+                            zIndex: computed.zIndex,
+                            width: computed.width,
+                            height: computed.height,
+                            backgroundColor: computed.backgroundColor,
+                            border: computed.border
+                        });
+                        console.log('First node bounding rect:', rect);
+                        console.log('Is visible in viewport?', rect.width > 0 && rect.height > 0);
+                    }
+                }, 100);
             }
             
             container.appendChild(nodeElement);
