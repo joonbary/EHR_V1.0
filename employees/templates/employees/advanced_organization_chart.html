@@ -474,14 +474,23 @@
     .minimap {
         position: fixed;
         bottom: 20px;
-        right: 20px;
-        width: 200px;
-        height: 120px;
+        left: 20px;  /* 왼쪽 하단으로 이동 */
+        width: 166px;  /* 패딩 포함하여 조정 */
+        height: 136px;
         background: rgba(26, 31, 46, 0.95);
         border: 1px solid rgba(0, 212, 255, 0.3);
         border-radius: 0.5rem;
-        padding: 0.5rem;
+        padding: 8px;
         z-index: 900;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    #minimapCanvas {
+        display: block;
+        width: 150px;
+        height: 120px;
+        cursor: pointer;
+        border-radius: 4px;
     }
 
     .minimap-viewport {
@@ -763,7 +772,7 @@
 
     <!-- 미니맵 -->
     <div class="minimap" id="minimap">
-        <div class="minimap-viewport"></div>
+        <canvas id="minimapCanvas" width="150" height="120"></canvas>
     </div>
 </div>
 {% endblock %}
@@ -1049,7 +1058,8 @@ function setupEventListeners() {
     });
 
     // 마우스 휠 줌 - 부드러운 전환
-    document.getElementById('chartViewport').addEventListener('wheel', function(e) {
+    const chartViewport = document.getElementById('chartViewport');
+    chartViewport.addEventListener('wheel', function(e) {
         if (e.ctrlKey) {
             e.preventDefault();
             const delta = e.deltaY > 0 ? -CONFIG.ZOOM_STEP : CONFIG.ZOOM_STEP;
@@ -1066,6 +1076,40 @@ function setupEventListeners() {
             updateZoom(newZoom);
         }
     });
+    
+    // 스크롤 이벤트 - 미니맵 업데이트
+    chartViewport.addEventListener('scroll', function() {
+        updateMinimap();
+    });
+    
+    // 미니맵 클릭 이벤트 - 클릭한 위치로 이동
+    const minimapCanvas = document.getElementById('minimapCanvas');
+    if (minimapCanvas) {
+        minimapCanvas.addEventListener('click', function(e) {
+            const rect = minimapCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 미니맵 좌표를 실제 스크롤 위치로 변환
+            const scale = Math.min(
+                minimapCanvas.width / chartViewport.scrollWidth,
+                minimapCanvas.height / chartViewport.scrollHeight
+            );
+            
+            const scrollX = (x / scale) - (chartViewport.clientWidth / 2);
+            const scrollY = (y / scale) - (chartViewport.clientHeight / 2);
+            
+            // 스크롤 위치 설정
+            chartViewport.scrollLeft = Math.max(0, scrollX);
+            chartViewport.scrollTop = Math.max(0, scrollY);
+            
+            // 미니맵 업데이트
+            updateMinimap();
+        });
+        
+        // 미니맵 호버 효과
+        minimapCanvas.style.cursor = 'pointer';
+    }
 }
 
 // 키보드 내비게이션 설정
@@ -1494,6 +1538,11 @@ function renderChart() {
         // 기본 세로형 뷰
         renderVerticalView();
     }
+    
+    // 미니맵 업데이트 (렌더링 완료 후)
+    setTimeout(() => {
+        updateMinimap();
+    }, 100);
 }
 
 // 세로형 뷰 렌더링
@@ -2654,6 +2703,142 @@ function updateZoom(level) {
         container.classList.add('dense-mode');
         console.log(`🎯 Dense mode activated: Using ${CONFIG.NODE_WIDTH_DENSE}px wide cards`);
     }
+    
+    // 미니맵 업데이트
+    updateMinimap();
+}
+
+// 미니맵 업데이트 함수
+function updateMinimap() {
+    const canvas = document.getElementById('minimapCanvas');
+    const chartViewport = document.getElementById('chartViewport');
+    const treeContainer = document.getElementById('treeContainer');
+    
+    if (!canvas || !chartViewport || !treeContainer) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // 캔버스 클리어
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 배경
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 노드들 찾기
+    const nodes = document.querySelectorAll('.org-node, .dense-node');
+    if (nodes.length === 0) return;
+    
+    // 차트 범위 계산
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    
+    nodes.forEach(node => {
+        const x = parseFloat(node.style.left) || 0;
+        const y = parseFloat(node.style.top) || 0;
+        const width = node.offsetWidth || 100;
+        const height = node.offsetHeight || 50;
+        
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x + width);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y + height);
+    });
+    
+    // 차트 크기
+    const chartWidth = maxX - minX || 1000;
+    const chartHeight = maxY - minY || 600;
+    
+    // 스케일 계산
+    const scale = Math.min(
+        canvas.width / chartWidth,
+        canvas.height / chartHeight
+    ) * 0.9;
+    
+    // 차트 영역 중앙 정렬
+    const offsetX = (canvas.width - chartWidth * scale) / 2;
+    const offsetY = (canvas.height - chartHeight * scale) / 2;
+    
+    // 노드 그리기
+    nodes.forEach(node => {
+        const x = parseFloat(node.style.left) || 0;
+        const y = parseFloat(node.style.top) || 0;
+        const width = node.offsetWidth || 100;
+        const height = node.offsetHeight || 50;
+        
+        // 노드 타입에 따라 색상 구분
+        const nodeType = node.dataset.type || 'default';
+        if (nodeType === 'group' || nodeType === 'subsidiary') {
+            ctx.fillStyle = '#00d4ff';
+        } else if (nodeType === 'division') {
+            ctx.fillStyle = '#00a8cc';
+        } else if (nodeType === 'department') {
+            ctx.fillStyle = '#0088aa';
+        } else {
+            ctx.fillStyle = '#006688';
+        }
+        
+        const nodeX = offsetX + (x - minX) * scale;
+        const nodeY = offsetY + (y - minY) * scale;
+        const nodeWidth = Math.max(2, width * scale);
+        const nodeHeight = Math.max(2, height * scale);
+        
+        ctx.fillRect(nodeX, nodeY, nodeWidth, nodeHeight);
+    });
+    
+    // 뷰포트 표시 영역
+    const zoomLevel = OrgChartState.zoomLevel / 100;
+    const viewportWidth = chartViewport.clientWidth / zoomLevel;
+    const viewportHeight = chartViewport.clientHeight / zoomLevel;
+    const viewportX = offsetX + (chartViewport.scrollLeft - minX) * scale;
+    const viewportY = offsetY + (chartViewport.scrollTop - minY) * scale;
+    
+    // 뷰포트 영역 테두리
+    ctx.strokeStyle = '#ffff00';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+        viewportX,
+        viewportY,
+        viewportWidth * scale,
+        viewportHeight * scale
+    );
+    
+    // 반투명 하이라이트
+    ctx.fillStyle = 'rgba(255, 255, 0, 0.1)';
+    ctx.fillRect(
+        viewportX,
+        viewportY,
+        viewportWidth * scale,
+        viewportHeight * scale
+    );
+}
+
+// 미니맵에 노드 표시
+function updateMinimapNodes(minimap, nodes, offsetX, offsetY, scale) {
+    // Canvas 방식으로 변경되어 이 함수는 더 이상 사용되지 않음
+    return;
+    /*
+    // 기존 미니맵 노드 제거
+    minimap.querySelectorAll('.minimap-node').forEach(n => n.remove());
+    
+    // 노드를 미니맵에 표시
+    nodes.forEach(node => {
+        const x = (parseFloat(node.style.left) || 0) - offsetX;
+        const y = (parseFloat(node.style.top) || 0) - offsetY;
+        
+        const minimapNode = document.createElement('div');
+        minimapNode.className = 'minimap-node';
+        minimapNode.style.cssText = `
+            position: absolute;
+            left: ${x * scale}px;
+            top: ${y * scale}px;
+            width: ${3}px;
+            height: ${3}px;
+            background: rgba(0, 212, 255, 0.5);
+            border-radius: 50%;
+        `;
+        minimap.appendChild(minimapNode);
+    });
 }
 
 // 버킷 클러스터 확장 (버킷 클릭 시 숨겨진 노드 표시)
