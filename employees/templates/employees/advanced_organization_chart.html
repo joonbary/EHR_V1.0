@@ -799,13 +799,19 @@ const ELK_CONFIG = {
 // 상수 정의 - ELK 레이아웃용 파라미터 강화 (작업지시서 사양 적용)
 const CONFIG = {
     MAX_VISIBLE_SIBLINGS: 12, // 최대 표시 형제 노드 수 (초과시 버킷 그룹화)
-    NODE_WIDTH: 160,  // TallNode 너비 (일반 모드) - 좌우 여백 최소화
-    NODE_WIDTH_DENSE: 80, // DenseTallNode 너비 (초슬림 모드) - 좌우 여백 최소화
+    NODE_WIDTH: 140,  // TallNode 너비 (일반 모드) - 좌우 여백 최소화
+    NODE_WIDTH_DENSE: 60, // DenseTallNode 너비 (초슬림 모드) - 60px로 축소
     NODE_HEIGHT: 300, // 노드 높이 (세로 길쭉한 형태) - 작업지시서 사양
     NODE_HEIGHT_DENSE: 300, // Dense 모드에서도 동일 높이
     LEVEL_SPACING: 140,  // 레벨 간격 - 작업지시서 사양
-    SIBLING_SPACING: 36, // 형제 간격 (일반 모드) - 노드 크기 감소에 따른 조정
-    SIBLING_SPACING_DENSE: 16, // 형제 간격 (Dense 모드) - 노드 크기 감소에 따른 조정
+    SIBLING_SPACING: 30, // 형제 간격 (일반 모드) - 기본값
+    SIBLING_SPACING_DENSE: 8, // 형제 간격 (Dense 모드) - 같은 부모 내 최소 간격
+    // 계층별 간격 설정
+    GROUP_SPACING_MULTIPLIER: {
+        SAME_PARENT: 1.0,      // 같은 부모 내 형제 간격 (기본)
+        SAME_GRANDPARENT: 2.0, // 같은 조부모 내 다른 부모의 자식들 간격
+        DIFFERENT_ROOT: 3.5    // 다른 최상위 그룹 간격
+    },
     ZOOM_MIN: 30,  // 더 작게 축소 가능
     ZOOM_MAX: 200,
     ZOOM_STEP: 10,
@@ -1286,8 +1292,8 @@ function calculateLayout() {
         return node.subtreeWidth;
     }
     
-    // 재귀적으로 위치 할당 (top-down)
-    function assignPositions(node, x, y) {
+    // 재귀적으로 위치 할당 (top-down) - 계층 기반 적응형 간격 적용
+    function assignPositions(node, x, y, parentNode = null, grandparentNode = null) {
         // 노드 위치 설정
         node.x = x;
         node.y = y;
@@ -1300,23 +1306,83 @@ function calculateLayout() {
         
         if (children.length === 1) {
             // 자식이 하나면 부모 바로 아래 중앙에
-            assignPositions(children[0], x, childY);
+            assignPositions(children[0], x, childY, node, parentNode);
         } else {
             // 여러 자식을 부모 중심으로 배치
             let currentX = x - node.subtreeWidth / 2;
             
             children.forEach((child, index) => {
+                // 계층 기반 간격 계산
+                let spacing = siblingSpacing;
+                
+                if (index > 0) {
+                    const prevChild = children[index - 1];
+                    
+                    // 노드 타입에 따른 간격 조정
+                    // type: 'division' (본부), 'department' (부서), 'team' (팀)
+                    
+                    // Case 1: 본부 레벨에서 다른 본부들 간의 간격
+                    if (node.type === 'company' && child.type === 'division') {
+                        // 본부들 간의 간격을 넓게
+                        spacing = siblingSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.DIFFERENT_ROOT;
+                    }
+                    // Case 2: 같은 본부 내에서 부서들 간의 간격
+                    else if (node.type === 'division' && child.type === 'department') {
+                        // 같은 본부 내 부서들은 기본 간격
+                        spacing = siblingSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.SAME_PARENT;
+                    }
+                    // Case 3: 부서 레벨에서 다른 본부의 부서들과 구분
+                    else if (parentNode && parentNode.type === 'division') {
+                        // 형제 노드들의 부모(본부)가 다른지 확인
+                        const prevChildChildren = childrenMap.get(prevChild.id) || [];
+                        const currentChildChildren = childrenMap.get(child.id) || [];
+                        
+                        // 부서 그룹 간 구분을 위해 간격 증가
+                        if (prevChildChildren.length > 0 || currentChildChildren.length > 0) {
+                            spacing = siblingSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.SAME_GRANDPARENT;
+                        }
+                    }
+                    // Case 4: 팀 레벨에서의 간격
+                    else if (node.type === 'department' && child.type === 'team') {
+                        // 같은 부서 내 팀들은 좁은 간격
+                        spacing = siblingSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.SAME_PARENT;
+                    }
+                    
+                    // 추가: 하위 노드가 많은 경우 간격 자동 조정
+                    const prevChildCount = (childrenMap.get(prevChild.id) || []).length;
+                    const currentChildCount = (childrenMap.get(child.id) || []).length;
+                    
+                    // 자식이 많은 노드들 사이는 간격 증가
+                    if (prevChildCount > 3 || currentChildCount > 3) {
+                        spacing *= 1.2;
+                    }
+                }
+                
                 // 자식의 서브트리 중심에 자식 노드 배치
                 const childCenterX = currentX + child.subtreeWidth / 2;
-                assignPositions(child, childCenterX, childY);
+                assignPositions(child, childCenterX, childY, node, parentNode);
                 
                 // 다음 자식을 위한 X 위치 업데이트
                 currentX += child.subtreeWidth;
                 if (index < children.length - 1) {
-                    currentX += siblingSpacing;
+                    currentX += spacing;
                 }
             });
         }
+    }
+    
+    // 헬퍼 함수: 특정 깊이까지의 모든 자손 노드 가져오기
+    function getAllDescendants(node, maxDepth, currentDepth = 0) {
+        if (currentDepth >= maxDepth) return [];
+        
+        const children = childrenMap.get(node.id) || [];
+        let descendants = [...children];
+        
+        children.forEach(child => {
+            descendants = descendants.concat(getAllDescendants(child, maxDepth, currentDepth + 1));
+        });
+        
+        return descendants;
     }
     
     // 루트 노드들 찾기
