@@ -1340,18 +1340,32 @@ function calculateLayout() {
         // 각 부모의 자식들 배치
         childrenByParent.forEach((children, parentId) => {
             const parent = OrgChartState.nodes.get(parentId);
-            if (!parent || parent.x === undefined) {
-                console.error(`Parent ${parentId} not positioned yet`);
+            if (!parent) {
+                console.error(`Parent ${parentId} not found in nodes map`);
                 return;
+            }
+            
+            // 부모 노드가 아직 위치가 설정되지 않았다면 기본값 설정
+            if (parent.x === undefined || parent.y === undefined) {
+                console.warn(`Parent ${parent.name} (${parentId}) not positioned yet, setting default position`);
+                // 기본 위치 설정 (부모의 레벨에 따라)
+                const parentLevel = parent.treeDepth || 0;
+                parent.x = 0;
+                parent.y = 50 + parentLevel * (nodeHeight + CONFIG.LEVEL_SPACING);
+                console.log(`Set default position for ${parent.name}: x=${parent.x}, y=${parent.y}`);
             }
             
             const childY = parent.y + nodeHeight + CONFIG.LEVEL_SPACING;
             const childCount = children.length;
             
+            // 자식 노드들을 이름 순으로 정렬하여 일관성 유지
+            children.sort((a, b) => a.name.localeCompare(b.name));
+            
             if (childCount === 1) {
                 // 자식이 하나면 부모 바로 아래
                 children[0].x = parent.x;
                 children[0].y = childY;
+                console.log(`Single child ${children[0].name} positioned at x=${children[0].x}, y=${children[0].y}`);
             } else {
                 // 여러 자식을 부모 중심으로 배치 (적응형 간격 적용)
                 const totalWidth = childCount * nodeWidth + (childCount - 1) * levelAdaptiveSpacing;
@@ -1360,10 +1374,11 @@ function calculateLayout() {
                 children.forEach((child, index) => {
                     child.x = startX + index * (nodeWidth + levelAdaptiveSpacing);
                     child.y = childY;
+                    console.log(`Child ${child.name} positioned at x=${child.x}, y=${child.y}`);
                 });
             }
             
-            console.log(`Placed ${children.length} children of ${parent.name} at y=${childY}`);
+            console.log(`✅ Placed ${children.length} children of ${parent.name} at y=${childY}`);
         });
         
         // 같은 레벨에서 겹침 방지 (이미 적응형 간격이 적용됨)
@@ -2069,7 +2084,7 @@ function createNodeElement(node) {
 }
 
 // 엣지 엘리먼트 생성 (직각 연결선 지원)
-function createEdgeElement(edge, centerX) {
+function createEdgeElement(edge, offsetX) {
     const container = document.createElement('div');
     container.className = 'edge-container';
     container.style.position = 'absolute';
@@ -2081,10 +2096,11 @@ function createEdgeElement(edge, centerX) {
     const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;
     const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
     
-    const sourceX = centerX + edge.source.x - nodeWidth / 2;
-    const sourceY = edge.source.y + 50 + nodeHeight; // 노드 하단 (상단 여백 50px 고려)
-    const targetX = centerX + edge.target.x - nodeWidth / 2;
-    const targetY = edge.target.y + 50; // 노드 상단 (상단 여백 50px 고려)
+    // 소스와 타겟 노드의 실제 위치 계산 (offsetX 적용)
+    const sourceX = offsetX + edge.source.x;
+    const sourceY = edge.source.y + nodeHeight; // 노드 하단
+    const targetX = offsetX + edge.target.x;
+    const targetY = edge.target.y; // 노드 상단
     
     if (edge.type === 'orthogonal' && sourceX !== targetX) {
         // 직각 연결선 (ㄱ자 형태)
