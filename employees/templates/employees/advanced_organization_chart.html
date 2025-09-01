@@ -809,7 +809,7 @@ const CONFIG = {
     ZOOM_MIN: 30,  // 더 작게 축소 가능
     ZOOM_MAX: 200,
     ZOOM_STEP: 10,
-    ZOOM_DENSE_THRESHOLD: 95, // 95% 미만일 때 DenseTallNode 사용 - 작업지시서 사양
+    ZOOM_DENSE_THRESHOLD: 105, // 105% 미만일 때 DenseTallNode 사용 (100%까지 세로 텍스트 유지)
     SEARCH_DELAY: 300,
     ANIMATION_DURATION: 300,
     MAX_WIDTH_PER_LEVEL: 2400, // 레벨당 최대 너비 증가
@@ -1450,7 +1450,7 @@ function renderVerticalView() {
         });
     }
     
-    // Dense 모드 판별 (줌 < 95% 또는 Compact Dense 뷰)
+    // Dense 모드 판별 (줌 < 105% 또는 Compact Dense 뷰)
     const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
                         OrgChartState.currentView === 'compact';
     const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
@@ -2551,7 +2551,7 @@ function updateZoom(level) {
     OrgChartState.zoomLevel = level;
     document.getElementById('zoomLevel').textContent = `${level}%`;
     
-    // Dense 모드 전환 임계값 체크 (작업지시서 사양: 95%)
+    // Dense 모드 전환 임계값 체크 (105% 미만에서 Dense 모드)
     const wasDense = previousLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
     const isDense = level < CONFIG.ZOOM_DENSE_THRESHOLD;
     
