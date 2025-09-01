@@ -219,12 +219,12 @@
         border: 3px solid yellow;
     }
 
-    /* 트리 컨테이너 - 확대 기준 상단 중앙 */
+    /* 트리 컨테이너 - 확대 기준 상단 좌측 */
     .tree-container {
         min-height: 100%;
         position: relative;
         transition: transform 0.3s ease;
-        transform-origin: top center; /* 확대 기준점 */
+        transform-origin: top left; /* 확대 기준점을 좌측으로 변경 */
         /* 디버깅용 */
         border: 3px solid lime;
         background: rgba(255, 0, 0, 0.1); /* 반투명 빨간 배경 */
@@ -1481,7 +1481,7 @@ function renderVerticalView() {
     });
     
     // 컨테이너 크기 설정
-    const containerWidth = Math.max(viewportWidth, (maxX - minX) + nodeWidth + 200);
+    const containerWidth = Math.max(viewportWidth, (maxX - minX) + nodeWidth + 400);
     const containerHeight = maxY + nodeHeight + 200;
     
     container.style.width = `${containerWidth}px`;
@@ -1490,8 +1490,8 @@ function renderVerticalView() {
     console.log(`Container size set to: ${containerWidth} x ${containerHeight}px`);
     console.log(`Node position range: X(${minX} to ${maxX}), Y(0 to ${maxY})`);
     
-    // 중앙 정렬 오프셋
-    const offsetX = containerWidth / 2;
+    // 왼쪽 여백을 고려한 오프셋 (중앙이 아닌 왼쪽 기준)
+    const offsetX = Math.abs(minX) + 200; // minX가 음수일 때를 고려
     
     // 노드 렌더링 (Dense 또는 Normal 모드)
     let renderedCount = 0;
