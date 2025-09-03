@@ -1,0 +1,149 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}Advanced Organization Chart - Refactored{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}">
+<style>
+    /* Critical inline styles only */
+    #chartViewport {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 180px);
+        overflow: auto;
+        background: linear-gradient(180deg, #0b1324 0%, #0a0f1e 100%);
+    }
+    
+    #treeContainer {
+        position: relative;
+        min-width: 100%;
+        min-height: 100%;
+        transform-origin: 0 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="org-chart-wrapper">
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-inner">
+            <!-- Search Box -->
+            <div class="org-search-box">
+                <i class="fas fa-search org-search-icon"></i>
+                <input type="text" 
+                       id="orgSearch" 
+                       class="org-search-input" 
+                       placeholder="직원 또는 부서 검색..."
+                       autocomplete="off">
+                <div class="search-autocomplete" id="searchAutocomplete"></div>
+            </div>
+            
+            <!-- View Controls -->
+            <div class="view-controls">
+                <button class="view-btn active" data-view="vertical">
+                    <i class="fas fa-sitemap"></i> 세로형
+                </button>
+                <button class="view-btn" data-view="grid">
+                    <i class="fas fa-th"></i> 그리드
+                </button>
+                <button class="view-btn" data-view="radial">
+                    <i class="fas fa-circle-notch"></i> 방사형
+                </button>
+                <button class="view-btn" data-view="compact">
+                    <i class="fas fa-compress"></i> 압축형
+                </button>
+            </div>
+            
+            <!-- Level Filters -->
+            <div class="level-filters">
+                <span style="color: #94a3b8; margin-right: 0.5rem;">레벨:</span>
+                <button class="level-filter-btn active" data-level="all">전체</button>
+                <button class="level-filter-btn" data-level="executive">임원</button>
+                <button class="level-filter-btn" data-level="division">본부</button>
+                <button class="level-filter-btn" data-level="department">부서</button>
+                <button class="level-filter-btn" data-level="team">팀</button>
+            </div>
+            
+            <!-- Depth Controls -->
+            <div class="depth-controls">
+                <button class="level-filter-btn" onclick="expandToDepth('OK금융그룹', 2)" title="레벨 2까지 펼침">
+                    레벨 2까지
+                </button>
+                <button class="level-filter-btn" onclick="expandToDepth('OK금융그룹', 3)" title="레벨 3까지 펼침">
+                    레벨 3까지
+                </button>
+                <button class="level-filter-btn" onclick="expandToDepth('OK금융그룹', 4)" title="레벨 4까지 펼침">
+                    레벨 4까지
+                </button>
+            </div>
+            
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <button id="zoomOut" class="zoom-btn" title="축소">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <span id="zoomLevel" class="zoom-level">100%</span>
+                <button id="zoomIn" class="zoom-btn" title="확대">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="zoomReset" class="zoom-btn" title="초기화">
+                    <i class="fas fa-undo"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb-nav" id="breadcrumbNav">
+        <span class="breadcrumb-item active">OK금융그룹</span>
+    </nav>
+    
+    <!-- Main Chart Container -->
+    <div id="chartViewport" class="chart-viewport">
+        <div id="treeContainer"></div>
+    </div>
+    
+    <!-- Minimap -->
+    <div class="minimap" id="minimap">
+        <canvas id="minimapCanvas"></canvas>
+        <div class="minimap-viewport" id="minimapViewport"></div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- External JavaScript Files -->
+<script src="{% static 'js/advanced-org-chart.js' %}"></script>
+<script src="{% static 'js/org-chart-api.js' %}"></script>
+<script src="{% static 'js/org-chart-minimap.js' %}"></script>
+
+<script>
+// Minimal initialization code only
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize with API endpoint
+    const chartConfig = {
+        container: 'treeContainer',
+        apiEndpoint: '{% url "employees:api_organization_tree" %}',
+        csrfToken: '{{ csrf_token }}',
+        initialZoom: 100,
+        enableMinimap: true,
+        enableSearch: true
+    };
+    
+    // Initialize the chart
+    if (window.AdvancedOrgChart) {
+        window.orgChart = new AdvancedOrgChart(chartConfig);
+        console.log('✅ Advanced Organization Chart Initialized - Refactored Version');
+    } else {
+        console.error('❌ AdvancedOrgChart class not found');
+    }
+});
+</script>
+{% endblock %}
