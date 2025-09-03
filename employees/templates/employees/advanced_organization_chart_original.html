@@ -1032,7 +1032,7 @@
                 <button class="zoom-btn" id="zoomOut">
                     <i class="fas fa-minus"></i>
                 </button>
-                <span class="zoom-level" id="zoomLevel">92%</span>
+                <span class="zoom-level" id="zoomLevel">100%</span>
                 <button class="zoom-btn" id="zoomIn">
                     <i class="fas fa-plus"></i>
                 </button>
@@ -1087,7 +1087,7 @@ console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()}
 const OrgChartState = {
     currentView: 'vertical',
     currentLevel: 'all',
-    zoomLevel: 92,
+    zoomLevel: 100,
     focusedNode: null,
     expandedNodes: new Set(['OK금융그룹']), // 루트 노드만 초기 펼침
     searchQuery: '',
@@ -1348,9 +1348,9 @@ function initializeChart() {
     // 초기 줌을 30%로 설정하여 Dense 모드 강제 활성화
     console.log('🔍 줌 적용 전 상태 확인:', OrgChartState.zoomLevel);
     
-    // Dense 모드로 시작 (92% 줌 - Dense 모드의 최대값)
-    OrgChartState.zoomLevel = 92;
-    document.getElementById('zoomLevel').textContent = '92%';
+    // Dense 모드로 바로 시작 (92px 초슬림 카드)
+    OrgChartState.zoomLevel = 30;
+    document.getElementById('zoomLevel').textContent = '30%';
     
     // 레이아웃 재계산 (Dense 모드 적용)
     calculateLayout();
@@ -1522,29 +1522,14 @@ async function loadInitialData() {
     showLoading(true);
     
     try {
-        // API에서 초기 전체 데이터 로드 (depth=20으로 늘려서 모든 조직 로드)
-        const response = await fetch('/employees/api/org/root?depth=20');
+        // API에서 초기 2레벨 데이터 로드
+        const response = await fetch('/employees/api/org/root?depth=5');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         
         console.log('Loaded org data:', data); // 디버깅용
-        
-        // API 데이터 구조 디버깅
-        if (data) {
-            const countNodes = (node) => {
-                let count = 1;
-                if (node.children && Array.isArray(node.children)) {
-                    node.children.forEach(child => {
-                        count += countNodes(child);
-                    });
-                }
-                return count;
-            };
-            const totalNodes = countNodes(data);
-            console.log(`📊 Total nodes in API response: ${totalNodes}`);
-        }
         
         // 노드 생성 및 렌더링 (초기 로드 시 버킷 클러스터링 비활성화)
         processOrgData(data, true);
@@ -1648,13 +1633,9 @@ function processOrgData(data, skipBucketing = false) {
 
 // 트리 구조 기반 재귀적 레이아웃 계산 (부모-자식 관계 우선)
 function calculateLayout() {
-    console.log(`📐 calculateLayout() called. Total nodes: ${OrgChartState.nodes.size}`);
-    
     // Dense 모드 판별
     const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
                        OrgChartState.currentView === 'compact';
-    
-    console.log(`📐 Layout mode: ${isDenseMode ? 'Dense' : 'Normal'} (zoom: ${OrgChartState.zoomLevel}%)`);
     
     const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
     const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;  
