@@ -445,14 +445,16 @@ class AdvancedOrgChart {
 }
 
 // ===========================
-// 7. 초기화 (Initialization)
+// 7. 전역 노출 (Global Export)
 // ===========================
-document.addEventListener('DOMContentLoaded', () => {
-    window.orgChart = new AdvancedOrgChart('treeContainer');
-    window.orgChartState = window.orgChart.state; // 하위 호환성
-    
-    console.log('🎯 Advanced Org Chart v2.2 - Refactored');
-});
+// 클래스들을 전역으로 노출
+window.AdvancedOrgChart = AdvancedOrgChart;
+window.OrgChartState = OrgChartState;
+window.NodeRenderer = NodeRenderer;
+window.LayoutEngine = LayoutEngine;
+window.OrgChartUtils = OrgChartUtils;
+
+console.log('🎯 Advanced Org Chart v2.2 - Classes Exported');
 
 // ===========================
 // 8. 전역 함수 (Global Functions) - 하위 호환성

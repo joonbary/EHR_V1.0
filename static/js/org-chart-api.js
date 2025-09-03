@@ -148,3 +148,8 @@ class OrgChartAPI {
         }
     }
 }
+
+// 전역으로 노출
+if (typeof window !== 'undefined') {
+    window.OrgChartAPI = OrgChartAPI;
+}

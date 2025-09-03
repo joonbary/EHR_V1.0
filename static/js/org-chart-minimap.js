@@ -197,3 +197,8 @@ class OrgChartMinimap {
         this.initialized = false;
     }
 }
+
+// 전역으로 노출
+if (typeof window !== 'undefined') {
+    window.OrgChartMinimap = OrgChartMinimap;
+}

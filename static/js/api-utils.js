@@ -333,3 +333,10 @@ if (!document.getElementById('api-utils-styles')) {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { ApiUtils, ApiError, Toast };
 }
+
+// 전역으로도 노출 (브라우저 환경)
+if (typeof window !== 'undefined') {
+    window.ApiUtils = ApiUtils;
+    window.ApiError = ApiError;
+    window.Toast = Toast;
+}

@@ -166,11 +166,10 @@ function initializeOrgChart() {
 }
 
 // 모든 스크립트가 로드될 때까지 대기
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeOrgChart);
-} else {
-    // 이미 로드된 경우 즉시 실행
-    setTimeout(initializeOrgChart, 100);
-}
+window.addEventListener('load', function() {
+    // window.load 이벤트는 모든 리소스가 로드된 후 발생
+    console.log('🔄 Starting org chart initialization...');
+    initializeOrgChart();
+});
 </script>
 {% endblock %}
