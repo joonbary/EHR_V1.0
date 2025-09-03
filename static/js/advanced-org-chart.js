@@ -123,7 +123,17 @@ class NodeRenderer {
         const div = document.createElement('div');
         div.className = 'ultra-node org-node';
         div.id = `node-${node.id}`;
-        div.style.width = `${CONFIG.NODE_WIDTH_ULTRA}px`;
+        
+        // 기본 스타일 추가 (CSS가 로드되지 않은 경우를 위한 fallback)
+        div.style.cssText = `
+            width: ${CONFIG.NODE_WIDTH_ULTRA}px;
+            background: #0e1728;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: white;
+        `;
         
         // 템플릿 리터럴로 HTML 생성
         div.innerHTML = this.getUltraNodeTemplate(node);
@@ -139,7 +149,17 @@ class NodeRenderer {
         const div = document.createElement('div');
         div.className = 'dense-node org-node';
         div.id = `node-${node.id}`;
-        div.style.width = `${CONFIG.NODE_WIDTH_DENSE}px`;
+        
+        // 기본 스타일 추가 (CSS가 로드되지 않은 경우를 위한 fallback)
+        div.style.cssText = `
+            width: ${CONFIG.NODE_WIDTH_DENSE}px;
+            background: #0e1728;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            color: white;
+        `;
         
         div.innerHTML = this.getDenseNodeTemplate(node);
         this.attachEventListeners(div, node);
@@ -155,6 +175,17 @@ class NodeRenderer {
         div.className = 'org-node';
         div.id = `node-${node.id}`;
         div.style.width = `${CONFIG.NODE_WIDTH}px`;
+        
+        // 기본 스타일 추가 (CSS가 로드되지 않은 경우를 위한 fallback)
+        div.style.cssText = `
+            width: ${CONFIG.NODE_WIDTH}px;
+            background: #0e1728;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 1rem;
+            padding: 1rem;
+            cursor: pointer;
+            color: white;
+        `;
         
         div.innerHTML = this.getNormalNodeTemplate(node);
         this.attachEventListeners(div, node);
@@ -305,6 +336,8 @@ class LayoutEngine {
 // ===========================
 class AdvancedOrgChart {
     constructor(config) {
+        console.log('🎯 AdvancedOrgChart Constructor called with:', config);
+        
         // Support both string and object parameters for backward compatibility
         if (typeof config === 'string') {
             this.containerId = config;
@@ -322,13 +355,37 @@ class AdvancedOrgChart {
             this.config = config;
         }
         
+        // 컨테이너 존재 확인
+        if (!this.container) {
+            console.error('❌ Container element not found:', this.containerId);
+            return;
+        }
+        
+        console.log('✅ Container found:', this.container);
+        console.log('📊 Config:', this.config);
+        
         this.state = new OrgChartState();
-        this.api = new OrgChartAPI(this.config.apiEndpoint, this.config.csrfToken);
-        this.minimap = new OrgChartMinimap('minimapCanvas', 'minimapViewport');
+        
+        // API와 Minimap 초기화 전 null 체크
+        if (typeof OrgChartAPI !== 'undefined') {
+            this.api = new OrgChartAPI(this.config.apiEndpoint, this.config.csrfToken);
+            console.log('✅ API initialized');
+        } else {
+            console.error('❌ OrgChartAPI class not found');
+        }
+        
+        if (typeof OrgChartMinimap !== 'undefined') {
+            this.minimap = new OrgChartMinimap('minimapCanvas', 'minimapViewport');
+            console.log('✅ Minimap initialized');
+        } else {
+            console.warn('⚠️ OrgChartMinimap class not found');
+        }
+        
         this.init();
     }
     
     init() {
+        console.log('🔄 Initializing AdvancedOrgChart...');
         this.setupEventListeners();
         this.loadData();
     }
@@ -384,18 +441,38 @@ class AdvancedOrgChart {
     async loadData() {
         try {
             console.log('🔄 Loading organization data from:', this.config.apiEndpoint);
-            const data = await this.api.loadTreeData();
-            this.processData(data);
-            this.render();
-            console.log('✅ Organization data loaded and rendered');
+            
+            // API가 없는 경우 직접 fetch
+            if (!this.api) {
+                console.log('⚠️ Using direct fetch as API is not initialized');
+                const response = await fetch(this.config.apiEndpoint);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('📊 Fetched data:', data);
+                this.processData(data);
+                this.render();
+                console.log('✅ Organization data loaded and rendered via direct fetch');
+            } else {
+                const data = await this.api.loadTreeData();
+                console.log('📊 API returned data:', data);
+                this.processData(data);
+                this.render();
+                console.log('✅ Organization data loaded and rendered via API');
+            }
         } catch (error) {
             console.error('❌ Failed to load organization data:', error);
+            console.error('Error stack:', error.stack);
             this.showErrorMessage('조직도 데이터를 불러올 수 없습니다. 서버 연결을 확인해주세요.');
         }
     }
     
     processData(data) {
         console.log('🔄 Processing organization data:', data);
+        console.log('📊 Data type:', typeof data);
+        console.log('📊 Is Array:', Array.isArray(data));
+        console.log('📊 Has children:', data && data.children ? 'Yes' : 'No');
         
         // 데이터 처리 로직
         this.state.reset();
@@ -443,6 +520,7 @@ class AdvancedOrgChart {
         });
         
         console.log('✅ Processed', this.state.nodes.size, 'organization nodes');
+        console.log('📊 Nodes in state:', Array.from(this.state.nodes.values()));
     }
     
     /**
@@ -473,16 +551,27 @@ class AdvancedOrgChart {
     }
     
     render() {
+        console.log('🎨 Starting render process...');
+        
         if (!this.container) {
-            console.error('Container not found');
+            console.error('❌ Container not found');
             return;
         }
         
+        console.log('📊 Container dimensions:', {
+            width: this.container.offsetWidth,
+            height: this.container.offsetHeight
+        });
+        
         const mode = OrgChartUtils.getCurrentViewMode();
+        console.log('📊 Current view mode:', mode);
+        
         const nodes = LayoutEngine.calculateTreeLayout(
             Array.from(this.state.nodes.values()),
             mode
         );
+        
+        console.log('📊 Nodes after layout calculation:', nodes.length);
         
         // 기존 내용 제거
         this.container.innerHTML = '';
@@ -520,7 +609,20 @@ class AdvancedOrgChart {
             element.style.height = `${node.height}px`;
             
             this.container.appendChild(element);
-            console.log(`✅ Rendered node ${node.id} at (${node.x}, ${node.y})`);
+            
+            // DOM에 실제로 추가되었는지 확인
+            const addedElement = document.getElementById(`node-${node.id}`);
+            if (addedElement) {
+                console.log(`✅ Node ${node.id} added to DOM at (${node.x}, ${node.y})`);
+                console.log(`   Dimensions: ${node.width}x${node.height}`);
+                console.log(`   Computed styles:`, {
+                    display: window.getComputedStyle(addedElement).display,
+                    visibility: window.getComputedStyle(addedElement).visibility,
+                    position: window.getComputedStyle(addedElement).position
+                });
+            } else {
+                console.error(`❌ Failed to add node ${node.id} to DOM`);
+            }
         });
         
         // 컨테이너 크기 조정 (스크롤 가능하도록)
