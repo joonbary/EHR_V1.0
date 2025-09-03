@@ -352,13 +352,24 @@ class AdvancedOrgChart {
         // 데이터 처리 로직
         this.state.reset();
         
-        if (!data || !Array.isArray(data)) {
-            console.error('❌ Invalid data format:', data);
-            return;
+        // 단일 객체인 경우 배열로 래핑
+        let nodeArray = data;
+        if (!Array.isArray(data)) {
+            if (data && typeof data === 'object') {
+                // 단일 루트 노드인 경우
+                nodeArray = [data];
+                // children이 있으면 평면화
+                if (data.children && Array.isArray(data.children)) {
+                    nodeArray = this.flattenTree(data);
+                }
+            } else {
+                console.error('❌ Invalid data format:', data);
+                return;
+            }
         }
         
         // 노드 데이터를 Map에 저장
-        data.forEach(node => {
+        nodeArray.forEach(node => {
             this.state.nodes.set(node.id, {
                 id: node.id,
                 name: node.name,
@@ -376,6 +387,33 @@ class AdvancedOrgChart {
         });
         
         console.log('✅ Processed', this.state.nodes.size, 'organization nodes');
+    }
+    
+    /**
+     * 트리 구조를 평면 배열로 변환
+     */
+    flattenTree(node, result = []) {
+        // 현재 노드 추가
+        result.push({
+            id: node.id,
+            name: node.name,
+            type: node.type,
+            parent_id: node.parent_id || null,
+            level: node.level || 1,
+            description: node.description || '',
+            members: node.members || []
+        });
+        
+        // 자식 노드들 재귀적으로 처리
+        if (node.children && Array.isArray(node.children)) {
+            node.children.forEach(child => {
+                child.parent_id = node.id;
+                child.level = (node.level || 1) + 1;
+                this.flattenTree(child, result);
+            });
+        }
+        
+        return result;
     }
     
     render() {

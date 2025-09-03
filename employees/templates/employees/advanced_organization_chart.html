@@ -127,7 +127,8 @@
 
 <script>
 // Minimal initialization code only
-document.addEventListener('DOMContentLoaded', function() {
+// 모든 스크립트 로드 후 초기화
+function initializeOrgChart() {
     // Initialize with API endpoint
     const chartConfig = {
         container: 'treeContainer',
@@ -162,6 +163,14 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('- Document readyState:', document.readyState);
         console.log('- Scripts in head:', document.querySelectorAll('script[src*="advanced-org-chart"]').length);
     }
-});
+}
+
+// 모든 스크립트가 로드될 때까지 대기
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeOrgChart);
+} else {
+    // 이미 로드된 경우 즉시 실행
+    setTimeout(initializeOrgChart, 100);
+}
 </script>
 {% endblock %}
