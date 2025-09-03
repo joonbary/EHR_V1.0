@@ -547,11 +547,12 @@ def org_tree_api(request, node_id=None):
             else:
                 return JsonResponse(get_sample_org_data())
         
-        depth = int(request.GET.get('depth', 2))
+        depth = int(request.GET.get('depth', 10))  # 기본 depth를 10으로 증가
         
         def build_tree_from_org_structure(parent_id=None, current_depth=0):
             """실제 OrganizationStructure에서 트리 구조 생성"""
             if current_depth >= depth:
+                print(f"Depth limit reached: {current_depth} >= {depth}")
                 return []
                 
             try:
@@ -566,6 +567,8 @@ def org_tree_api(request, node_id=None):
                         parent__isnull=True, 
                         status='active'
                     ).order_by('sort_order', 'org_code')
+                
+                print(f"Found {orgs.count()} orgs at depth {current_depth} with parent_id={parent_id}")
                 
                 nodes = []
                 for org in orgs:
@@ -618,6 +621,10 @@ def org_tree_api(request, node_id=None):
             except Exception as e:
                 print(f"Error building org tree: {e}")
                 return []
+        
+        # 디버깅 정보 추가
+        print(f"depth setting: {depth}")
+        print(f"node_id: {node_id}")
         
         # 특정 노드 요청인지 전체 트리 요청인지 확인
         if node_id and node_id != 'root':
