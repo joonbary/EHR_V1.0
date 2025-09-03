@@ -486,6 +486,11 @@ class AdvancedOrgChart {
         console.log('📊 Is Array:', Array.isArray(data));
         console.log('📊 Has children:', data && data.children ? 'Yes' : 'No');
         
+        if (data && data.children) {
+            console.log('📊 Number of children:', data.children.length);
+            console.log('📊 Children:', data.children);
+        }
+        
         // 데이터 처리 로직
         this.state.reset();
         
@@ -493,11 +498,14 @@ class AdvancedOrgChart {
         let nodeArray = data;
         if (!Array.isArray(data)) {
             if (data && typeof data === 'object') {
-                // 단일 루트 노드인 경우
-                nodeArray = [data];
                 // children이 있으면 평면화
                 if (data.children && Array.isArray(data.children)) {
+                    console.log('📊 Flattening tree structure...');
                     nodeArray = this.flattenTree(data);
+                    console.log('📊 Flattened nodes count:', nodeArray.length);
+                } else {
+                    // 단일 노드만 있는 경우
+                    nodeArray = [data];
                 }
             } else {
                 console.error('❌ Invalid data format:', data);
@@ -538,24 +546,28 @@ class AdvancedOrgChart {
     /**
      * 트리 구조를 평면 배열로 변환
      */
-    flattenTree(node, result = []) {
+    flattenTree(node, result = [], parentId = null, level = 1) {
         // 현재 노드 추가
-        result.push({
-            id: node.id,
+        const nodeData = {
+            id: node.id || String(Date.now() + Math.random()),
             name: node.name,
-            type: node.type,
-            parent_id: node.parent_id || null,
-            level: node.level || 1,
+            type: node.type || 'department',
+            parent_id: parentId || node.parentId || node.parent_id || null,
+            level: level,
             description: node.description || '',
-            members: node.members || []
-        });
+            members: node.members || [],
+            headcount: node.headcount || 0,
+            childrenCount: node.childrenCount || (node.children ? node.children.length : 0)
+        };
+        
+        result.push(nodeData);
+        console.log(`  ➕ Added node: ${nodeData.name} (ID: ${nodeData.id}, Level: ${nodeData.level})`);
         
         // 자식 노드들 재귀적으로 처리
         if (node.children && Array.isArray(node.children)) {
+            console.log(`  📂 Processing ${node.children.length} children of ${node.name}...`);
             node.children.forEach(child => {
-                child.parent_id = node.id;
-                child.level = (node.level || 1) + 1;
-                this.flattenTree(child, result);
+                this.flattenTree(child, result, nodeData.id, level + 1);
             });
         }
         
