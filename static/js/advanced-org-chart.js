@@ -390,73 +390,8 @@ class AdvancedOrgChart {
             console.log('✅ Organization data loaded and rendered');
         } catch (error) {
             console.error('❌ Failed to load organization data:', error);
-            console.log('🔄 Loading sample data as fallback...');
-            
-            // API 실패 시 샘플 데이터 사용
-            const sampleData = this.getSampleData();
-            this.processData(sampleData);
-            this.render();
-            console.log('✅ Sample organization data rendered');
+            this.showErrorMessage('조직도 데이터를 불러올 수 없습니다. 서버 연결을 확인해주세요.');
         }
-    }
-    
-    getSampleData() {
-        return {
-            id: 'ok-financial',
-            name: 'OK금융그룹',
-            type: 'company',
-            level: 1,
-            members: [],
-            children: [
-                {
-                    id: 'it-division',
-                    name: 'IT본부',
-                    type: 'division',
-                    level: 2,
-                    members: ['김철수', '이영희'],
-                    children: [
-                        {
-                            id: 'dev-team',
-                            name: '개발팀',
-                            type: 'team',
-                            level: 3,
-                            members: ['박민수', '정수진', '최동훈']
-                        },
-                        {
-                            id: 'infra-team',
-                            name: '인프라팀',
-                            type: 'team',
-                            level: 3,
-                            members: ['한지민', '강호동']
-                        }
-                    ]
-                },
-                {
-                    id: 'hr-division',
-                    name: '인사본부',
-                    type: 'division',
-                    level: 2,
-                    members: ['윤서연'],
-                    children: [
-                        {
-                            id: 'recruit-team',
-                            name: '채용팀',
-                            type: 'team',
-                            level: 3,
-                            members: ['송혜교', '전지현']
-                        }
-                    ]
-                },
-                {
-                    id: 'finance-division',
-                    name: '재무본부',
-                    type: 'division',
-                    level: 2,
-                    members: ['장동건', '원빈'],
-                    children: []
-                }
-            ]
-        };
     }
     
     processData(data) {
