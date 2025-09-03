@@ -137,12 +137,29 @@ document.addEventListener('DOMContentLoaded', function() {
         enableSearch: true
     };
     
+    // Debug logging
+    console.log('🔍 Advanced Org Chart Debug Info:');
+    console.log('- AdvancedOrgChart available:', typeof window.AdvancedOrgChart);
+    console.log('- API endpoint:', chartConfig.apiEndpoint);
+    console.log('- Container element:', document.getElementById(chartConfig.container));
+    console.log('- Static files loaded:', {
+        'advanced-org-chart.js': typeof window.AdvancedOrgChart,
+        'org-chart-api.js': typeof window.OrgChartAPI,
+        'org-chart-minimap.js': typeof window.OrgChartMinimap
+    });
+    
     // Initialize the chart
     if (window.AdvancedOrgChart) {
-        window.orgChart = new AdvancedOrgChart(chartConfig);
-        console.log('✅ Advanced Organization Chart Initialized - Refactored Version');
+        try {
+            window.orgChart = new AdvancedOrgChart(chartConfig);
+            console.log('✅ Advanced Organization Chart Initialized - Refactored Version');
+        } catch (error) {
+            console.error('❌ Error initializing AdvancedOrgChart:', error);
+        }
     } else {
-        console.error('❌ AdvancedOrgChart class not found');
+        console.error('❌ AdvancedOrgChart class not found - checking script loading...');
+        console.log('- Document readyState:', document.readyState);
+        console.log('- Scripts in head:', document.querySelectorAll('script[src*="advanced-org-chart"]').length);
     }
 });
 </script>

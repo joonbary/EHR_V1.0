@@ -256,9 +256,27 @@ class LayoutEngine {
 // 6. 메인 차트 클래스 (Main Chart Class)
 // ===========================
 class AdvancedOrgChart {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
+    constructor(config) {
+        // Support both string and object parameters for backward compatibility
+        if (typeof config === 'string') {
+            this.containerId = config;
+            this.container = document.getElementById(config);
+            this.config = {
+                apiEndpoint: '/employees/api/org/root',
+                csrfToken: '',
+                initialZoom: 100,
+                enableMinimap: true,
+                enableSearch: true
+            };
+        } else {
+            this.containerId = config.container;
+            this.container = document.getElementById(config.container);
+            this.config = config;
+        }
+        
         this.state = new OrgChartState();
+        this.api = new OrgChartAPI(this.config.apiEndpoint, this.config.csrfToken);
+        this.minimap = new OrgChartMinimap('minimapCanvas', 'minimapViewport');
         this.init();
     }
     
@@ -302,21 +320,62 @@ class AdvancedOrgChart {
         this.render();
     }
     
+    showErrorMessage(message) {
+        if (this.container) {
+            this.container.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 300px; color: #94a3b8;">
+                    <div style="text-align: center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p style="font-size: 1.1rem;">${message}</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
     async loadData() {
         try {
-            const response = await fetch('/api/organization/tree/');
-            const data = await response.json();
+            console.log('🔄 Loading organization data from:', this.config.apiEndpoint);
+            const data = await this.api.loadTreeData();
             this.processData(data);
             this.render();
+            console.log('✅ Organization data loaded and rendered');
         } catch (error) {
-            console.error('Failed to load organization data:', error);
+            console.error('❌ Failed to load organization data:', error);
+            this.showErrorMessage('조직도 데이터를 불러올 수 없습니다.');
         }
     }
     
     processData(data) {
+        console.log('🔄 Processing organization data:', data);
+        
         // 데이터 처리 로직
         this.state.reset();
-        // ... 노드 추가 로직
+        
+        if (!data || !Array.isArray(data)) {
+            console.error('❌ Invalid data format:', data);
+            return;
+        }
+        
+        // 노드 데이터를 Map에 저장
+        data.forEach(node => {
+            this.state.nodes.set(node.id, {
+                id: node.id,
+                name: node.name,
+                type: node.type,
+                parent_id: node.parent_id,
+                level: node.level || 1,
+                description: node.description || '',
+                members: node.members || [],
+                x: 0,
+                y: 0,
+                width: CONFIG.NODE_WIDTH,
+                height: 120,
+                expanded: true
+            });
+        });
+        
+        console.log('✅ Processed', this.state.nodes.size, 'organization nodes');
     }
     
     render() {
