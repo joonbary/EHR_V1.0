@@ -129,6 +129,12 @@
 // Minimal initialization code only
 // 모든 스크립트 로드 후 초기화
 function initializeOrgChart() {
+    // 이미 초기화된 경우 중복 실행 방지
+    if (window.orgChart) {
+        console.log('⚠️ Organization chart already initialized, skipping...');
+        return;
+    }
+    
     // Initialize with API endpoint
     const chartConfig = {
         container: 'treeContainer',
@@ -165,11 +171,16 @@ function initializeOrgChart() {
     }
 }
 
+// 초기화 플래그
+let chartInitialized = false;
+
 // 모든 스크립트가 로드될 때까지 대기
 window.addEventListener('load', function() {
-    // window.load 이벤트는 모든 리소스가 로드된 후 발생
-    console.log('🔄 Starting org chart initialization...');
-    initializeOrgChart();
+    if (!chartInitialized) {
+        console.log('🔄 Starting org chart initialization...');
+        initializeOrgChart();
+        chartInitialized = true;
+    }
 });
 </script>
 {% endblock %}

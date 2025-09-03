@@ -391,6 +391,12 @@ class AdvancedOrgChart {
     }
     
     setupEventListeners() {
+        // 이벤트 중복 등록 방지
+        if (this.eventListenersSetup) {
+            console.log('⚠️ Event listeners already set up, skipping...');
+            return;
+        }
+        
         // 줌 버튼
         document.getElementById('zoomIn')?.addEventListener('click', () => {
             this.updateZoom(this.state.zoomLevel + CONFIG.ZOOM_STEP);
@@ -400,6 +406,10 @@ class AdvancedOrgChart {
             this.updateZoom(this.state.zoomLevel - CONFIG.ZOOM_STEP);
         });
         
+        document.getElementById('zoomReset')?.addEventListener('click', () => {
+            this.updateZoom(100);
+        });
+        
         // 검색
         const searchInput = document.getElementById('orgSearch');
         if (searchInput) {
@@ -407,6 +417,8 @@ class AdvancedOrgChart {
                 OrgChartUtils.debounce((e) => this.search(e.target.value), CONFIG.SEARCH_DELAY)
             );
         }
+        
+        this.eventListenersSetup = true;
     }
     
     updateZoom(level) {
@@ -653,6 +665,7 @@ console.log('🎯 Advanced Org Chart v2.2 - Classes Exported');
 window.updateZoom = (level) => window.orgChart?.updateZoom(level);
 window.getCurrentViewMode = () => OrgChartUtils.getCurrentViewMode();
 window.expandToDepth = async (rootId, depth) => {
-    // 구현...
     console.log(`Expanding to depth ${depth} from ${rootId}`);
+    // TODO: 실제 depth 확장 구현 필요
+    // 현재는 로그만 출력
 };
