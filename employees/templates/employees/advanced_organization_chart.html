@@ -119,10 +119,11 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- External JavaScript Files -->
-<script src="{% static 'js/advanced-org-chart.js' %}"></script>
-<script src="{% static 'js/org-chart-api.js' %}"></script>
+<!-- External JavaScript Files - 로딩 순서 중요! -->
+<script src="{% static 'js/api-utils.js' %}"></script>
 <script src="{% static 'js/org-chart-minimap.js' %}"></script>
+<script src="{% static 'js/org-chart-api.js' %}"></script>
+<script src="{% static 'js/advanced-org-chart.js' %}"></script>
 
 <script>
 // Minimal initialization code only
