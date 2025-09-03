@@ -1,60 +1,67 @@
 sc:code --typescript -persona-frontend -c8 -seq
-# 목적
-# - 카드 폭을 92px 수준으로 ‘초슬림’화 + 텍스트 ‘세로쓰기’(CJK 최적)
-# - ELK.js 세로(layered DOWN) 레이아웃 고정, 가로 스크롤 금지
-# - 레벨3(부서)/레벨4(팀) 지연 로딩(expandToDepth)
-# - 잘못된 체인(직렬) 엣지 교정 유틸 + 검증
-# - 줌<0.95 에서는 초슬림 세로카드, 줌≥0.95 에서는 기존(가로 글자) 카드 자동 전환
+# 목표
+# 1) 카드 폭 슬림화 + 세로쓰기: ultra(72px) / dense(92px) / normal(180px)
+# 2) 줌 기반 시맨틱 전환: zoom<0.8=ultra, <0.95=dense, else=normal
+# 3) 동일 부서(Department) 내부 팀은 촘촘 / 부서 간은 크게 띄우는 '클러스터' 레이아웃
+# 4) ELK layered DOWN + 겹침 보정(동일 레벨 푸시)
+# 5) 레벨3/4 Lazy Expand + siblings>12 버킷
+# 6) 다크 네온 톤은 절제(가독 우선), 텍스트 대비↑
 
-# =========================================
-# 0) 스타일: 세로쓰기 유틸 + 컨테이너(가로 스크롤 금지)
-# =========================================
-# 파일: src/styles/org.css (없으면 생성, 있으면 아래 클래스 추가)
+# =========================================================
+# 0) 디자인 토큰 & 유틸 (추가/갱신)
+# =========================================================
+# 파일: src/styles/org.css
 """
-.org-container{overflow-y:auto;overflow-x:hidden;background:linear-gradient(180deg,#0b1324,#0a0f1e);}
+:root{
+  --org-bg:#0b1324;
+  --org-panel:#0e1728;
+  --org-stroke:rgba(56,189,248,.35); /* cyan-400/35 */
+  --org-stroke-strong:rgba(56,189,248,.6);
+  --org-text:rgba(255,255,255,.92);
+  --org-sub:rgba(255,255,255,.68);
+}
+.org-container{overflow-y:auto; overflow-x:hidden; background:linear-gradient(180deg,var(--org-bg),#0a0f1e);}
 .org-viewport{transform-origin:top center}
-
-/* 세로 글자 유틸 */
 .vertical-cjk   { writing-mode: vertical-rl; text-orientation: upright; }
 .vertical-mixed { writing-mode: vertical-rl; text-orientation: mixed;  }
 .v-chip         { writing-mode: vertical-rl; text-orientation: mixed; font-size:10px; line-height:1; }
+.card-base{
+  background: color-mix(in oklab, var(--org-panel) 92%, black 8%);
+  border:1px solid var(--org-stroke);
+  border-radius:16px;
+  backdrop-filter: blur(2px);
+}
+.card-base:hover{ border-color: var(--org-stroke-strong); }
+.card-title{ color:var(--org-text); font-weight:600; }
+.card-meta{ color:var(--org-sub); font-size:10px; }
+.spine{ position:absolute; left:0; top:0; height:100%; width:6px; border-top-left-radius:16px; border-bottom-left-radius:16px; opacity:.7}
+.spine.company{ background:linear-gradient(#22d3ee, transparent); }
+.spine.division{ background:linear-gradient(#d946ef, transparent); }
+.spine.department{ background:linear-gradient(#14b8a6, transparent); }
+.spine.team{ background:linear-gradient(#64748b, transparent); }
 """
 
-# =========================================
-# 1) 초슬림 세로카드 컴포넌트 (새로 추가)
-# =========================================
-# 파일: src/org/components/DenseTallNode.tsx
+# =========================================================
+# 1) 카드 3종 (Ultra/Dense/Normal)
+# =========================================================
+# 파일: src/org/components/cards.tsx
 """
 import { Handle, Position, NodeProps } from "reactflow";
 
-type DenseData = {
+type NodeData = {
   name: string;
   type: "company"|"division"|"department"|"team"|"person";
   headcount?: number;
   childrenCount?: number;
 };
 
-const BAR: Record<string,string> = {
-  company: "from-cyan-500",
-  division: "from-fuchsia-500",
-  department: "from-teal-500",
-  team: "from-slate-500",
-  person: "from-amber-500"
-};
-
-export default function DenseTallNode({ data, selected }: NodeProps<DenseData>) {
-  const { name, type, headcount = 0, childrenCount = 0 } = data;
+function Base({ w, vertical, data, selected }:{w:number; vertical:boolean; data:NodeData; selected:boolean}){
+  const { name, type, headcount=0, childrenCount=0 } = data;
   return (
-    <div
-      className={[
-        "relative rounded-2xl border w-[92px] min-h-[300px] max-h-[460px] p-2",
-        "bg-[#0e1728]/80 backdrop-blur-sm border-cyan-400/30 hover:border-cyan-400/60",
-        selected ? "ring-2 ring-cyan-400/60" : "ring-0"
-      ].join(" ")}
-    >
-      <div className={`absolute left-0 top-0 h-full w-[6px] rounded-l-2xl bg-gradient-to-b ${BAR[type]} to-transparent opacity-70`} />
-      <div className="ml-[6px] flex flex-col items-center gap-3">
-        <div className="vertical-cjk text-[12px] font-semibold text-white/90 leading-tight max-h-[220px] overflow-hidden">
+    <div className={["card-base relative", selected?"ring-2 ring-[var(--org-stroke-strong)]":"ring-0"].join(" ")} style={{ width:w, minHeight:300 }}>
+      <div className={["spine", type].join(" ")} />
+      <div className="pl-[6px] p-2 flex flex-col items-center gap-3">
+        <div className={(vertical?"vertical-cjk ":"")+ "card-title text-[12px] leading-tight max-h-[220px] overflow-hidden"}>
           {name}
         </div>
         <div className="flex gap-1">
@@ -62,49 +69,59 @@ export default function DenseTallNode({ data, selected }: NodeProps<DenseData>) 
           <div className="v-chip bg-white/5 text-white/70 rounded px-1 py-1">하위 {childrenCount}</div>
         </div>
       </div>
-      <Handle type="target" position={Position.Top} className="!w-0 !h-0" />
-      <Handle type="source" position={Position.Bottom} className="!w-0 !h-0" />
+      <Handle type="target" position={Position.Top} className="!w-0 !h-0"/>
+      <Handle type="source" position={Position.Bottom} className="!w-0 !h-0"/>
     </div>
   );
 }
+
+export function CardUltra({ data, selected }:NodeProps<NodeData>){ return <Base w={72} vertical data={data} selected={selected}/>; }   // 초슬림
+export function CardDense({ data, selected }:NodeProps<NodeData>){ return <Base w={92} vertical data={data} selected={selected}/>; }   // 슬림
+export function CardNormal({ data, selected }:NodeProps<NodeData>){ return <Base w={180} vertical={false} data={data} selected={selected}/>; } // 기존 가로텍스트
 """
 
-# =========================================
-# 2) (옵션) 기존 TallNode가 없다면 최소 버전 생성
-#    / 이미 있으면 건너뛰기
-# =========================================
-# 파일: src/org/components/TallNode.tsx  (간단 버전)
+# =========================================================
+# 2) 그래프 빌더 & 버킷 & 검증 (병렬/클러스터)
+# =========================================================
+# 파일: src/org/utils/graph.ts
 """
-import { Handle, Position, NodeProps } from "reactflow";
-type TallData = { name: string; type:"company"|"division"|"department"|"team"|"person"; headcount?:number; childrenCount?:number; title?:string; };
-export default function TallNode({ data, selected }: NodeProps<TallData>) {
-  const { name, type, headcount = 0, childrenCount = 0, title } = data;
-  const bar = { company:"from-cyan-500", division:"from-fuchsia-500", department:"from-teal-500", team:"from-slate-500", person:"from-amber-500" }[type];
-  return (
-    <div className={[
-      "relative rounded-2xl border shadow-sm w-[180px] min-h-[300px] bg-[#0e1728]/80",
-      "backdrop-blur-sm hover:shadow-md border-cyan-400/30 hover:border-cyan-400/60",
-      selected ? "ring-2 ring-cyan-400/60":"ring-0"
-    ].join(" ")}>
-      <div className={`absolute left-0 top-0 h-full w-[6px] rounded-l-2xl bg-gradient-to-b ${bar} to-transparent opacity-70`} />
-      <div className="pl-[6px] p-3 flex flex-col gap-2">
-        <div className="text-[12px] font-semibold text-white/90 leading-tight line-clamp-3">{name}</div>
-        {title && <div className="text-[11px] text-white/60 leading-snug line-clamp-2">{title}</div>}
-        <div className="mt-1 grid grid-cols-2 gap-1 text-[10px]">
-          <div className="rounded bg-white/5 text-white/70 px-2 py-1 text-center">인원 {headcount}</div>
-          <div className="rounded bg-white/5 text-white/70 px-2 py-1 text-center">하위 {childrenCount}</div>
-        </div>
-      </div>
-      <Handle type="target" position={Position.Top} className="!w-0 !h-0" />
-      <Handle type="source" position={Position.Bottom} className="!w-0 !h-0" />
-    </div>
-  );
+export type OrgRow = {
+  id: string;
+  parentId?: string;
+  type: "company"|"division"|"department"|"team"|"person";
+  name: string;
+  headcount?: number;
+  childrenCount?: number;
+};
+
+export function buildGraph(rows: OrgRow[]){
+  const nodes = rows.map(r => ({ id:r.id, type:"tall", data:{ name:r.name, type:r.type, headcount:r.headcount??0, childrenCount:r.childrenCount??0 }}));
+  const edges = rows.filter(r => r.parentId).map(r => ({ id:`${r.parentId}-${r.id}`, source:r.parentId!, target:r.id }));
+  return { nodes, edges };
+}
+
+export function bucketSiblings(tree:any, K=12){
+  const dfs=(n:any)=>{
+    if(!n.children) return n;
+    const kids=n.children.map(dfs);
+    if(kids.length<=K) return {...n, children:kids};
+    const head=kids.slice(0,K), tail=kids.slice(K);
+    const bucket={ id:`${n.id}-bucket`, type:"bucket", name:`+${tail.length} 더보기`, children: tail, hasChildren:true };
+    return {...n, children:[...head, bucket]};
+  };
+  return dfs(tree);
+}
+
+export function validateGraph(edges:{source:string;target:string}[]){
+  const map=new Map<string,number>();
+  edges.forEach(e=> map.set(e.source,(map.get(e.source)||0)+1));
+  return { singleChildParents: [...map.entries()].filter(([,c])=>c===1).map(([id])=>id) };
 }
 """
 
-# =========================================
-# 3) ELK 기반 레이아웃 훅 (dense/normal 모드 지원)
-# =========================================
+# =========================================================
+# 3) ELK 레이아웃 훅 (클러스터/줌/충돌보정)
+# =========================================================
 # 파일: src/org/hooks/useLayout.ts
 """
 import { useState, useCallback } from "react";
@@ -112,115 +129,128 @@ import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
 
-export function useLayout() {
-  const [layouted, setLayouted] = useState<any>({ nodes: [], edges: [] });
+type Mode = "ultra"|"dense"|"normal";
 
-  const computeVertical = useCallback(async (graph: any, mode: "normal"|"dense" = "normal") => {
-    const nodeW = mode === "dense" ? 92 : 180;
-    const nodeH = 300;
-    const spacingX = mode === "dense" ? 24 : 48;
+function packResolveOverlaps(nodes:any[], minGap=8){
+  // 동일 레벨(Y) 기준으로 정렬 후, 좌우 겹침 시 약간씩 밀어냄
+  const rows=new Map<number, any[]>();
+  nodes.forEach(n=>{
+    const y=Math.round(n.position.y/10)*10;
+    rows.set(y,(rows.get(y)||[]).concat(n));
+  });
+  rows.forEach(list=>{
+    list.sort((a,b)=>a.position.x-b.position.x);
+    for(let i=1;i<list.length;i++){
+      const prev=list[i-1], cur=list[i];
+      const prevRight=prev.position.x+(prev.width||180);
+      if(prevRight+minGap>cur.position.x){
+        const shift=prevRight+minGap-cur.position.x;
+        cur.position.x += shift;
+      }
+    }
+  });
+  return nodes;
+}
 
-    const g = {
+export function useLayout(){
+  const [layouted,setLayouted]=useState<any>({nodes:[],edges:[]});
+
+  const computeVertical=useCallback(async (graph:any, mode:Mode="normal")=>{
+    const cfg = (():{w:number; sx:number; sy:number}=>{
+      if(mode==="ultra") return { w:72,  sx:18,  sy:140 };
+      if(mode==="dense") return { w:92,  sx:24,  sy:140 };
+      return                { w:180, sx:48,  sy:140 };
+    })();
+
+    // 기본 그래프를 ELK 컴파운드로 변환하여 '부서' 단위로 그룹 간격을 크게, 내부는 작게
+    // 기대 입력: graph.nodes[].data.type ∈ company/division/department/team
+    const children = graph.nodes.map((n:any)=>({ ...n, width: cfg.w, height: 300 }));
+    const elkGraph:any = {
       id: "root",
-      layoutOptions: {
-        "elk.algorithm": "layered",
-        "elk.direction": "DOWN",
-        "elk.spacing.nodeNode": String(spacingX),
-        "elk.layered.spacing.nodeNodeBetweenLayers": "140",
-        "elk.layered.nodePlacement.strategy": "BRANDES_KOEPF",
-        "elk.portConstraints": "FIXED_SIDE",
-        "elk.edgeRouting": "ORTHOGONAL",
-        "elk.padding": "48"
+      layoutOptions:{
+        "elk.algorithm":"layered",
+        "elk.direction":"DOWN",
+        "elk.spacing.nodeNode": String(cfg.sx),
+        "elk.layered.spacing.nodeNodeBetweenLayers": String(cfg.sy),
+        "elk.layered.nodePlacement.strategy":"BRANDES_KOEPF",
+        "elk.portConstraints":"FIXED_SIDE",
+        "elk.edgeRouting":"ORTHOGONAL",
+        "elk.padding":"48",
       },
-      children: graph.nodes.map((n: any) => ({ ...n, width: nodeW, height: nodeH })),
+      children,
       edges: graph.edges
     };
 
-    const res = await elk.layout(g);
-    const nodes = (res.children ?? []).map((n: any) => ({
-      id: n.id, position: { x: n.x, y: n.y }, data: n.data, type: n.type || "tall"
+    // 부서 클러스터 만들기: department별 컨테이너를 생성하고 해당 팀을 자식으로 편입
+    const byId=new Map(children.map((c:any)=>[c.id,c]));
+    const clusters=new Map<string, any>(); // departmentId -> container
+    // 팀만 찾아서 부모(=department) 컨테이너 생성
+    for(const n of children){
+      if(n.data?.type==="team" && n.parent){ /* if already hierarchical skip */ }
+    }
+    // 간단 접근: department 노드를 컨테이너로 승격
+    elkGraph.children = children.map((n:any)=>{
+      if(n.data?.type!=="department") return n;
+      const deptId=n.id;
+      const teamIds = graph.edges.filter((e:any)=>e.source===deptId).map((e:any)=>e.target);
+      const teamChildren = children.filter((c:any)=> teamIds.includes(c.id));
+      if(teamChildren.length===0) return n;
+      return {
+        id: deptId,
+        width: cfg.w, height: 300,
+        data: n.data, type: n.type,
+        layoutOptions:{
+          "elk.algorithm":"layered",
+          "elk.direction":"DOWN",
+          "elk.spacing.nodeNode": String(Math.max(8, cfg.sx-8)),   // 내부 간격 좁게
+          "elk.padding":"8"
+        },
+        children: teamChildren
+      };
+    });
+
+    const res = await elk.layout(elkGraph);
+    let nodes = (res.children??[]).map((n:any)=>({
+      id:n.id, position:{x:n.x, y:n.y}, data:n.data, type:"tall", width:n.width, height:n.height
     }));
-    const edges = (res.edges ?? []).map((e: any) => ({
-      id: e.id || `${e.sources[0]}-${e.targets[0]}`, source: e.sources[0], target: e.targets[0]
+    const edges = (res.edges??[]).map((e:any)=>({
+      id:e.id||`${e.sources[0]}-${e.targets[0]}`, source:e.sources[0], target:e.targets[0]
     }));
-    setLayouted({ nodes, edges });
-  }, []);
+
+    // 충돌 보정(동일 레벨 푸시)
+    nodes = packResolveOverlaps(nodes, Math.max(6, cfg.sx-6));
+
+    setLayouted({nodes, edges});
+  },[]);
 
   return { layouted, computeVertical };
 }
 """
 
-# =========================================
-# 4) 그래프 빌더/검증: 체인(직렬) 방지
-# =========================================
-# 파일: src/org/utils/buildOrgGraph.ts
-"""
-export type OrgRow = { id: string; parentId?: string; type: "company"|"division"|"department"|"team"|"person"; name: string; headcount?: number; childrenCount?: number; };
-export function buildGraph(rows: OrgRow[]) {
-  const nodes = rows.map(r => ({ id: r.id, type: "tall", data: { name: r.name, type: r.type, headcount: r.headcount ?? 0, childrenCount: r.childrenCount ?? 0 } }));
-  const edges = rows.filter(r => r.parentId).map(r => ({ id: `${r.parentId}-${r.id}`, source: r.parentId!, target: r.id }));
-  return { nodes, edges };
-}
-"""
-
-# 파일: src/org/utils/validateGraph.ts
-"""
-export function validateGraph(edges: {source:string; target:string}[]) {
-  const childCount = new Map<string, number>();
-  edges.forEach(e => childCount.set(e.source, (childCount.get(e.source) || 0) + 1));
-  // 부모가 계속 1명 자식만 가지는 구간은 체인 의심
-  const singleChildParents = [...childCount.entries()].filter(([, n]) => n === 1).map(([id]) => id);
-  return { singleChildParents };
-}
-"""
-
-# =========================================
-# 5) 레벨3/4 지연 로딩 훅 (백엔드 /org/node/{id}?depth=1 가정)
-# =========================================
-# 파일: src/org/hooks/useOrgExpand.ts
-"""
-export async function expandToDepth(rootId: string, depth: number, fetchNodeOnce: (id: string) => Promise<any>, merge: (pages: any[]) => void) {
-  const q: {id:string; d:number}[] = [{ id: rootId, d: 0 }];
-  const seen = new Set<string>([rootId]);
-  const pages: any[] = [];
-
-  while (q.length) {
-    const { id, d } = q.shift()!;
-    if (d === depth) continue;
-    const page = await fetchNodeOnce(id);   // { id, children:[{id,...}] }
-    pages.push(page);
-    const next = (page.children || []) as any[];
-    for (const c of next) {
-      if (!seen.has(c.id)) { seen.add(c.id); q.push({ id: c.id, d: d + 1 }); }
-    }
-  }
-  merge(pages); // 그래프 상태에 병합 후 레이아웃 재계산
-}
-"""
-
-# =========================================
-# 6) OrgChart: 줌에 따라 노드타입 전환 + 레이아웃 호출
-# =========================================
+# =========================================================
+# 4) OrgChart: 줌→모드 전환 + 노드타입 스위치
+# =========================================================
 # 파일: src/org/OrgChart.tsx
 """
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ReactFlow, { Background, OnMove } from "reactflow";
 import "reactflow/dist/style.css";
-import TallNode from "./components/TallNode";
-import DenseTallNode from "./components/DenseTallNode";
+import { CardUltra, CardDense, CardNormal } from "./components/cards";
 import { useLayout } from "./hooks/useLayout";
 import "../styles/org.css";
 
-type Graph = { nodes: any[]; edges: any[] };
+type Graph = { nodes:any[]; edges:any[] };
 
-export default function OrgChart({ initialGraph }: { initialGraph: Graph }) {
+export default function OrgChart({ initialGraph }: { initialGraph: Graph }){
   const { layouted, computeVertical } = useLayout();
   const [zoom, setZoom] = useState(1);
-  const nodeTypes = useMemo(() => (zoom < 0.95 ? { tall: DenseTallNode } : { tall: TallNode }), [zoom]);
+  const mode = zoom < 0.8 ? "ultra" : zoom < 0.95 ? "dense" : "normal";
+  const nodeTypes = useMemo(()=>(
+    mode==="ultra" ? { tall: CardUltra } : mode==="dense" ? { tall: CardDense } : { tall: CardNormal }
+  ),[mode]);
 
-  useEffect(() => { computeVertical(initialGraph, zoom < 0.95 ? "dense" : "normal"); }, [initialGraph, zoom, computeVertical]);
-
-  const onMove: OnMove = (_, vp) => { if (vp?.zoom) setZoom(vp.zoom); };
+  useEffect(()=>{ computeVertical(initialGraph, mode as any); }, [initialGraph, mode, computeVertical]);
+  const onMove: OnMove = (_, vp)=>{ if(vp?.zoom) setZoom(vp.zoom); };
 
   return (
     <div className="org-container h-full">
@@ -231,11 +261,10 @@ export default function OrgChart({ initialGraph }: { initialGraph: Graph }) {
           nodeTypes={nodeTypes}
           nodesDraggable={false}
           nodesConnectable={false}
-          minZoom={0.5}
-          maxZoom={2}
-          fitView
+          minZoom={0.5} maxZoom={2}
           onMove={onMove}
-          proOptions={{ hideAttribution: true }}
+          fitView
+          proOptions={{hideAttribution:true}}
         >
           <Background />
         </ReactFlow>
@@ -245,38 +274,56 @@ export default function OrgChart({ initialGraph }: { initialGraph: Graph }) {
 }
 """
 
-# =========================================
-# 7) (선택) 툴바에서 레벨 확장 버튼을 쓸 경우 예시
-# =========================================
-# 파일: src/org/components/Toolbar.tsx  (요지: 버튼만 추가; 프로젝트 UI에 맞게 조정)
+# =========================================================
+# 5) 레벨3/4 지연 로딩 & 병합 훅
+# =========================================================
+# 파일: src/org/hooks/useOrgExpand.ts
+"""
+export async function expandToDepth(rootId:string, depth:number, fetchNodeOnce:(id:string)=>Promise<any>, merge:(pages:any[])=>void){
+  const q:[string,number][]=[[rootId,0]]; const seen=new Set([rootId]); const pages:any[]=[];
+  while(q.length){
+    const [id,d]=q.shift()!; if(d===depth) continue;
+    const page=await fetchNodeOnce(id); pages.push(page);
+    for(const c of (page.children||[])){
+      if(!seen.has(c.id)){ seen.add(c.id); q.push([c.id,d+1]); }
+    }
+  }
+  merge(pages); // 그래프 상태에 병합 → computeVertical 재호출
+}
+"""
+
+# =========================================================
+# 6) QA 체크 버튼(선택)
+# =========================================================
+# 파일: src/org/components/Toolbar.tsx
 """
 import { expandToDepth } from "@/org/hooks/useOrgExpand";
-
-type Props = {
-  rootId: string;
-  fetchNodeOnce: (id: string) => Promise<any>;
-  mergePages: (pages: any[]) => void; // 그래프 상태에 병합 후 레이아웃 재호출
-};
-
-export function Toolbar({ rootId, fetchNodeOnce, mergePages }: Props) {
+export function Toolbar({ rootId, fetchNodeOnce, mergePages }:{rootId:string; fetchNodeOnce:(id:string)=>Promise<any>; mergePages:(pages:any[])=>void}){
   return (
     <div className="flex items-center gap-2 p-2">
-      <button className="px-2 py-1 rounded bg-cyan-600 text-white" onClick={() => expandToDepth(rootId, 2, fetchNodeOnce, mergePages)}>
-        레벨3까지 펼침
-      </button>
-      <button className="px-2 py-1 rounded bg-cyan-700 text-white" onClick={() => expandToDepth(rootId, 3, fetchNodeOnce, mergePages)}>
-        레벨4까지 펼침
-      </button>
+      <button className="px-2 py-1 rounded bg-cyan-600 text-white" onClick={()=>expandToDepth(rootId,2,fetchNodeOnce,mergePages)}>레벨3까지</button>
+      <button className="px-2 py-1 rounded bg-cyan-700 text-white" onClick={()=>expandToDepth(rootId,3,fetchNodeOnce,mergePages)}>레벨4까지</button>
     </div>
   );
 }
 """
 
-# =========================================
-# 8) QA 체크(붙여넣기 후 바로 확인)
-# =========================================
-# - 1920px 화면 기준 줌 0.85에서 가로 스크롤 없이 14~18열 표시 (DenseTallNode w=92px)
-# - 줌 1.0 이상에서 기존 TallNode로 자동 전환(가독성↑)
-# - validateGraph로 singleChildParents가 루트~본부 구간에서 길게 이어지지 않음(병렬 엣지 OK)
-# - ‘레벨3/4까지 펼침’ 버튼 클릭 시 부서/팀 로딩 → 레이아웃 재계산
-# - 컨테이너 overflow-x:hidden 유지(가로 스크롤 금지)
+# =========================================================
+# 7) 구현 메모
+# =========================================================
+# - initialGraph는 buildGraph(rows)로 생성(부모→여러 자식 '병렬' 엣지). validateGraph로 체인 감지.
+# - 동일 부서 밀집도: useLayout에서 department 노드를 컨테이너로 승격하여 내부 spacing 줄임.
+# - 카드 겹침: packResolveOverlaps로 동일 레벨 좌우 푸시(간단 충돌해결).
+# - siblings>12는 버킷 처리(기존 로직 사용). 버킷 클릭 시 해당 tail만 펼치고 레이아웃 재계산.
+# - 색은 토큰 기반으로 절제(명암대비 우선), 폰트는 12px 기준. 필요 시 clamp()로 확대.
+"""
+마지막 체크리스트
+1920px 기준 zoom 0.8에서 가로 스크롤 없이 다열(초슬림 72px) 표시
+
+부서 내부 팀 간 간격 < 부서 간 간격이 육안으로 드러남
+
+줌 변경 시 카드/간격/겹침 보정이 즉시 재계산
+
+부서/팀(레벨3/4) 지연 로딩 버튼 동작 확인
+
+과밀 형제는 +N 버킷으로 접힘

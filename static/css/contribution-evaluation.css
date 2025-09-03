@@ -1,0 +1,344 @@
+/**
+ * Contribution Evaluation Styles
+ * Revolutionary Theme Integration
+ * Version: 1.0
+ * Date: 2025-01-21
+ */
+
+/* Hero Section */
+.evaluation-hero {
+    background: var(--bg-main-gradient);
+    border: 1px solid var(--border-feature);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.evaluation-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--primary-gradient);
+    opacity: 0.05;
+    animation: rotate 20s linear infinite;
+    z-index: 0;
+}
+
+.evaluation-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.evaluation-title {
+    font-size: 2.5rem;
+    background: var(--text-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    text-shadow: var(--shadow-text);
+    margin-bottom: 0.5rem;
+}
+
+.evaluation-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+/* Employee Info */
+.employee-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.employee-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    box-shadow: var(--shadow-glow);
+}
+
+.employee-details h3 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.employee-details p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Score Display */
+.current-score {
+    background: var(--bg-card);
+    border: 1px solid var(--border-feature);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+}
+
+.score-value {
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--text-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: var(--shadow-text);
+}
+
+.score-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Score Progress Bar */
+.score-progress {
+    background: var(--bg-dark);
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.score-progress-bar {
+    height: 100%;
+    background: var(--primary-gradient);
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* Evaluation Sections */
+.evaluation-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.section-header {
+    background: var(--bg-section);
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-default);
+}
+
+.section-title {
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.section-icon {
+    margin-right: 0.75rem;
+    font-size: 1.5rem;
+}
+
+.section-body {
+    padding: 1.5rem;
+}
+
+/* Scoring Table */
+.scoring-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.scoring-table th {
+    background: var(--bg-section);
+    color: var(--text-primary);
+    padding: 0.875rem;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid var(--border-default);
+}
+
+.scoring-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid var(--border-default);
+    background: var(--bg-main);
+}
+
+.scoring-table tbody tr:hover {
+    background: rgba(0, 212, 255, 0.05);
+}
+
+/* Score Badges */
+.score-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.score-badge.score-4 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.score-badge.score-3 {
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    color: white;
+}
+
+.score-badge.score-2 {
+    background: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%);
+    color: white;
+}
+
+.score-badge.score-1 {
+    background: linear-gradient(135deg, #a8a8a8 0%, #666666 100%);
+    color: white;
+}
+
+/* Task Items */
+.task-item {
+    background: var(--bg-main);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.task-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+}
+
+/* Form Controls */
+.form-control {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: var(--bg-main);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+    outline: none;
+}
+
+.form-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Buttons */
+.btn-ai-generate {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-ai-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+}
+
+.btn-ai-generate:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* AI Feedback Container */
+.ai-feedback-section {
+    display: none;
+    margin-top: 1.5rem;
+}
+
+.ai-feedback-box {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(212, 70, 239, 0.1) 100%);
+    border: 1px solid var(--border-feature);
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.ai-feedback-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.ai-feedback-content {
+    color: var(--text-primary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* Alert Messages */
+.alert-ai-info {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+/* Grid Layouts */
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .grid-2,
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animations */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

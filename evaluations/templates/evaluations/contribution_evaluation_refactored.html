@@ -1,0 +1,259 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 - {{ employee.name }} | OK Financial Group{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/contribution-evaluation.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" id="evaluation-container" 
+     data-evaluation-id="{{ evaluation.id|default:'' }}"
+     data-employee-id="{{ employee.id|default:'' }}">
+    
+    <!-- Hero Section -->
+    <div class="evaluation-hero">
+        <div class="evaluation-hero-content">
+            <h1 class="evaluation-title">기여도 평가</h1>
+            <p class="evaluation-subtitle">{{ evaluation_period.name|default:"2024년 상반기" }}</p>
+            
+            <div class="row align-items-center mt-4">
+                <div class="col-md-8">
+                    <div class="employee-info">
+                        <div class="employee-avatar">
+                            {{ employee.name|first }}
+                        </div>
+                        <div class="employee-details">
+                            <h3>{{ employee.name }}</h3>
+                            <p>{{ employee.department }} | {{ employee.position }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="current-score">
+                        <div class="score-value" id="total-score">
+                            {% if evaluation.total_score %}
+                                {{ evaluation.total_score|floatformat:1 }}
+                            {% else %}
+                                0.0
+                            {% endif %}
+                        </div>
+                        <div class="score-label">현재 점수</div>
+                        <div class="score-progress">
+                            <div class="score-progress-bar" style="width: {% if evaluation.total_score %}{{ evaluation.total_score|mul:25 }}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- 평가 기준표 -->
+        <div class="evaluation-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span class="section-icon">📊</span>
+                    평가 기준표
+                </h3>
+            </div>
+            <div class="section-body">
+                <div class="alert-ai-info">
+                    <i class="fas fa-info-circle me-2" style="color: var(--primary-color);"></i>
+                    <strong>기여범위별 점수 체계</strong> - 업무의 기여범위와 방법에 따라 점수가 자동 계산됩니다.
+                </div>
+                
+                <table class="scoring-table">
+                    <thead>
+                        <tr>
+                            <th>기여범위</th>
+                            <th>총괄</th>
+                            <th>리딩</th>
+                            <th>실무</th>
+                            <th>지원</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>전략적</strong></td>
+                            <td><span class="score-badge score-4">4.0</span></td>
+                            <td><span class="score-badge score-4">4.0</span></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>상호적</strong></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-3">3.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>개별적</strong></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-2">2.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                            <td><span class="score-badge score-1">1.0</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 업무 목록 -->
+        <div class="evaluation-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span class="section-icon">📋</span>
+                    업무 목록 & 평가
+                </h3>
+                <div id="weight-status" class="ms-auto"></div>
+            </div>
+            <div class="section-body">
+                {% if tasks %}
+                    {% for task in tasks %}
+                    <div class="task-item" data-task-id="{{ task.id }}">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 style="color: var(--primary-color); margin: 0;">
+                                <i class="fas fa-tasks me-2"></i>업무 #{{ forloop.counter }}
+                            </h5>
+                            <span class="task-score score-badge score-{{ task.contribution_score|floatformat:0|default:'0' }}">
+                                {{ task.contribution_score|floatformat:1|default:'0.0' }}
+                            </span>
+                        </div>
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-edit me-1"></i>업무명
+                                </label>
+                                <input type="text" name="task_{{ task.id }}_title" 
+                                       value="{{ task.title }}" 
+                                       class="form-control" 
+                                       placeholder="업무명을 입력하세요"
+                                       required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-weight-hanging me-1"></i>가중치 (%)
+                                </label>
+                                <input type="number" name="task_{{ task.id }}_weight" 
+                                       value="{{ task.weight }}" 
+                                       min="0" max="100" 
+                                       class="form-control" 
+                                       placeholder="0~100"
+                                       required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-file-text me-1"></i>업무 설명
+                            </label>
+                            <textarea name="task_{{ task.id }}_description" 
+                                      class="form-control" 
+                                      rows="3"
+                                      placeholder="업무 내용을 설명해 주세요">{{ task.description }}</textarea>
+                        </div>
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-chart-line me-1"></i>기여 범위
+                                </label>
+                                <select name="task_{{ task.id }}_scope" class="form-control" required>
+                                    <option value="">선택하세요</option>
+                                    <option value="strategic" {% if task.contribution_scope == 'strategic' %}selected{% endif %}>전략적</option>
+                                    <option value="collaborative" {% if task.contribution_scope == 'collaborative' %}selected{% endif %}>상호적</option>
+                                    <option value="individual" {% if task.contribution_scope == 'individual' %}selected{% endif %}>개별적</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-users me-1"></i>기여 방법
+                                </label>
+                                <select name="task_{{ task.id }}_method" class="form-control" required>
+                                    <option value="">선택하세요</option>
+                                    <option value="lead" {% if task.contribution_method == 'lead' %}selected{% endif %}>총괄/리딩</option>
+                                    <option value="execute" {% if task.contribution_method == 'execute' %}selected{% endif %}>실무</option>
+                                    <option value="support" {% if task.contribution_method == 'support' %}selected{% endif %}>지원</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        등록된 업무가 없습니다. 업무를 추가해 주세요.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- AI 피드백 생성 -->
+        <div class="evaluation-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span class="section-icon">🤖</span>
+                    AI 피드백 생성
+                </h3>
+            </div>
+            <div class="section-body">
+                <button type="button" id="generate-ai-feedback" class="btn-ai-generate">
+                    <i class="fas fa-robot me-2"></i>AI 피드백 생성
+                </button>
+                
+                <div id="ai-feedback-container" class="ai-feedback-section">
+                    <div class="ai-feedback-box">
+                        <div class="ai-feedback-header">
+                            <i class="fas fa-robot"></i>
+                            <span>AI가 생성한 피드백</span>
+                        </div>
+                        <div id="ai-feedback-content" class="ai-feedback-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 평가자 의견 -->
+        <div class="evaluation-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span class="section-icon">✍️</span>
+                    평가자 의견
+                </h3>
+            </div>
+            <div class="section-body">
+                <div class="form-group">
+                    <label class="form-label">평가 의견</label>
+                    <textarea name="comments" class="form-control" rows="5" 
+                              placeholder="평가 의견을 작성해 주세요...">{{ evaluation.comments }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" name="action" value="save" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>임시 저장
+            </button>
+            <button type="submit" name="action" value="submit" class="btn btn-success">
+                <i class="fas fa-check me-2"></i>평가 제출
+            </button>
+            <a href="{% url 'evaluations:contribution_employees' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>목록으로
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- External JavaScript Files -->
+<script src="{% static 'js/api-utils.js' %}"></script>
+<script src="{% static 'js/contribution-evaluation.js' %}"></script>
+{% endblock %}

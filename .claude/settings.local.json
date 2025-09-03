@@ -65,7 +65,8 @@
       "Bash(railway restart:*)",
       "Bash(run_server.bat)",
       "Bash(cmd.exe /c run_server.bat)",
-      "Bash(railway variables:*)"
+      "Bash(railway variables:*)",
+      "WebFetch(domain:railway.com)"
     ],
     "deny": []
   }

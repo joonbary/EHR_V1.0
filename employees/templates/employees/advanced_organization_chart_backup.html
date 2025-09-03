@@ -1,0 +1,3686 @@
+{% extends "base_revolutionary.html" %}
+{% load static %}
+
+{% block title %}차세대 조직도 | AI HRM{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 기본 레이아웃 - 가로 스크롤 차단 */
+    .org-chart-container {
+        background: linear-gradient(180deg, #0b1324, #0a0f1e);
+        min-height: calc(100vh - 70px);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden; /* 가로 스크롤 차단 */
+    }
+
+    /* 툴바 스타일 */
+    .org-toolbar {
+        background: rgba(26, 31, 46, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        padding: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .toolbar-inner {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    /* 뷰 모드 선택 */
+    .view-modes {
+        display: flex;
+        gap: 0.5rem;
+        background: rgba(10, 15, 27, 0.6);
+        padding: 0.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .view-mode-btn {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        color: #94a3b8;
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .view-mode-btn.active {
+        background: linear-gradient(135deg, #00d4ff, #0099cc);
+        color: white;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .view-mode-btn:hover:not(.active) {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+
+    /* 레벨 필터 */
+    .level-filters {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .level-filter-btn {
+        padding: 0.375rem 0.75rem;
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.813rem;
+    }
+
+    .level-filter-btn.active {
+        background: rgba(0, 212, 255, 0.2);
+        border-color: #00d4ff;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+    }
+
+    /* 검색 박스 */
+    .org-search-box {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+    }
+
+    .org-search-input {
+        width: 100%;
+        padding: 0.625rem 1rem 0.625rem 2.5rem;
+        background: rgba(10, 15, 27, 0.6);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 0.5rem;
+        color: white;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .org-search-input:focus {
+        border-color: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        outline: none;
+    }
+
+    .org-search-icon {
+        position: absolute;
+        left: 0.875rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    /* 자동완성 드롭다운 */
+    .search-autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 0.5rem;
+        background: rgba(26, 31, 46, 0.98);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 0.5rem;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1001;
+    }
+
+    .search-autocomplete.active {
+        display: block;
+    }
+
+    .autocomplete-item {
+        padding: 0.75rem 1rem;
+        color: #cbd5e1;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .autocomplete-item:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: white;
+    }
+
+    .autocomplete-item-name {
+        font-weight: 500;
+        color: white;
+    }
+
+    .autocomplete-item-path {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+    }
+
+    /* 줌 컨트롤 */
+    .zoom-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(10, 15, 27, 0.6);
+        padding: 0.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .zoom-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        color: #94a3b8;
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .zoom-btn:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+
+    .zoom-level {
+        color: #00d4ff;
+        font-size: 0.813rem;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    /* 메인 차트 영역 */
+    .chart-viewport {
+        flex: 1;
+        position: relative;
+        overflow: auto; /* 가로/세로 스크롤 모두 허용 */
+        padding: 1rem;
+        background: linear-gradient(to bottom, 
+            rgba(10, 15, 27, 0.9),
+            rgba(26, 31, 46, 0.95));
+    }
+
+    /* 트리 컨테이너 - 확대 기준 상단 좌측 */
+    .tree-container {
+        min-height: 100%;
+        position: relative;
+        transition: transform 0.3s ease;
+        transform-origin: top left; /* 확대 기준점을 좌측으로 변경 */
+    }
+
+    /* TallNode 스타일 - 세로 길쭉한 카드 (180×300) */
+    .org-node {
+        position: absolute;
+        background: rgba(14, 23, 40, 0.95) !important; /* 더 진한 배경 */
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 1rem; /* rounded-2xl */
+        width: 180px;
+        min-height: 300px;
+        max-height: 420px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    /* 노드 왼쪽 세로 spine (타입 표시) */
+    .node-spine {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 24px; /* w-6 */
+        opacity: 0.7;
+        border-radius: 1rem 0 0 1rem;
+    }
+    
+    .node-spine.company {
+        background: linear-gradient(to bottom, #06b6d4, transparent); /* cyan-500 */
+    }
+    
+    .node-spine.division {
+        background: linear-gradient(to bottom, #d946ef, transparent); /* fuchsia-500 */
+    }
+    
+    .node-spine.department {
+        background: linear-gradient(to bottom, #14b8a6, transparent); /* teal-500 */
+    }
+    
+    .node-spine.team {
+        background: linear-gradient(to bottom, #64748b, transparent); /* slate-500 */
+    }
+    
+    .node-spine.person {
+        background: linear-gradient(to bottom, #f59e0b, transparent); /* amber-500 */
+    }
+
+    .org-node:hover {
+        border-color: #00d4ff;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .org-node.focused {
+        border-color: #00d4ff;
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    .org-node.collapsed .node-children-info {
+        display: block;
+    }
+
+    /* 노드 헤더 */
+    .node-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .node-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.625rem;
+        background: rgba(0, 212, 255, 0.25);
+        color: #00d4ff;
+        border-radius: 0.375rem;
+        font-size: 0.75rem; /* 12px로 증가 */
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .node-type-badge.company {
+        background: rgba(168, 85, 247, 0.2);
+        color: #a855f7;
+    }
+
+    .node-type-badge.division {
+        background: rgba(236, 72, 153, 0.2);
+        color: #ec4899;
+    }
+
+    .node-type-badge.department {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .node-type-badge.team {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+    }
+
+    /* 노드 콘텐츠 - TallNode 레이아웃 */
+    .node-content {
+        color: white;
+        padding: 0.5rem 0.375rem;
+        padding-left: 1.25rem; /* spine 공간 확보 */
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        flex: 1;
+    }
+
+    .node-name {
+        font-size: 0.875rem; /* 14px로 증가 */
+        font-weight: 700;
+        line-height: 1.3;
+        color: rgba(255, 255, 255, 0.95);
+        /* 3줄 클램프 */
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .node-title {
+        font-size: 0.75rem; /* 12px로 증가 */
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.4;
+        /* 2줄 클램프 */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 노드 통계 그리드 */
+    .node-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.25rem;
+        margin-top: 0.25rem;
+    }
+
+    .node-stat {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.25rem 0.375rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem; /* 12px로 증가 */
+        text-align: center;
+    }
+
+    /* 노드 배지 */
+    .node-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        margin-top: 0.25rem;
+    }
+    
+    .node-badge {
+        padding: 0.125rem 0.375rem;
+        background: rgba(16, 185, 129, 0.1); /* emerald-400/10 */
+        color: #10b981; /* emerald-300 */
+        border-radius: 0.25rem;
+        font-size: 0.625rem; /* text-[10px] */
+    }
+
+    /* 접기/펼치기 버튼 */
+    .node-toggle {
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 24px;
+        background: rgba(26, 31, 46, 0.95);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #00d4ff;
+        transition: all 0.2s ease;
+    }
+
+    .node-toggle:hover {
+        background: rgba(0, 212, 255, 0.2);
+        border-color: #00d4ff;
+    }
+
+    /* 하위 노드 정보 (접힌 상태) */
+    .node-children-info {
+        display: none;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(0, 212, 255, 0.1);
+        font-size: 0.813rem;
+        color: #00d4ff;
+    }
+
+    /* 오버플로우 클러스터 */
+    .overflow-cluster {
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        margin-top: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .overflow-cluster:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+    }
+
+    .overflow-cluster-text {
+        color: #00d4ff;
+        font-size: 0.875rem;
+    }
+
+    /* 연결선 - 가독성 우선 */
+    .org-edge {
+        position: absolute;
+        background: rgba(56, 189, 248, 0.35); /* 단순한 선 */
+        width: 2px;
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .org-edge.horizontal {
+        height: 2px;
+        width: auto;
+        background: rgba(56, 189, 248, 0.35);
+    }
+
+    /* 미니맵 */
+    .minimap {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;  /* 왼쪽 하단으로 이동 */
+        width: 166px;  /* 패딩 포함하여 조정 */
+        height: 136px;
+        background: rgba(26, 31, 46, 0.95);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 0.5rem;
+        padding: 8px;
+        z-index: 900;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    #minimapCanvas {
+        display: block;
+        width: 150px;
+        height: 120px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .minimap-viewport {
+        position: absolute;
+        background: rgba(0, 212, 255, 0.2);
+        border: 1px solid #00d4ff;
+        pointer-events: none;
+    }
+
+    /* 브레드크럼 */
+    .breadcrumb-nav {
+        background: rgba(10, 15, 27, 0.6);
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        overflow-x: auto;
+    }
+
+    .breadcrumb-item {
+        color: #64748b;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .breadcrumb-item:hover {
+        color: #00d4ff;
+    }
+
+    .breadcrumb-separator {
+        color: #475569;
+    }
+
+    .breadcrumb-item.active {
+        color: white;
+        font-weight: 500;
+    }
+
+    /* 로딩 상태 */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(10, 15, 27, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(0, 212, 255, 0.2);
+        border-top-color: #00d4ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .toolbar-inner {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .org-search-box {
+            max-width: 100%;
+        }
+
+        .minimap {
+            width: 150px;
+            height: 90px;
+        }
+    }
+
+    /* 시맨틱 줌 레벨 */
+    .tree-container.zoom-small .node-title,
+    .tree-container.zoom-small .node-stats {
+        display: none;
+    }
+
+    .tree-container.zoom-small .org-node {
+        padding: 0.375rem;
+        min-width: 120px;
+    }
+
+    .tree-container.zoom-large .org-node {
+        padding: 0.75rem;
+        min-width: 180px;
+    }
+
+    /* 키보드 내비게이션 포커스 */
+    .org-node:focus {
+        outline: 2px solid #00d4ff;
+        outline-offset: 2px;
+    }
+
+    /* 접근성 */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+    
+    /* 세로 글자 유틸리티 (DenseTallNode용) - CJK 최적화 - 작업지시서 사양 */
+    .vertical-cjk {
+        writing-mode: vertical-rl !important;
+        text-orientation: upright !important; /* CJK 문자 직립 */
+    }
+    
+    .vertical-mixed {
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important; /* 영문/숫자 섞일 때 */
+    }
+    
+    .v-chip {
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        font-size: 10px !important;
+        line-height: 1 !important;
+    }
+    
+    /* Dense 모드 (92px) - 작업지시서 사양 */
+    .dense-node {
+        width: 92px !important;
+        min-height: 300px !important;
+        padding: 0.375rem !important;
+        background: rgba(14, 23, 40, 0.92) !important;
+        border: 1px solid rgba(56, 189, 248, 0.35) !important;
+        border-radius: 1rem !important;
+    }
+    
+    /* Ultra 모드 (72px) - 작업지시서 사양 */
+    .ultra-node {
+        width: 72px !important;
+        min-height: 280px !important;
+        padding: 0.25rem !important;
+        background: rgba(15, 20, 35, 0.95) !important;
+        border: 1px solid rgba(56, 189, 248, 0.35) !important;
+        border-radius: 1rem !important;
+    }
+    
+    .dense-node .node-content {
+        padding: 0.25rem !important;
+        margin-left: 3px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        height: 100% !important;
+    }
+    
+    /* Dense 노드 이름 - 세로쓰기 강제 적용 */
+    .dense-node .node-name,
+    .dense-node .vertical-cjk {
+        writing-mode: vertical-rl !important;
+        text-orientation: upright !important; /* 작업지시서: CJK upright */
+        max-height: 220px !important;
+        overflow: hidden !important;
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    .dense-node .node-stats {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+    }
+    
+    /* Dense 노드 통계 칩 - 세로쓰기 강제 적용 */
+    .dense-node .node-stat,
+    .dense-node .v-chip {
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        font-size: 8px !important;
+        padding: 0.25rem !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        border-radius: 0.25rem !important;
+    }
+    
+    /* ============================================== */
+    /* 🎨 슈퍼클로드 작업지시서 - 가독성 우선 디자인 */
+    /* ============================================== */
+    
+    /* 📊 차트 컨테이너 - 절제된 다크 배경 */
+    .org-chart-container {
+        background: linear-gradient(180deg, #0b1324 0%, #0a0f1e 100%) !important;
+    }
+    
+    /* 🎯 노드 카드 - 가독성 우선 디자인 (네온 절제) */
+    .org-node {
+        background: rgba(14, 23, 40, 0.92) !important;
+        border: 1px solid rgba(56, 189, 248, 0.35) !important; /* cyan-400/35 */
+        box-shadow: 
+            0 2px 8px rgba(0, 0, 0, 0.3),
+            0 0 80px rgba(0, 212, 255, 0.1),
+            inset 0 0 40px rgba(255, 255, 255, 0.03) !important;
+        border-radius: 24px !important;
+        width: 200px !important;
+        min-height: 320px !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .org-node:hover {
+        transform: translateY(-6px) scale(1.03) !important;
+        background: linear-gradient(145deg, 
+            rgba(30, 42, 65, 0.98), 
+            rgba(18, 26, 45, 0.95)) !important;
+        border-color: rgba(0, 255, 255, 0.5) !important;
+        box-shadow: 
+            0 35px 70px rgba(0, 0, 0, 0.6),
+            0 0 120px rgba(0, 212, 255, 0.25),
+            inset 0 0 50px rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    /* 🌈 계층별 Spine 색상 - 네온 그라데이션 */
+    .node-spine {
+        width: 32px !important;
+        opacity: 0.9 !important;
+        backdrop-filter: blur(8px) !important;
+        border-radius: 24px 0 0 24px !important;
+    }
+    
+    .node-spine.company, .node-spine.group, .node-spine.subsidiary {
+        background: linear-gradient(180deg, 
+            #00ffff 0%, 
+            #00ccff 30%, 
+            #0099ff 60%, 
+            transparent 100%) !important;
+        box-shadow: 
+            inset 0 0 20px rgba(0, 255, 255, 0.5),
+            0 0 30px rgba(0, 255, 255, 0.4) !important;
+    }
+    
+    .node-spine.division {
+        background: linear-gradient(180deg, 
+            #ff00ff 0%, 
+            #cc00ff 30%, 
+            #9933ff 60%, 
+            transparent 100%) !important;
+        box-shadow: 
+            inset 0 0 20px rgba(255, 0, 255, 0.5),
+            0 0 30px rgba(255, 0, 255, 0.4) !important;
+    }
+    
+    .node-spine.department {
+        background: linear-gradient(180deg, 
+            #00ff88 0%, 
+            #00dd66 30%, 
+            #00aa44 60%, 
+            transparent 100%) !important;
+        box-shadow: 
+            inset 0 0 20px rgba(0, 255, 136, 0.5),
+            0 0 30px rgba(0, 255, 136, 0.4) !important;
+    }
+    
+    .node-spine.team {
+        background: linear-gradient(180deg, 
+            #88ccff 0%, 
+            #6699ff 30%, 
+            #4466cc 60%, 
+            transparent 100%) !important;
+        box-shadow: 
+            inset 0 0 20px rgba(136, 204, 255, 0.5),
+            0 0 30px rgba(136, 204, 255, 0.4) !important;
+    }
+    
+    /* 💎 노드 헤더 - 프리미엄 스타일 */
+    .node-header {
+        background: linear-gradient(90deg, 
+            rgba(0, 212, 255, 0.1) 0%, 
+            rgba(0, 150, 255, 0.05) 50%, 
+            transparent 100%) !important;
+        border-bottom: 1px solid rgba(0, 212, 255, 0.2) !important;
+        padding: 0.875rem !important;
+    }
+    
+    /* 🏷️ 타입 배지 - 네온 효과 */
+    .node-type-badge {
+        background: linear-gradient(135deg, 
+            rgba(0, 255, 255, 0.25), 
+            rgba(0, 180, 255, 0.15)) !important;
+        color: #00ffff !important;
+        border: 1px solid rgba(0, 255, 255, 0.4) !important;
+        padding: 0.375rem 0.625rem !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        text-shadow: 0 0 15px rgba(0, 255, 255, 0.8) !important;
+        box-shadow: 
+            0 0 20px rgba(0, 255, 255, 0.3),
+            inset 0 0 10px rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* ✨ 노드 이름 - 향상된 가독성 */
+    .node-name {
+        font-size: 1.125rem !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        text-shadow: 
+            0 2px 8px rgba(0, 0, 0, 0.5),
+            0 0 20px rgba(0, 212, 255, 0.3) !important;
+        letter-spacing: -0.3px !important;
+        line-height: 1.4 !important;
+        margin-bottom: 0.625rem !important;
+    }
+    
+    /* 📝 노드 직책 - 부드러운 스타일 */
+    .node-title {
+        font-size: 0.875rem !important;
+        color: rgba(180, 220, 255, 0.9) !important;
+        font-weight: 500 !important;
+        line-height: 1.5 !important;
+        margin-bottom: 0.875rem !important;
+    }
+    
+    /* 📈 통계 카드 - 글라스 효과 */
+    .node-stat {
+        background: linear-gradient(135deg, 
+            rgba(0, 212, 255, 0.15), 
+            rgba(0, 150, 200, 0.08)) !important;
+        border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        border-radius: 12px !important;
+        padding: 0.5rem 0.625rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        backdrop-filter: blur(8px) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .node-stat:hover {
+        background: linear-gradient(135deg, 
+            rgba(0, 212, 255, 0.25), 
+            rgba(0, 150, 200, 0.15)) !important;
+        border-color: rgba(0, 212, 255, 0.5) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2) !important;
+    }
+    
+    .stat-label {
+        color: rgba(150, 200, 255, 0.9) !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        margin-bottom: 0.125rem !important;
+    }
+    
+    .stat-value {
+        color: #00ffff !important;
+        font-size: 1.125rem !important;
+        font-weight: 700 !important;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5) !important;
+    }
+    
+    /* 🔗 연결선 - 애니메이션 네온 효과 */
+    .org-edge {
+        background: linear-gradient(180deg, 
+            rgba(0, 255, 255, 0.8) 0%, 
+            rgba(0, 212, 255, 0.5) 30%, 
+            rgba(0, 150, 255, 0.3) 60%, 
+            rgba(0, 100, 200, 0.1) 100%) !important;
+        width: 4px !important;
+        border-radius: 3px !important;
+        box-shadow: 
+            0 0 15px rgba(0, 255, 255, 0.4),
+            0 0 30px rgba(0, 212, 255, 0.3),
+            inset 0 0 10px rgba(255, 255, 255, 0.3) !important;
+        animation: pulse-neon 2s ease-in-out infinite !important;
+    }
+    
+    @keyframes pulse-neon {
+        0%, 100% { 
+            opacity: 0.7;
+            filter: brightness(1);
+        }
+        50% { 
+            opacity: 1;
+            filter: brightness(1.3);
+        }
+    }
+    
+    /* 🔽 토글 버튼 - 프리미엄 스타일 */
+    .node-toggle {
+        background: linear-gradient(135deg, 
+            rgba(0, 212, 255, 0.9), 
+            rgba(0, 150, 255, 0.8)) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 
+            0 0 20px rgba(0, 212, 255, 0.5),
+            0 5px 15px rgba(0, 0, 0, 0.3) !important;
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .node-toggle:hover {
+        background: linear-gradient(135deg, 
+            rgba(0, 255, 255, 0.9), 
+            rgba(0, 180, 255, 0.8)) !important;
+        transform: scale(1.2) !important;
+        box-shadow: 
+            0 0 30px rgba(0, 255, 255, 0.7),
+            0 8px 20px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    /* 🎛️ 툴바 - 프리미엄 글라스 효과 */
+    .org-toolbar {
+        background: linear-gradient(135deg, 
+            rgba(20, 25, 40, 0.98) 0%, 
+            rgba(15, 20, 35, 0.95) 100%) !important;
+        backdrop-filter: blur(30px) saturate(200%) !important;
+        border-bottom: 1px solid rgba(0, 255, 255, 0.2) !important;
+        box-shadow: 
+            0 8px 40px rgba(0, 0, 0, 0.6),
+            0 0 80px rgba(0, 212, 255, 0.1) !important;
+    }
+    
+    /* 🔍 검색 박스 - 네온 포커스 */
+    .org-search input {
+        background: rgba(10, 15, 25, 0.8) !important;
+        border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        color: #ffffff !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .org-search input:focus {
+        background: rgba(15, 20, 30, 0.9) !important;
+        border-color: rgba(0, 255, 255, 0.6) !important;
+        box-shadow: 
+            0 0 30px rgba(0, 255, 255, 0.3),
+            inset 0 0 20px rgba(0, 212, 255, 0.1) !important;
+    }
+    
+    /* 📍 미니맵 - 향상된 스타일 */
+    .minimap {
+        background: linear-gradient(135deg, 
+            rgba(20, 25, 40, 0.95), 
+            rgba(10, 15, 25, 0.9)) !important;
+        border: 1px solid rgba(0, 255, 255, 0.3) !important;
+        box-shadow: 
+            0 10px 40px rgba(0, 0, 0, 0.5),
+            0 0 60px rgba(0, 212, 255, 0.15) !important;
+    }
+    
+    /* 🌟 포커스 효과 */
+    .org-node:focus {
+        outline: 3px solid rgba(0, 255, 255, 0.8) !important;
+        outline-offset: 4px !important;
+        box-shadow: 
+            0 0 60px rgba(0, 255, 255, 0.4),
+            0 35px 70px rgba(0, 0, 0, 0.6) !important;
+    }
+    
+    /* 📱 Dense 모드 개선 */
+    .dense-node {
+        background: linear-gradient(145deg, 
+            rgba(20, 30, 48, 0.95), 
+            rgba(12, 18, 32, 0.92)) !important;
+        border: 1px solid rgba(0, 255, 255, 0.2) !important;
+        box-shadow: 
+            0 15px 30px rgba(0, 0, 0, 0.4),
+            0 0 40px rgba(0, 212, 255, 0.08) !important;
+    }
+    
+    .dense-node:hover {
+        transform: translateY(-3px) scale(1.05) !important;
+        border-color: rgba(0, 255, 255, 0.4) !important;
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.5),
+            0 0 60px rgba(0, 212, 255, 0.15) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="org-chart-container">
+    <!-- 툴바 -->
+    <div class="org-toolbar">
+        <div class="toolbar-inner">
+            <!-- 뷰 모드 선택 -->
+            <div class="view-modes">
+                <button class="view-mode-btn active" data-mode="vertical">
+                    <i class="fas fa-sitemap"></i>
+                    <span>세로형</span>
+                </button>
+                <button class="view-mode-btn" data-mode="grid">
+                    <i class="fas fa-th"></i>
+                    <span>그리드</span>
+                </button>
+                <button class="view-mode-btn" data-mode="radial">
+                    <i class="fas fa-circle-notch"></i>
+                    <span>방사형</span>
+                </button>
+                <button class="view-mode-btn" data-mode="compact">
+                    <i class="fas fa-list"></i>
+                    <span>컴팩트</span>
+                </button>
+            </div>
+
+            <!-- 레벨 필터 -->
+            <div class="level-filters">
+                <span style="color: #94a3b8; font-size: 0.875rem;">레벨:</span>
+                <button class="level-filter-btn active" data-level="all">전체</button>
+                <button class="level-filter-btn" data-level="executive">임원</button>
+                <button class="level-filter-btn" data-level="division">본부</button>
+                <button class="level-filter-btn" data-level="department">부서</button>
+                <button class="level-filter-btn" data-level="team">팀</button>
+            </div>
+
+            <!-- 검색 -->
+            <div class="org-search-box">
+                <i class="fas fa-search org-search-icon"></i>
+                <input type="text" class="org-search-input" placeholder="이름, 부서, 직급으로 검색..." id="orgSearch">
+                <div class="search-autocomplete" id="searchAutocomplete"></div>
+            </div>
+
+            <!-- 줌 컨트롤 -->
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomOut">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <span class="zoom-level" id="zoomLevel">100%</span>
+                <button class="zoom-btn" id="zoomIn">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="zoom-btn" id="zoomReset">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+            
+            <!-- 깊이 확장 버튼 -->
+            <div class="depth-controls" style="display: flex; gap: 0.5rem;">
+                <button class="level-filter-btn" onclick="expandToDepth('OK금융그룹', 2)" title="레벨 2까지 펼침">
+                    <i class="fas fa-layer-group"></i> L2
+                </button>
+                <button class="level-filter-btn" onclick="expandToDepth('OK금융그룹', 3)" title="레벨 3까지 펼침">
+                    <i class="fas fa-layer-group"></i> L3
+                </button>
+                <button class="level-filter-btn" onclick="expandToDepth('OK금융그룹', 4)" title="레벨 4까지 펼침">
+                    <i class="fas fa-layer-group"></i> L4
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 브레드크럼 네비게이션 -->
+    <div class="breadcrumb-nav" id="breadcrumbNav">
+        <span class="breadcrumb-item active">전체 조직</span>
+    </div>
+
+    <!-- 메인 차트 영역 -->
+    <div class="chart-viewport" id="chartViewport">
+        <div class="tree-container" id="treeContainer">
+            <!-- 동적으로 생성될 조직도 노드들 -->
+        </div>
+
+        <!-- 로딩 오버레이 -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- 미니맵 -->
+    <div class="minimap" id="minimap">
+        <canvas id="minimapCanvas" width="150" height="120"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 전역 상태 관리
+console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
+const OrgChartState = {
+    currentView: 'vertical',
+    currentLevel: 'all',
+    zoomLevel: 100,
+    focusedNode: null,
+    expandedNodes: new Set(['OK금융그룹']), // 루트 노드만 초기 펼침
+    searchQuery: '',
+    nodes: new Map(),
+    edges: [],
+    clusteredSiblings: new Map(), // 오버플로우 클러스터링 상태
+};
+
+// ELK 스타일 세로 레이아웃 설정 (작업지시서 사양)
+const ELK_CONFIG = {
+    algorithm: "layered",
+    direction: "DOWN", // 세로 레이아웃 고정
+    nodeNodeSpacing: 24, // Dense 모드 간격
+    layerSpacing: 140, // 레이어 간 간격
+    nodePlacement: "BRANDES_KOEPF", // 노드 배치 전략
+    portConstraints: "FIXED_SIDE",
+    edgeRouting: "ORTHOGONAL",
+    padding: 48
+};
+
+// 상수 정의 - 슈퍼클로드 작업지시서 사양 적용
+const CONFIG = {
+    MAX_VISIBLE_SIBLINGS: 12, // 최대 표시 형제 노드 수 (초과시 버킷 그룹화)
+    
+    // 카드 폭 슬림화 - 작업지시서 요구사항
+    NODE_WIDTH: 180,           // Normal 모드 (가로 텍스트)
+    NODE_WIDTH_DENSE: 92,       // Dense 모드 (세로 텍스트)
+    NODE_WIDTH_ULTRA: 72,       // Ultra 모드 (초슬림 세로)
+    
+    NODE_HEIGHT: 300,          // 노드 높이 (모든 모드 동일)
+    NODE_HEIGHT_DENSE: 300,
+    NODE_HEIGHT_ULTRA: 300,
+    
+    // 레벨 간격 - 모든 모드 동일
+    LEVEL_SPACING: 140,
+    LEVEL_SPACING_DENSE: 140,
+    LEVEL_SPACING_ULTRA: 140,
+    
+    // 형제 간격 - 모드별 차별화
+    SIBLING_SPACING: 48,        // Normal 모드
+    SIBLING_SPACING_DENSE: 24,  // Dense 모드
+    SIBLING_SPACING_ULTRA: 18,  // Ultra 모드
+    // 클러스터 간격 설정 - 부서 단위 구분 강화
+    GROUP_SPACING_MULTIPLIER: {
+        SAME_PARENT: 1.0,      // 같은 부서 내 팀 (촘촘하게)
+        SAME_GRANDPARENT: 2.5, // 다른 부서 (크게 띄움)
+        DIFFERENT_ROOT: 4.0    // 다른 본부 (더 크게)
+    },
+    
+    // 줌 설정 - 시맨틱 전환
+    ZOOM_MIN: 30,
+    ZOOM_MAX: 200,
+    ZOOM_STEP: 10,
+    ZOOM_ULTRA_THRESHOLD: 80,   // <80%: Ultra 모드 (72px)
+    ZOOM_DENSE_THRESHOLD: 95,   // <95%: Dense 모드 (92px)
+                                 // ≥95%: Normal 모드 (180px)
+    SEARCH_DELAY: 300,
+    ANIMATION_DURATION: 300,
+    MAX_WIDTH_PER_LEVEL: 2400, // 레벨당 최대 너비 증가
+    MIN_SPACING_RATIO: 0.6, // 최소 간격 비율 (자식이 많을 때)
+    COLLISION_PADDING: 20, // 충돌 감지 여백
+    BUCKET_THRESHOLD: 12, // 버킷 그룹화 임계값 (>12 형제)
+    PADDING: 48, // 패딩 - 작업지시서 사양
+};
+
+// 현재 뷰 모드 판별 (줌 기반 시맨틱 전환)
+function getCurrentViewMode() {
+    const zoom = OrgChartState.zoomLevel;
+    if (zoom < CONFIG.ZOOM_ULTRA_THRESHOLD) return 'ultra';   // <80%
+    if (zoom < CONFIG.ZOOM_DENSE_THRESHOLD) return 'dense';   // <95%
+    return 'normal';                                          // ≥95%
+}
+
+// 모드별 설정 가져오기
+function getModeConfig(mode) {
+    switch(mode) {
+        case 'ultra':
+            return {
+                width: CONFIG.NODE_WIDTH_ULTRA,
+                height: CONFIG.NODE_HEIGHT_ULTRA,
+                spacing: CONFIG.SIBLING_SPACING_ULTRA,
+                levelSpacing: CONFIG.LEVEL_SPACING_ULTRA,
+                isVertical: true
+            };
+        case 'dense':
+            return {
+                width: CONFIG.NODE_WIDTH_DENSE,
+                height: CONFIG.NODE_HEIGHT_DENSE,
+                spacing: CONFIG.SIBLING_SPACING_DENSE,
+                levelSpacing: CONFIG.LEVEL_SPACING_DENSE,
+                isVertical: true
+            };
+        default:
+            return {
+                width: CONFIG.NODE_WIDTH,
+                height: CONFIG.NODE_HEIGHT,
+                spacing: CONFIG.SIBLING_SPACING,
+                levelSpacing: CONFIG.LEVEL_SPACING,
+                isVertical: false
+            };
+    }
+}
+
+// ELK 스타일 세로 레이아웃 계산기 (작업지시서 사양)
+function computeVerticalLayout(graph, mode = "normal") {
+    console.log(`🎯 Computing ELK-style vertical layout in ${mode} mode`);
+    
+    const config = getModeConfig(mode);
+    const nodeWidth = config.width;
+    const nodeHeight = config.height;
+    const spacingX = config.spacing;
+    
+    // ELK 스타일 레이아웃 옵션 적용
+    const layoutOptions = {
+        algorithm: ELK_CONFIG.algorithm,
+        direction: ELK_CONFIG.direction,
+        nodeNodeSpacing: spacingX,
+        layerSpacing: ELK_CONFIG.layerSpacing,
+        nodePlacement: ELK_CONFIG.nodePlacement,
+        padding: ELK_CONFIG.padding
+    };
+    
+    console.log(`ELK Layout options:`, layoutOptions);
+    console.log(`Node dimensions: ${nodeWidth}x${nodeHeight}, spacing: ${spacingX}px`);
+    
+    // 현재 calculateLayout 함수를 ELK 스타일로 호출
+    calculateLayout();
+    
+    return {
+        nodes: Array.from(OrgChartState.nodes.values()).map(n => ({
+            id: n.id,
+            position: { x: n.x || 0, y: n.y || 0 },
+            data: n,
+            type: mode === "dense" ? "dense" : "tall"
+        })),
+        edges: OrgChartState.edges.map(e => ({
+            id: `${e.source.id}-${e.target.id}`,
+            source: e.source.id,
+            target: e.target.id
+        }))
+    };
+}
+
+// 조직 데이터에서 그래프 생성 (작업지시서 사양)
+function buildGraph(rows) {
+    console.log('🏗️ Building organization graph from rows:', rows.length);
+    
+    const nodes = rows.map(r => ({
+        id: r.id,
+        type: "tall", // 기본 노드 타입
+        data: {
+            name: r.name,
+            type: r.type || "company", // company|division|department|team|person
+            headcount: r.headcount || 0,
+            childrenCount: r.childrenCount || 0
+        }
+    }));
+    
+    const edges = rows
+        .filter(r => r.parentId) // 부모가 있는 노드만
+        .map(r => ({
+            id: `${r.parentId}-${r.id}`,
+            source: r.parentId,
+            target: r.id
+        }));
+    
+    console.log(`Built graph: ${nodes.length} nodes, ${edges.length} edges`);
+    return { nodes, edges };
+}
+
+// 그래프 검증 유틸리티 - 체인(직렬) 엣지 검출 (작업지시서 사양)
+function validateGraph(edges) {
+    console.log('🔍 Validating graph structure...');
+    
+    const childCount = new Map();
+    
+    // 각 부모의 자식 수 계산
+    edges.forEach(e => {
+        const sourceId = e.source && typeof e.source === 'object' ? e.source.id : e.source;
+        const targetId = e.target && typeof e.target === 'object' ? e.target.id : e.target;
+        
+        if (sourceId) {
+            childCount.set(sourceId, (childCount.get(sourceId) || 0) + 1);
+        }
+    });
+    
+    // 부모가 계속 1명 자식만 가지는 구간은 체인 의심 (작업지시서 사양)
+    const singleChildParents = [...childCount.entries()]
+        .filter(([parentId, count]) => count === 1)
+        .map(([parentId]) => parentId);
+    
+    // 체인 길이 및 건강도 평가
+    const chainLength = singleChildParents.length;
+    const totalParents = childCount.size;
+    const chainRatio = totalParents > 0 ? chainLength / totalParents : 0;
+    
+    // 경고 임계값 (작업지시서: 루트~본부 구간에서 길게 이어지지 않음)
+    const hasLongChain = chainLength > 5; // 5개 이상 연속 체인은 구조적 문제
+    const hasHighChainRatio = chainRatio > 0.7; // 70% 이상이 단일 자식이면 문제
+    
+    const isValid = !hasLongChain && !hasHighChainRatio;
+    
+    if (!isValid) {
+        console.warn(`⚠️ Graph structure warning:`, {
+            chainLength,
+            chainRatio: (chainRatio * 100).toFixed(1) + '%',
+            singleChildParents
+        });
+    } else {
+        console.log(`✅ Graph structure healthy: ${chainLength} single-child parents out of ${totalParents}`);
+    }
+    
+    return { 
+        singleChildParents,
+        chainLength,
+        chainRatio,
+        hasLongChain,
+        hasHighChainRatio,
+        isValid,
+        totalParents
+    };
+}
+
+// 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Advanced Org Chart: DOM loaded, initializing...');
+    
+    try {
+        // 이벤트 리스너와 키보드 네비게이션 먼저 설정
+        setupEventListeners();
+        setupKeyboardNavigation();
+        
+        // API 데이터 로드를 시도하고, 실패하면 샘플 데이터 사용
+        // 데이터 로드 후 차트 초기화
+        loadInitialData().then(() => {
+            // 데이터 로드 성공 후 차트 초기화
+            initializeChart();
+        }).catch((error) => {
+            console.log('API failed, using sample data...', error);
+            useSampleData();
+            // 샘플 데이터 로드 후 차트 초기화
+            initializeChart();
+        });
+    } catch (error) {
+        console.error('Initialization error:', error);
+        // 초기화 실패 시 샘플 데이터로 백업
+        useSampleData();
+        initializeChart();
+    }
+});
+
+// 차트 초기화
+function initializeChart() {
+    // 초기 뷰 설정 (vertical 모드로 렌더링)
+    updateViewMode('vertical');
+    
+    // 렌더링 완료 후 줌 적용 (비동기)
+    // 초기 줌을 30%로 설정하여 Dense 모드 강제 활성화
+    console.log('🔍 줌 적용 전 상태 확인:', OrgChartState.zoomLevel);
+    
+    // Dense 모드로 바로 시작 (92px 초슬림 카드)
+    OrgChartState.zoomLevel = 30;
+    document.getElementById('zoomLevel').textContent = '30%';
+    
+    // 레이아웃 재계산 (Dense 모드 적용)
+    calculateLayout();
+    renderChart();
+    
+    // CSS 변환 적용 (시각적 줌)
+    const container = document.getElementById('treeContainer');
+    container.style.transform = 'scale(0.3)';
+    container.classList.add('dense-mode');
+    
+    console.log('🔍 줌 적용 후 상태 확인:', OrgChartState.zoomLevel);
+    console.log('🎯 Dense 모드 강제 활성화: 92px 초슬림 카드');
+    console.log('💡 고급 조직도 초기화 완료 - Dense 모드로 시작'); // 시간을 500ms로 증가
+}
+
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    
+    // 뷰 모드 변경
+    const viewModeBtns = document.querySelectorAll('.view-mode-btn');
+    console.log(`Found ${viewModeBtns.length} view mode buttons`);
+    viewModeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            console.log('View mode clicked:', this.dataset.mode);
+            const mode = this.dataset.mode;
+            updateViewMode(mode);
+        });
+    });
+
+    // 레벨 필터
+    const levelFilterBtns = document.querySelectorAll('.level-filter-btn');
+    console.log(`Found ${levelFilterBtns.length} level filter buttons`);
+    levelFilterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            console.log('Level filter clicked:', this.dataset.level);
+            const level = this.dataset.level;
+            updateLevelFilter(level);
+        });
+    });
+
+    // 검색
+    const searchInput = document.getElementById('orgSearch');
+    let searchTimeout;
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch(e.target.value);
+        }, CONFIG.SEARCH_DELAY);
+    });
+
+    // 줌 컨트롤
+    document.getElementById('zoomIn').addEventListener('click', () => {
+        updateZoom(Math.min(OrgChartState.zoomLevel + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX));
+    });
+
+    document.getElementById('zoomOut').addEventListener('click', () => {
+        updateZoom(Math.max(OrgChartState.zoomLevel - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN));
+    });
+
+    document.getElementById('zoomReset').addEventListener('click', () => {
+        updateZoom(100);
+    });
+
+    // 마우스 휠 줌 - 부드러운 전환
+    const chartViewport = document.getElementById('chartViewport');
+    chartViewport.addEventListener('wheel', function(e) {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -CONFIG.ZOOM_STEP : CONFIG.ZOOM_STEP;
+            const newZoom = Math.max(CONFIG.ZOOM_MIN, Math.min(CONFIG.ZOOM_MAX, OrgChartState.zoomLevel + delta));
+            
+            // Dense 모드 전환 임계값 근처에서 부드러운 전환
+            const wasInDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
+            const willBeInDenseMode = newZoom < CONFIG.ZOOM_DENSE_THRESHOLD;
+            
+            if (wasInDenseMode !== willBeInDenseMode) {
+                console.log(`Switching node mode: ${willBeInDenseMode ? 'Dense' : 'Normal'} at zoom ${newZoom}%`);
+            }
+            
+            updateZoom(newZoom);
+        }
+    });
+    
+    // 스크롤 이벤트 - 미니맵 업데이트
+    chartViewport.addEventListener('scroll', function() {
+        updateMinimap();
+    });
+    
+    // 미니맵 클릭 이벤트 - 클릭한 위치로 이동
+    const minimapCanvas = document.getElementById('minimapCanvas');
+    if (minimapCanvas) {
+        minimapCanvas.addEventListener('click', function(e) {
+            const rect = minimapCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 미니맵 좌표를 실제 스크롤 위치로 변환
+            const scale = Math.min(
+                minimapCanvas.width / chartViewport.scrollWidth,
+                minimapCanvas.height / chartViewport.scrollHeight
+            );
+            
+            const scrollX = (x / scale) - (chartViewport.clientWidth / 2);
+            const scrollY = (y / scale) - (chartViewport.clientHeight / 2);
+            
+            // 스크롤 위치 설정
+            chartViewport.scrollLeft = Math.max(0, scrollX);
+            chartViewport.scrollTop = Math.max(0, scrollY);
+            
+            // 미니맵 업데이트
+            updateMinimap();
+        });
+        
+        // 미니맵 호버 효과
+        minimapCanvas.style.cursor = 'pointer';
+    }
+}
+
+// 키보드 내비게이션 설정
+function setupKeyboardNavigation() {
+    document.addEventListener('keydown', function(e) {
+        if (OrgChartState.focusedNode) {
+            const node = OrgChartState.nodes.get(OrgChartState.focusedNode);
+            if (!node) return;
+
+            switch(e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    navigateToSibling(node, -1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    navigateToSibling(node, 1);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (node.hasChildren && !OrgChartState.expandedNodes.has(node.id)) {
+                        toggleNode(node.id);
+                    } else if (node.children && node.children.length > 0) {
+                        focusNode(node.children[0]);
+                    }
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    if (OrgChartState.expandedNodes.has(node.id)) {
+                        toggleNode(node.id);
+                    } else if (node.parentId) {
+                        focusNode(node.parentId);
+                    }
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (node.hasChildren) {
+                        toggleNode(node.id);
+                    }
+                    break;
+                case '/':
+                    e.preventDefault();
+                    document.getElementById('orgSearch').focus();
+                    break;
+            }
+        }
+    });
+}
+
+// 초기 데이터 로드
+async function loadInitialData() {
+    showLoading(true);
+    
+    try {
+        // API에서 초기 2레벨 데이터 로드
+        const response = await fetch('/employees/api/org/root?depth=5');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        console.log('Loaded org data:', data); // 디버깅용
+        
+        // 노드 생성 및 렌더링 (초기 로드 시 버킷 클러스터링 비활성화)
+        processOrgData(data, true);
+        
+        // 초기 로드 시 모든 노드 자동 확장 (전체 조직도 표시)
+        console.log('Auto-expanding ALL nodes for API data...');
+        console.log(`Total nodes loaded from API: ${OrgChartState.nodes.size}`);
+        
+        OrgChartState.nodes.forEach(node => {
+            if (node.hasChildren) {  // 모든 자식이 있는 노드를 확장
+                OrgChartState.expandedNodes.add(node.id);
+                console.log(`Auto-expanded: ${node.name} (level ${node.level}, id: ${node.id})`);
+            }
+        });
+        
+        console.log(`Total expanded nodes: ${OrgChartState.expandedNodes.size}`);
+        
+        // 레이아웃과 렌더링은 initializeChart()에서 처리하므로 여기서는 생략
+        // calculateLayout();  
+        // renderChart();
+        
+    } catch (error) {
+        console.error('Failed to load organization data:', error);
+        showError('조직 데이터를 불러오는데 실패했습니다.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// 조직 데이터 처리 (버킷 클러스터링 적용)
+function processOrgData(data, skipBucketing = false) {
+    // 형제 노드 버킷 처리 함수
+    function bucketSiblings(children, parentId, level) {
+        if (!children || children.length === 0) return [];
+        
+        // 초기 로드 시에는 버킷 클러스터링 비활성화
+        if (skipBucketing) {
+            return children;
+        }
+        
+        // BUCKET_THRESHOLD를 초과하면 버킷 그룹화
+        if (children.length > CONFIG.BUCKET_THRESHOLD) {
+            const visibleChildren = children.slice(0, CONFIG.BUCKET_THRESHOLD);
+            const hiddenChildren = children.slice(CONFIG.BUCKET_THRESHOLD);
+            const hiddenCount = hiddenChildren.length;
+            
+            // 클러스터 ID 생성
+            const clusterId = `${parentId}-bucket-${Date.now()}`;
+            
+            // 숨겨진 노드들 저장
+            OrgChartState.clusteredSiblings.set(clusterId, hiddenChildren);
+            
+            // 버킷 노드 생성
+            const bucketNode = {
+                id: clusterId,
+                name: `+${hiddenCount} 더보기`,
+                type: 'bucket',
+                parentId: parentId,
+                level: level,
+                isCluster: true,
+                hiddenChildren: hiddenChildren,
+                hasChildren: false,
+            };
+            
+            return [...visibleChildren, bucketNode];
+        }
+        
+        return children;
+    }
+    
+    // 재귀적으로 노드 처리
+    function processNode(node, parentId = null, level = 0) {
+        const processedNode = {
+            ...node,
+            parentId,
+            level,
+            // x, y 좌표는 calculateLayout에서 계산되므로 여기서는 초기화하지 않음
+        };
+        
+        OrgChartState.nodes.set(node.id, processedNode);
+        
+        if (node.children && node.children.length > 0) {
+            // 버킷 클러스터링 적용
+            const bucketedChildren = bucketSiblings(node.children, node.id, level + 1);
+            
+            bucketedChildren.forEach(child => {
+                if (child.isCluster) {
+                    // 버킷 노드 처리
+                    OrgChartState.nodes.set(child.id, child);
+                } else {
+                    // 일반 노드 처리
+                    processNode(child, node.id, level + 1);
+                }
+            });
+        }
+    }
+    
+    processNode(data);
+    // calculateLayout()은 호출하는 곳에서 처리
+}
+
+// 트리 구조 기반 재귀적 레이아웃 계산 (부모-자식 관계 우선)
+function calculateLayout() {
+    // Dense 모드 판별
+    const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
+                       OrgChartState.currentView === 'compact';
+    
+    const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
+    const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;  
+    const siblingSpacing = isDenseMode ? CONFIG.SIBLING_SPACING_DENSE : CONFIG.SIBLING_SPACING;
+    
+    // 모든 노드의 x, y 좌표 초기화
+    OrgChartState.nodes.forEach(node => {
+        node.x = undefined;
+        node.y = undefined;
+        node.width = nodeWidth;
+        node.height = nodeHeight;
+    });
+    
+    console.log('🌲 Starting tree-based recursive layout calculation');
+    
+    // 트리 구조 빌드 - 부모-자식 관계 매핑
+    const childrenMap = new Map();
+    const visibleNodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
+    
+    visibleNodes.forEach(node => {
+        if (node.parentId) {
+            if (!childrenMap.has(node.parentId)) {
+                childrenMap.set(node.parentId, []);
+            }
+            childrenMap.get(node.parentId).push(node);
+        }
+    });
+    
+    // 각 부모의 자식들을 이름순으로 정렬
+    childrenMap.forEach(children => {
+        children.sort((a, b) => a.name.localeCompare(b.name));
+    });
+    
+    // 재귀적으로 서브트리 크기 계산 (bottom-up)
+    function calculateSubtreeWidth(node) {
+        const children = childrenMap.get(node.id) || [];
+        
+        if (children.length === 0) {
+            // 리프 노드
+            node.subtreeWidth = nodeWidth;
+            return nodeWidth;
+        }
+        
+        // 자식들의 서브트리 너비 합산
+        let totalChildrenWidth = 0;
+        children.forEach((child, index) => {
+            const childWidth = calculateSubtreeWidth(child);
+            totalChildrenWidth += childWidth;
+            if (index < children.length - 1) {
+                totalChildrenWidth += siblingSpacing;
+            }
+        });
+        
+        // 노드 자체 너비와 자식들 너비 중 큰 값 선택
+        node.subtreeWidth = Math.max(nodeWidth, totalChildrenWidth);
+        return node.subtreeWidth;
+    }
+    
+    // 재귀적으로 위치 할당 (top-down) - 계층 기반 적응형 간격 적용
+    function assignPositions(node, x, y, parentNode = null, grandparentNode = null) {
+        // 노드 위치 설정
+        node.x = x;
+        node.y = y;
+        
+        const children = childrenMap.get(node.id) || [];
+        if (children.length === 0) return;
+        
+        // 자식들을 위한 Y 위치
+        const childY = y + nodeHeight + CONFIG.LEVEL_SPACING;
+        
+        if (children.length === 1) {
+            // 자식이 하나면 부모 바로 아래 중앙에
+            assignPositions(children[0], x, childY, node, parentNode);
+        } else {
+            // 여러 자식을 부모 중심으로 배치
+            let currentX = x - node.subtreeWidth / 2;
+            
+            children.forEach((child, index) => {
+                // 계층 기반 간격 계산
+                let spacing = siblingSpacing;
+                
+                if (index > 0) {
+                    const prevChild = children[index - 1];
+                    
+                    // 노드 타입에 따른 간격 조정
+                    // type: 'division' (본부), 'department' (부서), 'team' (팀)
+                    
+                    // Case 1: 본부 레벨에서 다른 본부들 간의 간격
+                    if (node.type === 'company' && child.type === 'division') {
+                        // 본부들 간의 간격을 넓게
+                        spacing = siblingSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.DIFFERENT_ROOT;
+                    }
+                    // Case 2: 같은 본부 내에서 부서들 간의 간격
+                    else if (node.type === 'division' && child.type === 'department') {
+                        // 같은 본부 내 부서들은 기본 간격
+                        spacing = siblingSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.SAME_PARENT;
+                    }
+                    // Case 3: 부서 레벨에서 다른 본부의 부서들과 구분
+                    else if (parentNode && parentNode.type === 'division') {
+                        // 형제 노드들의 부모(본부)가 다른지 확인
+                        const prevChildChildren = childrenMap.get(prevChild.id) || [];
+                        const currentChildChildren = childrenMap.get(child.id) || [];
+                        
+                        // 부서 그룹 간 구분을 위해 간격 증가
+                        if (prevChildChildren.length > 0 || currentChildChildren.length > 0) {
+                            spacing = siblingSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.SAME_GRANDPARENT;
+                        }
+                    }
+                    // Case 4: 팀 레벨에서의 간격
+                    else if (node.type === 'department' && child.type === 'team') {
+                        // 같은 부서 내 팀들은 좁은 간격
+                        spacing = siblingSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.SAME_PARENT;
+                    }
+                    
+                    // 추가: 하위 노드가 많은 경우 간격 자동 조정
+                    const prevChildCount = (childrenMap.get(prevChild.id) || []).length;
+                    const currentChildCount = (childrenMap.get(child.id) || []).length;
+                    
+                    // 자식이 많은 노드들 사이는 간격 증가
+                    if (prevChildCount > 3 || currentChildCount > 3) {
+                        spacing *= 1.2;
+                    }
+                }
+                
+                // 자식의 서브트리 중심에 자식 노드 배치
+                const childCenterX = currentX + child.subtreeWidth / 2;
+                assignPositions(child, childCenterX, childY, node, parentNode);
+                
+                // 다음 자식을 위한 X 위치 업데이트
+                currentX += child.subtreeWidth;
+                if (index < children.length - 1) {
+                    currentX += spacing;
+                }
+            });
+        }
+    }
+    
+    // 헬퍼 함수: 특정 깊이까지의 모든 자손 노드 가져오기
+    function getAllDescendants(node, maxDepth, currentDepth = 0) {
+        if (currentDepth >= maxDepth) return [];
+        
+        const children = childrenMap.get(node.id) || [];
+        let descendants = [...children];
+        
+        children.forEach(child => {
+            descendants = descendants.concat(getAllDescendants(child, maxDepth, currentDepth + 1));
+        });
+        
+        return descendants;
+    }
+    
+    // 루트 노드들 찾기
+    const rootNodes = visibleNodes.filter(n => !n.parentId);
+    
+    if (rootNodes.length === 0) {
+        console.warn('No root nodes found');
+        return;
+    }
+    
+    // 각 루트 노드에 대해 레이아웃 계산
+    let currentRootX = 0;
+    rootNodes.forEach((root, index) => {
+        // 서브트리 너비 계산
+        calculateSubtreeWidth(root);
+        
+        // 위치 할당
+        const rootX = currentRootX + root.subtreeWidth / 2;
+        assignPositions(root, rootX, 50);
+        
+        // 다음 루트를 위한 X 위치 업데이트
+        currentRootX += root.subtreeWidth + siblingSpacing * 2;
+        
+        console.log(`✅ Root ${root.name}: positioned at (${rootX}, 50), subtree width: ${root.subtreeWidth}`);
+    });
+    
+    // 부모 위치 재조정 - 자식들의 중앙에 오도록
+    function adjustParentPosition(node) {
+        const children = childrenMap.get(node.id) || [];
+        
+        if (children.length > 1) {
+            // 자식들의 평균 X 위치 계산
+            let sumX = 0;
+            children.forEach(child => {
+                adjustParentPosition(child); // 먼저 자식들 조정
+                sumX += child.x;
+            });
+            
+            // 부모를 자식들의 중앙으로 이동
+            const avgX = sumX / children.length;
+            node.x = avgX;
+            console.log(`📍 Adjusted ${node.name} to center of children at x=${avgX}`);
+        } else if (children.length === 1) {
+            // 자식이 하나면 재귀 호출만
+            adjustParentPosition(children[0]);
+        }
+    }
+    
+    // 루트부터 부모 위치 재조정
+    rootNodes.forEach(root => {
+        adjustParentPosition(root);
+    });
+    
+    // 디버깅 정보 출력
+    console.log('🎯 Layout calculation complete. Node positions:');
+    visibleNodes.forEach(node => {
+        const children = childrenMap.get(node.id) || [];
+        console.log(`  ${node.name}: (${node.x?.toFixed(0)}, ${node.y}) - ${children.length} children`);
+    });
+    
+    // 엣지 생성
+    OrgChartState.edges = [];
+    visibleNodes.forEach(node => {
+        if (node.parentId) {
+            const parent = OrgChartState.nodes.get(node.parentId);
+            if (parent && shouldRenderNode(parent)) {
+                OrgChartState.edges.push({
+                    source: parent,
+                    target: node,
+                    type: node.x === parent.x ? 'straight' : 'orthogonal'
+                });
+            }
+        }
+    });
+    
+    console.log(`📊 Created ${OrgChartState.edges.length} edges`);
+}
+
+// 차트 렌더링
+function renderChart() {
+    console.log('Rendering chart. Current view:', OrgChartState.currentView, 'Current level:', OrgChartState.currentLevel);
+    
+    const container = document.getElementById('treeContainer');
+    if (!container) {
+        console.error('Tree container not found!');
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    // 렌더링할 노드 수 확인
+    const visibleNodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
+    console.log(`Rendering ${visibleNodes.length} visible nodes out of ${OrgChartState.nodes.size} total nodes`);
+    
+    // 디버깅: 보이지 않는 노드 확인
+    if (visibleNodes.length < OrgChartState.nodes.size) {
+        const hiddenNodes = Array.from(OrgChartState.nodes.values()).filter(n => !shouldRenderNode(n));
+        console.log('Hidden nodes:', hiddenNodes.map(n => `${n.name} (parent: ${n.parentId})`));
+    }
+    
+    // 뷰 모드에 따른 특화된 렌더링
+    if (OrgChartState.currentView === 'grid') {
+        renderGridView();
+    } else if (OrgChartState.currentView === 'radial') {
+        renderRadialView();
+    } else if (OrgChartState.currentView === 'compact') {
+        renderCompactView();
+    } else {
+        // 기본 세로형 뷰
+        renderVerticalView();
+    }
+    
+    // 미니맵 업데이트 (렌더링 완료 후)
+    setTimeout(() => {
+        updateMinimap();
+    }, 100);
+}
+
+// 세로형 뷰 렌더링
+function renderVerticalView() {
+    const container = document.getElementById('treeContainer');
+    const viewport = document.getElementById('chartViewport');
+    const viewportWidth = viewport.offsetWidth;
+    
+    console.log(`renderVerticalView - Viewport width: ${viewportWidth}, Container found: ${!!container}`);
+    
+    // 컨테이너 스타일 확인
+    if (container) {
+        console.log('Container styles:', {
+            position: window.getComputedStyle(container).position,
+            display: window.getComputedStyle(container).display,
+            visibility: window.getComputedStyle(container).visibility,
+            opacity: window.getComputedStyle(container).opacity,
+            overflow: window.getComputedStyle(container).overflow,
+            zIndex: window.getComputedStyle(container).zIndex
+        });
+    }
+    
+    // 현재 모드 판별 (작업지시서 사양)
+    const currentMode = getCurrentViewMode();
+    const modeConfig = getModeConfig(currentMode);
+    const nodeWidth = modeConfig.width;
+    const nodeHeight = modeConfig.height;
+    const isDenseMode = currentMode === 'dense';
+    const isUltraMode = currentMode === 'ultra';
+    
+    console.log(`Current mode: ${currentMode}, Zoom: ${OrgChartState.zoomLevel}%, Node width: ${nodeWidth}`);
+    
+    // 컨테이너 최소 크기 설정
+    let minX = 0, maxX = 0, maxY = 0;
+    
+    // 노드 위치 범위 계산
+    OrgChartState.nodes.forEach(node => {
+        if (shouldRenderNode(node)) {
+            minX = Math.min(minX, node.x);
+            maxX = Math.max(maxX, node.x);
+            maxY = Math.max(maxY, node.y);
+        }
+    });
+    
+    // 컨테이너 크기 설정
+    const containerWidth = Math.max(viewportWidth, (maxX - minX) + nodeWidth + 400);
+    const containerHeight = maxY + nodeHeight + 200;
+    
+    container.style.width = `${containerWidth}px`;
+    container.style.height = `${containerHeight}px`;
+    
+    console.log(`Container size set to: ${containerWidth} x ${containerHeight}px`);
+    console.log(`Node position range: X(${minX} to ${maxX}), Y(0 to ${maxY})`);
+    
+    // 왼쪽 여백을 고려한 오프셋 (중앙이 아닌 왼쪽 기준)
+    const offsetX = Math.abs(minX) + 200; // minX가 음수일 때를 고려
+    
+    // 노드 렌더링 (모드별 분기)
+    let renderedCount = 0;
+    OrgChartState.nodes.forEach(node => {
+        if (shouldRenderNode(node)) {
+            // 모드별 노드 생성 함수 선택
+            let nodeElement;
+            if (isUltraMode) {
+                nodeElement = createUltraNodeElement(node);
+            } else if (isDenseMode) {
+                nodeElement = createDenseNodeElement(node);
+            } else {
+                nodeElement = createNodeElement(node);
+            }
+            
+            const leftPos = offsetX + node.x - nodeWidth / 2;
+            const topPos = node.y + 50;
+            
+            nodeElement.style.left = `${leftPos}px`;
+            nodeElement.style.top = `${topPos}px`; // 상단 여백
+            
+            // 디버깅: 노드 스타일 확인
+            if (renderedCount === 0) {
+                console.log('First node element styles:', {
+                    position: nodeElement.style.position,
+                    left: nodeElement.style.left,
+                    top: nodeElement.style.top,
+                    width: nodeElement.style.width || nodeElement.offsetWidth,
+                    height: nodeElement.style.height || nodeElement.offsetHeight,
+                    className: nodeElement.className,
+                    id: nodeElement.id,
+                    innerHTML: nodeElement.innerHTML.substring(0, 100) + '...'
+                });
+                
+                // 실제 계산된 스타일도 확인
+                setTimeout(() => {
+                    const elem = document.getElementById(nodeElement.id);
+                    if (elem) {
+                        const computed = window.getComputedStyle(elem);
+                        const rect = elem.getBoundingClientRect();
+                        console.log('First node computed styles:', {
+                            display: computed.display,
+                            visibility: computed.visibility,
+                            opacity: computed.opacity,
+                            position: computed.position,
+                            zIndex: computed.zIndex,
+                            width: computed.width,
+                            height: computed.height,
+                            backgroundColor: computed.backgroundColor,
+                            border: computed.border
+                        });
+                        console.log('First node bounding rect:', rect);
+                        console.log('Is visible in viewport?', rect.width > 0 && rect.height > 0);
+                    }
+                }, 100);
+            }
+            
+            container.appendChild(nodeElement);
+            
+            renderedCount++;
+            if (renderedCount <= 5) { // 처음 5개 노드만 로그
+                console.log(`Rendered node ${node.name} at (${leftPos}, ${topPos}), isDense: ${isDenseMode}, element exists: ${!!document.getElementById(nodeElement.id)}`);
+            }
+        }
+    });
+    console.log(`Total nodes rendered to DOM: ${renderedCount}`);
+    console.log(`Container children count: ${container.children.length}`);
+    console.log(`Container dimensions: ${container.style.width} x ${container.style.height}`);
+    
+    // 엣지 렌더링
+    OrgChartState.edges.forEach(edge => {
+        if (shouldRenderEdge(edge)) {
+            const edgeElement = createEdgeElement(edge, offsetX);
+            container.appendChild(edgeElement);
+        }
+    });
+    
+    // 초기 줌 설정 - 팀 레벨일 때 자동 축소
+    if (OrgChartState.currentLevel === 'team') {
+        updateZoom(50); // 50% 로 자동 축소
+    }
+}
+
+// 그리드 뷰 렌더링
+function renderGridView() {
+    const container = document.getElementById('treeContainer');
+    const nodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
+    const cols = 4;
+    
+    nodes.forEach((node, index) => {
+        const row = Math.floor(index / cols);
+        const col = index % cols;
+        const nodeElement = createGridNodeElement(node);
+        nodeElement.style.left = `${col * 250 + 50}px`;
+        nodeElement.style.top = `${row * 180 + 50}px`;
+        container.appendChild(nodeElement);
+    });
+}
+
+// 방사형 뷰 렌더링
+function renderRadialView() {
+    const container = document.getElementById('treeContainer');
+    const viewportWidth = document.getElementById('chartViewport').offsetWidth;
+    const viewportHeight = document.getElementById('chartViewport').offsetHeight;
+    const centerX = viewportWidth / 2;
+    const centerY = viewportHeight / 2;
+    
+    // 중앙에 루트 노드
+    const rootNode = OrgChartState.nodes.get('root');
+    if (rootNode && shouldRenderNode(rootNode)) {
+        const rootElement = createNodeElement(rootNode);
+        rootElement.style.left = `${centerX - CONFIG.NODE_WIDTH / 2}px`;
+        rootElement.style.top = `${centerY - CONFIG.NODE_HEIGHT / 2}px`;
+        container.appendChild(rootElement);
+        
+        // 자식 노드들을 원형으로 배치
+        const children = Array.from(OrgChartState.nodes.values())
+            .filter(n => n.parentId === 'root' && shouldRenderNode(n));
+        
+        const angleStep = (2 * Math.PI) / children.length;
+        const radius = 250;
+        
+        children.forEach((child, index) => {
+            const angle = index * angleStep - Math.PI / 2;
+            const x = centerX + radius * Math.cos(angle) - CONFIG.NODE_WIDTH / 2;
+            const y = centerY + radius * Math.sin(angle) - CONFIG.NODE_HEIGHT / 2;
+            
+            const childElement = createNodeElement(child);
+            childElement.style.left = `${x}px`;
+            childElement.style.top = `${y}px`;
+            container.appendChild(childElement);
+        });
+    }
+}
+
+// 컴팩트 뷰 렌더링
+function renderCompactView() {
+    const container = document.getElementById('treeContainer');
+    const nodes = Array.from(OrgChartState.nodes.values()).filter(shouldRenderNode);
+    
+    let y = 20;
+    nodes.forEach(node => {
+        const nodeElement = createCompactNodeElement(node);
+        nodeElement.style.left = `20px`;
+        nodeElement.style.top = `${y}px`;
+        nodeElement.style.width = 'calc(100% - 40px)';
+        container.appendChild(nodeElement);
+        y += 50;
+    });
+}
+
+// 노드 렌더링 여부 확인
+function shouldRenderNode(node) {
+    // 디버깅: 노드 정보 출력
+    if (!node) {
+        console.error('shouldRenderNode: node is undefined');
+        return false;
+    }
+    
+    // 레벨 필터가 활성화된 경우 먼저 확인
+    if (OrgChartState.currentLevel !== 'all') {
+        
+        let shouldShow = false;
+        switch(OrgChartState.currentLevel) {
+            case 'executive':
+                // 임원급만 표시 (회사, 본부)
+                shouldShow = node.type === 'company' || node.type === 'division';
+                break;
+            case 'division':
+                // 본부급까지만 표시
+                shouldShow = node.type === 'company' || node.type === 'division';
+                break;
+            case 'department':
+                // 부서급까지 표시
+                shouldShow = node.type === 'company' || node.type === 'division' || node.type === 'department';
+                break;
+            case 'team':
+                // 팀급까지 표시 - 모든 상위 조직 포함
+                shouldShow = true; // 모든 노드를 표시
+                break;
+            default:
+                shouldShow = true;
+        }
+        
+        // console.log(`Node ${node.name} - Level Filter Show: ${shouldShow}`);
+        
+        // 레벨 필터에서 보여야 하는 노드면 부모 체인도 자동 확장
+        if (shouldShow) {
+            ensureParentChainExpanded(node);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    // Progressive Disclosure: 펼쳐진 부모의 자식만 표시
+    // 초기 로드 시에는 모든 노드가 확장되어 있으므로 모든 노드를 표시
+    if (node.parentId) {
+        const parent = OrgChartState.nodes.get(node.parentId);
+        if (!parent) {
+            console.log(`Node ${node.name} hidden - parent ${node.parentId} not found`);
+            return false;
+        }
+        
+        // 상위 노드가 확장되지 않은 경우에만 숨김
+        // 초기 로드 시 모든 노드가 확장되므로 이 조건은 대부분 통과함
+        if (!OrgChartState.expandedNodes.has(node.parentId)) {
+            // console.log(`Node ${node.name} hidden - parent ${node.parentId} not expanded`);
+            return false;
+        }
+    }
+    
+    // 뷰포트 기반 동적 경계 체크 (줌 레벨과 뷰포트 크기 고려)
+    if (node.x !== undefined && node.y !== undefined) {
+        const viewport = document.getElementById('chartViewport');
+        if (viewport) {
+            const viewportWidth = viewport.clientWidth || 1200;
+            const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
+            
+            // 줌 레벨에 따른 효과적인 뷰포트 크기 계산
+            const zoomFactor = OrgChartState.zoomLevel / 100;
+            const effectiveViewportWidth = viewportWidth / zoomFactor;
+            
+            // Dense 모드에서는 더 많은 노드를 표시하기 위해 매우 관대한 경계 적용
+            if (isDenseMode) {
+                // Dense 모드: 모든 84개 노드를 수용할 수 있도록 충분히 큰 경계 설정
+                // 92px 카드로 100개까지 허용 (약 11600px)
+                const maxAllowableX = 100 * (CONFIG.NODE_WIDTH_DENSE + 24); // ~11600px
+                
+                if (Math.abs(node.x) > maxAllowableX) {
+                    console.log(`Dense mode: Node ${node.name} filtered out - x=${node.x} exceeds ${maxAllowableX}`);
+                    return false;
+                }
+            } else {
+                // Normal 모드: 매우 관대한 경계 적용 (10배 뷰포트 너비)
+                const maxNormalX = Math.max(effectiveViewportWidth * 10, 15000); // 10x viewport width or 15000px minimum
+                if (Math.abs(node.x) > maxNormalX || node.y > 10000) {
+                    console.log(`Normal mode: Node ${node.name} filtered out - x=${node.x}, y=${node.y} (max: ${maxNormalX})`);
+                    return false;
+                }
+            }
+        }
+    }
+    
+    return true;
+}
+
+// 부모 체인을 자동으로 확장
+function ensureParentChainExpanded(node) {
+    let currentNode = node;
+    const nodesToExpand = [];
+    
+    // 루트까지 부모 체인을 추적
+    while (currentNode.parentId) {
+        const parent = OrgChartState.nodes.get(currentNode.parentId);
+        if (parent) {
+            nodesToExpand.push(parent.id);
+            currentNode = parent;
+        } else {
+            break;
+        }
+    }
+    
+    // 모든 부모 노드를 확장된 상태로 설정
+    nodesToExpand.forEach(nodeId => {
+        OrgChartState.expandedNodes.add(nodeId);
+        console.log(`Auto-expanded parent node: ${nodeId}`);
+    });
+}
+
+// 엣지 렌더링 여부 확인
+function shouldRenderEdge(edge) {
+    return shouldRenderNode(edge.source) && shouldRenderNode(edge.target);
+}
+
+// 그리드 뷰용 노드 엘리먼트
+function createGridNodeElement(node) {
+    const div = document.createElement('div');
+    div.className = 'org-node grid-node';
+    div.id = `node-grid-${node.id}`;
+    
+    const badgeClass = `node-type-badge ${node.type}`;
+    div.innerHTML = `
+        <div class="node-header">
+            <span class="${badgeClass}">${getNodeTypeLabel(node.type)}</span>
+        </div>
+        <div class="node-content">
+            <div class="node-name">${node.name}</div>
+            <div class="node-stats">
+                <div class="node-stat">
+                    <i class="fas fa-users node-stat-icon"></i>
+                    <span>${node.headcount || 0}명</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    div.addEventListener('click', () => focusNode(node.id));
+    return div;
+}
+
+// 컴팩트 뷰용 노드 엘리먼트
+function createCompactNodeElement(node) {
+    const div = document.createElement('div');
+    div.className = 'org-node compact-node';
+    div.id = `node-compact-${node.id}`;
+    div.style.cssText = 'display: flex; align-items: center; padding: 0.5rem 1rem; min-width: auto;';
+    
+    div.innerHTML = `
+        <span class="node-type-badge ${node.type}" style="margin-right: 1rem;">${getNodeTypeLabel(node.type)}</span>
+        <span style="flex: 1; color: white; font-weight: 500;">${node.name}</span>
+        <span style="color: #94a3b8; font-size: 0.875rem;">${node.headcount || 0}명</span>
+    `;
+    
+    div.addEventListener('click', () => focusNode(node.id));
+    return div;
+}
+
+// DenseTallNode 엘리먼트 생성 (초슬림 세로 카드)
+// Ultra 모드 노드 생성 - 72px 초슬림 (작업지시서 사양)
+function createUltraNodeElement(node) {
+    const div = document.createElement('div');
+    div.className = 'org-node ultra-node';
+    div.id = `node-${node.id}`;
+    div.setAttribute('role', 'treeitem');
+    div.setAttribute('aria-expanded', OrgChartState.expandedNodes.has(node.id));
+    div.setAttribute('aria-level', node.level);
+    div.tabIndex = 0;
+    
+    if (node.id === OrgChartState.focusedNode) {
+        div.classList.add('focused');
+    }
+    
+    // Ultra 모드 - 72px 초슬림 카드
+    div.style.cssText = `
+        position: absolute;
+        width: ${CONFIG.NODE_WIDTH_ULTRA}px;
+        height: auto;
+        min-height: 280px;
+        max-height: 360px;
+        padding: 0.125rem;
+        background: rgba(15, 20, 35, 0.95);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(0, 150, 200, 0.4);
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    `;
+    
+    // Ultra 모드 콘텐츠 - 극도로 간소화
+    const headcount = node.headcount || 0;
+    const childrenCount = node.childrenCount || 0;
+    
+    div.innerHTML = `
+        <div class="node-spine ${node.type}" style="width: 4px;"></div>
+        <div style="padding: 0.375rem 0.25rem; display: flex; flex-direction: column; align-items: center;">
+            <div class="vertical-cjk" style="
+                font-size: 11px;
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.9);
+                max-height: 200px;
+                overflow: hidden;
+                text-align: center;
+                writing-mode: vertical-rl;
+                text-orientation: upright;
+            ">${node.name}</div>
+            
+            <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                <div class="v-chip" style="
+                    background: rgba(0, 150, 200, 0.15);
+                    color: rgba(255, 255, 255, 0.7);
+                    padding: 0.125rem;
+                    border-radius: 0.25rem;
+                    font-size: 9px;
+                    text-align: center;
+                ">인원 ${headcount}</div>
+                ${childrenCount > 0 ? `<div class="v-chip" style="
+                    background: rgba(0, 150, 200, 0.15);
+                    color: rgba(255, 255, 255, 0.7);
+                    padding: 0.125rem;
+                    border-radius: 0.25rem;
+                    font-size: 9px;
+                    text-align: center;
+                ">하위 ${childrenCount}</div>` : ''}
+            </div>
+        </div>
+        
+        ${node.hasChildren ? `
+            <button class="node-toggle" style="
+                position: absolute;
+                bottom: -12px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 24px;
+                height: 24px;
+                background: rgba(0, 150, 200, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                color: white;
+                font-size: 10px;
+            ">
+                <i class="fas fa-chevron-${OrgChartState.expandedNodes.has(node.id) ? 'up' : 'down'}"></i>
+            </button>
+        ` : ''}
+    `;
+    
+    // 이벤트 리스너
+    div.addEventListener('click', () => focusNode(node.id));
+    
+    const toggleBtn = div.querySelector('.node-toggle');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleNode(node.id);
+        });
+    }
+    
+    return div;
+}
+
+// Dense 모드 노드 생성 - 92px 슬림 (작업지시서 사양)
+function createDenseNodeElement(node) {
+    const div = document.createElement('div');
+    div.className = 'org-node dense-node';
+    div.id = `node-${node.id}`;
+    div.setAttribute('role', 'treeitem');
+    div.setAttribute('aria-expanded', OrgChartState.expandedNodes.has(node.id));
+    div.setAttribute('aria-level', node.level);
+    div.tabIndex = 0;
+    
+    if (node.id === OrgChartState.focusedNode) {
+        div.classList.add('focused');
+    }
+    
+    if (!OrgChartState.expandedNodes.has(node.id) && node.hasChildren) {
+        div.classList.add('collapsed');
+    }
+    
+    // Dense 모드에서는 92px 슬림 카드로 고정 (작업지시서 사양)
+    div.style.cssText = `
+        position: absolute;
+        width: ${CONFIG.NODE_WIDTH_DENSE}px;
+        height: auto;
+        min-height: 260px;
+        max-height: 380px;
+        padding: 0.25rem 0.125rem;
+        background: linear-gradient(135deg, rgba(14, 23, 40, 0.98), rgba(20, 30, 48, 0.95));
+        backdrop-filter: blur(10px);
+        border: 1.5px solid rgba(0, 212, 255, 0.5);
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        z-index: ${node.type === 'company' ? '100' : '10'};
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    `;
+    
+    // 버킷 노드 특별 처리
+    if (node.isCluster || node.type === 'bucket') {
+        // 클러스터는 더 작은 크기로 재설정
+        div.style.width = '80px';
+        div.style.height = '80px';
+        div.style.minHeight = '80px';
+        div.innerHTML = `
+            <div style="
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(0, 212, 255, 0.4);
+                border-radius: 0.75rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #00d4ff;
+                font-size: 0.75rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                writing-mode: vertical-rl;
+                text-orientation: mixed;
+            " onmouseover="this.style.borderColor='#00d4ff'; this.style.background='rgba(0, 212, 255, 0.1)'"
+               onmouseout="this.style.borderColor='rgba(0, 212, 255, 0.4)'; this.style.background='rgba(255, 255, 255, 0.05)'">
+                ${node.name}
+            </div>
+        `;
+        div.addEventListener('click', () => expandCluster(node.id));
+    } else {
+        // DenseTallNode 콘텐츠 (세로 글자)
+        const headcount = node.headcount || 0;
+        const childrenCount = node.childrenCount || 0;
+        const typeColor = {
+            'company': 'from-cyan-500',
+            'division': 'from-fuchsia-500',
+            'department': 'from-teal-500',
+            'team': 'from-slate-500',
+            'person': 'from-amber-500'
+        }[node.type] || 'from-cyan-500';
+        
+        div.innerHTML = `
+            <!-- 타입 표시 라인 -->
+            <div class="node-spine ${node.type}" style="
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 6px;
+                background: linear-gradient(to bottom, ${typeColor}, transparent);
+                opacity: 0.7;
+                border-radius: 1rem 0 0 1rem;
+            "></div>
+            
+            <!-- 노드 콘텐츠 (세로 글자) - 초슬림 스펙 -->
+            <div class="node-content" style="
+                margin-left: 8px;
+                margin-right: 2px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.25rem;
+                height: 100%;
+                padding: 0;
+            ">
+                <!-- 이름 (세로 글자 - CJK 최적화) -->
+                <div class="vertical-cjk" style="
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: rgba(255, 255, 255, 0.95);
+                    line-height: 1.2;
+                    flex: 1;
+                    max-height: 220px;
+                    overflow: hidden;
+                    text-align: center;
+                ">${node.name}</div>
+                
+                <!-- 통계 (세로) - 미니말 -->
+                <div style="display: flex; flex-direction: column; gap: 0.1rem;">
+                    <div class="v-chip" style="padding: 0.125rem 0.25rem; font-size: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">인원 ${headcount}</div>
+                    <div class="v-chip" style="padding: 0.125rem 0.25rem; font-size: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">하위 ${childrenCount}</div>
+                </div>
+            </div>
+            
+            <!-- 접기/펼치기 버튼 -->
+            ${node.hasChildren ? `
+                <button class="node-toggle" aria-label="${OrgChartState.expandedNodes.has(node.id) ? '접기' : '펼치기'}" style="
+                    position: absolute;
+                    bottom: -12px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                ">
+                    <i class="fas fa-chevron-${OrgChartState.expandedNodes.has(node.id) ? 'up' : 'down'}"></i>
+                </button>
+            ` : ''}
+        `;
+        
+        // 이벤트 리스너
+        div.addEventListener('click', () => focusNode(node.id));
+        
+        const toggleBtn = div.querySelector('.node-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleNode(node.id);
+            });
+        }
+    }
+    
+    return div;
+}
+
+// TallNode 엘리먼트 생성 (세로 길쭉한 카드)
+function createNodeElement(node) {
+    const div = document.createElement('div');
+    div.className = 'org-node';
+    div.id = `node-${node.id}`;
+    div.setAttribute('role', 'treeitem');
+    div.setAttribute('aria-expanded', OrgChartState.expandedNodes.has(node.id));
+    div.setAttribute('aria-level', node.level);
+    div.tabIndex = 0;
+    
+    if (node.id === OrgChartState.focusedNode) {
+        div.classList.add('focused');
+    }
+    
+    if (!OrgChartState.expandedNodes.has(node.id) && node.hasChildren) {
+        div.classList.add('collapsed');
+    }
+    
+    // 버킷 노드 특별 처리
+    if (node.isCluster || node.type === 'bucket') {
+        div.style.cssText = 'position: absolute; width: 120px; height: 80px; min-height: 80px;';
+        div.innerHTML = `
+            <div style="
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(0, 212, 255, 0.4);
+                border-radius: 0.75rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #00d4ff;
+                font-size: 0.875rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.borderColor='#00d4ff'; this.style.background='rgba(0, 212, 255, 0.1)'"
+               onmouseout="this.style.borderColor='rgba(0, 212, 255, 0.4)'; this.style.background='rgba(255, 255, 255, 0.05)'">
+                ${node.name}
+            </div>
+        `;
+        div.addEventListener('click', () => expandCluster(node.id));
+    } else {
+        // TallNode 콘텐츠 (일반 가로 글자 노드) - 180px 폭
+        const headcount = node.headcount || 0;
+        const childrenCount = node.childrenCount || 0;
+        const badges = node.badges || [];
+        
+        // position: absolute를 명시적으로 설정
+        div.style.position = 'absolute';
+        
+        div.innerHTML = `
+            <!-- 왼쪽 세로 spine (타입 표시) -->
+            <div class="node-spine ${node.type}"></div>
+            
+            <!-- 노드 콘텐츠 (가로 글자) -->
+            <div class="node-content">
+                <!-- 헤더 섹션 -->
+                <div class="node-header">
+                    <span class="node-type-badge">
+                        <i class="fas ${getNodeIcon(node.type)}"></i>
+                        ${getNodeTypeLabel(node.type)}
+                    </span>
+                </div>
+                
+                <!-- 이름 (3줄 클램프) -->
+                <div class="node-name">${node.name}</div>
+                
+                <!-- 직급/타이틀 (2줄 클램프) -->
+                ${node.title ? `<div class="node-title">${node.title}</div>` : ''}
+                
+                <!-- 통계 그리드 - 향상된 디자인 -->
+                <div class="node-stats">
+                    <div class="node-stat">
+                        <div class="stat-label">인원</div>
+                        <div class="stat-value">${headcount.toLocaleString()}</div>
+                    </div>
+                    <div class="node-stat">
+                        <div class="stat-label">하위</div>
+                        <div class="stat-value">${childrenCount.toLocaleString()}</div>
+                    </div>
+                </div>
+                
+                <!-- 배지 (최대 3개 표시) -->
+                ${badges.length > 0 ? `
+                    <div class="node-badges">
+                        ${badges.slice(0, 3).map(badge => 
+                            `<span class="node-badge">${badge}</span>`
+                        ).join('')}
+                        ${badges.length > 3 ? 
+                            `<span class="node-badge">+${badges.length - 3}</span>` : ''
+                        }
+                    </div>
+                ` : ''}
+                
+                <!-- 접힌 상태에서 하위 조직 정보 -->
+                ${!OrgChartState.expandedNodes.has(node.id) && node.hasChildren ? `
+                    <div class="node-children-info" style="
+                        margin-top: 0.5rem;
+                        padding-top: 0.5rem;
+                        border-top: 1px solid rgba(0, 212, 255, 0.1);
+                        font-size: 0.813rem;
+                        color: #00d4ff;
+                    ">
+                        <i class="fas fa-chevron-down"></i> ${childrenCount}개 하위 조직
+                    </div>
+                ` : ''}
+            </div>
+            
+            <!-- 접기/펼치기 버튼 -->
+            ${node.hasChildren ? `
+                <button class="node-toggle" aria-label="${OrgChartState.expandedNodes.has(node.id) ? '접기' : '펼치기'}">
+                    <i class="fas fa-chevron-${OrgChartState.expandedNodes.has(node.id) ? 'up' : 'down'}"></i>
+                </button>
+            ` : ''}
+        `;
+        
+        // 이벤트 리스너
+        div.addEventListener('click', () => focusNode(node.id));
+        
+        const toggleBtn = div.querySelector('.node-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleNode(node.id);
+            });
+        }
+    }
+    
+    return div;
+}
+
+// 엣지 엘리먼트 생성 (직각 연결선 지원)
+function createEdgeElement(edge, offsetX) {
+    const container = document.createElement('div');
+    container.className = 'edge-container';
+    container.style.position = 'absolute';
+    container.style.pointerEvents = 'none';
+    
+    // Dense 모드 판별
+    const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
+                        OrgChartState.currentView === 'compact';
+    const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;
+    const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
+    
+    // 노드 중앙에서 연결되도록 수정 (offsetX 적용)
+    const sourceX = offsetX + edge.source.x;
+    const sourceY = edge.source.y + nodeHeight; // 노드 하단
+    const targetX = offsetX + edge.target.x;
+    const targetY = edge.target.y; // 노드 상단
+    
+    if (edge.type === 'orthogonal' && sourceX !== targetX) {
+        // 직각 연결선 (ㄱ자 형태)
+        const midY = sourceY + (targetY - sourceY) / 2;
+        
+        // 수직선 1 (부모에서 아래로)
+        const vLine1 = document.createElement('div');
+        vLine1.className = 'org-edge';
+        vLine1.style.left = `${sourceX - 1}px`;
+        vLine1.style.top = `${sourceY}px`;
+        vLine1.style.height = `${midY - sourceY}px`;
+        vLine1.style.width = '2px';
+        container.appendChild(vLine1);
+        
+        // 수평선 (좌우 연결)
+        const hLine = document.createElement('div');
+        hLine.className = 'org-edge horizontal';
+        hLine.style.left = `${Math.min(sourceX, targetX)}px`;
+        hLine.style.top = `${midY - 1}px`;
+        hLine.style.width = `${Math.abs(targetX - sourceX)}px`;
+        hLine.style.height = '2px';
+        container.appendChild(hLine);
+        
+        // 수직선 2 (자식으로 연결)
+        const vLine2 = document.createElement('div');
+        vLine2.className = 'org-edge';
+        vLine2.style.left = `${targetX - 1}px`;
+        vLine2.style.top = `${midY}px`;
+        vLine2.style.height = `${targetY - midY}px`;
+        vLine2.style.width = '2px';
+        container.appendChild(vLine2);
+    } else {
+        // 일직선 연결 (부모와 자식이 같은 X 위치)
+        const vLine = document.createElement('div');
+        vLine.className = 'org-edge';
+        vLine.style.left = `${sourceX - 1}px`;
+        vLine.style.top = `${sourceY}px`;
+        vLine.style.height = `${targetY - sourceY}px`;
+        vLine.style.width = '2px';
+        container.appendChild(vLine);
+    }
+    
+    return container;
+}
+
+// 노드 타입 레이블
+function getNodeTypeLabel(type) {
+    const labels = {
+        'company': '그룹',
+        'group': '그룹',
+        'subsidiary': '계열사',
+        'division': '본부',
+        'department': '부서',
+        'team': '팀',
+        'person': '직원',
+    };
+    return labels[type] || type;
+}
+
+// 노드 타입별 아이콘 가져오기
+function getNodeIcon(type) {
+    const icons = {
+        'company': 'fa-building',
+        'group': 'fa-sitemap',
+        'subsidiary': 'fa-city',
+        'division': 'fa-landmark',
+        'department': 'fa-briefcase',
+        'team': 'fa-users',
+        'person': 'fa-user',
+        'bucket': 'fa-layer-group'
+    };
+    return icons[type] || 'fa-folder';
+}
+
+// 노드 토글
+async function toggleNode(nodeId) {
+    const node = OrgChartState.nodes.get(nodeId);
+    if (!node || !node.hasChildren) return;
+    
+    if (OrgChartState.expandedNodes.has(nodeId)) {
+        // 접기
+        OrgChartState.expandedNodes.delete(nodeId);
+        console.log(`Collapsed node: ${nodeId}`);
+    } else {
+        // 펼치기
+        OrgChartState.expandedNodes.add(nodeId);
+        console.log(`Expanded node: ${nodeId}`);
+        
+        // Lazy Load: 자식이 없으면 서버에서 로드
+        if (!node.children || node.children.length === 0) {
+            await loadNodeChildren(nodeId);
+        }
+    }
+    
+    // 레이아웃 재계산 필수 (특히 팀 레벨)
+    calculateLayout();
+    renderChart();
+}
+
+// 노드 자식 로드 (Lazy Loading)
+async function loadNodeChildren(nodeId, depth = 1) {
+    try {
+        const response = await fetch(`/employees/api/org/node/${nodeId}?depth=${depth}`);
+        
+        // 응답 상태 확인
+        if (!response.ok) {
+            console.error(`HTTP Error: ${response.status} ${response.statusText}`);
+            return;
+        }
+        
+        const data = await response.json();
+        
+        // 에러 응답 확인
+        if (data.error) {
+            console.error('API Error:', data.error);
+            return;
+        }
+        
+        const node = OrgChartState.nodes.get(nodeId);
+        if (node && data.children) {
+            node.children = data.children;
+            
+            // 자식 노드만 처리 (부모 노드는 이미 존재하므로 다시 처리하지 않음)
+            data.children.forEach(child => {
+                const childNode = {
+                    ...child,
+                    parentId: nodeId,  // 부모 ID를 명확히 설정
+                    level: node.level + 1,
+                    // x, y 좌표는 calculateLayout에서 계산
+                };
+                OrgChartState.nodes.set(child.id, childNode);
+                
+                // 자식의 자식들도 재귀적으로 처리
+                if (child.children && child.children.length > 0) {
+                    function processChildrenRecursive(children, parentId, level) {
+                        children.forEach(c => {
+                            const processedChild = {
+                                ...c,
+                                parentId: parentId,
+                                level: level,
+                            };
+                            OrgChartState.nodes.set(c.id, processedChild);
+                            
+                            if (c.children) {
+                                processChildrenRecursive(c.children, c.id, level + 1);
+                            }
+                        });
+                    }
+                    processChildrenRecursive(child.children, child.id, node.level + 2);
+                }
+            });
+            
+            calculateLayout();
+            renderChart();
+            console.log(`Successfully loaded ${data.children.length} children for node ${nodeId} with depth ${depth}`);
+        } else {
+            console.log(`No children found for node ${nodeId}`);
+        }
+    } catch (error) {
+        console.error('Failed to load node children:', error);
+        console.error('Node ID:', nodeId);
+    }
+}
+
+// 특정 깊이까지 노드 확장 (expandToDepth) - 큐 기반 BFS 최적화
+async function expandToDepth(rootId, targetDepth = 3) {
+    console.log(`🔄 Expanding node ${rootId} to depth ${targetDepth} - Dense mode test`);
+    
+    showLoading(true);
+    
+    // BFS 큐 방식으로 최적화
+    const queue = [{ id: rootId, depth: 0 }];
+    const seen = new Set([rootId]);
+    const pagesToLoad = [];
+    
+    while (queue.length > 0) {
+        const { id, depth } = queue.shift();
+        
+        if (depth >= targetDepth) continue;
+        
+        const node = OrgChartState.nodes.get(id);
+        if (!node) continue;
+        
+        // 노드 확장 상태 설정
+        if (node.hasChildren) {
+            OrgChartState.expandedNodes.add(id);
+        }
+        
+        // 자식이 없으면 로드 예약
+        if (node.hasChildren && (!node.children || node.children.length === 0)) {
+            pagesToLoad.push({ id, depth });
+        }
+        
+        // 이미 로드된 자식들을 큐에 추가
+        OrgChartState.nodes.forEach(childNode => {
+            if (childNode.parentId === id && !seen.has(childNode.id)) {
+                seen.add(childNode.id);
+                queue.push({ id: childNode.id, depth: depth + 1 });
+            }
+        });
+    }
+    
+    // 병렬로 필요한 노드들 로드
+    if (pagesToLoad.length > 0) {
+        const loadPromises = pagesToLoad.map(({ id }) => loadNodeChildren(id, 1));
+        await Promise.all(loadPromises);
+        
+        // 로드된 노드들도 확장 상태로 설정
+        pagesToLoad.forEach(({ id, depth }) => {
+            if (depth < targetDepth - 1) {
+                const node = OrgChartState.nodes.get(id);
+                if (node && node.children) {
+                    // 새로 로드된 자식들도 확장
+                    OrgChartState.nodes.forEach(childNode => {
+                        if (childNode.parentId === id && childNode.hasChildren) {
+                            OrgChartState.expandedNodes.add(childNode.id);
+                        }
+                    });
+                }
+            }
+        });
+    }
+    
+    showLoading(false);
+    
+    // 확장 후 상태 체크
+    console.log(`📊 Current zoom: ${OrgChartState.zoomLevel}% (Dense mode: ${OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD})`);
+    
+    // 확장 후 Dense 모드 강제 확인 (초슬림 카드 테스트용)
+    if (OrgChartState.zoomLevel >= CONFIG.ZOOM_DENSE_THRESHOLD) {
+        console.log('🔥 Forcing Dense mode for ultra-slim cards verification');
+        updateZoom(80); // Dense 모드 강제 활성화
+        return; // updateZoom에서 이미 렌더링됨
+    }
+    
+    // 레이아웃 재계산 및 렌더링
+    calculateLayout();
+    
+    // 그래프 검증
+    const validation = validateGraph(OrgChartState.edges);
+    if (!validation.isValid) {
+        console.warn('Graph validation issues detected:', validation);
+    }
+    
+    renderChart();
+}
+
+// 노드 포커스
+function focusNode(nodeId) {
+    OrgChartState.focusedNode = nodeId;
+    
+    // 모든 노드에서 포커스 클래스 제거
+    document.querySelectorAll('.org-node').forEach(el => {
+        el.classList.remove('focused');
+    });
+    
+    // 새 노드에 포커스 클래스 추가
+    const nodeElement = document.getElementById(`node-${nodeId}`);
+    if (nodeElement) {
+        nodeElement.classList.add('focused');
+        nodeElement.focus();
+        
+        // 브레드크럼 업데이트
+        updateBreadcrumb(nodeId);
+        
+        // 포커스 경로 펼치기
+        expandPath(nodeId);
+        
+        // 스크롤 조정
+        nodeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// 경로 펼치기 (포커스된 노드까지)
+function expandPath(nodeId) {
+    const node = OrgChartState.nodes.get(nodeId);
+    if (!node) return;
+    
+    const path = [];
+    let current = node;
+    while (current) {
+        path.unshift(current.id);
+        current = current.parentId ? OrgChartState.nodes.get(current.parentId) : null;
+    }
+    
+    // 경로상의 모든 노드 펼치기
+    path.forEach(id => {
+        if (!OrgChartState.expandedNodes.has(id)) {
+            const n = OrgChartState.nodes.get(id);
+            if (n && n.hasChildren) {
+                OrgChartState.expandedNodes.add(id);
+            }
+        }
+    });
+    
+    renderChart();
+}
+
+// 브레드크럼 업데이트
+function updateBreadcrumb(nodeId) {
+    const breadcrumb = document.getElementById('breadcrumbNav');
+    const node = OrgChartState.nodes.get(nodeId);
+    if (!node) return;
+    
+    const path = [];
+    let current = node;
+    while (current) {
+        path.unshift(current);
+        current = current.parentId ? OrgChartState.nodes.get(current.parentId) : null;
+    }
+    
+    breadcrumb.innerHTML = path.map((n, index) => `
+        <span class="breadcrumb-item ${index === path.length - 1 ? 'active' : ''}" 
+              onclick="focusNode('${n.id}')">
+            ${n.name}
+        </span>
+        ${index < path.length - 1 ? '<span class="breadcrumb-separator">›</span>' : ''}
+    `).join('');
+}
+
+// 형제 노드 탐색
+function navigateToSibling(node, direction) {
+    if (!node.parentId) return;
+    
+    const parent = OrgChartState.nodes.get(node.parentId);
+    if (!parent || !parent.children) return;
+    
+    const currentIndex = parent.children.findIndex(c => c.id === node.id);
+    if (currentIndex === -1) return;
+    
+    const newIndex = currentIndex + direction;
+    if (newIndex >= 0 && newIndex < parent.children.length) {
+        focusNode(parent.children[newIndex].id);
+    }
+}
+
+// 검색 수행
+async function performSearch(query) {
+    OrgChartState.searchQuery = query;
+    
+    if (!query || query.length < 2) {
+        document.getElementById('searchAutocomplete').classList.remove('active');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/employees/api/org/search?q=${encodeURIComponent(query)}`);
+        const results = await response.json();
+        
+        showSearchResults(results);
+    } catch (error) {
+        console.error('Search failed:', error);
+    }
+}
+
+// 검색 결과 표시
+function showSearchResults(data) {
+    const autocomplete = document.getElementById('searchAutocomplete');
+    
+    // API 응답에서 results 배열 추출
+    const results = data.results || data;
+    
+    if (!results || results.length === 0) {
+        autocomplete.classList.remove('active');
+        return;
+    }
+    
+    autocomplete.innerHTML = results.slice(0, 10).map(result => `
+        <div class="autocomplete-item" onclick="selectSearchResult('${result.id}')">
+            <div class="autocomplete-item-name">${result.name}</div>
+            <div class="autocomplete-item-path">${result.path.join(' › ')}</div>
+        </div>
+    `).join('');
+    
+    autocomplete.classList.add('active');
+}
+
+// 검색 결과 선택
+function selectSearchResult(nodeId) {
+    document.getElementById('searchAutocomplete').classList.remove('active');
+    document.getElementById('orgSearch').value = '';
+    
+    // 경로 펼치고 포커스
+    expandPath(nodeId);
+    focusNode(nodeId);
+}
+
+// 뷰 모드 변경
+function updateViewMode(mode) {
+    console.log('Updating view mode to:', mode);
+    OrgChartState.currentView = mode;
+    
+    // 버튼 상태 업데이트
+    document.querySelectorAll('.view-mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    
+    // 뷰에 따른 레이아웃 재계산
+    if (mode === 'vertical') {
+        calculateLayout();
+    } else if (mode === 'radial') {
+        calculateRadialLayout();
+    } else if (mode === 'grid') {
+        calculateGridLayout();
+    } else if (mode === 'compact') {
+        calculateCompactLayout();
+    }
+    
+    console.log('Rendering chart with view mode:', mode);
+    renderChart();
+}
+
+// 레벨 필터 업데이트
+function updateLevelFilter(level) {
+    console.log('Updating level filter to:', level);
+    OrgChartState.currentLevel = level;
+    
+    // 버튼 상태 업데이트
+    document.querySelectorAll('.level-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.level === level);
+    });
+    
+    // 레벨 필터 변경 시 expandedNodes 초기화하고 필요한 노드들만 확장
+    if (level !== 'all') {
+        OrgChartState.expandedNodes.clear();
+        console.log('Cleared expandedNodes for level filtering');
+        
+        // 필터에 맞는 모든 노드들의 부모 체인을 미리 확장
+        OrgChartState.nodes.forEach(node => {
+            let shouldShow = false;
+            switch(level) {
+                case 'executive':
+                    shouldShow = node.type === 'company' || node.type === 'division';
+                    break;
+                case 'division':
+                    shouldShow = node.type === 'company' || node.type === 'division';
+                    break;
+                case 'department':
+                    shouldShow = node.type === 'company' || node.type === 'division' || node.type === 'department';
+                    break;
+                case 'team':
+                    shouldShow = node.type !== 'person';
+                    break;
+            }
+            
+            if (shouldShow) {
+                ensureParentChainExpanded(node);
+            }
+        });
+    } else {
+        // 'all' 레벨인 경우 루트 노드만 확장된 상태로 초기화
+        OrgChartState.expandedNodes.clear();
+        OrgChartState.expandedNodes.add('OK금융그룹');
+        console.log('Reset to default Progressive Disclosure mode');
+    }
+    
+    console.log('Current state after level filter update:', OrgChartState.currentLevel);
+    console.log('Expanded nodes:', Array.from(OrgChartState.expandedNodes));
+    
+    // 레벨에 따른 자동 줌 조정 (Dense 모드 활성화를 위해 95% 미만으로 설정)
+    let autoZoom = 80;
+    switch(level) {
+        case 'executive':
+            autoZoom = 90;   // 임원급은 90% (Dense 모드)
+            break;
+        case 'division':
+            autoZoom = 85;   // 본부급은 85% (Dense 모드)
+            break;
+        case 'department':
+            autoZoom = 70;   // 부서급은 70% (Dense 모드)
+            break;
+        case 'team':
+            autoZoom = 50;   // 팀급은 50%로 축소 (Dense 모드)
+            break;
+        default:
+            autoZoom = 80;   // 전체는 80% (Dense 모드)
+    }
+    
+    updateZoom(autoZoom);
+    renderChart();
+}
+
+// 줌 업데이트
+function updateZoom(level) {
+    console.log(`🔍 Updating zoom from ${OrgChartState.zoomLevel}% to ${level}%`);
+    
+    const previousLevel = OrgChartState.zoomLevel;
+    OrgChartState.zoomLevel = level;
+    document.getElementById('zoomLevel').textContent = `${level}%`;
+    
+    // Dense 모드 전환 임계값 체크 (105% 미만에서 Dense 모드)
+    const wasDense = previousLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
+    const isDense = level < CONFIG.ZOOM_DENSE_THRESHOLD;
+    
+    if (wasDense !== isDense) {
+        console.log(`🎯 Mode switching: ${wasDense ? 'Dense' : 'Normal'} → ${isDense ? 'Dense' : 'Normal'}`);
+        
+        // ELK 스타일 레이아웃 재계산 (모드 전환 시)
+        const layoutMode = isDense ? "dense" : "normal";
+        const layoutResult = computeVerticalLayout(null, layoutMode);
+        
+        console.log(`ELK-style layout computed in ${layoutMode} mode:`, {
+            nodes: layoutResult.nodes.length,
+            edges: layoutResult.edges.length
+        });
+        
+        // 차트 재렌더링 (새로운 노드 타입 적용)
+        renderChart();
+    }
+    
+    const container = document.getElementById('treeContainer');
+    container.style.transform = `scale(${level / 100})`;
+    
+    // 시맨틱 줌 클래스 적용
+    container.classList.remove('zoom-small', 'zoom-large', 'dense-mode');
+    if (level < 80) {
+        container.classList.add('zoom-small');
+    } else if (level > 120) {
+        container.classList.add('zoom-large');
+    }
+    
+    // Dense 모드 마커 클래스 추가 (CSS 스타일링용)
+    if (isDense) {
+        container.classList.add('dense-mode');
+        console.log(`🎯 Dense mode activated: Using ${CONFIG.NODE_WIDTH_DENSE}px wide cards`);
+    }
+    
+    // 미니맵 업데이트
+    updateMinimap();
+}
+
+// 미니맵 업데이트 함수
+function updateMinimap() {
+    const canvas = document.getElementById('minimapCanvas');
+    const chartViewport = document.getElementById('chartViewport');
+    const treeContainer = document.getElementById('treeContainer');
+    
+    if (!canvas || !chartViewport || !treeContainer) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // 캔버스 클리어
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 배경
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 노드들 찾기
+    const nodes = document.querySelectorAll('.org-node, .dense-node');
+    if (nodes.length === 0) return;
+    
+    // 차트 범위 계산
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    
+    nodes.forEach(node => {
+        const x = parseFloat(node.style.left) || 0;
+        const y = parseFloat(node.style.top) || 0;
+        const width = node.offsetWidth || 100;
+        const height = node.offsetHeight || 50;
+        
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x + width);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y + height);
+    });
+    
+    // 차트 크기
+    const chartWidth = maxX - minX || 1000;
+    const chartHeight = maxY - minY || 600;
+    
+    // 스케일 계산
+    const scale = Math.min(
+        canvas.width / chartWidth,
+        canvas.height / chartHeight
+    ) * 0.9;
+    
+    // 차트 영역 중앙 정렬
+    const offsetX = (canvas.width - chartWidth * scale) / 2;
+    const offsetY = (canvas.height - chartHeight * scale) / 2;
+    
+    // 노드 그리기
+    nodes.forEach(node => {
+        const x = parseFloat(node.style.left) || 0;
+        const y = parseFloat(node.style.top) || 0;
+        const width = node.offsetWidth || 100;
+        const height = node.offsetHeight || 50;
+        
+        // 노드 타입에 따라 색상 구분
+        const nodeType = node.dataset.type || 'default';
+        if (nodeType === 'group' || nodeType === 'subsidiary') {
+            ctx.fillStyle = '#00d4ff';
+        } else if (nodeType === 'division') {
+            ctx.fillStyle = '#00a8cc';
+        } else if (nodeType === 'department') {
+            ctx.fillStyle = '#0088aa';
+        } else {
+            ctx.fillStyle = '#006688';
+        }
+        
+        const nodeX = offsetX + (x - minX) * scale;
+        const nodeY = offsetY + (y - minY) * scale;
+        const nodeWidth = Math.max(2, width * scale);
+        const nodeHeight = Math.max(2, height * scale);
+        
+        ctx.fillRect(nodeX, nodeY, nodeWidth, nodeHeight);
+    });
+    
+    // 뷰포트 표시 영역
+    const zoomLevel = OrgChartState.zoomLevel / 100;
+    const viewportWidth = chartViewport.clientWidth / zoomLevel;
+    const viewportHeight = chartViewport.clientHeight / zoomLevel;
+    const viewportX = offsetX + (chartViewport.scrollLeft - minX) * scale;
+    const viewportY = offsetY + (chartViewport.scrollTop - minY) * scale;
+    
+    // 뷰포트 영역 테두리
+    ctx.strokeStyle = '#ffff00';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+        viewportX,
+        viewportY,
+        viewportWidth * scale,
+        viewportHeight * scale
+    );
+    
+    // 반투명 하이라이트
+    ctx.fillStyle = 'rgba(255, 255, 0, 0.1)';
+    ctx.fillRect(
+        viewportX,
+        viewportY,
+        viewportWidth * scale,
+        viewportHeight * scale
+    );
+}
+
+// 미니맵에 노드 표시
+function updateMinimapNodes(minimap, nodes, offsetX, offsetY, scale) {
+    // Canvas 방식으로 변경되어 이 함수는 더 이상 사용되지 않음
+    return;
+    /*
+    // 기존 미니맵 노드 제거
+    minimap.querySelectorAll('.minimap-node').forEach(n => n.remove());
+    
+    // 노드를 미니맵에 표시
+    nodes.forEach(node => {
+        const x = (parseFloat(node.style.left) || 0) - offsetX;
+        const y = (parseFloat(node.style.top) || 0) - offsetY;
+        
+        const minimapNode = document.createElement('div');
+        minimapNode.className = 'minimap-node';
+        minimapNode.style.cssText = `
+            position: absolute;
+            left: ${x * scale}px;
+            top: ${y * scale}px;
+            width: ${3}px;
+            height: ${3}px;
+            background: rgba(0, 212, 255, 0.5);
+            border-radius: 50%;
+        `;
+        minimap.appendChild(minimapNode);
+    });
+    */
+}
+
+// 버킷 클러스터 확장 (버킷 클릭 시 숨겨진 노드 표시)
+function expandCluster(clusterId) {
+    const clusterNode = OrgChartState.nodes.get(clusterId);
+    if (!clusterNode || !clusterNode.isCluster) return;
+    
+    const hiddenNodes = OrgChartState.clusteredSiblings.get(clusterId);
+    if (!hiddenNodes || hiddenNodes.length === 0) return;
+    
+    console.log(`Expanding cluster ${clusterId} with ${hiddenNodes.length} hidden nodes`);
+    
+    // 부모 노드 찾기
+    const parentNode = OrgChartState.nodes.get(clusterNode.parentId);
+    if (!parentNode) return;
+    
+    // 클러스터 노드 제거
+    OrgChartState.nodes.delete(clusterId);
+    OrgChartState.clusteredSiblings.delete(clusterId);
+    
+    // 숨겨진 노드들을 노드 맵에 추가
+    hiddenNodes.forEach(node => {
+        const processedNode = {
+            ...node,
+            parentId: clusterNode.parentId,
+            level: clusterNode.level,
+            // x, y 좌표는 calculateLayout에서 계산
+        };
+        OrgChartState.nodes.set(node.id, processedNode);
+        
+        // 자식 노드들도 재귀적으로 처리
+        if (node.children && node.children.length > 0) {
+            function processChildren(children, parentId, level) {
+                children.forEach(child => {
+                    const childNode = {
+                        ...child,
+                        parentId: parentId,
+                        level: level,
+                        // x, y 좌표는 calculateLayout에서 계산
+                    };
+                    OrgChartState.nodes.set(child.id, childNode);
+                    
+                    if (child.children) {
+                        processChildren(child.children, child.id, level + 1);
+                    }
+                });
+            }
+            processChildren(node.children, node.id, clusterNode.level + 1);
+        }
+    });
+    
+    // 부모 노드가 확장되어 있는지 확인하고 설정
+    if (!OrgChartState.expandedNodes.has(clusterNode.parentId)) {
+        OrgChartState.expandedNodes.add(clusterNode.parentId);
+    }
+    
+    // 레이아웃 재계산 및 렌더링
+    calculateLayout();
+    renderChart();
+    
+    // 스크롤 조정 (선택적)
+    const parentElement = document.getElementById(`node-${clusterNode.parentId}`);
+    if (parentElement) {
+        parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// 로딩 표시
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = show ? 'flex' : 'none';
+}
+
+// 에러 표시
+function showError(message) {
+    console.error(message);
+    // 에러 메시지를 화면에 표시
+    const viewport = document.getElementById('chartViewport');
+    if (viewport && !document.getElementById('errorMessage')) {
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'errorMessage';
+        errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 0, 0.1); color: #ff6b6b; padding: 1rem 2rem; border-radius: 0.5rem; border: 1px solid #ff6b6b;';
+        errorDiv.textContent = message;
+        viewport.appendChild(errorDiv);
+        
+        // 3초 후 에러 메시지 제거
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 3000);
+    }
+}
+
+// 샘플 데이터 사용 (API 실패 시 백업)
+function useSampleData() {
+    const sampleData = {
+        id: 'OK금융그룹',
+        name: 'OK금융그룹',
+        type: 'company',
+        title: 'CEO',
+        headcount: 1700,
+        childrenCount: 5,
+        hasChildren: true,
+        parentId: null,
+        path: ['OK금융그룹'],
+        children: [
+            {
+                id: 'division-1',
+                name: '경영지원본부',
+                type: 'division',
+                headcount: 320,
+                childrenCount: 8,
+                hasChildren: true,
+                parentId: 'OK금융그룹',
+                path: ['OK금융그룹', '경영지원본부'],
+                children: [
+                    {
+                        id: 'dept-1-1',
+                        name: '인사부',
+                        type: 'department',
+                        headcount: 45,
+                        childrenCount: 2,
+                        hasChildren: true,
+                        parentId: 'division-1',
+                        path: ['OK금융그룹', '경영지원본부', '인사부'],
+                        children: [
+                            {
+                                id: 'team-1-1-1',
+                                name: '채용팀',
+                                type: 'team',
+                                headcount: 12,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-1-1',
+                                path: ['OK금융그룹', '경영지원본부', '인사부', '채용팀']
+                            },
+                            {
+                                id: 'team-1-1-2',
+                                name: '교육팀',
+                                type: 'team',
+                                headcount: 8,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-1-1',
+                                path: ['OK금융그룹', '경영지원본부', '인사부', '교육팀']
+                            }
+                        ]
+                    },
+                    {
+                        id: 'dept-1-2',
+                        name: '재무부',
+                        type: 'department',
+                        headcount: 38,
+                        childrenCount: 1,
+                        hasChildren: true,
+                        parentId: 'division-1',
+                        path: ['OK금융그룹', '경영지원본부', '재무부'],
+                        children: [
+                            {
+                                id: 'team-1-2-1',
+                                name: '회계팀',
+                                type: 'team',
+                                headcount: 15,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-1-2',
+                                path: ['OK금융그룹', '경영지원본부', '재무부', '회계팀']
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'division-2',
+                name: 'IT본부',
+                type: 'division',
+                headcount: 450,
+                childrenCount: 10,
+                hasChildren: true,
+                parentId: 'OK금융그룹',
+                path: ['OK금융그룹', 'IT본부'],
+                children: [
+                    {
+                        id: 'dept-2-1',
+                        name: '개발부',
+                        type: 'department',
+                        headcount: 62,
+                        childrenCount: 2,
+                        hasChildren: true,
+                        parentId: 'division-2',
+                        path: ['OK금융그룹', 'IT본부', '개발부'],
+                        children: [
+                            {
+                                id: 'team-2-1-1',
+                                name: '프론트엔드팀',
+                                type: 'team',
+                                headcount: 18,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-2-1',
+                                path: ['OK금융그룹', 'IT본부', '개발부', '프론트엔드팀']
+                            },
+                            {
+                                id: 'team-2-1-2',
+                                name: '백엔드팀',
+                                type: 'team',
+                                headcount: 25,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-2-1',
+                                path: ['OK금융그룹', 'IT본부', '개발부', '백엔드팀']
+                            }
+                        ]
+                    },
+                    {
+                        id: 'dept-2-2',
+                        name: '인프라부',
+                        type: 'department',
+                        headcount: 35,
+                        childrenCount: 1,
+                        hasChildren: true,
+                        parentId: 'division-2',
+                        path: ['OK금융그룹', 'IT본부', '인프라부'],
+                        children: [
+                            {
+                                id: 'team-2-2-1',
+                                name: '클라우드팀',
+                                type: 'team',
+                                headcount: 12,
+                                childrenCount: 0,
+                                hasChildren: false,
+                                parentId: 'dept-2-2',
+                                path: ['OK금융그룹', 'IT본부', '인프라부', '클라우드팀']
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'division-3',
+                name: '영업본부',
+                type: 'division',
+                headcount: 580,
+                childrenCount: 15,
+                hasChildren: true,
+                parentId: 'OK금융그룹',
+                path: ['OK금융그룹', '영업본부'],
+                children: []
+            },
+            {
+                id: 'subsidiary-1',
+                name: 'OK저축은행',
+                type: 'division',
+                headcount: 450,
+                childrenCount: 8,
+                hasChildren: true,
+                parentId: 'OK금융그룹',
+                path: ['OK금융그룹', 'OK저축은행'],
+                children: [
+                    {
+                        id: 'bank-dept-1',
+                        name: '리테일금융부',
+                        type: 'department',
+                        headcount: 85,
+                        childrenCount: 3,
+                        hasChildren: true,
+                        parentId: 'subsidiary-1',
+                        path: ['OK금융그룹', 'OK저축은행', '리테일금융부'],
+                        children: []
+                    },
+                    {
+                        id: 'bank-dept-2',
+                        name: '기업금융부',
+                        type: 'department',
+                        headcount: 72,
+                        childrenCount: 2,
+                        hasChildren: true,
+                        parentId: 'subsidiary-1',
+                        path: ['OK금융그룹', 'OK저축은행', '기업금융부'],
+                        children: []
+                    }
+                ]
+            }
+        ]
+    };
+    
+    showLoading(false);
+    
+    // 노드 처리 (초기 로드 시 버킷 클러스터링 비활성화)
+    processOrgData(sampleData, true);
+    
+    // 초기 로드 시 모든 노드 펼치기 (Progressive Disclosure 없이 전체 구조 표시)
+    console.log('Auto-expanding ALL nodes for initial display...');
+    console.log(`Total nodes in state: ${OrgChartState.nodes.size}`);
+    
+    // 모든 노드 확장
+    OrgChartState.nodes.forEach(node => {
+        if (node.hasChildren) {  // 모든 자식이 있는 노드를 확장
+            OrgChartState.expandedNodes.add(node.id);
+            console.log(`Auto-expanded: ${node.name} (level ${node.level}, id: ${node.id})`);
+        }
+    });
+    
+    console.log(`Total expanded nodes: ${OrgChartState.expandedNodes.size}`);
+    console.log('Expanded node IDs:', Array.from(OrgChartState.expandedNodes));
+    
+    // 레이아웃과 렌더링은 initializeChart()에서 처리하므로 여기서는 생략
+    // calculateLayout();  
+    // renderChart();
+}
+
+// 기타 레이아웃 계산 함수들 (간단한 구현)
+function calculateRadialLayout() {
+    console.log('Calculating radial layout...');
+    // 방사형 레이아웃 계산 로직
+    // 임시로 기본 레이아웃 사용
+    calculateLayout();
+}
+
+function calculateGridLayout() {
+    console.log('Calculating grid layout...');
+    // 그리드 레이아웃 계산 로직
+    const nodes = Array.from(OrgChartState.nodes.values());
+    const cols = 4;
+    let row = 0, col = 0;
+    
+    nodes.forEach((node, index) => {
+        node.x = col * (CONFIG.NODE_WIDTH + CONFIG.SIBLING_SPACING) - (cols * CONFIG.NODE_WIDTH) / 2;
+        node.y = row * (CONFIG.NODE_HEIGHT + 40);
+        
+        col++;
+        if (col >= cols) {
+            col = 0;
+            row++;
+        }
+    });
+}
+
+function calculateCompactLayout() {
+    console.log('Calculating compact layout...');
+    // 컴팩트 레이아웃 계산 로직
+    // 임시로 기본 레이아웃 사용
+    calculateLayout();
+}
+</script>
+{% endblock %}
