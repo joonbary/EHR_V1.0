@@ -2501,6 +2501,8 @@ function createDenseNodeElement(node) {
             ">
                 <!-- 이름 (세로 글자 - CJK 최적화) -->
                 <div class="vertical-cjk" style="
+                    writing-mode: vertical-rl !important;
+                    text-orientation: upright !important;
                     font-size: 13px;
                     font-weight: 700;
                     color: rgba(255, 255, 255, 0.95);
@@ -2513,8 +2515,8 @@ function createDenseNodeElement(node) {
                 
                 <!-- 통계 (세로) - 미니말 -->
                 <div style="display: flex; flex-direction: column; gap: 0.1rem;">
-                    <div class="v-chip" style="padding: 0.125rem 0.25rem; font-size: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">인원 ${headcount}</div>
-                    <div class="v-chip" style="padding: 0.125rem 0.25rem; font-size: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">하위 ${childrenCount}</div>
+                    <div class="v-chip" style="writing-mode: vertical-rl !important; text-orientation: mixed !important; padding: 0.125rem 0.25rem; font-size: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">인원${headcount}</div>
+                    <div class="v-chip" style="writing-mode: vertical-rl !important; text-orientation: mixed !important; padding: 0.125rem 0.25rem; font-size: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">하위${childrenCount}</div>
                 </div>
             </div>
             
