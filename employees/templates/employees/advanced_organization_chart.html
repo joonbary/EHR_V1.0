@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize with API endpoint
     const chartConfig = {
         container: 'treeContainer',
-        apiEndpoint: '{% url "employees:api_organization_tree" %}',
+        apiEndpoint: '{% url "employees:org_tree_api" %}',
         csrfToken: '{{ csrf_token }}',
         initialZoom: 100,
         enableMinimap: true,
