@@ -3114,11 +3114,9 @@ function updateZoom(level) {
         container.classList.add('zoom-large');
     }
     
-    // Dense 모드 마커 클래스 추가 (CSS 스타일링용)
-    if (isDense) {
-        container.classList.add('dense-mode');
-        console.log(`🎯 Dense mode activated: Using ${CONFIG.NODE_WIDTH_DENSE}px wide cards`);
-    }
+    // Dense 모드 마커 클래스 추가 (항상 Dense 모드)
+    container.classList.add('dense-mode');
+    console.log(`🎯 Dense mode maintained: Using ${CONFIG.NODE_WIDTH_DENSE}px wide cards`);
     
     // 미니맵 업데이트
     updateMinimap();
