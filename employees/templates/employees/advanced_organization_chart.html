@@ -1087,7 +1087,7 @@ console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()}
 const OrgChartState = {
     currentView: 'vertical',
     currentLevel: 'all',
-    zoomLevel: 92,
+    zoomLevel: 100,
     focusedNode: null,
     expandedNodes: new Set(['OK금융그룹']), // 루트 노드만 초기 펼침
     searchQuery: '',
@@ -1153,12 +1153,10 @@ const CONFIG = {
     PADDING: 48, // 패딩 - 작업지시서 사양
 };
 
-// 현재 뷰 모드 판별 (줌 기반 시맨틱 전환)
+// 현재 뷰 모드 판별 - 항상 Dense 모드 유지
 function getCurrentViewMode() {
-    const zoom = OrgChartState.zoomLevel;
-    if (zoom < CONFIG.ZOOM_ULTRA_THRESHOLD) return 'ultra';   // <80%
-    if (zoom < CONFIG.ZOOM_DENSE_THRESHOLD) return 'dense';   // <95%
-    return 'normal';                                          // ≥95%
+    // 줌 레벨과 상관없이 항상 Dense 모드 (30px × 100px)
+    return 'dense';
 }
 
 // 모드별 설정 가져오기
@@ -3101,25 +3099,9 @@ function updateZoom(level) {
     OrgChartState.zoomLevel = level;
     document.getElementById('zoomLevel').textContent = `${level}%`;
     
-    // Dense 모드 전환 임계값 체크 (105% 미만에서 Dense 모드)
-    const wasDense = previousLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
-    const isDense = level < CONFIG.ZOOM_DENSE_THRESHOLD;
-    
-    if (wasDense !== isDense) {
-        console.log(`🎯 Mode switching: ${wasDense ? 'Dense' : 'Normal'} → ${isDense ? 'Dense' : 'Normal'}`);
-        
-        // ELK 스타일 레이아웃 재계산 (모드 전환 시)
-        const layoutMode = isDense ? "dense" : "normal";
-        const layoutResult = computeVerticalLayout(null, layoutMode);
-        
-        console.log(`ELK-style layout computed in ${layoutMode} mode:`, {
-            nodes: layoutResult.nodes.length,
-            edges: layoutResult.edges.length
-        });
-        
-        // 차트 재렌더링 (새로운 노드 타입 적용)
-        renderChart();
-    }
+    // 모드 전환 없이 항상 Dense 모드 유지 (30px × 100px)
+    console.log(`🎯 Keeping Dense mode at zoom ${level}%`);
+    // 레이아웃 재계산 없이 노드 크기 유지
     
     const container = document.getElementById('treeContainer');
     container.style.transform = `scale(${level / 100})`;
