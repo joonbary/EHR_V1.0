@@ -1114,12 +1114,12 @@ const CONFIG = {
     
     // 카드 폭 슬림화 - PDF 스타일 적용
     NODE_WIDTH: 180,           // Normal 모드 (가로 텍스트)
-    NODE_WIDTH_DENSE: 45,       // Dense 모드 (세로 텍스트 - PDF 스타일)
-    NODE_WIDTH_ULTRA: 35,       // Ultra 모드 (초슬림 세로)
+    NODE_WIDTH_DENSE: 30,       // Dense 모드 (세로 텍스트 - PDF 스타일 극세)
+    NODE_WIDTH_ULTRA: 25,       // Ultra 모드 (초슬림 세로)
     
     NODE_HEIGHT: 100,          // 노드 높이 (Normal)
-    NODE_HEIGHT_DENSE: 80,     // Dense 모드 높이 (PDF 스타일)
-    NODE_HEIGHT_ULTRA: 70,     // Ultra 모드 높이
+    NODE_HEIGHT_DENSE: 100,    // Dense 모드 높이 (PDF 스타일 - 세로로 길게)
+    NODE_HEIGHT_ULTRA: 90,     // Ultra 모드 높이
     
     // 레벨 간격 - PDF 스타일 적용
     LEVEL_SPACING: 100,
@@ -2309,20 +2309,21 @@ function createUltraNodeElement(node) {
         div.classList.add('focused');
     }
     
-    // Ultra 모드 - 35px 초슬림 카드 (PDF 스타일)
+    // Ultra 모드 - 25px 초슬림 카드 (PDF 스타일)
     div.style.cssText = `
         position: absolute;
-        width: ${CONFIG.NODE_WIDTH_ULTRA}px;
-        height: ${CONFIG.NODE_HEIGHT_ULTRA}px;
-        padding: 1px;
-        background: #f8f8f8;
-        border: 1px solid #666;
-        border-radius: 1px;
+        width: ${CONFIG.NODE_WIDTH_ULTRA}px !important;
+        height: ${CONFIG.NODE_HEIGHT_ULTRA}px !important;
+        padding: 1px !important;
+        background: white !important;
+        border: 1px solid #000 !important;
+        border-radius: 0px !important;
         cursor: pointer;
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-sizing: border-box !important;
     `;
     
     // Ultra 모드 콘텐츠 - 극도로 간소화
@@ -2334,12 +2335,13 @@ function createUltraNodeElement(node) {
         <div style="
             writing-mode: vertical-rl !important;
             text-orientation: upright !important;
-            font-size: 9px;
-            font-weight: 500;
-            color: #333;
-            line-height: 1;
-            text-align: center;
-            white-space: nowrap;
+            font-size: 8px !important;
+            font-weight: 600 !important;
+            color: black !important;
+            line-height: 1 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            background: transparent !important;
         ">${node.name}</div>`;
     
     // 이벤트 리스너
@@ -2374,21 +2376,22 @@ function createDenseNodeElement(node) {
         div.classList.add('collapsed');
     }
     
-    // Dense 모드에서는 45px 슬림 카드로 고정 (PDF 스타일)
+    // Dense 모드에서는 30px 극세 카드로 고정 (PDF 스타일)
     div.style.cssText = `
         position: absolute;
-        width: ${CONFIG.NODE_WIDTH_DENSE}px;
-        height: ${CONFIG.NODE_HEIGHT_DENSE}px;
-        padding: 2px;
-        background: #f0f0f0;
-        border: 1px solid #333;
-        border-radius: 2px;
+        width: ${CONFIG.NODE_WIDTH_DENSE}px !important;
+        height: ${CONFIG.NODE_HEIGHT_DENSE}px !important;
+        padding: 1px !important;
+        background: white !important;
+        border: 1px solid #000 !important;
+        border-radius: 0px !important;
         cursor: pointer;
         z-index: ${node.type === 'company' ? '100' : '10'};
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-sizing: border-box !important;
     `;
     
     // 버킷 노드 특별 처리
@@ -2429,17 +2432,18 @@ function createDenseNodeElement(node) {
             <div style="
                 writing-mode: vertical-rl !important;
                 text-orientation: upright !important;
-                font-size: 10px;
-                font-weight: 500;
-                color: #000;
-                line-height: 1.1;
-                text-align: center;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                white-space: nowrap;
+                font-size: 9px !important;
+                font-weight: 600 !important;
+                color: black !important;
+                line-height: 1 !important;
+                text-align: center !important;
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                white-space: nowrap !important;
+                background: transparent !important;
             ">${node.name}</div>
         `;
         

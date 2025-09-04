@@ -83,12 +83,12 @@
    =========================== */
 .org-node {
     position: absolute;
-    background: #f8f8f8;
-    border: 1px solid #333;
-    border-radius: 2px;
+    background: white;
+    border: 1px solid #000;
+    border-radius: 0;
     transition: all 0.2s ease;
     cursor: pointer;
-    color: #000;
+    color: black;
 }
 
 .org-node:hover {
@@ -97,20 +97,24 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Ultra Mode (35px - PDF style) */
+/* Ultra Mode (25px - PDF style) */
 .ultra-node {
-    width: 35px !important;
-    height: 70px !important;
-    min-height: unset;
-    padding: 1px;
+    width: 25px !important;
+    height: 90px !important;
+    min-height: unset !important;
+    padding: 1px !important;
+    background: white !important;
+    color: black !important;
 }
 
-/* Dense Mode (45px - PDF style) */
+/* Dense Mode (30px - PDF style) */
 .dense-node {
-    width: 45px !important;
-    height: 80px !important;
-    min-height: unset;
-    padding: 2px;
+    width: 30px !important;
+    height: 100px !important;
+    min-height: unset !important;
+    padding: 1px !important;
+    background: white !important;
+    color: black !important;
 }
 
 /* Vertical Text */
