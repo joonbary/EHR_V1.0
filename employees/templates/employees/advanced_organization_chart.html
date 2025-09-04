@@ -629,24 +629,26 @@
         line-height: 1 !important;
     }
     
-    /* Dense 모드 (92px) - 작업지시서 사양 */
+    /* Dense 모드 (30px x 60px) - PDF 스타일 */
     .dense-node {
-        width: 92px !important;
-        min-height: 300px !important;
-        padding: 0.375rem !important;
-        background: rgba(14, 23, 40, 0.92) !important;
-        border: 1px solid rgba(56, 189, 248, 0.35) !important;
-        border-radius: 1rem !important;
+        width: 30px !important;
+        height: 60px !important;
+        min-height: unset !important;
+        padding: 1px !important;
+        background: white !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
     }
     
-    /* Ultra 모드 (72px) - 작업지시서 사양 */
+    /* Ultra 모드 (30px x 60px) - PDF 스타일 */
     .ultra-node {
-        width: 72px !important;
-        min-height: 280px !important;
-        padding: 0.25rem !important;
-        background: rgba(15, 20, 35, 0.95) !important;
-        border: 1px solid rgba(56, 189, 248, 0.35) !important;
-        border-radius: 1rem !important;
+        width: 30px !important;
+        height: 60px !important;
+        min-height: unset !important;
+        padding: 1px !important;
+        background: white !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
     }
     
     .dense-node .node-content {
@@ -1123,8 +1125,8 @@ const CONFIG = {
     
     // 레벨 간격 - 계층 구조 명확히
     LEVEL_SPACING: 150,
-    LEVEL_SPACING_DENSE: 100,
-    LEVEL_SPACING_ULTRA: 100,
+    LEVEL_SPACING_DENSE: 80,  // 노드 높이 60px보다 약간 큼
+    LEVEL_SPACING_ULTRA: 80,
     
     // 형제 간격 - PDF 스타일 최소화
     SIBLING_SPACING: 30,        // Normal 모드
@@ -1980,6 +1982,7 @@ function renderVerticalView() {
     OrgChartState.nodes.forEach(node => {
         if (shouldRenderNode(node)) {
             // 항상 Dense 모드 노드 생성
+            console.log(`Rendering node ${node.name}, Creating Dense mode node`);
             let nodeElement = createDenseNodeElement(node);
             
             const leftPos = offsetX + node.x - nodeWidth / 2;
@@ -2025,6 +2028,22 @@ function renderVerticalView() {
             }
             
             container.appendChild(nodeElement);
+            
+            // 실제 렌더링된 크기 확인
+            setTimeout(() => {
+                const elem = document.getElementById(nodeElement.id);
+                if (elem && renderedCount <= 3) {
+                    const rect = elem.getBoundingClientRect();
+                    const style = window.getComputedStyle(elem);
+                    console.log(`Node ${node.name} actual size:`, {
+                        width: rect.width,
+                        height: rect.height,
+                        computedWidth: style.width,
+                        computedHeight: style.height,
+                        className: elem.className
+                    });
+                }
+            }, 10);
             
             renderedCount++;
             if (renderedCount <= 5) { // 처음 5개 노드만 로그
@@ -2367,11 +2386,15 @@ function createDenseNodeElement(node) {
         div.classList.add('collapsed');
     }
     
-    // Dense 모드에서는 30px 극세 카드로 고정 (PDF 스타일)
+    // Dense 모드에서는 30px x 60px 카드로 고정 (PDF 스타일)
+    const nodeWidth = 30;
+    const nodeHeight = 60;
+    console.log(`Creating dense node: ${node.name}, size: ${nodeWidth}x${nodeHeight}`);
+    
     div.style.cssText = `
         position: absolute;
-        width: ${CONFIG.NODE_WIDTH_DENSE}px !important;
-        height: ${CONFIG.NODE_HEIGHT_DENSE}px !important;
+        width: ${nodeWidth}px !important;
+        height: ${nodeHeight}px !important;
         padding: 1px !important;
         background: white !important;
         border: 1px solid #000 !important;
