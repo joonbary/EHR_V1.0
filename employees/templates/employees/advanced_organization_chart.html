@@ -1115,16 +1115,16 @@ const CONFIG = {
     // 카드 폭 슬림화 - PDF 스타일 적용
     NODE_WIDTH: 180,           // Normal 모드 (가로 텍스트)
     NODE_WIDTH_DENSE: 30,       // Dense 모드 (세로 텍스트 - PDF 스타일 극세)
-    NODE_WIDTH_ULTRA: 25,       // Ultra 모드 (초슬림 세로)
+    NODE_WIDTH_ULTRA: 30,       // Ultra 모드 (초슬림 세로) - Dense와 같게
     
     NODE_HEIGHT: 100,          // 노드 높이 (Normal)
-    NODE_HEIGHT_DENSE: 100,    // Dense 모드 높이 (PDF 스타일 - 세로로 길게)
-    NODE_HEIGHT_ULTRA: 90,     // Ultra 모드 높이
+    NODE_HEIGHT_DENSE: 60,     // Dense 모드 높이 (짧게 조정)
+    NODE_HEIGHT_ULTRA: 60,     // Ultra 모드 높이 - Dense와 같게
     
-    // 레벨 간격 - PDF 스타일 적용
-    LEVEL_SPACING: 100,
-    LEVEL_SPACING_DENSE: 80,
-    LEVEL_SPACING_ULTRA: 70,
+    // 레벨 간격 - 계층 구조 명확히
+    LEVEL_SPACING: 150,
+    LEVEL_SPACING_DENSE: 100,
+    LEVEL_SPACING_ULTRA: 100,
     
     // 형제 간격 - PDF 스타일 최소화
     SIBLING_SPACING: 30,        // Normal 모드
@@ -1133,8 +1133,8 @@ const CONFIG = {
     // 클러스터 간격 설정 - 부서 단위 구분 강화
     GROUP_SPACING_MULTIPLIER: {
         SAME_PARENT: 1.0,      // 같은 부서 내 팀 (촘촘하게)
-        SAME_GRANDPARENT: 2.5, // 다른 부서 (크게 띄움)
-        DIFFERENT_ROOT: 4.0    // 다른 본부 (더 크게)
+        SAME_GRANDPARENT: 5.0, // 다른 부서 (크게 띄움)
+        DIFFERENT_ROOT: 10.0   // 다른 본부 (더 크게)
     },
     
     // 줌 설정 - 시맨틱 전환
@@ -1940,13 +1940,13 @@ function renderVerticalView() {
         });
     }
     
-    // 현재 모드 판별 (작업지시서 사양)
-    const currentMode = getCurrentViewMode();
-    const modeConfig = getModeConfig(currentMode);
-    const nodeWidth = modeConfig.width;
-    const nodeHeight = modeConfig.height;
-    const isDenseMode = currentMode === 'dense';
-    const isUltraMode = currentMode === 'ultra';
+    // 현재 모드 - 항상 Dense
+    const currentMode = 'dense';  // 항상 Dense 모드
+    const modeConfig = getModeConfig('dense');
+    const nodeWidth = CONFIG.NODE_WIDTH_DENSE;
+    const nodeHeight = CONFIG.NODE_HEIGHT_DENSE;
+    const isDenseMode = true;
+    const isUltraMode = false;
     
     console.log(`Current mode: ${currentMode}, Zoom: ${OrgChartState.zoomLevel}%, Node width: ${nodeWidth}`);
     
@@ -1979,15 +1979,8 @@ function renderVerticalView() {
     let renderedCount = 0;
     OrgChartState.nodes.forEach(node => {
         if (shouldRenderNode(node)) {
-            // 모드별 노드 생성 함수 선택
-            let nodeElement;
-            if (isUltraMode) {
-                nodeElement = createUltraNodeElement(node);
-            } else if (isDenseMode) {
-                nodeElement = createDenseNodeElement(node);
-            } else {
-                nodeElement = createNodeElement(node);
-            }
+            // 항상 Dense 모드 노드 생성
+            let nodeElement = createDenseNodeElement(node);
             
             const leftPos = offsetX + node.x - nodeWidth / 2;
             const topPos = node.y + 50;
@@ -2356,7 +2349,7 @@ function createUltraNodeElement(node) {
     return div;
 }
 
-// Dense 모드 노드 생성 - 92px 슬림 (작업지시서 사양)
+// Dense 모드 노드 생성 - 30px × 60px 슬림
 function createDenseNodeElement(node) {
     const div = document.createElement('div');
     div.className = 'org-node dense-node';
