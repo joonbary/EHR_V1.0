@@ -2341,42 +2341,6 @@ function createUltraNodeElement(node) {
             text-align: center;
             white-space: nowrap;
         ">${node.name}</div>`;
-                    background: rgba(0, 150, 200, 0.15);
-                    color: rgba(255, 255, 255, 0.7);
-                    padding: 0.125rem;
-                    border-radius: 0.25rem;
-                    font-size: 9px;
-                    text-align: center;
-                ">인원 ${headcount}</div>
-                ${childrenCount > 0 ? `<div class="v-chip" style="
-                    background: rgba(0, 150, 200, 0.15);
-                    color: rgba(255, 255, 255, 0.7);
-                    padding: 0.125rem;
-                    border-radius: 0.25rem;
-                    font-size: 9px;
-                    text-align: center;
-                ">하위 ${childrenCount}</div>` : ''}
-            </div>
-        </div>
-        
-        ${node.hasChildren ? `
-            <button class="node-toggle" style="
-                position: absolute;
-                bottom: -12px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 24px;
-                height: 24px;
-                background: rgba(0, 150, 200, 0.8);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                border-radius: 50%;
-                color: white;
-                font-size: 10px;
-            ">
-                <i class="fas fa-chevron-${OrgChartState.expandedNodes.has(node.id) ? 'up' : 'down'}"></i>
-            </button>
-        ` : ''}
-    `;
     
     // 이벤트 리스너
     div.addEventListener('click', () => focusNode(node.id));
