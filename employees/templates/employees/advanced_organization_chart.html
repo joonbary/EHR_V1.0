@@ -1112,24 +1112,24 @@ const ELK_CONFIG = {
 const CONFIG = {
     MAX_VISIBLE_SIBLINGS: 12, // 최대 표시 형제 노드 수 (초과시 버킷 그룹화)
     
-    // 카드 폭 슬림화 - 작업지시서 요구사항
+    // 카드 폭 슬림화 - PDF 스타일 적용
     NODE_WIDTH: 180,           // Normal 모드 (가로 텍스트)
-    NODE_WIDTH_DENSE: 92,       // Dense 모드 (세로 텍스트)
-    NODE_WIDTH_ULTRA: 72,       // Ultra 모드 (초슬림 세로)
+    NODE_WIDTH_DENSE: 45,       // Dense 모드 (세로 텍스트 - PDF 스타일)
+    NODE_WIDTH_ULTRA: 35,       // Ultra 모드 (초슬림 세로)
     
-    NODE_HEIGHT: 300,          // 노드 높이 (모든 모드 동일)
-    NODE_HEIGHT_DENSE: 300,
-    NODE_HEIGHT_ULTRA: 300,
+    NODE_HEIGHT: 100,          // 노드 높이 (Normal)
+    NODE_HEIGHT_DENSE: 80,     // Dense 모드 높이 (PDF 스타일)
+    NODE_HEIGHT_ULTRA: 70,     // Ultra 모드 높이
     
-    // 레벨 간격 - 모든 모드 동일
-    LEVEL_SPACING: 140,
-    LEVEL_SPACING_DENSE: 140,
-    LEVEL_SPACING_ULTRA: 140,
+    // 레벨 간격 - PDF 스타일 적용
+    LEVEL_SPACING: 100,
+    LEVEL_SPACING_DENSE: 80,
+    LEVEL_SPACING_ULTRA: 70,
     
-    // 형제 간격 - 모드별 차별화
-    SIBLING_SPACING: 48,        // Normal 모드
-    SIBLING_SPACING_DENSE: 24,  // Dense 모드
-    SIBLING_SPACING_ULTRA: 18,  // Ultra 모드
+    // 형제 간격 - PDF 스타일 최소화
+    SIBLING_SPACING: 30,        // Normal 모드
+    SIBLING_SPACING_DENSE: 8,   // Dense 모드 (PDF 스타일 - 최소 간격)
+    SIBLING_SPACING_ULTRA: 5,   // Ultra 모드 (초최소 간격)
     // 클러스터 간격 설정 - 부서 단위 구분 강화
     GROUP_SPACING_MULTIPLIER: {
         SAME_PARENT: 1.0,      // 같은 부서 내 팀 (촘촘하게)
@@ -2309,44 +2309,38 @@ function createUltraNodeElement(node) {
         div.classList.add('focused');
     }
     
-    // Ultra 모드 - 72px 초슬림 카드
+    // Ultra 모드 - 35px 초슬림 카드 (PDF 스타일)
     div.style.cssText = `
         position: absolute;
         width: ${CONFIG.NODE_WIDTH_ULTRA}px;
-        height: auto;
-        min-height: 280px;
-        max-height: 360px;
-        padding: 0.125rem;
-        background: rgba(15, 20, 35, 0.95);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(0, 150, 200, 0.4);
-        border-radius: 0.375rem;
-        transition: all 0.2s ease;
+        height: ${CONFIG.NODE_HEIGHT_ULTRA}px;
+        padding: 1px;
+        background: #f8f8f8;
+        border: 1px solid #666;
+        border-radius: 1px;
         cursor: pointer;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     `;
     
     // Ultra 모드 콘텐츠 - 극도로 간소화
     const headcount = node.headcount || 0;
     const childrenCount = node.childrenCount || 0;
     
+    // PDF 스타일 - 심플한 세로쓰기
     div.innerHTML = `
-        <div class="node-spine ${node.type}" style="width: 4px;"></div>
-        <div style="padding: 0.375rem 0.25rem; display: flex; flex-direction: column; align-items: center;">
-            <div class="vertical-cjk" style="
-                font-size: 11px;
-                font-weight: 600;
-                color: rgba(255, 255, 255, 0.9);
-                max-height: 200px;
-                overflow: hidden;
-                text-align: center;
-                writing-mode: vertical-rl;
-                text-orientation: upright;
-            ">${node.name}</div>
-            
-            <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
-                <div class="v-chip" style="
+        <div style="
+            writing-mode: vertical-rl !important;
+            text-orientation: upright !important;
+            font-size: 9px;
+            font-weight: 500;
+            color: #333;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+        ">${node.name}</div>`;
                     background: rgba(0, 150, 200, 0.15);
                     color: rgba(255, 255, 255, 0.7);
                     padding: 0.125rem;
@@ -2416,51 +2410,42 @@ function createDenseNodeElement(node) {
         div.classList.add('collapsed');
     }
     
-    // Dense 모드에서는 92px 슬림 카드로 고정 (작업지시서 사양)
+    // Dense 모드에서는 45px 슬림 카드로 고정 (PDF 스타일)
     div.style.cssText = `
         position: absolute;
         width: ${CONFIG.NODE_WIDTH_DENSE}px;
-        height: auto;
-        min-height: 260px;
-        max-height: 380px;
-        padding: 0.25rem 0.125rem;
-        background: linear-gradient(135deg, rgba(14, 23, 40, 0.98), rgba(20, 30, 48, 0.95));
-        backdrop-filter: blur(10px);
-        border: 1.5px solid rgba(0, 212, 255, 0.5);
-        border-radius: 0.5rem;
-        transition: all 0.2s ease;
+        height: ${CONFIG.NODE_HEIGHT_DENSE}px;
+        padding: 2px;
+        background: #f0f0f0;
+        border: 1px solid #333;
+        border-radius: 2px;
         cursor: pointer;
         z-index: ${node.type === 'company' ? '100' : '10'};
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     `;
     
     // 버킷 노드 특별 처리
     if (node.isCluster || node.type === 'bucket') {
-        // 클러스터는 더 작은 크기로 재설정
-        div.style.width = '80px';
-        div.style.height = '80px';
-        div.style.minHeight = '80px';
+        // 클러스터는 PDF 스타일 작은 크기
+        div.style.width = '35px';
+        div.style.height = '35px';
+        div.style.background = '#ddd';
         div.innerHTML = `
             <div style="
                 width: 100%;
                 height: 100%;
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(0, 212, 255, 0.4);
-                border-radius: 0.75rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: #00d4ff;
-                font-size: 0.75rem;
+                color: #666;
+                font-size: 9px;
                 cursor: pointer;
-                transition: all 0.3s ease;
                 writing-mode: vertical-rl;
                 text-orientation: mixed;
-            " onmouseover="this.style.borderColor='#00d4ff'; this.style.background='rgba(0, 212, 255, 0.1)'"
-               onmouseout="this.style.borderColor='rgba(0, 212, 255, 0.4)'; this.style.background='rgba(255, 255, 255, 0.05)'">
-                ${node.name}
-            </div>
+            ">${node.name}</div>
         `;
         div.addEventListener('click', () => expandCluster(node.id));
     } else {
@@ -2475,62 +2460,23 @@ function createDenseNodeElement(node) {
             'person': 'from-amber-500'
         }[node.type] || 'from-cyan-500';
         
+        // PDF 스타일 - 심플한 세로쓰기 텍스트만 표시
         div.innerHTML = `
-            <!-- 타입 표시 라인 -->
-            <div class="node-spine ${node.type}" style="
-                position: absolute;
-                left: 0;
-                top: 0;
+            <div style="
+                writing-mode: vertical-rl !important;
+                text-orientation: upright !important;
+                font-size: 10px;
+                font-weight: 500;
+                color: #000;
+                line-height: 1.1;
+                text-align: center;
+                width: 100%;
                 height: 100%;
-                width: 6px;
-                background: linear-gradient(to bottom, ${typeColor}, transparent);
-                opacity: 0.7;
-                border-radius: 1rem 0 0 1rem;
-            "></div>
-            
-            <!-- 노드 콘텐츠 (세로 글자) - 초슬림 스펙 -->
-            <div class="node-content" style="
-                margin-left: 8px;
-                margin-right: 2px;
                 display: flex;
-                flex-direction: column;
                 align-items: center;
-                gap: 0.25rem;
-                height: 100%;
-                padding: 0;
-            ">
-                <!-- 이름 (세로 글자 - CJK 최적화) -->
-                <div class="vertical-cjk" style="
-                    writing-mode: vertical-rl !important;
-                    text-orientation: upright !important;
-                    font-size: 13px;
-                    font-weight: 700;
-                    color: rgba(255, 255, 255, 0.95);
-                    line-height: 1.2;
-                    flex: 1;
-                    max-height: 220px;
-                    overflow: hidden;
-                    text-align: center;
-                ">${node.name}</div>
-                
-                <!-- 통계 (세로) - 미니말 -->
-                <div style="display: flex; flex-direction: column; gap: 0.1rem;">
-                    <div class="v-chip" style="writing-mode: vertical-rl !important; text-orientation: mixed !important; padding: 0.125rem 0.25rem; font-size: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">인원${headcount}</div>
-                    <div class="v-chip" style="writing-mode: vertical-rl !important; text-orientation: mixed !important; padding: 0.125rem 0.25rem; font-size: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 0.25rem;">하위${childrenCount}</div>
-                </div>
-            </div>
-            
-            <!-- 접기/펼치기 버튼 -->
-            ${node.hasChildren ? `
-                <button class="node-toggle" aria-label="${OrgChartState.expandedNodes.has(node.id) ? '접기' : '펼치기'}" style="
-                    position: absolute;
-                    bottom: -12px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                ">
-                    <i class="fas fa-chevron-${OrgChartState.expandedNodes.has(node.id) ? 'up' : 'down'}"></i>
-                </button>
-            ` : ''}
+                justify-content: center;
+                white-space: nowrap;
+            ">${node.name}</div>
         `;
         
         // 이벤트 리스너
