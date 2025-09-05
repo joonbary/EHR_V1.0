@@ -1406,11 +1406,13 @@ function setupEventListeners() {
 
     // 줌 컨트롤
     document.getElementById('zoomIn').addEventListener('click', () => {
-        updateZoom(Math.min(OrgChartState.zoomLevel + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX));
+        const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+        updateZoom(Math.min(currentZoom + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX));
     });
 
     document.getElementById('zoomOut').addEventListener('click', () => {
-        updateZoom(Math.max(OrgChartState.zoomLevel - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN));
+        const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+        updateZoom(Math.max(currentZoom - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN));
     });
 
     document.getElementById('zoomReset').addEventListener('click', () => {
@@ -3659,4 +3661,6 @@ function calculateCompactLayout() {
     calculateLayout();
 }
 </script>
+<!-- 줌 기능 문제 진단 스크립트 -->
+<script src="{% static 'js/zoom-troubleshoot.js' %}?v=1757046406"></script>
 {% endblock %}
