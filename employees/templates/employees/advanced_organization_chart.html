@@ -1067,7 +1067,8 @@
 // 전역 변수 초기화 - 외부 JS 로드 전에 실행
 window.APP_GLOBALS = window.APP_GLOBALS || {};
 </script>
-<script src="{% static 'js/advanced-org-chart.js' %}?v=1757046401" defer></script>
+<script src="{% static 'js/advanced-org-chart.js' %}?v=1757046402" defer></script>
+<script src="{% static 'js/debug-org-chart-fix.js' %}?v=1" defer></script>
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
@@ -2383,20 +2384,24 @@ function createDenseNodeElement(node) {
         div.classList.add('collapsed');
     }
     
-    // Dense 모드에서는 30px x 40px 카드로 고정 (PDF 스타일)
-    const nodeWidth = 30;
-    const nodeHeight = 40;
-    console.log(`Creating dense node: ${node.name}, size: ${nodeWidth}x${nodeHeight}`);
+    // Dense 모드 - 35px 고정 폭, 글자 수에 따른 동적 높이
+    const nodeWidth = 35;
+    const nameLength = node.name.length;
+    const minHeight = 45;
+    const charHeight = 12;
+    const padding = 20;
+    const nodeHeight = Math.max(minHeight, nameLength * charHeight + padding);
+    console.log(`Creating dense node: ${node.name}, size: ${nodeWidth}x${nodeHeight} (글자수: ${nameLength})`);
     
     div.style.cssText = `
         position: absolute;
         width: ${nodeWidth}px !important;
         height: ${nodeHeight}px !important;
-        padding: 1px !important;
+        padding: 3px !important;
         background: white !important;
         color: black !important;
-        border: 1px solid #000 !important;
-        border-radius: 0px !important;
+        border: 1px solid #333 !important;
+        border-radius: 2px !important;
         cursor: pointer;
         z-index: ${node.type === 'company' ? '100' : '10'};
         overflow: hidden;
@@ -2440,14 +2445,22 @@ function createDenseNodeElement(node) {
         }[node.type] || 'from-cyan-500';
         
         // PDF 스타일 - 심플한 세로쓰기 텍스트만 표시
+        // 글자 수에 따른 폰트 크기 조정
+        let fontSize = 10;
+        if (nameLength <= 4) {
+            fontSize = 11;
+        } else if (nameLength >= 8) {
+            fontSize = 8;
+        }
+        
         div.innerHTML = `
             <div style="
                 writing-mode: vertical-rl !important;
                 text-orientation: upright !important;
-                font-size: 9px !important;
+                font-size: ${fontSize}px !important;
                 font-weight: 600 !important;
                 color: black !important;
-                line-height: 1 !important;
+                line-height: 1.1 !important;
                 text-align: center !important;
                 width: 100% !important;
                 height: 100% !important;
@@ -2456,6 +2469,7 @@ function createDenseNodeElement(node) {
                 justify-content: center !important;
                 white-space: nowrap !important;
                 background: transparent !important;
+                padding: 2px !important;
             ">${node.name}</div>
         `;
         

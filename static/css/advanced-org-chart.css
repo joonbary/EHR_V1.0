@@ -36,6 +36,15 @@
     overflow: auto;
 }
 
+/* 트리 컨테이너 - transform 적용 시 올바른 렌더링 */
+#treeContainer {
+    transform-origin: 0 0 !important;
+    will-change: transform;
+    /* GPU 가속을 위한 설정 */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
 /* ===========================
    3. Toolbar Styles
    =========================== */
@@ -110,13 +119,15 @@
 /* Dense Mode (35px - PDF style) */
 .dense-node {
     width: 35px !important;
-    min-height: 40px !important;
+    min-height: 45px !important;
     height: auto !important;
     padding: 3px !important;
     background: white !important;
     color: black !important;
     border: 1px solid #333 !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+    /* transform-origin은 컨테이너 레벨에서 처리 */
+    transition: none !important;
 }
 
 /* Vertical Text */
