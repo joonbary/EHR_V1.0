@@ -5,10 +5,7 @@
  * Date: 2025-01-21
  */
 
-// IIFE로 감싸서 전역 스코프 오염 방지
-(function(window) {
-    'use strict';
-    
+// 전역 스코프 관리를 위한 네임스페이스
 // ===========================
 // 1. 설정 및 상수 (Configuration)
 // ===========================
@@ -666,6 +663,3 @@ window.expandToDepth = async (rootId, depth) => {
     // TODO: 실제 depth 확장 구현 필요
     // 현재는 로그만 출력
 };
-
-// IIFE 종료
-})(window);
