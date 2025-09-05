@@ -4,7 +4,7 @@
 {% block title %}차세대 조직도 | AI HRM{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757046404">
+<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757046405">
 <style>
     /* 기본 레이아웃 - 가로 스크롤 차단 */
     .org-chart-container {
@@ -1067,7 +1067,7 @@
 // 전역 변수 초기화 - 외부 JS 로드 전에 실행
 window.APP_GLOBALS = window.APP_GLOBALS || {};
 </script>
-<script src="{% static 'js/advanced-org-chart.js' %}?v=1757046404" defer></script>
+<script src="{% static 'js/advanced-org-chart.js' %}?v=1757046405" defer></script>
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
@@ -1090,8 +1090,8 @@ window.OrgChartState = {
     isBucketMode: false,
 };
 
-// 전역 참조 생성
-const OrgChartState = window.OrgChartState;
+// 전역 참조 생성 - 중복 선언 제거
+// OrgChartState는 이미 window.OrgChartState로 전역 사용 가능
 
 // ELK 스타일 세로 레이아웃 설정 (작업지시서 사양)
 const ELK_CONFIG = {
@@ -1311,6 +1311,11 @@ function validateGraph(edges) {
 // 초기화
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Advanced Org Chart: DOM loaded, initializing...');
+    
+    // OrgChartState 전역 참조 설정 (window.OrgChartState가 있으면 사용)
+    if (window.OrgChartState && !window.hasOwnProperty('OrgChartState')) {
+        var OrgChartState = window.OrgChartState;
+    }
     
     try {
         // 이벤트 리스너와 키보드 네비게이션 먼저 설정
@@ -2371,15 +2376,15 @@ function createDenseNodeElement(node) {
     div.className = 'org-node dense-node';
     div.id = `node-${node.id}`;
     div.setAttribute('role', 'treeitem');
-    div.setAttribute('aria-expanded', OrgChartState.expandedNodes.has(node.id));
+    div.setAttribute('aria-expanded', window.OrgChartState ? window.OrgChartState.expandedNodes.has(node.id) : true);
     div.setAttribute('aria-level', node.level);
     div.tabIndex = 0;
     
-    if (node.id === OrgChartState.focusedNode) {
+    if (window.OrgChartState && node.id === window.OrgChartState.focusedNode) {
         div.classList.add('focused');
     }
     
-    if (!OrgChartState.expandedNodes.has(node.id) && node.hasChildren) {
+    if (window.OrgChartState && !window.OrgChartState.expandedNodes.has(node.id) && node.hasChildren) {
         div.classList.add('collapsed');
     }
     
@@ -3120,10 +3125,13 @@ function updateLevelFilter(level) {
 
 // 줌 업데이트
 function updateZoom(level) {
-    console.log(`🔍 Updating zoom from ${OrgChartState.zoomLevel}% to ${level}%`);
+    const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+    console.log(`🔍 Updating zoom from ${currentZoom}% to ${level}%`);
     
-    const previousLevel = OrgChartState.zoomLevel;
-    OrgChartState.zoomLevel = level;
+    const previousLevel = currentZoom;
+    if (window.OrgChartState) {
+        window.OrgChartState.zoomLevel = level;
+    }
     document.getElementById('zoomLevel').textContent = `${level}%`;
     
     // 모드 전환 없이 항상 Dense 모드 유지 (35px 고정 폭)

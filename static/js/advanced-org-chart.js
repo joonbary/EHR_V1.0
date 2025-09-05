@@ -44,23 +44,26 @@ if (!window.CONFIG) {
 // ===========================
 // 2. 상태 관리 (State Management)
 // ===========================
-class OrgChartState {
-    constructor() {
-        this.nodes = new Map();
-        this.edges = [];
-        this.expandedNodes = new Set();
-        this.focusedNode = null;
-        this.zoomLevel = 100;
-        this.currentView = 'vertical';
-        this.searchQuery = '';
-    }
-    
-    reset() {
-        this.nodes.clear();
-        this.edges = [];
-        this.expandedNodes.clear();
-        this.focusedNode = null;
-    }
+// OrgChartState도 중복 선언 방지를 위해 window에 조건부 할당
+if (!window.OrgChartState) {
+    window.OrgChartState = class {
+        constructor() {
+            this.nodes = new Map();
+            this.edges = [];
+            this.expandedNodes = new Set();
+            this.focusedNode = null;
+            this.zoomLevel = 100;
+            this.currentView = 'vertical';
+            this.searchQuery = '';
+        }
+        
+        reset() {
+            this.nodes.clear();
+            this.edges = [];
+            this.expandedNodes.clear();
+            this.focusedNode = null;
+        }
+    };
 }
 
 // ===========================
@@ -386,7 +389,7 @@ class AdvancedOrgChart {
         console.log('✅ Container found:', this.container);
         console.log('📊 Config:', this.config);
         
-        this.state = new OrgChartState();
+        this.state = new window.OrgChartState();
         
         // API와 Minimap 초기화 전 null 체크
         if (typeof OrgChartAPI !== 'undefined') {
@@ -715,11 +718,11 @@ class AdvancedOrgChart {
 // ===========================
 // 클래스들을 전역으로 노출
 window.AdvancedOrgChart = AdvancedOrgChart;
-window.OrgChartState = OrgChartState;
+// OrgChartState는 이미 window에 할당되어 있음
 window.NodeRenderer = NodeRenderer;
 window.LayoutEngine = LayoutEngine;
 window.OrgChartUtils = OrgChartUtils;
-window.CONFIG = CONFIG; // CONFIG도 전역으로 노출
+// CONFIG도 이미 window에 할당되어 있음
 
 console.log('🎯 Advanced Org Chart v2.2 - Classes Exported');
 
