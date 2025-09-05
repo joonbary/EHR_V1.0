@@ -1067,17 +1067,31 @@
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
-const OrgChartState = {
-    currentView: 'vertical',
-    currentLevel: 'all',
-    zoomLevel: 100,
-    focusedNode: null,
-    expandedNodes: new Set(['OK금융그룹']), // 루트 노드만 초기 펼침
-    searchQuery: '',
-    nodes: new Map(),
-    edges: [],
-    clusteredSiblings: new Map(), // 오버플로우 클러스터링 상태
-};
+
+// OrgChartState가 이미 external JS에서 정의되었는지 확인
+let OrgChartState;
+if (typeof window.OrgChartState !== 'undefined' && window.OrgChartState.constructor) {
+    // external JS에서 클래스로 정의된 경우, 인스턴스 생성
+    OrgChartState = new window.OrgChartState();
+    // 추가 속성 설정
+    OrgChartState.currentView = 'vertical';
+    OrgChartState.currentLevel = 'all';
+    OrgChartState.expandedNodes.add('OK금융그룹');
+    OrgChartState.clusteredSiblings = new Map();
+} else {
+    // fallback: external JS가 로드되지 않은 경우
+    OrgChartState = {
+        currentView: 'vertical',
+        currentLevel: 'all',
+        zoomLevel: 100,
+        focusedNode: null,
+        expandedNodes: new Set(['OK금융그룹']), // 루트 노드만 초기 펼침
+        searchQuery: '',
+        nodes: new Map(),
+        edges: [],
+        clusteredSiblings: new Map(), // 오버플로우 클러스터링 상태
+    };
+}
 
 // ELK 스타일 세로 레이아웃 설정 (작업지시서 사양)
 const ELK_CONFIG = {
