@@ -107,14 +107,16 @@
     color: black !important;
 }
 
-/* Dense Mode (30px - PDF style) */
+/* Dense Mode (35px - PDF style) */
 .dense-node {
-    width: 30px !important;
-    height: 40px !important;
-    min-height: unset !important;
-    padding: 1px !important;
+    width: 35px !important;
+    min-height: 40px !important;
+    height: auto !important;
+    padding: 3px !important;
     background: white !important;
     color: black !important;
+    border: 1px solid #333 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
 }
 
 /* Vertical Text */

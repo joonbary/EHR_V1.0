@@ -67,6 +67,8 @@ const OrgChartUtils = {
      */
     getCurrentViewMode() {
         // 줌 레벨과 상관없이 항상 PDF 스타일의 좁은 노드 사용
+        // 줌은 CSS transform: scale로 처리하여 노드 크기는 일정하게 유지
+        // 이렇게 하면 줌인/아웃 시에도 노드의 실제 크기는 35px로 유지됨
         return 'dense';
     },
     
@@ -83,8 +85,9 @@ const OrgChartUtils = {
                 };
             case 'dense':
                 return {
-                    width: 30,  // PDF 스타일 좁은 노드
-                    spacing: 40,
+                    width: 35,  // PDF 스타일 좁은 노드 (약간 넓게)
+                    spacing: 50,  // 노드 간 간격 (겹침 방지)
+                    levelSpacing: 100, // 레벨 간 간격 (충분한 여유)
                     isVertical: true
                 };
             default:
@@ -151,16 +154,27 @@ class NodeRenderer {
         div.className = 'dense-node org-node';
         div.id = `node-${node.id}`;
         
+        // 글자 수에 따른 높이 동적 조정
+        const nameLength = node.name.length;
+        const minHeight = 45;  // 최소 높이를 약간 늘림
+        const charHeight = 12; // 글자당 높이 (세로 모드)
+        const padding = 20;    // 상하 패딩
+        const nodeHeight = Math.max(minHeight, nameLength * charHeight + padding);
+        
         // 기본 스타일 추가 (CSS가 로드되지 않은 경우를 위한 fallback)
         div.style.cssText = `
-            width: 30px;
-            height: 40px;
+            width: 35px;
+            height: ${nodeHeight}px;
             background: white;
-            border: 1px solid #000;
-            border-radius: 0;
-            padding: 1px;
+            border: 1px solid #333;
+            border-radius: 2px;
+            padding: 3px;
             cursor: pointer;
             color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         `;
         
         div.innerHTML = this.getDenseNodeTemplate(node);
@@ -206,8 +220,17 @@ class NodeRenderer {
     }
     
     static getDenseNodeTemplate(node) {
+        // 글자 수에 따른 폰트 크기 동적 조정
+        const nameLength = node.name.length;
+        let fontSize = 10;
+        if (nameLength <= 4) {
+            fontSize = 11;
+        } else if (nameLength >= 8) {
+            fontSize = 8;
+        }
+        
         return `
-            <div class="vertical-cjk" style="font-size: 10px; text-align: center; height: 100%;">${node.name}</div>
+            <div class="vertical-cjk" style="font-size: ${fontSize}px; text-align: center; height: 100%; padding: 2px; line-height: 1.1;">${node.name}</div>
         `;
     }
     
@@ -285,26 +308,39 @@ class LayoutEngine {
             const levelNodes = nodesByLevel[level];
             let currentX = 50; // 각 레벨의 시작 X 위치
             
-            levelNodes.forEach((node, index) => {
-                // 노드 위치 설정
-                node.x = currentX;
-                node.y = currentY;
-                node.width = config.width;
-                node.height = 40;  // 좁고 짧은 노드
-                
-                // 다음 노드를 위한 X 위치 업데이트
-                currentX += config.width + config.spacing;
-                
-                // 클러스터 간격 적용
-                if (index < levelNodes.length - 1) {
-                    const nextNode = levelNodes[index + 1];
-                    const additionalSpacing = this.getClusterSpacing(node, nextNode, config.spacing);
-                    currentX += additionalSpacing - config.spacing;
+            // 부모별로 그룹화
+            const nodesByParent = {};
+            levelNodes.forEach(node => {
+                const parentId = node.parent_id || 'root';
+                if (!nodesByParent[parentId]) {
+                    nodesByParent[parentId] = [];
                 }
+                nodesByParent[parentId].push(node);
+            });
+            
+            // 각 그룹별로 위치 계산
+            Object.keys(nodesByParent).forEach((parentId, groupIndex) => {
+                const groupNodes = nodesByParent[parentId];
+                
+                // 그룹 간 추가 간격 (부서/팀 구분)
+                if (groupIndex > 0) {
+                    currentX += 30; // 그룹 간 추가 간격
+                }
+                
+                groupNodes.forEach((node, index) => {
+                    // 노드 위치 설정
+                    node.x = currentX;
+                    node.y = currentY;
+                    node.width = config.width;
+                    node.height = 40;  // 기본 높이 (createDenseNode에서 동적 조정됨)
+                    
+                    // 다음 노드를 위한 X 위치 업데이트
+                    currentX += config.width + config.spacing;
+                });
             });
             
             // 다음 레벨을 위한 Y 위치 업데이트
-            currentY += 60; // 노드 높이(40px) + 간격(20px)
+            currentY += config.levelSpacing || 100; // 레벨 간 충분한 간격
         });
         
         console.log('✅ Layout calculated for', nodes.length, 'nodes');
@@ -405,7 +441,29 @@ class AdvancedOrgChart {
     updateZoom(level) {
         this.state.zoomLevel = Math.max(CONFIG.ZOOM_MIN, Math.min(CONFIG.ZOOM_MAX, level));
         document.getElementById('zoomLevel').textContent = `${this.state.zoomLevel}%`;
-        this.render();
+        
+        // CSS transform을 사용하여 줌 적용 (노드 크기는 변하지 않음)
+        const scale = this.state.zoomLevel / 100;
+        if (this.container) {
+            // transform-origin을 왼쪽 상단으로 설정하여 확대/축소 기준점 고정
+            this.container.style.transform = `scale(${scale})`;
+            this.container.style.transformOrigin = '0 0';
+            
+            // 스크롤 가능 영역 조정
+            const viewport = document.getElementById('chartViewport');
+            if (viewport) {
+                // scale에 따른 실제 컨테이너 크기 조정
+                const originalWidth = parseInt(this.container.style.width) || this.container.offsetWidth;
+                const originalHeight = parseInt(this.container.style.height) || this.container.offsetHeight;
+                viewport.style.width = `${originalWidth * scale}px`;
+                viewport.style.height = `${originalHeight * scale}px`;
+            }
+        }
+        
+        // 미니맵 업데이트
+        if (this.minimap) {
+            this.minimap.update();
+        }
     }
     
     focusNode(nodeId) {
@@ -610,8 +668,15 @@ class AdvancedOrgChart {
             element.style.position = 'absolute';
             element.style.left = `${node.x}px`;
             element.style.top = `${node.y}px`;
-            element.style.width = `${node.width}px`;
-            element.style.height = `${node.height}px`;
+            
+            // Dense 모드에서는 동적 높이 사용
+            if (mode === 'dense') {
+                // height는 createDenseNode에서 이미 설정됨
+                element.style.width = '35px';
+            } else {
+                element.style.width = `${node.width}px`;
+                element.style.height = `${node.height}px`;
+            }
             
             this.container.appendChild(element);
             

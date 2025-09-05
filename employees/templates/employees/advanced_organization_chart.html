@@ -4,7 +4,7 @@
 {% block title %}차세대 조직도 | AI HRM{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757046400">
+<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757046401">
 <style>
     /* 기본 레이아웃 - 가로 스크롤 차단 */
     .org-chart-container {
@@ -1067,7 +1067,7 @@
 // 전역 변수 초기화 - 외부 JS 로드 전에 실행
 window.APP_GLOBALS = window.APP_GLOBALS || {};
 </script>
-<script src="{% static 'js/advanced-org-chart.js' %}?v=1757046400" defer></script>
+<script src="{% static 'js/advanced-org-chart.js' %}?v=1757046401" defer></script>
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
@@ -1111,21 +1111,21 @@ window.CONFIG = {
     
     // 카드 폭 슬림화 - PDF 스타일 적용
     NODE_WIDTH: 180,           // Normal 모드 (가로 텍스트)
-    NODE_WIDTH_DENSE: 30,       // Dense 모드 (세로 텍스트 - PDF 스타일 극세)
+    NODE_WIDTH_DENSE: 35,       // Dense 모드 (세로 텍스트 - PDF 스타일, 가독성 개선)
     NODE_WIDTH_ULTRA: 25,       // Ultra 모드 (초슬림 세로)
     
     NODE_HEIGHT: 100,          // 노드 높이 (Normal)
-    NODE_HEIGHT_DENSE: 40,     // Dense 모드 높이 (PDF 스타일)
+    NODE_HEIGHT_DENSE: 45,     // Dense 모드 최소 높이 (동적 조정됨)
     NODE_HEIGHT_ULTRA: 40,     // Ultra 모드 높이
     
     // 레벨 간격 - 계층 구조 명확히
     LEVEL_SPACING: 150,
-    LEVEL_SPACING_DENSE: 60,  // 노드 높이 40px보다 약간 큼
+    LEVEL_SPACING_DENSE: 100,  // 레벨 간 충분한 간격
     LEVEL_SPACING_ULTRA: 60,
     
-    // 형제 간격 - PDF 스타일 최소화
+    // 형제 간격 - 겹침 방지
     SIBLING_SPACING: 30,        // Normal 모드
-    SIBLING_SPACING_DENSE: 8,   // Dense 모드 (PDF 스타일 - 최소 간격)
+    SIBLING_SPACING_DENSE: 15,   // Dense 모드 (적절한 간격)
     SIBLING_SPACING_ULTRA: 5,   // Ultra 모드 (초최소 간격)
     // 클러스터 간격 설정 - 부서 단위 구분 강화
     GROUP_SPACING_MULTIPLIER: {
@@ -3113,14 +3113,40 @@ function updateZoom(level) {
     OrgChartState.zoomLevel = level;
     document.getElementById('zoomLevel').textContent = `${level}%`;
     
-    // 모드 전환 없이 항상 Dense 모드 유지 (30px × 100px)
+    // 모드 전환 없이 항상 Dense 모드 유지 (35px 고정 폭)
     console.log(`🎯 Keeping Dense mode at zoom ${level}%`);
-    // 레이아웃 재계산 없이 노드 크기 유지
     
     const container = document.getElementById('treeContainer');
-    container.style.transform = `scale(${level / 100})`;
+    const viewport = document.getElementById('chartViewport');
+    const scale = level / 100;
     
-    // 시맨틱 줌 클래스 적용
+    if (container) {
+        // transform-origin을 왼쪽 상단으로 설정하여 확대/축소 기준점 고정
+        container.style.transform = `scale(${scale})`;
+        container.style.transformOrigin = '0 0';
+        
+        // 스크롤 가능 영역 조정 - viewport 내에서 실제 크기 반영
+        if (viewport) {
+            // 원본 컨테이너 크기 저장 (처음 한 번만)
+            if (!container.dataset.originalWidth) {
+                container.dataset.originalWidth = container.offsetWidth;
+                container.dataset.originalHeight = container.offsetHeight;
+            }
+            
+            const originalWidth = parseInt(container.dataset.originalWidth) || container.offsetWidth;
+            const originalHeight = parseInt(container.dataset.originalHeight) || container.offsetHeight;
+            
+            // 스케일된 크기로 스크롤 영역 설정
+            const scaledWidth = originalWidth * scale;
+            const scaledHeight = originalHeight * scale;
+            
+            // viewport의 실제 크기 조정 (스크롤바가 올바르게 동작하도록)
+            container.style.width = `${originalWidth}px`;
+            container.style.height = `${originalHeight}px`;
+        }
+    }
+    
+    // 시맨틱 줌 클래스 적용 (시각적 피드백용)
     container.classList.remove('zoom-small', 'zoom-large', 'dense-mode');
     if (level < 80) {
         container.classList.add('zoom-small');
@@ -3130,7 +3156,7 @@ function updateZoom(level) {
     
     // Dense 모드 마커 클래스 추가 (항상 Dense 모드)
     container.classList.add('dense-mode');
-    console.log(`🎯 Dense mode maintained: Using ${CONFIG.NODE_WIDTH_DENSE}px wide cards`);
+    console.log(`🎯 Dense mode maintained: Using 35px wide cards (actual node width unchanged)`);
     
     // 미니맵 업데이트
     updateMinimap();
