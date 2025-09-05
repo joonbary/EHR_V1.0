@@ -5,10 +5,15 @@
  * Date: 2025-01-21
  */
 
+// IIFE로 감싸서 전역 스코프 오염 방지
+(function(window) {
+    'use strict';
+    
 // ===========================
 // 1. 설정 및 상수 (Configuration)
 // ===========================
-const CONFIG = {
+// 전역 충돌 방지를 위해 조건부로 선언
+const CONFIG = window.CONFIG || {
     // 카드 너비 설정
     NODE_WIDTH: 180,           // Normal 모드
     NODE_WIDTH_DENSE: 30,       // Dense 모드 (PDF 스타일)
@@ -661,3 +666,6 @@ window.expandToDepth = async (rootId, depth) => {
     // TODO: 실제 depth 확장 구현 필요
     // 현재는 로그만 출력
 };
+
+// IIFE 종료
+})(window);

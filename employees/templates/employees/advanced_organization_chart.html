@@ -4,7 +4,7 @@
 {% block title %}차세대 조직도 | AI HRM{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757045900">
+<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757046100">
 <style>
     /* 기본 레이아웃 - 가로 스크롤 차단 */
     .org-chart-container {
@@ -1063,7 +1063,11 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/advanced-org-chart.js' %}?v=1757045900"></script>
+<script>
+// 전역 변수 초기화 - 외부 JS 로드 전에 실행
+window.APP_GLOBALS = window.APP_GLOBALS || {};
+</script>
+<script src="{% static 'js/advanced-org-chart.js' %}?v=1757046100" defer></script>
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
@@ -1115,10 +1119,8 @@ const ELK_CONFIG = {
     padding: 48
 };
 
-// 상수 정의 - 슈퍼클로드 작업지시서 사양 적용
-// CONFIG가 이미 external JS에서 정의되었는지 확인 (window.CONFIG 체크)
-if (typeof window.CONFIG === 'undefined') {
-    window.CONFIG = {
+// 상수 정의 - defer로 외부 JS가 나중에 로드되므로 안전하게 정의
+window.CONFIG = {
     MAX_VISIBLE_SIBLINGS: 12, // 최대 표시 형제 노드 수 (초과시 버킷 그룹화)
     
     // 카드 폭 슬림화 - PDF 스타일 적용
@@ -1161,18 +1163,8 @@ if (typeof window.CONFIG === 'undefined') {
     BUCKET_THRESHOLD: 12, // 버킷 그룹화 임계값 (>12 형제)
     PADDING: 48, // 패딩 - 작업지시서 사양
 };
-} else {
-    // external JS의 CONFIG를 보완
-    window.CONFIG.MAX_VISIBLE_SIBLINGS = window.CONFIG.MAX_VISIBLE_SIBLINGS || 12;
-    window.CONFIG.NODE_HEIGHT = window.CONFIG.NODE_HEIGHT || 100;
-    window.CONFIG.NODE_HEIGHT_DENSE = window.CONFIG.NODE_HEIGHT_DENSE || 40;
-    window.CONFIG.NODE_HEIGHT_ULTRA = window.CONFIG.NODE_HEIGHT_ULTRA || 40;
-    window.CONFIG.LEVEL_SPACING = window.CONFIG.LEVEL_SPACING || 150;
-    window.CONFIG.LEVEL_SPACING_DENSE = window.CONFIG.LEVEL_SPACING_DENSE || 60;
-    window.CONFIG.LEVEL_SPACING_ULTRA = window.CONFIG.LEVEL_SPACING_ULTRA || 60;
-}
-// CONFIG 전역 참조 설정 (모든 곳에서 CONFIG로 접근 가능)
-var CONFIG = window.CONFIG;
+// CONFIG 전역 참조 설정
+const CONFIG = window.CONFIG;
 
 // 현재 뷰 모드 판별 - 항상 Dense 모드 유지
 function getCurrentViewMode() {
