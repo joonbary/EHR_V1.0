@@ -4,7 +4,7 @@
 {% block title %}차세대 조직도 | AI HRM{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757045400">
+<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757045600">
 <style>
     /* 기본 레이아웃 - 가로 스크롤 차단 */
     .org-chart-container {
@@ -1063,38 +1063,45 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/advanced-org-chart.js' %}?v=1757045400"></script>
+<script src="{% static 'js/advanced-org-chart.js' %}?v=1757045600"></script>
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
 
-// OrgChartState가 이미 external JS에서 정의되었는지 확인
-// 전역 변수로 선언하지 않고 직접 window에 할당
-if (typeof window.OrgChartState !== 'undefined' && window.OrgChartState.constructor) {
-    // external JS에서 클래스로 정의된 경우, 인스턴스 생성
-    window.OrgChartState = new window.OrgChartState();
-    // 추가 속성 설정
-    window.OrgChartState.currentView = 'vertical';
-    window.OrgChartState.currentLevel = 'all';
-    window.OrgChartState.expandedNodes.add('OK금융그룹');
-    window.OrgChartState.clusteredSiblings = new Map();
-} else {
-    // fallback: external JS가 로드되지 않은 경우
-    window.OrgChartState = {
-        currentView: 'vertical',
-        currentLevel: 'all',
-        zoomLevel: 100,
-        focusedNode: null,
-        expandedNodes: new Set(['OK금융그룹']), // 루트 노드만 초기 펼침
-        searchQuery: '',
-        nodes: new Map(),
-        edges: [],
-        clusteredSiblings: new Map(), // 오버플로우 클러스터링 상태
-    };
-}
-// 전역 참조 설정 (external JS의 global export와 호환)
-// var를 사용하여 재선언 가능하게 함
-var OrgChartState = window.OrgChartState;
+// OrgChartState 초기화 - 전역 변수 충돌 완전 방지
+// window.OrgChartState만 사용하고 로컬 변수 선언하지 않음
+(function() {
+    // OrgChartState가 이미 정의되어 있는지 확인
+    if (typeof window.OrgChartState === 'undefined') {
+        // 정의되지 않은 경우 새로 생성
+        window.OrgChartState = {
+            currentView: 'vertical',
+            currentLevel: 'all',
+            zoomLevel: 100,
+            focusedNode: null,
+            expandedNodes: new Set(['OK금융그룹']),
+            searchQuery: '',
+            nodes: new Map(),
+            edges: [],
+            clusteredSiblings: new Map(),
+        };
+    } else if (typeof window.OrgChartState === 'function') {
+        // 클래스로 정의된 경우 인스턴스 생성
+        window.OrgChartState = new window.OrgChartState();
+        window.OrgChartState.currentView = 'vertical';
+        window.OrgChartState.currentLevel = 'all';
+        window.OrgChartState.expandedNodes.add('OK금융그룹');
+        window.OrgChartState.clusteredSiblings = new Map();
+    }
+    
+    // 필요한 속성이 없으면 추가
+    if (!window.OrgChartState.clusteredSiblings) {
+        window.OrgChartState.clusteredSiblings = new Map();
+    }
+})();
+
+// 이제 모든 곳에서 window.OrgChartState 또는 OrgChartState로 접근 가능
+// (OrgChartState는 external JS에서 이미 window에 등록됨)
 
 // ELK 스타일 세로 레이아웃 설정 (작업지시서 사양)
 const ELK_CONFIG = {
