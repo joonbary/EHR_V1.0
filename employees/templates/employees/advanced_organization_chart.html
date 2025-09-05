@@ -4,7 +4,7 @@
 {% block title %}차세대 조직도 | AI HRM{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757045200">
+<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757045400">
 <style>
     /* 기본 레이아웃 - 가로 스크롤 차단 */
     .org-chart-container {
@@ -1063,7 +1063,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/advanced-org-chart.js' %}?v=1757045200"></script>
+<script src="{% static 'js/advanced-org-chart.js' %}?v=1757045400"></script>
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
@@ -1109,7 +1109,9 @@ const ELK_CONFIG = {
 };
 
 // 상수 정의 - 슈퍼클로드 작업지시서 사양 적용
-const CONFIG = {
+// CONFIG가 이미 external JS에서 정의되었는지 확인
+if (typeof CONFIG === 'undefined') {
+    var CONFIG = {
     MAX_VISIBLE_SIBLINGS: 12, // 최대 표시 형제 노드 수 (초과시 버킷 그룹화)
     
     // 카드 폭 슬림화 - PDF 스타일 적용
@@ -1152,6 +1154,16 @@ const CONFIG = {
     BUCKET_THRESHOLD: 12, // 버킷 그룹화 임계값 (>12 형제)
     PADDING: 48, // 패딩 - 작업지시서 사양
 };
+} else {
+    // external JS의 CONFIG를 보완
+    CONFIG.MAX_VISIBLE_SIBLINGS = CONFIG.MAX_VISIBLE_SIBLINGS || 12;
+    CONFIG.NODE_HEIGHT = CONFIG.NODE_HEIGHT || 100;
+    CONFIG.NODE_HEIGHT_DENSE = CONFIG.NODE_HEIGHT_DENSE || 40;
+    CONFIG.NODE_HEIGHT_ULTRA = CONFIG.NODE_HEIGHT_ULTRA || 40;
+    CONFIG.LEVEL_SPACING = CONFIG.LEVEL_SPACING || 150;
+    CONFIG.LEVEL_SPACING_DENSE = CONFIG.LEVEL_SPACING_DENSE || 60;
+    CONFIG.LEVEL_SPACING_ULTRA = CONFIG.LEVEL_SPACING_ULTRA || 60;
+}
 
 // 현재 뷰 모드 판별 - 항상 Dense 모드 유지
 function getCurrentViewMode() {
