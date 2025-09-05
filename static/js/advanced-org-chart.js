@@ -9,32 +9,37 @@
 // ===========================
 // 1. 설정 및 상수 (Configuration)
 // ===========================
-// 전역 충돌 방지를 위해 조건부로 선언
-const CONFIG = window.CONFIG || {
-    // 카드 너비 설정
-    NODE_WIDTH: 180,           // Normal 모드
-    NODE_WIDTH_DENSE: 30,       // Dense 모드 (PDF 스타일)
-    NODE_WIDTH_ULTRA: 25,       // Ultra 모드 (PDF 스타일)
-    
-    // 줌 설정
-    ZOOM_MIN: 30,
-    ZOOM_MAX: 200,
-    ZOOM_STEP: 10,
-    ZOOM_ULTRA_THRESHOLD: 80,
-    ZOOM_DENSE_THRESHOLD: 95,
-    
-    // 클러스터 간격
-    GROUP_SPACING_MULTIPLIER: {
-        SAME_PARENT: 1.0,
-        SAME_GRANDPARENT: 2.5,
-        DIFFERENT_ROOT: 4.0
-    },
-    
-    // 기타 설정
-    BUCKET_THRESHOLD: 12,
-    ANIMATION_DURATION: 300,
-    SEARCH_DELAY: 300
-};
+// 전역 충돌 방지를 위해 조건부로 할당 (const 사용하지 않음)
+if (!window.CONFIG) {
+    window.CONFIG = {
+        // 카드 너비 설정
+        NODE_WIDTH: 180,           // Normal 모드
+        NODE_WIDTH_DENSE: 35,       // Dense 모드 (PDF 스타일)
+        NODE_WIDTH_ULTRA: 25,       // Ultra 모드 (PDF 스타일)
+        
+        // 줌 설정
+        ZOOM_MIN: 30,
+        ZOOM_MAX: 200,
+        ZOOM_STEP: 10,
+        ZOOM_ULTRA_THRESHOLD: 80,
+        ZOOM_DENSE_THRESHOLD: 95,
+        
+        // 클러스터 간격
+        GROUP_SPACING_MULTIPLIER: {
+            SAME_PARENT: 1.0,
+            SAME_GRANDPARENT: 2.5,
+            DIFFERENT_ROOT: 4.0
+        },
+        
+        // 기타 설정
+        BUCKET_THRESHOLD: 12,
+        ANIMATION_DURATION: 300,
+        SEARCH_DELAY: 300
+    };
+}
+
+// CONFIG를 로컬 변수로 참조 (성능 향상)
+const CONFIG = window.CONFIG;
 
 // ===========================
 // 2. 상태 관리 (State Management)
