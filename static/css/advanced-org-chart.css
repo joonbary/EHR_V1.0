@@ -110,7 +110,7 @@
 /* Dense Mode (30px - PDF style) */
 .dense-node {
     width: 30px !important;
-    height: 100px !important;
+    height: 40px !important;
     min-height: unset !important;
     padding: 1px !important;
     background: white !important;

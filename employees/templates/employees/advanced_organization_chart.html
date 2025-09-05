@@ -4,6 +4,7 @@
 {% block title %}차세대 조직도 | AI HRM{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757044231">
 <style>
     /* 기본 레이아웃 - 가로 스크롤 차단 */
     .org-chart-container {
@@ -225,22 +226,23 @@
         transform-origin: top left; /* 확대 기준점을 좌측으로 변경 */
     }
 
-    /* TallNode 스타일 - 세로 길쭉한 카드 (180×300) */
+    /* 기본 노드 스타일 - PDF 스타일로 통일 */
     .org-node {
         position: absolute;
-        background: rgba(14, 23, 40, 0.95) !important; /* 더 진한 배경 */
-        border: 1px solid rgba(0, 212, 255, 0.3);
-        border-radius: 1rem; /* rounded-2xl */
-        width: 180px;
-        min-height: 300px;
-        max-height: 420px;
+        width: 30px !important;
+        height: 40px !important;
+        min-height: unset !important;
+        max-height: unset !important;
+        padding: 1px !important;
+        background: white !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
         cursor: pointer;
         transition: all 0.3s ease;
-        font-size: 0.875rem;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        font-size: 9px !important;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
     }
     
@@ -276,9 +278,8 @@
     }
 
     .org-node:hover {
-        border-color: #00d4ff;
-        box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-        transform: translateY(-2px);
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3) !important;
     }
 
     .org-node.focused {
@@ -629,21 +630,22 @@
         line-height: 1 !important;
     }
     
-    /* Dense 모드 (30px x 60px) - PDF 스타일 */
+    /* Dense 모드 (30px x 40px) - PDF 스타일 */
     .dense-node {
         width: 30px !important;
-        height: 60px !important;
+        height: 40px !important;
         min-height: unset !important;
         padding: 1px !important;
         background: white !important;
         border: 1px solid #000 !important;
         border-radius: 0 !important;
+        color: black !important;
     }
     
-    /* Ultra 모드 (30px x 60px) - PDF 스타일 */
+    /* Ultra 모드 (25px x 40px) - PDF 스타일 */
     .ultra-node {
-        width: 30px !important;
-        height: 60px !important;
+        width: 25px !important;
+        height: 40px !important;
         min-height: unset !important;
         padding: 1px !important;
         background: white !important;
@@ -700,31 +702,9 @@
         background: linear-gradient(180deg, #0b1324 0%, #0a0f1e 100%) !important;
     }
     
-    /* 🎯 노드 카드 - 가독성 우선 디자인 (네온 절제) */
-    .org-node {
-        background: rgba(14, 23, 40, 0.92) !important;
-        border: 1px solid rgba(56, 189, 248, 0.35) !important; /* cyan-400/35 */
-        box-shadow: 
-            0 2px 8px rgba(0, 0, 0, 0.3),
-            0 0 80px rgba(0, 212, 255, 0.1),
-            inset 0 0 40px rgba(255, 255, 255, 0.03) !important;
-        border-radius: 24px !important;
-        width: 200px !important;
-        min-height: 320px !important;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
+    /* 중복 스타일 제거 - 위에서 정의됨 */
     
-    .org-node:hover {
-        transform: translateY(-6px) scale(1.03) !important;
-        background: linear-gradient(145deg, 
-            rgba(30, 42, 65, 0.98), 
-            rgba(18, 26, 45, 0.95)) !important;
-        border-color: rgba(0, 255, 255, 0.5) !important;
-        box-shadow: 
-            0 35px 70px rgba(0, 0, 0, 0.6),
-            0 0 120px rgba(0, 212, 255, 0.25),
-            inset 0 0 50px rgba(255, 255, 255, 0.05) !important;
-    }
+    /* 중복 hover 효과 제거 */
     
     /* 🌈 계층별 Spine 색상 - 네온 그라데이션 */
     .node-spine {
@@ -1083,6 +1063,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/advanced-org-chart.js' %}?v=1757044231"></script>
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
@@ -1117,16 +1098,16 @@ const CONFIG = {
     // 카드 폭 슬림화 - PDF 스타일 적용
     NODE_WIDTH: 180,           // Normal 모드 (가로 텍스트)
     NODE_WIDTH_DENSE: 30,       // Dense 모드 (세로 텍스트 - PDF 스타일 극세)
-    NODE_WIDTH_ULTRA: 30,       // Ultra 모드 (초슬림 세로) - Dense와 같게
+    NODE_WIDTH_ULTRA: 25,       // Ultra 모드 (초슬림 세로)
     
     NODE_HEIGHT: 100,          // 노드 높이 (Normal)
-    NODE_HEIGHT_DENSE: 60,     // Dense 모드 높이 (짧게 조정)
-    NODE_HEIGHT_ULTRA: 60,     // Ultra 모드 높이 - Dense와 같게
+    NODE_HEIGHT_DENSE: 40,     // Dense 모드 높이 (PDF 스타일)
+    NODE_HEIGHT_ULTRA: 40,     // Ultra 모드 높이
     
     // 레벨 간격 - 계층 구조 명확히
     LEVEL_SPACING: 150,
-    LEVEL_SPACING_DENSE: 80,  // 노드 높이 60px보다 약간 큼
-    LEVEL_SPACING_ULTRA: 80,
+    LEVEL_SPACING_DENSE: 60,  // 노드 높이 40px보다 약간 큼
+    LEVEL_SPACING_ULTRA: 60,
     
     // 형제 간격 - PDF 스타일 최소화
     SIBLING_SPACING: 30,        // Normal 모드
@@ -2386,9 +2367,9 @@ function createDenseNodeElement(node) {
         div.classList.add('collapsed');
     }
     
-    // Dense 모드에서는 30px x 60px 카드로 고정 (PDF 스타일)
+    // Dense 모드에서는 30px x 40px 카드로 고정 (PDF 스타일)
     const nodeWidth = 30;
-    const nodeHeight = 60;
+    const nodeHeight = 40;
     console.log(`Creating dense node: ${node.name}, size: ${nodeWidth}x${nodeHeight}`);
     
     div.style.cssText = `
@@ -2397,6 +2378,7 @@ function createDenseNodeElement(node) {
         height: ${nodeHeight}px !important;
         padding: 1px !important;
         background: white !important;
+        color: black !important;
         border: 1px solid #000 !important;
         border-radius: 0px !important;
         cursor: pointer;

@@ -11,8 +11,8 @@
 const CONFIG = {
     // 카드 너비 설정
     NODE_WIDTH: 180,           // Normal 모드
-    NODE_WIDTH_DENSE: 92,       // Dense 모드
-    NODE_WIDTH_ULTRA: 72,       // Ultra 모드
+    NODE_WIDTH_DENSE: 30,       // Dense 모드 (PDF 스타일)
+    NODE_WIDTH_ULTRA: 25,       // Ultra 모드 (PDF 스타일)
     
     // 줌 설정
     ZOOM_MIN: 30,
@@ -61,13 +61,11 @@ class OrgChartState {
 // ===========================
 const OrgChartUtils = {
     /**
-     * 현재 뷰 모드 판별
+     * 현재 뷰 모드 판별 - 항상 dense 모드 (PDF 스타일)
      */
     getCurrentViewMode() {
-        const zoom = window.orgChartState?.zoomLevel || 100;
-        if (zoom < CONFIG.ZOOM_ULTRA_THRESHOLD) return 'ultra';
-        if (zoom < CONFIG.ZOOM_DENSE_THRESHOLD) return 'dense';
-        return 'normal';
+        // 줌 레벨과 상관없이 항상 PDF 스타일의 좁은 노드 사용
+        return 'dense';
     },
     
     /**
@@ -77,21 +75,21 @@ const OrgChartUtils = {
         switch(mode) {
             case 'ultra':
                 return {
-                    width: CONFIG.NODE_WIDTH_ULTRA,
-                    spacing: 18,
+                    width: 25,  // PDF 스타일 좁은 노드
+                    spacing: 35,
                     isVertical: true
                 };
             case 'dense':
                 return {
-                    width: CONFIG.NODE_WIDTH_DENSE,
-                    spacing: 24,
+                    width: 30,  // PDF 스타일 좁은 노드
+                    spacing: 40,
                     isVertical: true
                 };
             default:
                 return {
-                    width: CONFIG.NODE_WIDTH,
-                    spacing: 48,
-                    isVertical: false
+                    width: 30,  // 항상 좁은 노드
+                    spacing: 40,
+                    isVertical: true
                 };
         }
     },
@@ -126,13 +124,14 @@ class NodeRenderer {
         
         // 기본 스타일 추가 (CSS가 로드되지 않은 경우를 위한 fallback)
         div.style.cssText = `
-            width: ${CONFIG.NODE_WIDTH_ULTRA}px;
-            background: #0e1728;
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            border-radius: 0.5rem;
-            padding: 0.5rem;
+            width: 25px;
+            height: 40px;
+            background: white;
+            border: 1px solid #000;
+            border-radius: 0;
+            padding: 1px;
             cursor: pointer;
-            color: white;
+            color: black;
         `;
         
         // 템플릿 리터럴로 HTML 생성
@@ -152,13 +151,14 @@ class NodeRenderer {
         
         // 기본 스타일 추가 (CSS가 로드되지 않은 경우를 위한 fallback)
         div.style.cssText = `
-            width: ${CONFIG.NODE_WIDTH_DENSE}px;
-            background: #0e1728;
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            border-radius: 0.75rem;
-            padding: 0.75rem;
+            width: 30px;
+            height: 40px;
+            background: white;
+            border: 1px solid #000;
+            border-radius: 0;
+            padding: 1px;
             cursor: pointer;
-            color: white;
+            color: black;
         `;
         
         div.innerHTML = this.getDenseNodeTemplate(node);
@@ -178,13 +178,14 @@ class NodeRenderer {
         
         // 기본 스타일 추가 (CSS가 로드되지 않은 경우를 위한 fallback)
         div.style.cssText = `
-            width: ${CONFIG.NODE_WIDTH}px;
-            background: #0e1728;
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            border-radius: 1rem;
-            padding: 1rem;
+            width: 30px;
+            height: 40px;
+            background: white;
+            border: 1px solid #000;
+            border-radius: 0;
+            padding: 1px;
             cursor: pointer;
-            color: white;
+            color: black;
         `;
         
         div.innerHTML = this.getNormalNodeTemplate(node);
@@ -198,42 +199,20 @@ class NodeRenderer {
      */
     static getUltraNodeTemplate(node) {
         return `
-            <div class="node-spine ${node.type}"></div>
-            <div class="node-content">
-                <div class="vertical-cjk">${node.name}</div>
-                <div class="node-stats">
-                    <div class="v-chip">인원 ${node.headcount || 0}</div>
-                </div>
-            </div>
+            <div class="vertical-cjk" style="font-size: 10px; text-align: center; height: 100%;">${node.name}</div>
         `;
     }
     
     static getDenseNodeTemplate(node) {
         return `
-            <div class="node-spine ${node.type}"></div>
-            <div class="node-content">
-                <div class="vertical-cjk">${node.name}</div>
-                <div class="node-stats">
-                    <div class="v-chip">인원 ${node.headcount || 0}</div>
-                    <div class="v-chip">하위 ${node.childrenCount || 0}</div>
-                </div>
-            </div>
+            <div class="vertical-cjk" style="font-size: 10px; text-align: center; height: 100%;">${node.name}</div>
         `;
     }
     
     static getNormalNodeTemplate(node) {
+        // Normal 모드도 PDF 스타일로 통일
         return `
-            <div class="node-spine ${node.type}"></div>
-            <div class="node-content">
-                <div class="node-header">
-                    <span class="node-type-badge">${this.getNodeTypeLabel(node.type)}</span>
-                </div>
-                <div class="node-name">${node.name}</div>
-                <div class="node-stats">
-                    <span>인원: ${node.headcount || 0}</span>
-                    <span>하위: ${node.childrenCount || 0}</span>
-                </div>
-            </div>
+            <div class="vertical-cjk" style="font-size: 10px; text-align: center; height: 100%;">${node.name}</div>
         `;
     }
     
@@ -309,7 +288,7 @@ class LayoutEngine {
                 node.x = currentX;
                 node.y = currentY;
                 node.width = config.width;
-                node.height = 120;
+                node.height = 40;  // 좁고 짧은 노드
                 
                 // 다음 노드를 위한 X 위치 업데이트
                 currentX += config.width + config.spacing;
@@ -323,7 +302,7 @@ class LayoutEngine {
             });
             
             // 다음 레벨을 위한 Y 위치 업데이트
-            currentY += 150; // 노드 높이 + 간격
+            currentY += 60; // 노드 높이(40px) + 간격(20px)
         });
         
         console.log('✅ Layout calculated for', nodes.length, 'nodes');
