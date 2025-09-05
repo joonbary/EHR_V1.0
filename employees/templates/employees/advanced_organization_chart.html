@@ -2096,7 +2096,7 @@ function renderRadialView() {
     // 중앙에 루트 노드
     const rootNode = OrgChartState.nodes.get('root');
     if (rootNode && shouldRenderNode(rootNode)) {
-        const rootElement = createNodeElement(rootNode);
+        const rootElement = createDenseNodeElement(rootNode);  // 항상 Dense
         rootElement.style.left = `${centerX - CONFIG.NODE_WIDTH / 2}px`;
         rootElement.style.top = `${centerY - CONFIG.NODE_HEIGHT / 2}px`;
         container.appendChild(rootElement);
@@ -2113,7 +2113,7 @@ function renderRadialView() {
             const x = centerX + radius * Math.cos(angle) - CONFIG.NODE_WIDTH / 2;
             const y = centerY + radius * Math.sin(angle) - CONFIG.NODE_HEIGHT / 2;
             
-            const childElement = createNodeElement(child);
+            const childElement = createDenseNodeElement(child);  // 항상 Dense
             childElement.style.left = `${x}px`;
             childElement.style.top = `${y}px`;
             container.appendChild(childElement);
@@ -2476,16 +2476,15 @@ function createDenseNodeElement(node) {
     return div;
 }
 
-// TallNode 엘리먼트 생성 (세로 길쭉한 카드)
+// TallNode 엘리먼트 생성 - 항상 Dense 모드로 리다이렉트
 function createNodeElement(node) {
-    const div = document.createElement('div');
-    div.className = 'org-node';
-    div.id = `node-${node.id}`;
-    div.setAttribute('role', 'treeitem');
-    div.setAttribute('aria-expanded', OrgChartState.expandedNodes.has(node.id));
-    div.setAttribute('aria-level', node.level);
-    div.tabIndex = 0;
-    
+    // 항상 Dense 노드를 반환
+    return createDenseNodeElement(node);
+}
+
+// 아래는 사용되지 않는 코드 (주석 처리)
+/*
+function createNodeElement_old(node) {
     if (node.id === OrgChartState.focusedNode) {
         div.classList.add('focused');
     }
@@ -2606,6 +2605,7 @@ function createNodeElement(node) {
     
     return div;
 }
+*/
 
 // 엣지 엘리먼트 생성 (직각 연결선 지원)
 function createEdgeElement(edge, offsetX) {
