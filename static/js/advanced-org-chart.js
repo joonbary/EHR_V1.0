@@ -38,8 +38,8 @@ if (!window.CONFIG) {
     };
 }
 
-// CONFIG를 로컬 변수로 참조 (성능 향상)
-const CONFIG = window.CONFIG;
+// CONFIG는 이제 window.CONFIG를 직접 참조
+// const 선언 제거 (중복 선언 오류 방지)
 
 // ===========================
 // 2. 상태 관리 (State Management)
@@ -195,7 +195,7 @@ class NodeRenderer {
         const div = document.createElement('div');
         div.className = 'org-node';
         div.id = `node-${node.id}`;
-        div.style.width = `${CONFIG.NODE_WIDTH}px`;
+        div.style.width = `${window.CONFIG.NODE_WIDTH}px`;
         
         // 기본 스타일 추가 (CSS가 로드되지 않은 경우를 위한 fallback)
         div.style.cssText = `
@@ -275,11 +275,11 @@ class LayoutEngine {
         if (!node1 || !node2) return baseSpacing;
         
         if (node1.parentId === node2.parentId) {
-            return baseSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.SAME_PARENT;
+            return baseSpacing * window.CONFIG.GROUP_SPACING_MULTIPLIER.SAME_PARENT;
         }
         
         // 조부모 확인 로직...
-        return baseSpacing * CONFIG.GROUP_SPACING_MULTIPLIER.DIFFERENT_ROOT;
+        return baseSpacing * window.CONFIG.GROUP_SPACING_MULTIPLIER.DIFFERENT_ROOT;
     }
     
     /**
@@ -421,11 +421,11 @@ class AdvancedOrgChart {
         
         // 줌 버튼
         document.getElementById('zoomIn')?.addEventListener('click', () => {
-            this.updateZoom(this.state.zoomLevel + CONFIG.ZOOM_STEP);
+            this.updateZoom(this.state.zoomLevel + window.CONFIG.ZOOM_STEP);
         });
         
         document.getElementById('zoomOut')?.addEventListener('click', () => {
-            this.updateZoom(this.state.zoomLevel - CONFIG.ZOOM_STEP);
+            this.updateZoom(this.state.zoomLevel - window.CONFIG.ZOOM_STEP);
         });
         
         document.getElementById('zoomReset')?.addEventListener('click', () => {
@@ -436,7 +436,7 @@ class AdvancedOrgChart {
         const searchInput = document.getElementById('orgSearch');
         if (searchInput) {
             searchInput.addEventListener('input', 
-                OrgChartUtils.debounce((e) => this.search(e.target.value), CONFIG.SEARCH_DELAY)
+                OrgChartUtils.debounce((e) => this.search(e.target.value), window.CONFIG.SEARCH_DELAY)
             );
         }
         
@@ -444,7 +444,7 @@ class AdvancedOrgChart {
     }
     
     updateZoom(level) {
-        this.state.zoomLevel = Math.max(CONFIG.ZOOM_MIN, Math.min(CONFIG.ZOOM_MAX, level));
+        this.state.zoomLevel = Math.max(window.CONFIG.ZOOM_MIN, Math.min(window.CONFIG.ZOOM_MAX, level));
         document.getElementById('zoomLevel').textContent = `${this.state.zoomLevel}%`;
         
         // CSS transform을 사용하여 줌 적용 (노드 크기는 변하지 않음)
@@ -577,7 +577,7 @@ class AdvancedOrgChart {
                 childrenCount: childrenCount,
                 x: 0,
                 y: 0,
-                width: CONFIG.NODE_WIDTH,
+                width: window.CONFIG.NODE_WIDTH,
                 height: 120,
                 expanded: true
             });
