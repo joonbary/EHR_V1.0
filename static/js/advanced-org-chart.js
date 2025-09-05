@@ -647,6 +647,7 @@ window.OrgChartState = OrgChartState;
 window.NodeRenderer = NodeRenderer;
 window.LayoutEngine = LayoutEngine;
 window.OrgChartUtils = OrgChartUtils;
+window.CONFIG = CONFIG; // CONFIG도 전역으로 노출
 
 console.log('🎯 Advanced Org Chart v2.2 - Classes Exported');
 
