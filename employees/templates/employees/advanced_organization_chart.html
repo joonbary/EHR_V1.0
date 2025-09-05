@@ -4,7 +4,7 @@
 {% block title %}차세대 조직도 | AI HRM{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757044832">
+<link rel="stylesheet" href="{% static 'css/advanced-org-chart.css' %}?v=1757045200">
 <style>
     /* 기본 레이아웃 - 가로 스크롤 차단 */
     .org-chart-container {
@@ -1063,7 +1063,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/advanced-org-chart.js' %}?v=1757044832"></script>
+<script src="{% static 'js/advanced-org-chart.js' %}?v=1757045200"></script>
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
@@ -1092,8 +1092,9 @@ if (typeof window.OrgChartState !== 'undefined' && window.OrgChartState.construc
         clusteredSiblings: new Map(), // 오버플로우 클러스터링 상태
     };
 }
-// 편의를 위한 로컬 참조 (재선언 아님)
-const OrgChartState = window.OrgChartState;
+// 전역 참조 설정 (external JS의 global export와 호환)
+// var를 사용하여 재선언 가능하게 함
+var OrgChartState = window.OrgChartState;
 
 // ELK 스타일 세로 레이아웃 설정 (작업지시서 사양)
 const ELK_CONFIG = {
