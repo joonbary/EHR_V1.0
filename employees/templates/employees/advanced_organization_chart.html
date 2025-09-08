@@ -1085,6 +1085,7 @@ window.OrgChartState = {
     edges: [],
     clusteredSiblings: new Map(),
     nodePositions: new Map(),
+    standardNodeHeight: null,  // 통일된 노드 높이 캐시
     visibleNodes: new Set(),
     bucketMap: new Map(),
     isBucketMode: false,
@@ -1343,6 +1344,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 차트 초기화
 function initializeChart() {
+    // 노드 높이 캐시 초기화
+    OrgChartState.standardNodeHeight = null;
+    
     // 초기 뷰 설정 (vertical 모드로 렌더링)
     updateViewMode('vertical');
     
@@ -2390,14 +2394,35 @@ function createDenseNodeElement(node) {
         div.classList.add('collapsed');
     }
     
-    // Dense 모드 - 35px 고정 폭, 글자 수에 따른 동적 높이
+    // Dense 모드 - 35px 고정 폭, 통일된 높이
     const nodeWidth = 35;
-    const nameLength = node.name.length;
-    const minHeight = 45;
-    const charHeight = 12;
-    const padding = 20;
-    const nodeHeight = Math.max(minHeight, nameLength * charHeight + padding);
-    console.log(`Creating dense node: ${node.name}, size: ${nodeWidth}x${nodeHeight} (글자수: ${nameLength})`);
+    
+    // 통일된 노드 높이 계산 (최초 1회만 계산하고 캐시)
+    if (!OrgChartState.standardNodeHeight) {
+        let maxNameLength = 0;
+        const findMaxLength = (n) => {
+            if (n.name && n.name.length > maxNameLength) {
+                maxNameLength = n.name.length;
+            }
+            if (n.children) {
+                n.children.forEach(findMaxLength);
+            }
+        };
+        
+        // 전체 트리를 순회하여 최대 글자 수 찾기
+        const rootNode = OrgChartState.originalData || node;
+        findMaxLength(rootNode);
+        
+        // 최대 높이 계산 (모든 노드가 동일한 높이를 가짐)
+        const minHeight = 45;
+        const charHeight = 12;
+        const padding = 20;
+        OrgChartState.standardNodeHeight = Math.max(minHeight, maxNameLength * charHeight + padding);
+        console.log(`Standard node height calculated: ${OrgChartState.standardNodeHeight} (max chars: ${maxNameLength})`);
+    }
+    
+    const nodeHeight = OrgChartState.standardNodeHeight;
+    console.log(`Creating dense node: ${node.name}, using standard height: ${nodeHeight}`);
     
     div.style.cssText = `
         position: absolute;
@@ -2451,13 +2476,14 @@ function createDenseNodeElement(node) {
         }[node.type] || 'from-cyan-500';
         
         // PDF 스타일 - 심플한 세로쓰기 텍스트만 표시
-        // 글자 수에 따른 폰트 크기 조정
-        let fontSize = 10;
-        if (nameLength <= 4) {
-            fontSize = 11;
-        } else if (nameLength >= 8) {
-            fontSize = 8;
-        }
+        // 통일된 폰트 크기로 일관성 있는 외관
+        const fontSize = 10; // 통일된 폰트 크기
+        
+        // 텍스트를 노드 중앙에 정렬
+        const nameLength = node.name.length;
+        const textHeight = nameLength * fontSize * 1.1; // 예상 텍스트 높이
+        const availableHeight = nodeHeight - 6; // padding 고려
+        const verticalPadding = Math.max(0, (availableHeight - textHeight) / 2);
         
         div.innerHTML = `
             <div style="
@@ -2475,7 +2501,8 @@ function createDenseNodeElement(node) {
                 justify-content: center !important;
                 white-space: nowrap !important;
                 background: transparent !important;
-                padding: 2px !important;
+                padding: ${verticalPadding}px 2px !important;
+                box-sizing: border-box !important;
             ">${node.name}</div>
         `;
         
