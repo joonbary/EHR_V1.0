@@ -456,19 +456,21 @@
         font-size: 0.875rem;
     }
 
-    /* 연결선 - 가독성 우선 */
+    /* 연결선 - 가독성 우선 (더 굵고 선명하게) */
     .org-edge {
         position: absolute;
-        background: rgba(56, 189, 248, 0.35); /* 단순한 선 */
-        width: 2px;
+        background: rgba(56, 189, 248, 0.7); /* 더 진한 색상 */
+        width: 3px; /* 더 굵은 선 */
         transition: all 0.3s ease;
+        box-shadow: 0 0 2px rgba(56, 189, 248, 0.5); /* 약간의 그림자로 선명도 증가 */
         pointer-events: none;
     }
 
     .org-edge.horizontal {
-        height: 2px;
+        height: 3px !important; /* 수평선도 굵게 */
         width: auto;
-        background: rgba(56, 189, 248, 0.35);
+        background: rgba(0, 212, 255, 0.85) !important; /* 동일한 선명한 색상 */
+        box-shadow: 0 0 4px rgba(0, 212, 255, 0.6) !important;
     }
 
     /* 미니맵 */
@@ -846,20 +848,14 @@
         text-shadow: 0 0 10px rgba(0, 255, 255, 0.5) !important;
     }
     
-    /* 🔗 연결선 - 애니메이션 네온 효과 */
+    /* 🔗 연결선 - 선명하고 굵은 스타일 */
     .org-edge {
-        background: linear-gradient(180deg, 
-            rgba(0, 255, 255, 0.8) 0%, 
-            rgba(0, 212, 255, 0.5) 30%, 
-            rgba(0, 150, 255, 0.3) 60%, 
-            rgba(0, 100, 200, 0.1) 100%) !important;
-        width: 4px !important;
-        border-radius: 3px !important;
+        background: rgba(0, 212, 255, 0.85) !important; /* 더 진하고 선명한 cyan */
+        width: 4px !important; /* 굵은 선 */
+        border-radius: 2px !important;
         box-shadow: 
-            0 0 15px rgba(0, 255, 255, 0.4),
-            0 0 30px rgba(0, 212, 255, 0.3),
-            inset 0 0 10px rgba(255, 255, 255, 0.3) !important;
-        animation: pulse-neon 2s ease-in-out infinite !important;
+            0 0 4px rgba(0, 212, 255, 0.6),
+            0 0 8px rgba(0, 212, 255, 0.3) !important; /* 빛나는 효과로 시인성 증가 */
     }
     
     @keyframes pulse-neon {
@@ -1119,10 +1115,10 @@ window.CONFIG = {
     NODE_HEIGHT_DENSE: 45,     // Dense 모드 최소 높이 (동적 조정됨)
     NODE_HEIGHT_ULTRA: 40,     // Ultra 모드 높이
     
-    // 레벨 간격 - 계층 구조 명확히
-    LEVEL_SPACING: 150,
-    LEVEL_SPACING_DENSE: 100,  // 레벨 간 충분한 간격
-    LEVEL_SPACING_ULTRA: 60,
+    // 레벨 간격 - 계층 구조 명확히 (노드 높이 증가 반영)
+    LEVEL_SPACING: 180,
+    LEVEL_SPACING_DENSE: 150,  // Dense 모드에서도 충분한 간격 확보
+    LEVEL_SPACING_ULTRA: 80,
     
     // 형제 간격 - 겹침 방지
     SIBLING_SPACING: 30,        // Normal 모드
@@ -1411,16 +1407,21 @@ function setupEventListeners() {
     // 줌 컨트롤
     document.getElementById('zoomIn').addEventListener('click', () => {
         const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
-        updateZoom(Math.min(currentZoom + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX));
+        const newZoom = Math.min(currentZoom + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX);
+        updateZoom(newZoom);
+        renderChart(); // 줌 변경 후 차트 재렌더링
     });
 
     document.getElementById('zoomOut').addEventListener('click', () => {
         const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
-        updateZoom(Math.max(currentZoom - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN));
+        const newZoom = Math.max(currentZoom - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN);
+        updateZoom(newZoom);
+        renderChart(); // 줌 변경 후 차트 재렌더링
     });
 
     document.getElementById('zoomReset').addEventListener('click', () => {
         updateZoom(100);
+        renderChart(); // 줌 리셋 후 차트 재렌더링
     });
 
     // 마우스 휠 줌 - 부드러운 전환
@@ -1730,8 +1731,9 @@ function calculateLayout() {
         const children = childrenMap.get(node.id) || [];
         if (children.length === 0) return;
         
-        // 자식들을 위한 Y 위치
-        const childY = y + nodeHeight + CONFIG.LEVEL_SPACING;
+        // 자식들을 위한 Y 위치 (노드 높이를 고려한 동적 간격)
+        const standardHeight = OrgChartState.standardNodeHeight || nodeHeight;
+        const childY = y + standardHeight + CONFIG.LEVEL_SPACING_DENSE;
         
         if (children.length === 1) {
             // 자식이 하나면 부모 바로 아래 중앙에
@@ -2681,7 +2683,7 @@ function createEdgeElement(edge, offsetX) {
         vLine1.style.left = `${sourceX - 1}px`;
         vLine1.style.top = `${sourceY}px`;
         vLine1.style.height = `${midY - sourceY}px`;
-        vLine1.style.width = '2px';
+        vLine1.style.width = '3px'; // 더 굵은 연결선
         container.appendChild(vLine1);
         
         // 수평선 (좌우 연결)
@@ -2690,7 +2692,7 @@ function createEdgeElement(edge, offsetX) {
         hLine.style.left = `${Math.min(sourceX, targetX)}px`;
         hLine.style.top = `${midY - 1}px`;
         hLine.style.width = `${Math.abs(targetX - sourceX)}px`;
-        hLine.style.height = '2px';
+        hLine.style.height = '3px'; // 더 굵은 연결선
         container.appendChild(hLine);
         
         // 수직선 2 (자식으로 연결)
@@ -2699,7 +2701,7 @@ function createEdgeElement(edge, offsetX) {
         vLine2.style.left = `${targetX - 1}px`;
         vLine2.style.top = `${midY}px`;
         vLine2.style.height = `${targetY - midY}px`;
-        vLine2.style.width = '2px';
+        vLine2.style.width = '3px'; // 더 굵은 연결선
         container.appendChild(vLine2);
     } else {
         // 일직선 연결 (부모와 자식이 같은 X 위치)
@@ -2708,7 +2710,7 @@ function createEdgeElement(edge, offsetX) {
         vLine.style.left = `${sourceX - 1}px`;
         vLine.style.top = `${sourceY}px`;
         vLine.style.height = `${targetY - sourceY}px`;
-        vLine.style.width = '2px';
+        vLine.style.width = '3px'; // 더 굵은 연결선
         container.appendChild(vLine);
     }
     
