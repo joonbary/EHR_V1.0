@@ -351,6 +351,149 @@
     gap: 1.5rem;
 }
 
+/* Employee Card Styles */
+.employee-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.employee-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #00d4ff;
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+}
+
+.employee-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.employee-card:hover::before {
+    left: 100%;
+}
+
+.card-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.card-header h3 {
+    color: #00d4ff;
+    font-size: 1.2rem;
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+}
+
+.position-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.2));
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    border-radius: 20px;
+    color: #00d4ff;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.card-body {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.card-body p {
+    margin: 0.5rem 0;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-body i {
+    color: #00d4ff;
+    width: 20px;
+    text-align: center;
+}
+
+/* Tree View Styles */
+.tree-structure {
+    padding: 1rem;
+}
+
+.department-group {
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+}
+
+.department-title {
+    color: #00d4ff;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.employees-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.tree-node {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(0, 212, 255, 0.25);
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tree-node:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #00d4ff;
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+}
+
+.node-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.node-content strong {
+    color: #00d4ff;
+    font-size: 1.1rem;
+}
+
+.node-position {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+}
+
+.node-level {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
 .revolutionary-table {
     width: 100%;
     border-collapse: separate;
@@ -555,8 +698,59 @@ function renderCurrentView() {
 // Render tree view
 function renderTreeView() {
     const container = document.getElementById('hierarchyTree');
-    container.innerHTML = '<div class="tree-content">트리 뷰 렌더링 중...</div>';
-    // TODO: Implement D3.js tree visualization
+    
+    // Ensure hierarchyData is an array
+    if (!Array.isArray(hierarchyData)) {
+        container.innerHTML = '<p style="color: #ff6b6b;">데이터를 로드할 수 없습니다.</p>';
+        return;
+    }
+    
+    if (hierarchyData.length === 0) {
+        container.innerHTML = '<p style="color: #ffd43b;">표시할 데이터가 없습니다.</p>';
+        return;
+    }
+    
+    // 간단한 트리 구조 렌더링
+    let html = '<div class="tree-structure">';
+    
+    // 부서별로 그룹화
+    const departmentGroups = {};
+    hierarchyData.forEach(employee => {
+        const dept = employee.department || '미지정';
+        if (!departmentGroups[dept]) {
+            departmentGroups[dept] = [];
+        }
+        departmentGroups[dept].push(employee);
+    });
+    
+    // 부서별로 표시
+    Object.keys(departmentGroups).forEach(dept => {
+        html += `
+            <div class="department-group">
+                <h3 class="department-title">${dept}</h3>
+                <div class="employees-list">
+        `;
+        
+        departmentGroups[dept].forEach(emp => {
+            html += `
+                <div class="tree-node" onclick="showEmployeeDetails(${emp.id})">
+                    <div class="node-content">
+                        <strong>${emp.name}</strong>
+                        <span class="node-position">${emp.position}</span>
+                        <span class="node-level">Level ${emp.level}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
 }
 
 // Render cards view
