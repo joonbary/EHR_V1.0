@@ -395,9 +395,9 @@ class CompensationCalculationService:
         # 임시로 A 반환
         return 'A'
     
-    def get_default_grade(self) -> GradeMaster:
+    def get_default_grade(self) -> str:
         """기본 등급 반환"""
-        return GradeMaster.objects.filter(grade_code='GRD11').first() or \
+        grade = GradeMaster.objects.filter(grade_code='GRD11').first() or \
                GradeMaster.objects.create(
                    grade_code='GRD11', 
                    level=1, 
@@ -405,10 +405,11 @@ class CompensationCalculationService:
                    title='주임',
                    valid_from=date(2024, 1, 1)
                )
+        return grade.grade_code
     
-    def get_default_job_profile(self) -> JobProfileMaster:
+    def get_default_job_profile(self) -> str:
         """기본 직무 프로파일 반환"""
-        return JobProfileMaster.objects.filter(job_profile_id='JP001').first() or \
+        job_profile = JobProfileMaster.objects.filter(job_profile_id='JP001').first() or \
                JobProfileMaster.objects.create(
                    job_profile_id='JP001',
                    job_family='경영관리',
@@ -416,6 +417,7 @@ class CompensationCalculationService:
                    job_role='일반',
                    valid_from=date(2024, 1, 1)
                )
+        return job_profile.job_profile_id
     
     def generate_run_id(self) -> str:
         """계산 실행 ID 생성"""
@@ -562,7 +564,7 @@ class CompensationReportService:
                     'id': employee.id,
                     'name': employee.name,
                     'department': employee.department,
-                    'position': employee.position,
+                    'position': employee.new_position if hasattr(employee, 'new_position') else employee.position,
                     'employment_type': employee.employment_type,
                 },
                 'pay_period': pay_period,
