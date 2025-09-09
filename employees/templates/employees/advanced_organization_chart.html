@@ -1405,24 +1405,42 @@ function setupEventListeners() {
     });
 
     // 줌 컨트롤
-    document.getElementById('zoomIn').addEventListener('click', () => {
-        const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
-        const newZoom = Math.min(currentZoom + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX);
-        updateZoom(newZoom);
-        renderChart(); // 줌 변경 후 차트 재렌더링
-    });
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const zoomResetBtn = document.getElementById('zoomReset');
+    
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => {
+            console.log('Zoom In clicked');
+            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+            const newZoom = Math.min(currentZoom + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX);
+            console.log(`Zoom In: ${currentZoom} -> ${newZoom}`);
+            updateZoom(newZoom);
+        });
+    } else {
+        console.error('Zoom In button not found!');
+    }
 
-    document.getElementById('zoomOut').addEventListener('click', () => {
-        const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
-        const newZoom = Math.max(currentZoom - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN);
-        updateZoom(newZoom);
-        renderChart(); // 줌 변경 후 차트 재렌더링
-    });
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => {
+            console.log('Zoom Out clicked');
+            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+            const newZoom = Math.max(currentZoom - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN);
+            console.log(`Zoom Out: ${currentZoom} -> ${newZoom}`);
+            updateZoom(newZoom);
+        });
+    } else {
+        console.error('Zoom Out button not found!');
+    }
 
-    document.getElementById('zoomReset').addEventListener('click', () => {
-        updateZoom(100);
-        renderChart(); // 줌 리셋 후 차트 재렌더링
-    });
+    if (zoomResetBtn) {
+        zoomResetBtn.addEventListener('click', () => {
+            console.log('Zoom Reset clicked');
+            updateZoom(100);
+        });
+    } else {
+        console.error('Zoom Reset button not found!');
+    }
 
     // 마우스 휠 줌 - 부드러운 전환
     const chartViewport = document.getElementById('chartViewport');
@@ -2664,14 +2682,15 @@ function createEdgeElement(edge, offsetX) {
     // Dense 모드 판별
     const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
                         OrgChartState.currentView === 'compact';
-    const nodeHeight = isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT;
+    // 통일된 노드 높이 사용 (캐시된 값 또는 기본값)
+    const nodeHeight = OrgChartState.standardNodeHeight || (isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT);
     const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
     
-    // 노드 중앙에서 연결되도록 수정 (offsetX 적용)
-    const sourceX = offsetX + edge.source.x;
-    const sourceY = edge.source.y + nodeHeight; // 노드 하단
-    const targetX = offsetX + edge.target.x;
-    const targetY = edge.target.y; // 노드 상단
+    // 노드 중앙에서 연결되도록 수정 (노드 위치와 동일한 계산 방식 사용)
+    const sourceX = offsetX + edge.source.x; // 노드 중심 X (이미 노드 위치가 중심 기준)
+    const sourceY = edge.source.y + nodeHeight + 50; // 노드 하단 (상단 여백 50px 추가)
+    const targetX = offsetX + edge.target.x; // 노드 중심 X
+    const targetY = edge.target.y + 50; // 노드 상단 (상단 여백 50px 추가)
     
     if (edge.type === 'orthogonal' && sourceX !== targetX) {
         // 직각 연결선 (ㄱ자 형태)
