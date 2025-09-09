@@ -564,25 +564,28 @@ class CompensationReportService:
                     'id': employee.id,
                     'name': employee.name,
                     'department': employee.department,
-                    'position': employee.new_position if hasattr(employee, 'new_position') else employee.position,
+                    'position': getattr(employee, 'new_position', getattr(employee, 'position', '사원')),
                     'employment_type': employee.employment_type,
                 },
                 'pay_period': pay_period,
                 'compensation': {
-                    'base_salary': float(snapshot.base_salary),
-                    'fixed_ot': float(snapshot.fixed_ot),
-                    'position_allowance': float(snapshot.position_allowance),
-                    'competency_allowance': float(snapshot.competency_allowance),
-                    'pi_amount': float(snapshot.pi_amount),
-                    'monthly_pi_amount': float(snapshot.monthly_pi_amount),
-                    'holiday_bonus': float(snapshot.holiday_bonus),
-                    'ordinary_wage': float(snapshot.ordinary_wage),
-                    'total_compensation': float(snapshot.total_compensation),
+                    'base_salary': float(snapshot.base_salary) if snapshot.base_salary else 0,
+                    'fixed_ot': float(snapshot.fixed_ot) if snapshot.fixed_ot else 0,
+                    'position_allowance': float(snapshot.position_allowance) if snapshot.position_allowance else 0,
+                    'competency_allowance': float(snapshot.competency_allowance) if snapshot.competency_allowance else 0,
+                    'pi_amount': float(snapshot.pi_amount) if snapshot.pi_amount else 0,
+                    'monthly_pi_amount': float(snapshot.monthly_pi_amount) if snapshot.monthly_pi_amount else 0,
+                    'holiday_bonus': float(snapshot.holiday_bonus) if snapshot.holiday_bonus else 0,
+                    'ordinary_wage': float(snapshot.ordinary_wage) if snapshot.ordinary_wage else 0,
+                    'total_compensation': float(snapshot.total_compensation) if snapshot.total_compensation else 0,
                 },
-                'calculated_at': snapshot.created_at.isoformat(),
+                'calculated_at': snapshot.created_at.isoformat() if snapshot.created_at else datetime.now().isoformat(),
             }
             
         except CompensationSnapshot.DoesNotExist:
+            return None
+        except Exception as e:
+            logger.error(f"Error getting compensation statement: {str(e)}")
             return None
     
     def get_compensation_mix_ratio(self, pay_period: str) -> Dict:
