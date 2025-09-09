@@ -473,17 +473,29 @@ function loadEmployees() {
             const listContainer = document.getElementById('employeeList');
             listContainer.innerHTML = '';
             
-            data.forEach(employee => {
+            // 페이지네이션된 응답 처리
+            const employees = data.results || data;
+            
+            // 배열인지 확인
+            if (!Array.isArray(employees)) {
+                console.error('Unexpected data format:', data);
+                displayDummyEmployees();
+                return;
+            }
+            
+            employees.forEach(employee => {
                 const item = document.createElement('div');
-                item.className = 'list-group-item';
+                item.className = 'employee-item';
                 item.onclick = () => selectEmployee(employee);
                 item.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-0">${employee.name}</h6>
-                            <small class="text-muted">${employee.employee_id} | ${employee.department}</small>
+                            <strong style="color: var(--text-primary);">${employee.name}</strong>
+                            <small class="d-block" style="color: var(--text-muted);">${employee.employee_id || ''} · ${employee.department || ''}</small>
                         </div>
-                        <span class="badge bg-primary">${employee.employment_type}</span>
+                        <div class="text-end">
+                            <small class="gradient-text">${employee.employment_type || ''}</small>
+                        </div>
                     </div>
                 `;
                 listContainer.appendChild(item);
@@ -501,7 +513,7 @@ function selectEmployee(employee) {
     selectedEmployee = employee;
     
     // UI 업데이트
-    document.querySelectorAll('#employeeList .list-group-item').forEach(item => {
+    document.querySelectorAll('#employeeList .employee-item').forEach(item => {
         item.classList.remove('active');
     });
     event.currentTarget.classList.add('active');
@@ -702,15 +714,17 @@ function displayDummyEmployees() {
     
     employees.forEach(employee => {
         const item = document.createElement('div');
-        item.className = 'list-group-item';
+        item.className = 'employee-item';
         item.onclick = () => selectEmployee(employee);
         item.innerHTML = `
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="mb-0">${employee.name}</h6>
-                    <small class="text-muted">${employee.employee_id} | ${employee.department}</small>
+                    <strong style="color: var(--text-primary);">${employee.name}</strong>
+                    <small class="d-block" style="color: var(--text-muted);">${employee.employee_id} · ${employee.department}</small>
                 </div>
-                <span class="badge bg-primary">${employee.employment_type}</span>
+                <div class="text-end">
+                    <small class="gradient-text">${employee.employment_type}</small>
+                </div>
             </div>
         `;
         listContainer.appendChild(item);
