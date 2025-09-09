@@ -45,7 +45,7 @@ from notifications.models import Notification
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])  # 임시로 AllowAny 설정, 추후 IsAuthenticated로 변경 필요
+@permission_classes([IsAuthenticated])  # AI 피드백 생성은 인증된 사용자만
 def generate_ai_feedback(request):
     """AI 피드백 생성 API"""
     
