@@ -992,29 +992,24 @@ def hierarchy_organization_api(request):
                 })
         
         else:  # level == 'all'
-            # 전체 조직 요약
-            data = {
-                'executives': Employee.objects.filter(
-                    new_position__in=['회장', '부사장', '사장', '전무', '상무'],
-                    employment_status='재직'
-                ).count(),
-                'departments': Employee.objects.filter(
-                    new_position__in=['본부장', '부장'],
-                    employment_status='재직'
-                ).count(),
-                'teams': Employee.objects.filter(
-                    new_position__in=['팀장', '지점장'],
-                    employment_status='재직'
-                ).count(),
-                'members': Employee.objects.filter(
-                    new_position__in=['사원', '선임', '주임', '대리', '과장', '차장'],
-                    employment_status='재직'
-                ).count(),
-                'total': Employee.objects.filter(employment_status='재직').count(),
-                'departments_list': list(Employee.objects.filter(
-                    employment_status='재직'
-                ).values_list('department', flat=True).distinct())
-            }
+            # 전체 직원 데이터 반환
+            all_employees = Employee.objects.filter(employment_status='재직').select_related('manager')
+            data = []
+            for member in all_employees:
+                data.append({
+                    'id': member.id,
+                    'name': member.name,
+                    'position': member.new_position,
+                    'department': member.department,
+                    'job_type': member.job_type,
+                    'level': member.growth_level,
+                    'age': calculate_age(member.hire_date) if member.hire_date else None,
+                    'email': member.email,
+                    'phone': member.phone,
+                    'profile_image': member.profile_image.url if member.profile_image else None,
+                    'manager': member.manager.name if member.manager else None,
+                    'hire_date': member.hire_date.strftime('%Y-%m-%d') if member.hire_date else None
+                })
         
         return JsonResponse({
             'success': True,
