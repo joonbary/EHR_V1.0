@@ -1,6 +1,7 @@
 from rest_framework import generics, status, filters
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -11,6 +12,18 @@ from .serializers import (
 )
 
 
+class ReadOnlyOrAuthenticated(BasePermission):
+    """
+    읽기는 모든 사용자에게 허용, 쓰기는 인증된 사용자만 허용
+    """
+    def has_permission(self, request, view):
+        # GET, HEAD, OPTIONS 요청은 모든 사용자에게 허용
+        if request.method in ['GET', 'HEAD', 'OPTIONS']:
+            return True
+        # 그 외의 요청(POST, PUT, DELETE 등)은 인증된 사용자만 허용
+        return request.user and request.user.is_authenticated
+
+
 class EmployeeListCreateAPIView(generics.ListCreateAPIView):
     """
     직원 목록 조회 및 신규 직원 등록 API
@@ -18,6 +31,7 @@ class EmployeeListCreateAPIView(generics.ListCreateAPIView):
     POST /api/employees/ - 신규 직원 등록
     """
     queryset = Employee.objects.all()
+    permission_classes = [ReadOnlyOrAuthenticated]  # 읽기는 모든 사용자, 쓰기는 인증된 사용자만
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = {
         'department': ['exact', 'icontains'],
@@ -89,6 +103,7 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     DELETE /api/employees/{id}/ - 직원 삭제 (실제로는 비활성화)
     """
     queryset = Employee.objects.all()
+    permission_classes = [ReadOnlyOrAuthenticated]  # 읽기는 모든 사용자, 쓰기는 인증된 사용자만
     
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:
@@ -124,6 +139,7 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])  # 퇴사 처리는 인증된 사용자만
 def employee_retire_view(request, pk):
     """
     직원 퇴사 처리 API
@@ -149,6 +165,7 @@ def employee_retire_view(request, pk):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # 통계는 모든 사용자에게 공개
 def employee_statistics_view(request):
     """
     직원 통계 정보 API
@@ -195,6 +212,7 @@ def employee_statistics_view(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # 관리자 목록은 모든 사용자에게 공개
 def employee_managers_view(request):
     """
     관리자 목록 API (직원 등록/수정 시 사용)
@@ -215,6 +233,7 @@ def employee_managers_view(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # 조직도는 모든 사용자에게 공개
 def employee_organization_tree_view(request):
     """
     조직도 트리 구조 API
