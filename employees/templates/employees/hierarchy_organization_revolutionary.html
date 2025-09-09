@@ -513,12 +513,26 @@ function setupEventListeners() {
 async function loadHierarchyData(level = 'all') {
     try {
         const response = await fetch(`/employees/api/hierarchy-data/?level=${level}`);
-        const data = await response.json();
-        hierarchyData = data;
+        const result = await response.json();
+        
+        // Check if response has success status
+        if (result.success) {
+            // Extract the data array from the response
+            hierarchyData = result.data || [];
+        } else {
+            // Handle error response
+            hierarchyData = [];
+            console.error('API returned error:', result.error);
+            showNotification('데이터 로드 실패: ' + (result.error || '알 수 없는 오류'), 'error');
+        }
+        
         renderCurrentView();
         updateStats();
     } catch (error) {
         console.error('Error loading hierarchy data:', error);
+        hierarchyData = [];
+        renderCurrentView();
+        updateStats();
         showNotification('데이터 로드 실패', 'error');
     }
 }
@@ -550,6 +564,12 @@ function renderCardsView() {
     const container = document.getElementById('hierarchyCards');
     let html = '';
     
+    // Ensure hierarchyData is an array
+    if (!Array.isArray(hierarchyData)) {
+        container.innerHTML = '<p>데이터를 로드할 수 없습니다.</p>';
+        return;
+    }
+    
     hierarchyData.forEach(item => {
         html += `
             <div class="employee-card" onclick="showEmployeeDetails(${item.id})">
@@ -573,6 +593,12 @@ function renderCardsView() {
 function renderListView() {
     const container = document.getElementById('hierarchyList');
     let html = '';
+    
+    // Ensure hierarchyData is an array
+    if (!Array.isArray(hierarchyData)) {
+        container.innerHTML = '<tr><td colspan="7">데이터를 로드할 수 없습니다.</td></tr>';
+        return;
+    }
     
     hierarchyData.forEach(item => {
         html += `
@@ -621,8 +647,14 @@ function filterByDepartment(department) {
         return;
     }
     
+    // Ensure hierarchyData is an array
+    if (!Array.isArray(hierarchyData)) {
+        console.error('Cannot filter: hierarchyData is not an array');
+        return;
+    }
+    
     const filtered = hierarchyData.filter(item => 
-        item.department.toLowerCase().includes(department.toLowerCase())
+        item.department && item.department.toLowerCase().includes(department.toLowerCase())
     );
     
     // Temporarily update data and re-render
@@ -634,6 +666,12 @@ function filterByDepartment(department) {
 
 // Update statistics
 function updateStats() {
+    // Ensure hierarchyData is an array
+    if (!Array.isArray(hierarchyData)) {
+        console.error('hierarchyData is not an array:', hierarchyData);
+        hierarchyData = [];
+    }
+    
     document.getElementById('totalEmployees').textContent = hierarchyData.length;
     
     const departments = new Set(hierarchyData.map(item => item.department));
