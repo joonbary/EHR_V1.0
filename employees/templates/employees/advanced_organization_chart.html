@@ -217,6 +217,15 @@
             rgba(10, 15, 27, 0.9),
             rgba(26, 31, 46, 0.95));
     }
+    
+    /* 줌 래퍼 스타일 - 줌 변환 전용 컨테이너 */
+    .zoom-wrapper {
+        position: relative;
+        transform-origin: 0 0;
+        transition: transform 0.3s ease;
+        will-change: transform;
+        /* 줌 래퍼는 transform만 담당, 레이아웃에 영향 없음 */
+    }
 
     /* 트리 컨테이너 - 확대 기준 상단 좌측 */
     .tree-container {
@@ -1041,8 +1050,11 @@
 
     <!-- 메인 차트 영역 -->
     <div class="chart-viewport" id="chartViewport">
-        <div class="tree-container" id="treeContainer">
-            <!-- 동적으로 생성될 조직도 노드들 -->
+        <!-- 줌 래퍼 추가 - 줌 변환을 이 레벨에서 적용 -->
+        <div class="zoom-wrapper" id="zoomWrapper" style="transform-origin: 0 0; transition: transform 0.3s ease;">
+            <div class="tree-container" id="treeContainer">
+                <!-- 동적으로 생성될 조직도 노드들 -->
+            </div>
         </div>
 
         <!-- 로딩 오버레이 -->
@@ -1088,7 +1100,7 @@ function handleZoomReset() {
     applyZoom(100);
 }
 
-// 줌 적용 함수 - 강제 적용 방식
+// 줌 적용 함수 - 래퍼 사용 방식
 function applyZoom(level) {
     console.log(`Applying zoom: ${level}%`);
     
@@ -1103,43 +1115,37 @@ function applyZoom(level) {
         zoomDisplay.textContent = `${level}%`;
     }
     
-    // 컨테이너 찾기
-    const container = document.getElementById('treeContainer');
-    if (container) {
+    // 줌 래퍼에 적용 (treeContainer 대신 zoomWrapper 사용)
+    const zoomWrapper = document.getElementById('zoomWrapper');
+    if (zoomWrapper) {
         const scale = level / 100;
         
-        // 모든 기존 transform 제거하고 강제 적용
-        container.style.removeProperty('transform');
-        container.style.removeProperty('transform-origin');
-        container.style.removeProperty('transition');
+        // 직접 스타일 적용 (래퍼는 다른 요소와 충돌하지 않음)
+        zoomWrapper.style.transform = `scale(${scale})`;
         
-        // requestAnimationFrame을 사용하여 다음 프레임에서 적용
-        requestAnimationFrame(() => {
-            // 강제로 새 transform 적용
-            container.style.setProperty('transform', `scale(${scale})`, 'important');
-            container.style.setProperty('transform-origin', '0 0', 'important');
-            container.style.setProperty('transition', 'transform 0.3s ease', 'important');
-            
-            // 추가 검증
-            const appliedTransform = window.getComputedStyle(container).transform;
-            console.log(`✅ Zoom applied: scale(${scale}), computed: ${appliedTransform}`);
-            
-            // 변경사항 강제 적용
-            container.offsetHeight; // 리플로우 강제 트리거
-        });
+        // 검증
+        const appliedTransform = window.getComputedStyle(zoomWrapper).transform;
+        console.log(`✅ Zoom applied to wrapper: scale(${scale}), computed: ${appliedTransform}`);
+        
+        // 시각적 확인을 위한 배경색 변경 (테스트용)
+        if (level !== 92) {
+            console.log(`🎨 Zoom level changed to ${level}% - visual change should be apparent`);
+        }
     } else {
-        console.error('❌ treeContainer not found!');
+        console.error('❌ zoomWrapper not found!');
     }
     
     // 실제 적용 확인
     setTimeout(() => {
-        const container = document.getElementById('treeContainer');
-        if (container) {
-            const style = window.getComputedStyle(container);
-            console.log('📐 Applied styles:', {
+        const wrapper = document.getElementById('zoomWrapper');
+        if (wrapper) {
+            const style = window.getComputedStyle(wrapper);
+            const rect = wrapper.getBoundingClientRect();
+            console.log('📐 Applied zoom styles:', {
                 transform: style.transform,
                 transformOrigin: style.transformOrigin,
-                actualScale: level + '%'
+                actualScale: level + '%',
+                wrapperSize: `${rect.width}x${rect.height}`
             });
         }
     }, 100);
@@ -1474,16 +1480,16 @@ function initializeChart() {
             zoomDisplay.textContent = '92%';
         }
         
+        // 줌 래퍼를 사용한 초기 줌 설정
+        const zoomWrapper = document.getElementById('zoomWrapper');
+        if (zoomWrapper) {
+            zoomWrapper.style.transform = 'scale(0.92)';
+            console.log('✅ 초기 줌 transform 래퍼에 적용: scale(0.92)');
+        }
+        
         const container = document.getElementById('treeContainer');
         if (container) {
-            // requestAnimationFrame을 사용하여 강제 적용
-            requestAnimationFrame(() => {
-                container.style.setProperty('transform', 'scale(0.92)', 'important');
-                container.style.setProperty('transform-origin', '0 0', 'important');
-                container.style.setProperty('transition', 'transform 0.3s ease', 'important');
-                container.classList.add('dense-mode');
-                console.log('✅ 초기 줌 transform 직접 적용: scale(0.92) with !important');
-            });
+            container.classList.add('dense-mode');
         }
     }
     
