@@ -462,8 +462,13 @@ function loadEmployees() {
     const employmentType = document.getElementById('employmentType').value;
     
     // API 호출하여 직원 목록 가져오기
-    fetch(`/api/employees/?search=${searchTerm}&employment_type=${employmentType}`)
-        .then(response => response.json())
+    fetch(`/employees/api/employees/?search=${searchTerm}&employment_type=${employmentType}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             const listContainer = document.getElementById('employeeList');
             listContainer.innerHTML = '';

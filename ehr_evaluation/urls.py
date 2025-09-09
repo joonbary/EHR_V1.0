@@ -27,6 +27,20 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('api/evaluations/', include('evaluations.urls')),
     path('api/notifications/', include('notifications.urls')),
+    
+    # 각 앱의 URL 패턴 추가
+    path('employees/', include('employees.urls')),
+    path('compensation/', include('compensation.urls')),
+    path('organization/', include('organization.urls')),
+    path('airiss/', include('airiss.urls')),
+    path('ai-quickwin/', include('ai_quickwin.urls')),
+    path('ai-coaching/', include('ai_coaching.urls')),
+    path('ai-insights/', include('ai_insights.urls')),
+    path('ai-predictions/', include('ai_predictions.urls')),
+    path('ai-interviewer/', include('ai_interviewer.urls')),
+    path('ai-team-optimizer/', include('ai_team_optimizer.urls')),
+    path('job-profiles/', include('job_profiles.urls')),
+    path('evaluations/', include('evaluations.urls')),
 ]
 
 if settings.DEBUG:
