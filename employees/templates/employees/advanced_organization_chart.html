@@ -1454,9 +1454,10 @@ function setupEventListeners() {
             const wasInDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
             const willBeInDenseMode = newZoom < CONFIG.ZOOM_DENSE_THRESHOLD;
             
-            if (wasInDenseMode !== willBeInDenseMode) {
-                console.log(`Switching node mode: ${willBeInDenseMode ? 'Dense' : 'Normal'} at zoom ${newZoom}%`);
-            }
+            // Dense 모드는 항상 유지하므로 전환 로그 제거
+            // if (wasInDenseMode !== willBeInDenseMode) {
+            //     console.log(`Switching node mode: ${willBeInDenseMode ? 'Dense' : 'Normal'} at zoom ${newZoom}%`);
+            // }
             
             updateZoom(newZoom);
         }
@@ -1677,9 +1678,8 @@ function processOrgData(data, skipBucketing = false) {
 function calculateLayout() {
     console.log(`📐 calculateLayout() called. Total nodes: ${OrgChartState.nodes.size}`);
     
-    // Dense 모드 판별
-    const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
-                       OrgChartState.currentView === 'compact';
+    // Dense 모드 판별 - 항상 Dense 모드 사용
+    const isDenseMode = true; // 항상 Dense 모드
     
     console.log(`📐 Layout mode: ${isDenseMode ? 'Dense' : 'Normal'} (zoom: ${OrgChartState.zoomLevel}%)`);
     
@@ -2231,7 +2231,7 @@ function shouldRenderNode(node) {
         const viewport = document.getElementById('chartViewport');
         if (viewport) {
             const viewportWidth = viewport.clientWidth || 1200;
-            const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD;
+            const isDenseMode = true; // 항상 Dense 모드
             
             // 줌 레벨에 따른 효과적인 뷰포트 크기 계산
             const zoomFactor = OrgChartState.zoomLevel / 100;
@@ -2679,9 +2679,8 @@ function createEdgeElement(edge, offsetX) {
     container.style.position = 'absolute';
     container.style.pointerEvents = 'none';
     
-    // Dense 모드 판별
-    const isDenseMode = OrgChartState.zoomLevel < CONFIG.ZOOM_DENSE_THRESHOLD || 
-                        OrgChartState.currentView === 'compact';
+    // Dense 모드 판별 - 항상 Dense 모드 사용
+    const isDenseMode = true; // 항상 Dense 모드
     // 통일된 노드 높이 사용 (캐시된 값 또는 기본값)
     const nodeHeight = OrgChartState.standardNodeHeight || (isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT);
     const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
@@ -3709,8 +3708,7 @@ function calculateCompactLayout() {
     calculateLayout();
 }
 </script>
-<!-- 줌 기능 문제 진단 스크립트 -->
-<script src="{% static 'js/zoom-troubleshoot.js' %}?v=1757046406"></script>
-<!-- 최종 줌 수정 스크립트 -->
-<script src="{% static 'js/zoom-fix-final.js' %}?v=1757046407"></script>
+<!-- 외부 줌 스크립트 비활성화 (충돌 방지) -->
+<!-- <script src="{% static 'js/zoom-troubleshoot.js' %}?v=1757046406"></script> -->
+<!-- <script src="{% static 'js/zoom-fix-final.js' %}?v=1757046407"></script> -->
 {% endblock %}
