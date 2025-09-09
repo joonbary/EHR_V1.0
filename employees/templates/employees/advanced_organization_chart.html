@@ -1083,21 +1083,26 @@ console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()}
 // 줌 버튼 핸들러 - 간단하고 직접적인 방법
 function handleZoomIn() {
     console.log('🔼 Zoom In clicked!');
-    const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+    const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 92;
     const newZoom = Math.min(currentZoom + 10, 200);
+    console.log(`Current: ${currentZoom}%, New: ${newZoom}%`);
     applyZoom(newZoom);
+    return false; // 이벤트 전파 방지
 }
 
 function handleZoomOut() {
     console.log('🔽 Zoom Out clicked!');
-    const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+    const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 92;
     const newZoom = Math.max(currentZoom - 10, 30);
+    console.log(`Current: ${currentZoom}%, New: ${newZoom}%`);
     applyZoom(newZoom);
+    return false; // 이벤트 전파 방지
 }
 
 function handleZoomReset() {
     console.log('🎯 Zoom Reset clicked!');
     applyZoom(100);
+    return false; // 이벤트 전파 방지
 }
 
 // 줌 적용 함수 - 래퍼 사용 방식
@@ -1162,7 +1167,7 @@ window.applyZoom = applyZoom;
 window.OrgChartState = {
     currentView: 'vertical',
     currentLevel: 'all',
-    zoomLevel: 100,
+    zoomLevel: 92,  // 초기값을 92로 설정
     focusedNode: null,
     expandedNodes: new Set(['OK금융그룹']),
     searchQuery: '',
@@ -1534,39 +1539,52 @@ function setupEventListeners() {
         }, CONFIG.SEARCH_DELAY);
     });
 
-    // 줌 컨트롤
+    // 줌 컨트롤 - applyZoom 사용
     const zoomInBtn = document.getElementById('zoomIn');
     const zoomOutBtn = document.getElementById('zoomOut');
     const zoomResetBtn = document.getElementById('zoomReset');
     
     if (zoomInBtn) {
-        zoomInBtn.addEventListener('click', () => {
-            console.log('Zoom In clicked');
-            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
-            const newZoom = Math.min(currentZoom + CONFIG.ZOOM_STEP, CONFIG.ZOOM_MAX);
+        // 기존 이벤트 리스너 제거하고 새로 추가
+        zoomInBtn.removeEventListener('click', zoomInBtn.onclick);
+        zoomInBtn.onclick = null;
+        
+        zoomInBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('✅ Zoom In clicked via addEventListener');
+            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 92;
+            const newZoom = Math.min(currentZoom + 10, 200);
             console.log(`Zoom In: ${currentZoom} -> ${newZoom}`);
-            updateZoom(newZoom);
+            applyZoom(newZoom);  // updateZoom 대신 applyZoom 사용
         });
     } else {
         console.error('Zoom In button not found!');
     }
 
     if (zoomOutBtn) {
-        zoomOutBtn.addEventListener('click', () => {
-            console.log('Zoom Out clicked');
-            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
-            const newZoom = Math.max(currentZoom - CONFIG.ZOOM_STEP, CONFIG.ZOOM_MIN);
+        zoomOutBtn.removeEventListener('click', zoomOutBtn.onclick);
+        zoomOutBtn.onclick = null;
+        
+        zoomOutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('✅ Zoom Out clicked via addEventListener');
+            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 92;
+            const newZoom = Math.max(currentZoom - 10, 30);
             console.log(`Zoom Out: ${currentZoom} -> ${newZoom}`);
-            updateZoom(newZoom);
+            applyZoom(newZoom);  // updateZoom 대신 applyZoom 사용
         });
     } else {
         console.error('Zoom Out button not found!');
     }
 
     if (zoomResetBtn) {
-        zoomResetBtn.addEventListener('click', () => {
-            console.log('Zoom Reset clicked');
-            updateZoom(100);
+        zoomResetBtn.removeEventListener('click', zoomResetBtn.onclick);
+        zoomResetBtn.onclick = null;
+        
+        zoomResetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('✅ Zoom Reset clicked via addEventListener');
+            applyZoom(100);  // updateZoom 대신 applyZoom 사용
         });
     } else {
         console.error('Zoom Reset button not found!');
@@ -3947,6 +3965,9 @@ window.addEventListener('load', function() {
     });
 });
 </script>
+<!-- 디버그 스크립트 추가 -->
+<script src="{% static 'js/zoom-debug.js' %}?v={{ now }}"></script>
+
 <!-- 외부 줌 스크립트 비활성화 (충돌 방지) -->
 <!-- <script src="{% static 'js/zoom-troubleshoot.js' %}?v=1757046406"></script> -->
 <!-- <script src="{% static 'js/zoom-fix-final.js' %}?v=1757046407"></script> -->

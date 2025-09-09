@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zoom Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid cyan;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #00d4ff;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #00a0ff;
+        }
+        
+        #zoomLevel {
+            display: inline-block;
+            width: 60px;
+            text-align: center;
+            color: #00d4ff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .viewport {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #444;
+            overflow: auto;
+            position: relative;
+            margin-top: 100px;
+        }
+        
+        #zoomWrapper {
+            transform-origin: 0 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .content {
+            width: 1200px;
+            padding: 20px;
+        }
+        
+        .test-box {
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(45deg, #00d4ff, #0080ff);
+            margin: 20px;
+            display: inline-block;
+            text-align: center;
+            line-height: 150px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,212,255,0.3);
+        }
+        
+        .debug {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.9);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #0f0;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h2>줌 테스트 페이지</h2>
+        <button onclick="zoomOut()">줌 아웃 (-)</button>
+        <span id="zoomLevel">100%</span>
+        <button onclick="zoomIn()">줌 인 (+)</button>
+        <button onclick="zoomReset()">리셋</button>
+        <br><br>
+        <button onclick="testDirectZoom()">직접 줌 테스트</button>
+        <button onclick="showDebugInfo()">디버그 정보</button>
+    </div>
+    
+    <div class="viewport">
+        <div id="zoomWrapper">
+            <div class="content">
+                <h1>줌 기능 테스트</h1>
+                <p>이 박스들이 줌 인/아웃되어야 합니다:</p>
+                <div class="test-box">Box 1</div>
+                <div class="test-box">Box 2</div>
+                <div class="test-box">Box 3</div>
+                <div class="test-box">Box 4</div>
+                <div class="test-box">Box 5</div>
+                <div class="test-box">Box 6</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="debug" id="debugPanel">
+        디버그 정보가 여기에 표시됩니다
+    </div>
+    
+    <script>
+        let currentZoom = 100;
+        
+        function updateDebug(message) {
+            const panel = document.getElementById('debugPanel');
+            const time = new Date().toLocaleTimeString();
+            panel.innerHTML = `[${time}] ${message}<br>` + panel.innerHTML;
+            console.log(message);
+        }
+        
+        function applyZoom(level) {
+            currentZoom = level;
+            const zoomWrapper = document.getElementById('zoomWrapper');
+            const zoomLevel = document.getElementById('zoomLevel');
+            
+            if (!zoomWrapper) {
+                updateDebug('❌ zoomWrapper를 찾을 수 없습니다!');
+                return;
+            }
+            
+            const scale = level / 100;
+            
+            // 직접 transform 적용
+            zoomWrapper.style.transform = `scale(${scale})`;
+            
+            // UI 업데이트
+            zoomLevel.textContent = `${level}%`;
+            
+            // 디버그 정보
+            const applied = window.getComputedStyle(zoomWrapper).transform;
+            updateDebug(`✅ 줌 ${level}% 적용됨 - transform: ${applied}`);
+            
+            // 실제 크기 확인
+            const rect = zoomWrapper.getBoundingClientRect();
+            updateDebug(`📏 래퍼 크기: ${Math.round(rect.width)}x${Math.round(rect.height)}px`);
+        }
+        
+        function zoomIn() {
+            const newLevel = Math.min(currentZoom + 10, 200);
+            updateDebug(`🔼 줌 인: ${currentZoom}% → ${newLevel}%`);
+            applyZoom(newLevel);
+        }
+        
+        function zoomOut() {
+            const newLevel = Math.max(currentZoom - 10, 30);
+            updateDebug(`🔽 줌 아웃: ${currentZoom}% → ${newLevel}%`);
+            applyZoom(newLevel);
+        }
+        
+        function zoomReset() {
+            updateDebug(`🔄 줌 리셋: ${currentZoom}% → 100%`);
+            applyZoom(100);
+        }
+        
+        function testDirectZoom() {
+            const wrapper = document.getElementById('zoomWrapper');
+            if (wrapper) {
+                // 직접 스타일 변경 테스트
+                const testScale = currentZoom === 100 ? 1.5 : 1;
+                wrapper.style.cssText = `transform: scale(${testScale}) !important; transform-origin: 0 0 !important;`;
+                updateDebug(`🧪 직접 테스트: scale(${testScale}) 강제 적용`);
+                
+                setTimeout(() => {
+                    const computed = window.getComputedStyle(wrapper);
+                    updateDebug(`📊 계산된 transform: ${computed.transform}`);
+                }, 100);
+            }
+        }
+        
+        function showDebugInfo() {
+            const wrapper = document.getElementById('zoomWrapper');
+            if (wrapper) {
+                const styles = window.getComputedStyle(wrapper);
+                const rect = wrapper.getBoundingClientRect();
+                
+                const info = `
+                    <strong>현재 상태:</strong><br>
+                    줌 레벨: ${currentZoom}%<br>
+                    transform: ${styles.transform}<br>
+                    transform-origin: ${styles.transformOrigin}<br>
+                    transition: ${styles.transition}<br>
+                    크기: ${Math.round(rect.width)}x${Math.round(rect.height)}px<br>
+                    display: ${styles.display}<br>
+                    position: ${styles.position}
+                `;
+                
+                document.getElementById('debugPanel').innerHTML = info;
+            }
+        }
+        
+        // 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDebug('✅ 페이지 로드 완료');
+            showDebugInfo();
+        });
+        
+        // 키보드 단축키
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '+' || e.key === '=') {
+                e.preventDefault();
+                zoomIn();
+            } else if (e.key === '-') {
+                e.preventDefault();
+                zoomOut();
+            } else if (e.key === '0') {
+                e.preventDefault();
+                zoomReset();
+            }
+        });
+    </script>
+</body>
+</html>
