@@ -468,15 +468,15 @@
     /* 연결선 - 가독성 우선 (더 굵고 선명하게) */
     .org-edge {
         position: absolute;
-        background: rgba(56, 189, 248, 0.7); /* 더 진한 색상 */
-        width: 3px; /* 더 굵은 선 */
+        background: rgba(56, 189, 248, 0.3); /* 연한 색상 */
+        width: 1px; /* 얇은 선 */
         transition: all 0.3s ease;
-        box-shadow: 0 0 2px rgba(56, 189, 248, 0.5); /* 약간의 그림자로 선명도 증가 */
+        box-shadow: none; /* 그림자 제거 */
         pointer-events: none;
     }
 
     .org-edge.horizontal {
-        height: 3px !important; /* 수평선도 굵게 */
+        height: 1px !important; /* 수평선도 얇게 */
         width: auto;
         background: rgba(0, 212, 255, 0.85) !important; /* 동일한 선명한 색상 */
         box-shadow: 0 0 4px rgba(0, 212, 255, 0.6) !important;
@@ -859,12 +859,10 @@
     
     /* 🔗 연결선 - 선명하고 굵은 스타일 */
     .org-edge {
-        background: rgba(0, 212, 255, 0.85) !important; /* 더 진하고 선명한 cyan */
-        width: 4px !important; /* 굵은 선 */
-        border-radius: 2px !important;
-        box-shadow: 
-            0 0 4px rgba(0, 212, 255, 0.6),
-            0 0 8px rgba(0, 212, 255, 0.3) !important; /* 빛나는 효과로 시인성 증가 */
+        background: rgba(0, 212, 255, 0.3) !important; /* 연한 cyan */
+        width: 1px !important; /* 얇은 선 */
+        border-radius: 0 !important;
+        box-shadow: none !important; /* 그림자 제거 */
     }
     
     @keyframes pulse-neon {
@@ -2867,23 +2865,23 @@ function createSVGPath(edge, offsetX) {
     const pathData = `M ${sourceX} ${sourceY} C ${sourceX} ${midY}, ${targetX} ${midY}, ${targetX} ${targetY}`;
     
     path.setAttribute('d', pathData);
-    path.setAttribute('stroke', 'rgba(0, 212, 255, 0.5)');  // 더 진하게
-    path.setAttribute('stroke-width', '3');  // 더 굵게
+    path.setAttribute('stroke', 'rgba(0, 212, 255, 0.3)');  // 연한 색상
+    path.setAttribute('stroke-width', '1');  // 얇은 선 (1px)
     path.setAttribute('fill', 'none');
     path.setAttribute('stroke-linecap', 'round');
     
-    // 그림자 효과 추가
-    path.style.filter = 'drop-shadow(0 0 5px rgba(0, 212, 255, 0.3))';
+    // 그림자 효과 최소화
+    path.style.filter = 'drop-shadow(0 0 2px rgba(0, 212, 255, 0.2))';
     
-    // 호버 효과
+    // 호버 효과 (얇은 선 유지)
     path.addEventListener('mouseenter', () => {
-        path.setAttribute('stroke', 'rgba(0, 212, 255, 0.8)');
-        path.setAttribute('stroke-width', '4');
+        path.setAttribute('stroke', 'rgba(0, 212, 255, 0.5)');
+        path.setAttribute('stroke-width', '1.5');  // 호버 시에도 얇게
     });
     
     path.addEventListener('mouseleave', () => {
-        path.setAttribute('stroke', 'rgba(0, 212, 255, 0.5)');
-        path.setAttribute('stroke-width', '3');
+        path.setAttribute('stroke', 'rgba(0, 212, 255, 0.3)');
+        path.setAttribute('stroke-width', '1');  // 기본 1px
     });
     
     return path;
@@ -2918,7 +2916,7 @@ function createEdgeElement(edge, offsetX) {
         vLine1.style.left = `${sourceX - 1}px`;
         vLine1.style.top = `${sourceY}px`;
         vLine1.style.height = `${midY - sourceY}px`;
-        vLine1.style.width = '3px'; // 더 굵은 연결선
+        vLine1.style.width = '1px'; // 얇은 연결선
         container.appendChild(vLine1);
         
         // 수평선 (좌우 연결)
@@ -2927,7 +2925,7 @@ function createEdgeElement(edge, offsetX) {
         hLine.style.left = `${Math.min(sourceX, targetX)}px`;
         hLine.style.top = `${midY - 1}px`;
         hLine.style.width = `${Math.abs(targetX - sourceX)}px`;
-        hLine.style.height = '3px'; // 더 굵은 연결선
+        hLine.style.height = '1px'; // 얇은 연결선
         container.appendChild(hLine);
         
         // 수직선 2 (자식으로 연결)
@@ -2936,7 +2934,7 @@ function createEdgeElement(edge, offsetX) {
         vLine2.style.left = `${targetX - 1}px`;
         vLine2.style.top = `${midY}px`;
         vLine2.style.height = `${targetY - midY}px`;
-        vLine2.style.width = '3px'; // 더 굵은 연결선
+        vLine2.style.width = '1px'; // 얇은 연결선
         container.appendChild(vLine2);
     } else {
         // 일직선 연결 (부모와 자식이 같은 X 위치)
@@ -2945,7 +2943,7 @@ function createEdgeElement(edge, offsetX) {
         vLine.style.left = `${sourceX - 1}px`;
         vLine.style.top = `${sourceY}px`;
         vLine.style.height = `${targetY - sourceY}px`;
-        vLine.style.width = '3px'; // 더 굵은 연결선
+        vLine.style.width = '1px'; // 얇은 연결선
         container.appendChild(vLine);
     }
     
