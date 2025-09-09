@@ -12,4 +12,10 @@ urlpatterns = [
     path('department-statistics/', views.DepartmentStatisticsReportView.as_view(), name='department_statistics_report'),
     # 이직 위험도 리포트
     path('generate/turnover/', views.TurnoverRiskReportView.as_view(), name='turnover_risk_report'),
+    # Generate 경로 매핑 (기존 리포트들을 generate 경로에서도 접근 가능하도록)
+    path('generate/employee/', views.EmployeeListReportView.as_view(), name='generate_employee_report'),
+    path('generate/evaluation/', views.EvaluationSummaryReportView.as_view(), name='generate_evaluation_report'),
+    path('generate/compensation/', views.CompensationAnalysisReportView.as_view(), name='generate_compensation_report'),
+    path('generate/promotion/', views.PromotionCandidatesReportView.as_view(), name='generate_promotion_report'),
+    path('generate/department/', views.DepartmentStatisticsReportView.as_view(), name='generate_department_report'),
 ] 
