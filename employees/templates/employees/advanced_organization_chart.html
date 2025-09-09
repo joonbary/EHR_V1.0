@@ -3172,8 +3172,8 @@ function updateLevelFilter(level) {
     renderChart();
 }
 
-// 줌 업데이트
-function updateZoom(level) {
+// 줌 업데이트 (전역 함수로 설정)
+window.updateZoom = function updateZoom(level) {
     const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
     console.log(`🔍 Updating zoom from ${currentZoom}% to ${level}%`);
     
@@ -3181,7 +3181,12 @@ function updateZoom(level) {
     if (window.OrgChartState) {
         window.OrgChartState.zoomLevel = level;
     }
-    document.getElementById('zoomLevel').textContent = `${level}%`;
+    
+    // 줌 레벨 표시 업데이트
+    const zoomLevelDisplay = document.getElementById('zoomLevel');
+    if (zoomLevelDisplay) {
+        zoomLevelDisplay.textContent = `${level}%`;
+    }
     
     // 모드 전환 없이 항상 Dense 모드 유지 (35px 고정 폭)
     console.log(`🎯 Keeping Dense mode at zoom ${level}%`);
@@ -3194,6 +3199,13 @@ function updateZoom(level) {
         // transform-origin을 왼쪽 상단으로 설정하여 확대/축소 기준점 고정
         container.style.transform = `scale(${scale})`;
         container.style.transformOrigin = '0 0';
+        container.style.transition = 'transform 0.3s ease'; // 부드러운 전환 효과
+        
+        console.log(`✅ Transform applied: scale(${scale})`);
+        
+        // 디버깅: 실제 적용된 스타일 확인
+        const computedStyle = window.getComputedStyle(container);
+        console.log(`Applied transform: ${computedStyle.transform}`);
         
         // 스크롤 가능 영역 조정 - viewport 내에서 실제 크기 반영
         if (viewport) {
@@ -3707,6 +3719,103 @@ function calculateCompactLayout() {
     // 임시로 기본 레이아웃 사용
     calculateLayout();
 }
+
+// 페이지 로드 완료 후 줌 기능 재확인
+window.addEventListener('load', function() {
+    console.log('🚀 Page fully loaded - Verifying zoom functionality');
+    
+    // updateZoom 함수가 전역으로 접근 가능한지 확인
+    if (typeof updateZoom === 'undefined') {
+        console.error('❌ updateZoom function not found!');
+        // 글로벌 함수로 재정의
+        window.updateZoom = function(level) {
+            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+            console.log(`🔍 [Fallback] Updating zoom from ${currentZoom}% to ${level}%`);
+            
+            if (window.OrgChartState) {
+                window.OrgChartState.zoomLevel = level;
+            }
+            
+            const zoomLevelDisplay = document.getElementById('zoomLevel');
+            if (zoomLevelDisplay) {
+                zoomLevelDisplay.textContent = `${level}%`;
+            }
+            
+            const container = document.getElementById('treeContainer');
+            if (container) {
+                const scale = level / 100;
+                container.style.transform = `scale(${scale})`;
+                container.style.transformOrigin = '0 0';
+                container.style.transition = 'transform 0.3s ease';
+                console.log(`✅ [Fallback] Transform applied: scale(${scale})`);
+            }
+        };
+    }
+    
+    // 줌 버튼 이벤트 재바인딩 (안전을 위해)
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const zoomResetBtn = document.getElementById('zoomReset');
+    
+    if (zoomInBtn && !zoomInBtn.hasAttribute('data-zoom-bound')) {
+        zoomInBtn.setAttribute('data-zoom-bound', 'true');
+        zoomInBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔼 Zoom In button clicked (fallback handler)');
+            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+            const newZoom = Math.min(currentZoom + 10, 200);
+            console.log(`Zooming in: ${currentZoom}% -> ${newZoom}%`);
+            if (typeof updateZoom === 'function') {
+                updateZoom(newZoom);
+            } else if (window.updateZoom) {
+                window.updateZoom(newZoom);
+            }
+        };
+        console.log('✅ Zoom In button handler attached');
+    }
+    
+    if (zoomOutBtn && !zoomOutBtn.hasAttribute('data-zoom-bound')) {
+        zoomOutBtn.setAttribute('data-zoom-bound', 'true');
+        zoomOutBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔽 Zoom Out button clicked (fallback handler)');
+            const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+            const newZoom = Math.max(currentZoom - 10, 30);
+            console.log(`Zooming out: ${currentZoom}% -> ${newZoom}%`);
+            if (typeof updateZoom === 'function') {
+                updateZoom(newZoom);
+            } else if (window.updateZoom) {
+                window.updateZoom(newZoom);
+            }
+        };
+        console.log('✅ Zoom Out button handler attached');
+    }
+    
+    if (zoomResetBtn && !zoomResetBtn.hasAttribute('data-zoom-bound')) {
+        zoomResetBtn.setAttribute('data-zoom-bound', 'true');
+        zoomResetBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔄 Zoom Reset button clicked (fallback handler)');
+            if (typeof updateZoom === 'function') {
+                updateZoom(100);
+            } else if (window.updateZoom) {
+                window.updateZoom(100);
+            }
+        };
+        console.log('✅ Zoom Reset button handler attached');
+    }
+    
+    // 현재 줌 상태 확인
+    console.log('Current zoom level:', window.OrgChartState ? window.OrgChartState.zoomLevel : 'Not set');
+    console.log('Zoom buttons found:', {
+        zoomIn: !!zoomInBtn,
+        zoomOut: !!zoomOutBtn,
+        zoomReset: !!zoomResetBtn
+    });
+});
 </script>
 <!-- 외부 줌 스크립트 비활성화 (충돌 방지) -->
 <!-- <script src="{% static 'js/zoom-troubleshoot.js' %}?v=1757046406"></script> -->
