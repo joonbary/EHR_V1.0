@@ -379,23 +379,48 @@
     
     // React 앱 열기 함수
     function openReactApp() {
-        // React 개발 서버가 실행 중인지 확인
-        const reactUrl = 'http://localhost:3000/organization/chart';
+        // 현재 환경에 따라 URL 결정
+        const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        const reactUrl = isProduction 
+            ? `${window.location.protocol}//${window.location.host}/frontend/organization/chart`
+            : 'http://localhost:3000/organization/chart';
         
         // 새 탭에서 React 앱 열기
         const newWindow = window.open(reactUrl, '_blank');
         
-        // 만약 React 서버가 실행 중이 아니라면 안내 메시지 표시
-        setTimeout(() => {
-            if (newWindow.closed) {
-                alert('React 개발 서버가 실행 중이지 않습니다.\n\n다음 명령을 실행해주세요:\ncd frontend && npm start');
-            }
-        }, 1000);
+        // 프로덕션 환경에서는 다른 메시지 표시
+        if (isProduction) {
+            setTimeout(() => {
+                if (!newWindow || newWindow.closed) {
+                    alert('React 앱이 아직 배포되지 않았거나 사용할 수 없습니다.\n\n현재 페이지에서 조직도를 확인하실 수 있습니다.');
+                }
+            }, 1000);
+        } else {
+            // 개발 환경에서만 React 서버 실행 안내
+            setTimeout(() => {
+                if (newWindow.closed) {
+                    alert('React 개발 서버가 실행 중이지 않습니다.\n\n다음 명령을 실행해주세요:\ncd frontend && npm start');
+                }
+            }, 1000);
+        }
     }
     
     // 페이지 로드 시 React 앱 가용성 확인
     document.addEventListener('DOMContentLoaded', function() {
-        // React 앱이 사용 가능한지 확인
+        // 프로덕션 환경에서는 React 앱 체크 스킵
+        const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        
+        if (isProduction) {
+            // 프로덕션에서는 React 앱 사용 불가 메시지 표시
+            const container = document.querySelector('.org-chart-container');
+            if (container) {
+                // 기본 조직도 표시 (React 없이)
+                console.log('Production environment - React app not available');
+            }
+            return;
+        }
+        
+        // 개발 환경에서만 React 앱 확인
         fetch('http://localhost:3000/organization/chart', { mode: 'no-cors' })
             .then(() => {
                 // React 앱이 실행 중이면 자동으로 리다이렉트하는 옵션 제공
