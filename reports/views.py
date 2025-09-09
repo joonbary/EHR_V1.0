@@ -39,6 +39,7 @@ class EmployeeListReportView(View):
         department = request.GET.get('department')
         position = request.GET.get('position')
         growth_level = request.GET.get('growth_level')
+        format_type = request.GET.get('format', 'json')  # 기본값을 json으로 변경
         
         # 데이터 조회
         employees = Employee.objects.all()
@@ -48,6 +49,38 @@ class EmployeeListReportView(View):
             employees = employees.filter(position=position)
         if growth_level:
             employees = employees.filter(growth_level=growth_level)
+            
+        # JSON 응답 처리
+        if format_type != 'excel':
+            employee_data = []
+            for emp in employees[:100]:  # 최대 100명으로 제한
+                employee_data.append({
+                    'employee_id': emp.employee_id,
+                    'name': emp.name,
+                    'department': emp.department,
+                    'team': emp.team,
+                    'position': emp.position,
+                    'growth_level': emp.growth_level,
+                    'job_type': emp.job_type,
+                    'hire_date': emp.hire_date.isoformat() if emp.hire_date else None,
+                    'phone': emp.phone,
+                    'email': emp.email
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'data': {
+                    'employees': employee_data,
+                    'total_count': employees.count(),
+                    'filtered_count': len(employee_data),
+                    'filters': {
+                        'department': department,
+                        'position': position,
+                        'growth_level': growth_level
+                    }
+                },
+                'message': 'Employee list retrieved successfully'
+            })
             
         # Excel 생성
         generator = ExcelReportGenerator("직원 명부")
