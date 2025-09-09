@@ -5,7 +5,7 @@
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db import models
@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # 보상 명세서 조회는 공개
 def get_compensation_statement(request, employee_id):
     """
     직원 보상 명세서 조회
@@ -66,6 +67,7 @@ def get_compensation_statement(request, employee_id):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # KPI 조회는 공개
 def get_compensation_mix_ratio(request):
     """
     보상 구성 비율 KPI
@@ -86,6 +88,7 @@ def get_compensation_mix_ratio(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # 변동 경고 조회는 공개
 def get_variance_alerts(request):
     """
     보상 변동 경고 조회
@@ -109,6 +112,7 @@ def get_variance_alerts(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])  # 스냅샷 실행은 인증 필요
 def run_compensation_snapshot(request):
     """
     보상 계산 엔진 실행

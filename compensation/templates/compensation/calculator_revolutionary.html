@@ -531,7 +531,6 @@ function calculateCompensation() {
     fetch(`/compensation/api/employee/${selectedEmployee.id}/statement/?period=${payPeriod}`)
         .then(response => response.json())
         .then(data => {
-            displayCalculationDetails(data);
             displayCalculationBreakdown(data);
         })
         .catch(error => {
@@ -540,91 +539,79 @@ function calculateCompensation() {
         });
 }
 
-// 계산 상세 표시
-function displayCalculationDetails(data) {
-    const detailsContainer = document.getElementById('calculationDetails');
-    
-    const comp = data.compensation || {};
-    
-    detailsContainer.innerHTML = `
-        <div class="row">
-            <div class="col-md-6">
-                <h6 class="text-muted mb-3">직원 정보</h6>
-                <dl class="row">
-                    <dt class="col-sm-4">이름</dt>
-                    <dd class="col-sm-8">${data.employee?.name || '-'}</dd>
-                    <dt class="col-sm-4">부서</dt>
-                    <dd class="col-sm-8">${data.employee?.department || '-'}</dd>
-                    <dt class="col-sm-4">직책</dt>
-                    <dd class="col-sm-8">${data.employee?.position || '-'}</dd>
-                    <dt class="col-sm-4">고용형태</dt>
-                    <dd class="col-sm-8">${data.employee?.employment_type || '-'}</dd>
-                </dl>
-            </div>
-            <div class="col-md-6">
-                <h6 class="text-muted mb-3">보상 요약</h6>
-                <dl class="row">
-                    <dt class="col-sm-4">기본급</dt>
-                    <dd class="col-sm-8 amount-positive">₩${(comp.base_salary || 0).toLocaleString()}</dd>
-                    <dt class="col-sm-4">통상임금</dt>
-                    <dd class="col-sm-8 amount-positive">₩${(comp.ordinary_wage || 0).toLocaleString()}</dd>
-                    <dt class="col-sm-4">총 보상</dt>
-                    <dd class="col-sm-8 amount-positive fw-bold">₩${(comp.total_compensation || 0).toLocaleString()}</dd>
-                </dl>
-            </div>
-        </div>
-    `;
-}
+// 계산 상세 표시 - displayCalculationBreakdown으로 통합
 
 // 계산 내역 표시
 function displayCalculationBreakdown(data) {
-    const tableBody = document.getElementById('breakdownTable');
     const comp = data.compensation || {};
     
-    tableBody.innerHTML = `
-        <tr class="calculation-row">
-            <td rowspan="2">기본급여</td>
-            <td>기본급</td>
-            <td class="text-end amount-positive">₩${(comp.base_salary || 0).toLocaleString()}</td>
-            <td><small>성장레벨 테이블</small></td>
-        </tr>
-        <tr class="calculation-row">
-            <td>고정OT</td>
-            <td class="text-end amount-positive">₩${(comp.fixed_ot || 0).toLocaleString()}</td>
-            <td><small>통상시급 × 20 × 1.5</small></td>
-        </tr>
-        <tr class="calculation-row">
-            <td rowspan="2">수당</td>
-            <td>직책급</td>
-            <td class="text-end amount-positive">₩${(comp.position_allowance || 0).toLocaleString()}</td>
-            <td><small>직책 테이블</small></td>
-        </tr>
-        <tr class="calculation-row">
-            <td>직무역량급</td>
-            <td class="text-end amount-positive">₩${(comp.competency_allowance || 0).toLocaleString()}</td>
-            <td><small>직무 × 역량등급</small></td>
-        </tr>
-        <tr class="calculation-row">
-            <td rowspan="3">변동급</td>
-            <td>PI</td>
-            <td class="text-end amount-positive">₩${(comp.pi_amount || 0).toLocaleString()}</td>
-            <td><small>연간 성과 반영</small></td>
-        </tr>
-        <tr class="calculation-row">
-            <td>월성과급</td>
-            <td class="text-end amount-positive">₩${(comp.monthly_pi_amount || 0).toLocaleString()}</td>
-            <td><small>월별 성과 (PL)</small></td>
-        </tr>
-        <tr class="calculation-row">
-            <td>추석상여</td>
-            <td class="text-end amount-positive">₩${(comp.holiday_bonus || 0).toLocaleString()}</td>
-            <td><small>통상임금 × 일할</small></td>
-        </tr>
-        <tr class="table-primary">
-            <td colspan="2"><strong>총 보상</strong></td>
-            <td class="text-end"><strong>₩${(comp.total_compensation || 0).toLocaleString()}</strong></td>
-            <td></td>
-        </tr>
+    // calculationDetails 요소에 직접 업데이트
+    const detailsContainer = document.getElementById('calculationDetails');
+    if (!detailsContainer) return;
+    
+    detailsContainer.innerHTML = `
+        <!-- Total Compensation Display -->
+        <div class="text-center mb-4">
+            <p class="text-muted mb-2">총 보상액</p>
+            <div class="total-compensation">
+                ₩ ${(comp.total_compensation || 0).toLocaleString()}
+            </div>
+            <div class="metric-change positive" style="display: inline-flex;">
+                <i class="fas fa-arrow-up"></i>
+                <span>데이터 로드 완료</span>
+            </div>
+        </div>
+        
+        <!-- Compensation Breakdown -->
+        <div class="compensation-breakdown mt-5">
+            <h4 style="color: var(--text-primary); font-size: 18px; margin-bottom: var(--spacing-lg);">구성 항목</h4>
+            
+            <div class="compensation-item">
+                <div>
+                    <div class="compensation-label">기본급</div>
+                    <small style="color: var(--text-muted);">Base Salary</small>
+                </div>
+                <div class="compensation-value">₩${(comp.base_salary || 0).toLocaleString()}</div>
+            </div>
+            
+            <div class="compensation-item">
+                <div>
+                    <div class="compensation-label">고정 OT</div>
+                    <small style="color: var(--text-muted);">Fixed Overtime</small>
+                </div>
+                <div class="compensation-value">₩${(comp.fixed_ot || 0).toLocaleString()}</div>
+            </div>
+            
+            <div class="compensation-item">
+                <div>
+                    <div class="compensation-label">직책급</div>
+                    <small style="color: var(--text-muted);">Position Allowance</small>
+                </div>
+                <div class="compensation-value">₩${(comp.position_allowance || 0).toLocaleString()}</div>
+            </div>
+            
+            <div class="compensation-item">
+                <div>
+                    <div class="compensation-label">역량급</div>
+                    <small style="color: var(--text-muted);">Skill Allowance</small>
+                </div>
+                <div class="compensation-value">₩${(comp.competency_allowance || 0).toLocaleString()}</div>
+            </div>
+            
+            <div class="compensation-item">
+                <div>
+                    <div class="compensation-label">성과급</div>
+                    <small style="color: var(--text-muted);">Performance Incentive</small>
+                </div>
+                <div class="compensation-value">₩${(comp.pi_amount || 0).toLocaleString()}</div>
+            </div>
+        </div>
+        
+        <!-- Formula Display -->
+        <div class="formula-display">
+            <strong>계산식:</strong><br>
+            기본급(${(comp.base_salary || 0).toLocaleString()}) + 고정OT(${(comp.fixed_ot || 0).toLocaleString()}) + 직책급(${(comp.position_allowance || 0).toLocaleString()}) + 역량급(${(comp.competency_allowance || 0).toLocaleString()}) + PI(${(comp.pi_amount || 0).toLocaleString()})
+        </div>
     `;
 }
 
@@ -752,7 +739,6 @@ function displayDummyCalculation() {
         }
     };
     
-    displayCalculationDetails(dummyData);
     displayCalculationBreakdown(dummyData);
 }
 
