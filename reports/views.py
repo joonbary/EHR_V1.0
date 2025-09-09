@@ -42,45 +42,76 @@ class EmployeeListReportView(View):
         format_type = request.GET.get('format', 'json')  # 기본값을 json으로 변경
         
         # 데이터 조회
-        employees = Employee.objects.all()
-        if department:
-            employees = employees.filter(department=department)
-        if position:
-            employees = employees.filter(position=position)
-        if growth_level:
-            employees = employees.filter(growth_level=growth_level)
+        try:
+            employees = Employee.objects.all()
+            if department:
+                employees = employees.filter(department=department)
+            if position:
+                employees = employees.filter(position=position)
+            if growth_level:
+                employees = employees.filter(growth_level=growth_level)
+        except Exception as e:
+            logger.error(f"Employee query error: {e}")
+            # 쿼리 실패 시 빈 결과 반환
+            if format_type != 'excel':
+                return JsonResponse({
+                    'success': True,
+                    'data': {
+                        'employees': [],
+                        'total_count': 0,
+                        'filtered_count': 0,
+                        'filters': {
+                            'department': department,
+                            'position': position,
+                            'growth_level': growth_level
+                        }
+                    },
+                    'message': 'No employees found or database error'
+                })
             
         # JSON 응답 처리
         if format_type != 'excel':
-            employee_data = []
-            for emp in employees[:100]:  # 최대 100명으로 제한
-                employee_data.append({
-                    'employee_id': emp.employee_id,
-                    'name': emp.name,
-                    'department': emp.department,
-                    'team': emp.team,
-                    'position': emp.position,
-                    'growth_level': emp.growth_level,
-                    'job_type': emp.job_type,
-                    'hire_date': emp.hire_date.isoformat() if emp.hire_date else None,
-                    'phone': emp.phone,
-                    'email': emp.email
+            try:
+                employee_data = []
+                for emp in employees[:100]:  # 최대 100명으로 제한
+                    try:
+                        employee_data.append({
+                            'employee_id': getattr(emp, 'employee_id', ''),
+                            'name': getattr(emp, 'name', ''),
+                            'department': getattr(emp, 'department', ''),
+                            'team': getattr(emp, 'team', ''),
+                            'position': getattr(emp, 'position', ''),
+                            'growth_level': getattr(emp, 'growth_level', ''),
+                            'job_type': getattr(emp, 'job_type', ''),
+                            'hire_date': emp.hire_date.isoformat() if hasattr(emp, 'hire_date') and emp.hire_date else None,
+                            'phone': getattr(emp, 'phone', ''),
+                            'email': getattr(emp, 'email', '')
+                        })
+                    except Exception as e:
+                        logger.error(f"직원 데이터 처리 오류 ({emp.id}): {e}")
+                        continue
+                
+                return JsonResponse({
+                    'success': True,
+                    'data': {
+                        'employees': employee_data,
+                        'total_count': employees.count(),
+                        'filtered_count': len(employee_data),
+                        'filters': {
+                            'department': department,
+                            'position': position,
+                            'growth_level': growth_level
+                        }
+                    },
+                    'message': 'Employee list retrieved successfully'
                 })
-            
-            return JsonResponse({
-                'success': True,
-                'data': {
-                    'employees': employee_data,
-                    'total_count': employees.count(),
-                    'filtered_count': len(employee_data),
-                    'filters': {
-                        'department': department,
-                        'position': position,
-                        'growth_level': growth_level
-                    }
-                },
-                'message': 'Employee list retrieved successfully'
-            })
+            except Exception as e:
+                logger.error(f"Employee list report error: {e}")
+                return JsonResponse({
+                    'success': False,
+                    'error': str(e),
+                    'message': 'Failed to generate employee list report'
+                }, status=500)
             
         # Excel 생성
         generator = ExcelReportGenerator("직원 명부")
