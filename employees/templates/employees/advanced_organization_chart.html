@@ -1007,14 +1007,14 @@
 
             <!-- 줌 컨트롤 -->
             <div class="zoom-controls">
-                <button class="zoom-btn" id="zoomOut">
+                <button class="zoom-btn" id="zoomOut" onclick="handleZoomOut()">
                     <i class="fas fa-minus"></i>
                 </button>
                 <span class="zoom-level" id="zoomLevel">92%</span>
-                <button class="zoom-btn" id="zoomIn">
+                <button class="zoom-btn" id="zoomIn" onclick="handleZoomIn()">
                     <i class="fas fa-plus"></i>
                 </button>
-                <button class="zoom-btn" id="zoomReset">
+                <button class="zoom-btn" id="zoomReset" onclick="handleZoomReset()">
                     <i class="fas fa-expand"></i>
                 </button>
             </div>
@@ -1067,6 +1067,61 @@ window.APP_GLOBALS = window.APP_GLOBALS || {};
 <script>
 // 전역 상태 관리
 console.log(`🔄 차세대 조직도 v2.1 loaded at ${new Date().toISOString()} - Boundary fix applied`);
+
+// 줌 버튼 핸들러 - 간단하고 직접적인 방법
+function handleZoomIn() {
+    console.log('🔼 Zoom In clicked!');
+    const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+    const newZoom = Math.min(currentZoom + 10, 200);
+    applyZoom(newZoom);
+}
+
+function handleZoomOut() {
+    console.log('🔽 Zoom Out clicked!');
+    const currentZoom = window.OrgChartState ? window.OrgChartState.zoomLevel : 100;
+    const newZoom = Math.max(currentZoom - 10, 30);
+    applyZoom(newZoom);
+}
+
+function handleZoomReset() {
+    console.log('🎯 Zoom Reset clicked!');
+    applyZoom(100);
+}
+
+// 줌 적용 함수 - 가장 단순한 방법
+function applyZoom(level) {
+    console.log(`Applying zoom: ${level}%`);
+    
+    // 상태 업데이트
+    if (window.OrgChartState) {
+        window.OrgChartState.zoomLevel = level;
+    }
+    
+    // 표시 업데이트
+    const zoomDisplay = document.getElementById('zoomLevel');
+    if (zoomDisplay) {
+        zoomDisplay.textContent = `${level}%`;
+    }
+    
+    // 컨테이너 찾기
+    const container = document.getElementById('treeContainer');
+    if (container) {
+        const scale = level / 100;
+        // CSS transform 적용
+        container.style.transform = `scale(${scale})`;
+        container.style.transformOrigin = '0 0';
+        container.style.transition = 'transform 0.3s ease';
+        console.log(`✅ Zoom applied: scale(${scale})`);
+    } else {
+        console.error('❌ treeContainer not found!');
+    }
+}
+
+// 전역 함수로 등록
+window.handleZoomIn = handleZoomIn;
+window.handleZoomOut = handleZoomOut;
+window.handleZoomReset = handleZoomReset;
+window.applyZoom = applyZoom;
 
 // OrgChartState 초기화 - 외부 JS가 로드되었는지 확인하고 초기화
 // defer로 외부 JS가 나중에 로드될 수 있으므로 직접 생성
@@ -1347,25 +1402,40 @@ function initializeChart() {
     updateViewMode('vertical');
     
     // 렌더링 완료 후 줌 적용 (비동기)
-    // 초기 줌을 30%로 설정하여 Dense 모드 강제 활성화
     console.log('🔍 줌 적용 전 상태 확인:', OrgChartState.zoomLevel);
     
-    // Dense 모드로 시작 (92% 줌 - Dense 모드의 최대값)
+    // Dense 모드로 시작 (92% 줌)
     OrgChartState.zoomLevel = 92;
-    document.getElementById('zoomLevel').textContent = '92%';
     
     // 레이아웃 재계산 (Dense 모드 적용)
     calculateLayout();
     renderChart();
     
-    // CSS 변환 적용 (시각적 줌)
-    const container = document.getElementById('treeContainer');
-    container.style.transform = 'scale(0.3)';
-    container.classList.add('dense-mode');
+    // applyZoom 함수 사용 (이미 정의되어 있음)
+    if (typeof applyZoom === 'function') {
+        console.log('✅ applyZoom 함수 사용하여 초기 줌 설정');
+        applyZoom(92);
+    } else {
+        console.log('⚠️ applyZoom 함수가 아직 정의되지 않음, 직접 적용');
+        // 직접 적용
+        const zoomDisplay = document.getElementById('zoomLevel');
+        if (zoomDisplay) {
+            zoomDisplay.textContent = '92%';
+        }
+        
+        const container = document.getElementById('treeContainer');
+        if (container) {
+            container.style.transform = 'scale(0.92)';
+            container.style.transformOrigin = '0 0';
+            container.style.transition = 'transform 0.3s ease';
+            container.classList.add('dense-mode');
+            console.log('✅ 초기 줌 transform 직접 적용: scale(0.92)');
+        }
+    }
     
     console.log('🔍 줌 적용 후 상태 확인:', OrgChartState.zoomLevel);
-    console.log('🎯 Dense 모드 강제 활성화: 92px 초슬림 카드');
-    console.log('💡 고급 조직도 초기화 완료 - Dense 모드로 시작'); // 시간을 500ms로 증가
+    console.log('🎯 Dense 모드 강제 활성화');
+    console.log('💡 고급 조직도 초기화 완료 - Dense 모드로 시작');
 }
 
 // 이벤트 리스너 설정
