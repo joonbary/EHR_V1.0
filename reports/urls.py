@@ -10,4 +10,6 @@ urlpatterns = [
     path('compensation-analysis/', views.CompensationAnalysisReportView.as_view(), name='compensation_analysis_report'),
     path('promotion-candidates/', views.PromotionCandidatesReportView.as_view(), name='promotion_candidates_report'),
     path('department-statistics/', views.DepartmentStatisticsReportView.as_view(), name='department_statistics_report'),
+    # 이직 위험도 리포트
+    path('generate/turnover/', views.TurnoverRiskReportView.as_view(), name='turnover_risk_report'),
 ] 

@@ -41,6 +41,7 @@ urlpatterns = [
     path('ai-team-optimizer/', include('ai_team_optimizer.urls')),
     path('job-profiles/', include('job_profiles.urls')),
     path('evaluations/', include('evaluations.urls')),
+    path('reports/', include('reports.urls')),
 ]
 
 if settings.DEBUG:
