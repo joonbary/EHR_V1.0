@@ -1127,6 +1127,7 @@ function applyZoom(level) {
         
         // 직접 스타일 적용 (래퍼는 다른 요소와 충돌하지 않음)
         zoomWrapper.style.transform = `scale(${scale})`;
+        zoomWrapper.style.transformOrigin = '0 0';  // 원점 명시적 설정
         
         // 검증
         const appliedTransform = window.getComputedStyle(zoomWrapper).transform;
@@ -2231,13 +2232,12 @@ function renderVerticalView() {
     console.log(`Container children count: ${container.children.length}`);
     console.log(`Container dimensions: ${container.style.width} x ${container.style.height}`);
     
-    // 엣지 렌더링
-    OrgChartState.edges.forEach(edge => {
-        if (shouldRenderEdge(edge)) {
-            const edgeElement = createEdgeElement(edge, offsetX);
-            container.appendChild(edgeElement);
-        }
-    });
+    // SVG로 엣지 렌더링
+    const svgElement = createSVGConnectionsElement(offsetX);
+    if (svgElement) {
+        // SVG를 컨테이너의 첫 번째 자식으로 추가 (노드 뒤에 표시되도록)
+        container.insertBefore(svgElement, container.firstChild);
+    }
     
     // 초기 줌 설정 - 팀 레벨일 때 자동 축소
     if (OrgChartState.currentLevel === 'team') {
@@ -2821,6 +2821,75 @@ function createNodeElement_old(node) {
 */
 
 // 엣지 엘리먼트 생성 (직각 연결선 지원)
+// SVG로 연결선 생성
+function createSVGConnectionsElement(offsetX) {
+    const container = document.getElementById('treeContainer');
+    if (!container) return null;
+    
+    // SVG 요소 생성
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
+    svg.style.width = container.style.width || '100%';
+    svg.style.height = container.style.height || '100%';
+    svg.style.pointerEvents = 'none';
+    svg.style.zIndex = '1'; // 노드보다 뒤에 표시
+    
+    // 모든 엣지를 SVG 경로로 그리기
+    OrgChartState.edges.forEach(edge => {
+        if (shouldRenderEdge(edge)) {
+            const path = createSVGPath(edge, offsetX);
+            svg.appendChild(path);
+        }
+    });
+    
+    return svg;
+}
+
+// SVG 경로 생성
+function createSVGPath(edge, offsetX) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    
+    // Dense 모드 판별 - 항상 Dense 모드 사용
+    const isDenseMode = true;
+    const nodeHeight = OrgChartState.standardNodeHeight || (isDenseMode ? CONFIG.NODE_HEIGHT_DENSE : CONFIG.NODE_HEIGHT);
+    const nodeWidth = isDenseMode ? CONFIG.NODE_WIDTH_DENSE : CONFIG.NODE_WIDTH;
+    
+    // 노드 중앙에서 연결
+    const sourceX = offsetX + edge.source.x;
+    const sourceY = edge.source.y + nodeHeight + 50; // 노드 하단
+    const targetX = offsetX + edge.target.x;
+    const targetY = edge.target.y + 50; // 노드 상단
+    
+    // 패스 데이터 생성 (베지어 곡선 사용)
+    const midY = sourceY + (targetY - sourceY) / 2;
+    const pathData = `M ${sourceX} ${sourceY} C ${sourceX} ${midY}, ${targetX} ${midY}, ${targetX} ${targetY}`;
+    
+    path.setAttribute('d', pathData);
+    path.setAttribute('stroke', 'rgba(0, 212, 255, 0.5)');  // 더 진하게
+    path.setAttribute('stroke-width', '3');  // 더 굵게
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    
+    // 그림자 효과 추가
+    path.style.filter = 'drop-shadow(0 0 5px rgba(0, 212, 255, 0.3))';
+    
+    // 호버 효과
+    path.addEventListener('mouseenter', () => {
+        path.setAttribute('stroke', 'rgba(0, 212, 255, 0.8)');
+        path.setAttribute('stroke-width', '4');
+    });
+    
+    path.addEventListener('mouseleave', () => {
+        path.setAttribute('stroke', 'rgba(0, 212, 255, 0.5)');
+        path.setAttribute('stroke-width', '3');
+    });
+    
+    return path;
+}
+
+// 기존 createEdgeElement 함수 (호환성 유지)
 function createEdgeElement(edge, offsetX) {
     const container = document.createElement('div');
     container.className = 'edge-container';
