@@ -537,6 +537,43 @@
     letter-spacing: 0.3px;
 }
 
+/* Expandable Subsection Styles */
+.nav-subsection.expandable {
+    position: relative;
+}
+
+.nav-subsection.expandable .nav-subsection-title {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+.nav-subsection.expandable .nav-subsection-title:hover {
+    background: rgba(0, 212, 255, 0.05);
+    color: #00d4ff;
+}
+
+.nav-subsection.expandable .subsection-arrow {
+    transition: transform 0.3s ease;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-subsection.expandable .nav-subsection-content {
+    display: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.nav-subsection.expandable.expanded .nav-subsection-content {
+    display: block;
+}
+
 .nav-subitem {
     display: flex;
     align-items: center;
@@ -700,6 +737,23 @@ function toggleSection(element) {
     localStorage.setItem(`sidebar-section-${sectionTitle}`, isCollapsed);
 }
 
+// Toggle expandable subsections (for compensation menu)
+function toggleSubsection(element) {
+    const subsection = element.closest('.nav-subsection');
+    subsection.classList.toggle('expanded');
+    
+    // Rotate arrow icon
+    const arrow = element.querySelector('.subsection-arrow');
+    if (arrow) {
+        arrow.style.transform = subsection.classList.contains('expanded') ? 'rotate(180deg)' : '';
+    }
+    
+    // Save state to localStorage
+    const subsectionTitle = element.querySelector('.nav-text').textContent.trim();
+    const isExpanded = subsection.classList.contains('expanded');
+    localStorage.setItem(`sidebar-subsection-${subsectionTitle}`, isExpanded);
+}
+
 // Restore section states on page load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded - Auto-hide sidebar enabled');
@@ -739,6 +793,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const isCollapsed = localStorage.getItem(`sidebar-section-${title}`) === 'true';
         if (isCollapsed) {
             section.classList.add('collapsed');
+        }
+    });
+    
+    // Restore expandable subsections state
+    const subsections = document.querySelectorAll('.nav-subsection.expandable');
+    subsections.forEach(subsection => {
+        const titleElement = subsection.querySelector('.nav-subsection-title .nav-text');
+        if (titleElement) {
+            const title = titleElement.textContent.trim();
+            const isExpanded = localStorage.getItem(`sidebar-subsection-${title}`) === 'true';
+            if (isExpanded) {
+                subsection.classList.add('expanded');
+                const arrow = subsection.querySelector('.subsection-arrow');
+                if (arrow) {
+                    arrow.style.transform = 'rotate(180deg)';
+                }
+            }
         }
     });
     
