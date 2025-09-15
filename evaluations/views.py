@@ -378,126 +378,150 @@ def evaluation_dashboard_simple(request):
 
 
 def evaluation_dashboard(request):
-    """평가 대시보드 - 4단계 진행상황 표시"""
+    """평가 대시보드 - Revolutionary 템플릿 사용"""
+    from .models import EvaluationPeriod, ContributionEvaluation, ExpertiseEvaluation, ImpactEvaluation, ComprehensiveEvaluation
+    from employees.models import Employee
+    
+    # Revolutionary 템플릿에 필요한 모든 변수 초기화
+    context = {
+        # 통계 카드 데이터
+        'total_employees': 0,
+        'completed_evaluations': 0,
+        'avg_score': 0.0,
+        'pending_evaluations': 0,
+        'completion_rate': 0.0,
+        'pending_rate': 0.0,
+        
+        # 진행률 데이터
+        'contribution_progress': 0.0,
+        'expertise_progress': 0.0,
+        'impact_progress': 0.0,
+        
+        # 등급별 카운트
+        's_count': 0,
+        'a_count': 0,
+        'b_count': 0,
+        'c_count': 0,
+        
+        # 상위 평가자 리스트
+        'top_performers': [],
+        
+        # 기존 변수들도 유지 (호환성)
+        'active_period': None,
+        'employee': None,
+        'progress': {
+            'contribution': 0,
+            'expertise': 0,
+            'impact': 0,
+            'comprehensive': 0,
+        },
+        'total_progress': 0,
+    }
+    
     try:
-        # 기본 context 초기화
-        context = {
-            'active_period': None,
-            'employee': None,
-            'progress': {
-                'contribution': 0,
-                'expertise': 0,
-                'impact': 0,
-                'comprehensive': 0,
-            },
-            'total_progress': 0,
-            'contribution_eval': None,
-            'expertise_eval': None,
-            'impact_eval': None,
-            'comprehensive_eval': None,
-        }
+        # 직원 수 확인
+        try:
+            context['total_employees'] = Employee.objects.filter(
+                employment_status='재직'
+            ).count()
+        except Exception as e:
+            print(f"Error counting employees: {str(e)}")
+            context['total_employees'] = 0
         
         # 활성화된 평가 기간
         try:
             active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+            context['active_period'] = active_period
         except Exception as e:
             print(f"Error getting active period: {str(e)}")
             active_period = None
         
-        if not active_period:
-            messages.warning(request, "활성화된 평가 기간이 없습니다.")
-            return render(request, 'evaluations/dashboard_revolutionary.html', context)
+        if active_period:
+            # 기여방식 평가 진행률 계산
+            try:
+                total_evals = ContributionEvaluation.objects.filter(
+                    evaluation_period=active_period
+                ).count()
+                completed_evals = ContributionEvaluation.objects.filter(
+                    evaluation_period=active_period,
+                    status='completed'
+                ).count()
+                
+                if total_evals > 0:
+                    context['contribution_progress'] = (completed_evals / total_evals) * 100
+                    context['completed_evaluations'] = completed_evals
+                    context['pending_evaluations'] = total_evals - completed_evals
+                    context['completion_rate'] = context['contribution_progress']
+                    context['pending_rate'] = 100 - context['contribution_progress']
+            except Exception as e:
+                print(f"Error calculating contribution progress: {str(e)}")
+            
+            # 전문성/영향력 평가 진행률 (더미 데이터)
+            context['expertise_progress'] = 65.0
+            context['impact_progress'] = 50.0
+            
+            # 평균 점수 (더미 데이터)
+            context['avg_score'] = 3.7
         
-        # 현재 사용자의 평가 진행상황
-        # 임시로 첫 번째 직원 사용 (나중에 로그인 기능 구현 시 수정)
+        # 등급별 카운트 (더미 데이터)
+        context['s_count'] = 5
+        context['a_count'] = 25
+        context['b_count'] = 45
+        context['c_count'] = 20
+        
+        # 상위 평가자 더미 데이터
+        context['top_performers'] = [
+            {
+                'employee_id': 'EMP001',
+                'name': '홍길동',
+                'department': 'IT개발팀',
+                'position': '과장',
+                'total_score': 4.5,
+                'contribution_type': '균형형',
+                'contribution_type_color': 'primary',
+                'impact_level': '탁월',
+                'impact_level_color': 'success',
+                'grade': 'A'
+            },
+            {
+                'employee_id': 'EMP002',
+                'name': '김영희',
+                'department': '마케팅팀',
+                'position': '대리',
+                'total_score': 4.2,
+                'contribution_type': '성과형',
+                'contribution_type_color': 'success',
+                'impact_level': '달성',
+                'impact_level_color': 'primary',
+                'grade': 'B'
+            },
+            {
+                'employee_id': 'EMP003',
+                'name': '박철수',
+                'department': '영업팀',
+                'position': '사원',
+                'total_score': 3.8,
+                'contribution_type': '지원형',
+                'contribution_type_color': 'warning',
+                'impact_level': '기대',
+                'impact_level_color': 'warning',
+                'grade': 'C'
+            }
+        ]
+        
+        # 현재 사용자 정보 (호환성 유지)
         try:
             employee = Employee.objects.filter(employment_status='재직').first()
+            context['employee'] = employee
         except Exception as e:
             print(f"Error getting employee: {str(e)}")
-            employee = None
+            context['employee'] = None
         
-        if not employee:
-            messages.error(request, "직원 정보를 찾을 수 없습니다.")
-            return render(request, 'evaluations/dashboard_revolutionary.html', context)
-        
-        # 각 평가 단계별 상태 확인
-        try:
-            contribution_eval = ContributionEvaluation.objects.filter(
-                employee=employee, evaluation_period=active_period
-            ).first()
-        except Exception as e:
-            print(f"Error getting contribution eval: {str(e)}")
-            contribution_eval = None
-        
-        try:
-            expertise_eval = ExpertiseEvaluation.objects.filter(
-                employee=employee, evaluation_period=active_period
-            ).first()
-        except Exception as e:
-            print(f"Error getting expertise eval: {str(e)}")
-            expertise_eval = None
-        
-        try:
-            impact_eval = ImpactEvaluation.objects.filter(
-                employee=employee, evaluation_period=active_period
-            ).first()
-        except Exception as e:
-            print(f"Error getting impact eval: {str(e)}")
-            impact_eval = None
-        
-        try:
-            comprehensive_eval = ComprehensiveEvaluation.objects.filter(
-                employee=employee, evaluation_period=active_period
-            ).first()
-        except Exception as e:
-            print(f"Error getting comprehensive eval: {str(e)}")
-            comprehensive_eval = None
-        
-        # 진행률 계산
-        progress = {
-            'contribution': 25 if contribution_eval else 0,
-            'expertise': 25 if expertise_eval else 0,
-            'impact': 25 if impact_eval else 0,
-            'comprehensive': 25 if comprehensive_eval else 0,
-        }
-        
-        total_progress = sum(progress.values())
-        
-        # context 업데이트
-        context.update({
-            'active_period': active_period,
-            'employee': employee,
-            'progress': progress,
-            'total_progress': total_progress,
-            'contribution_eval': contribution_eval,
-            'expertise_eval': expertise_eval,
-            'impact_eval': impact_eval,
-            'comprehensive_eval': comprehensive_eval,
-        })
-        
-        return render(request, 'evaluations/dashboard_revolutionary.html', context)
-    
     except Exception as e:
-        print(f"Unexpected error in evaluation_dashboard: {str(e)}")
-        # 에러 발생 시에도 기본 context로 페이지 렌더링
-        context = {
-            'active_period': None,
-            'employee': None,
-            'progress': {
-                'contribution': 0,
-                'expertise': 0,
-                'impact': 0,
-                'comprehensive': 0,
-            },
-            'total_progress': 0,
-            'contribution_eval': None,
-            'expertise_eval': None,
-            'impact_eval': None,
-            'comprehensive_eval': None,
-            'error_message': f"시스템 오류가 발생했습니다: {str(e)}"
-        }
-        messages.error(request, f"시스템 오류가 발생했습니다. 관리자에게 문의하세요.")
-        return render(request, 'evaluations/dashboard_revolutionary.html', context)
+        print(f"Dashboard general error: {str(e)}")
+        messages.error(request, f"대시보드 로딩 중 오류가 발생했습니다.")
+    
+    return render(request, 'evaluations/dashboard_revolutionary.html', context)
 
 
 def contribution_evaluation(request, employee_id):
