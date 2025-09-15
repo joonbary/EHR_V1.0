@@ -276,20 +276,105 @@ def impact_list(request):
 
 
 def evaluation_dashboard_simple(request):
-    """간단한 테스트용 대시보드"""
+    """Revolutionary 템플릿을 사용하는 간단한 대시보드"""
+    from .models import EvaluationPeriod, ContributionEvaluation
+    from employees.models import Employee
+    
+    # Revolutionary 템플릿에 필요한 기본 변수들
     context = {
-        'test': 'working',
-        'active_period': None,
-        'employee': None,
-        'progress': {
-            'contribution': 0,
-            'expertise': 0,
-            'impact': 0,
-            'comprehensive': 0,
-        },
-        'total_progress': 0,
+        # 통계 카드 데이터
+        'total_employees': 0,
+        'completed_evaluations': 0,
+        'avg_score': 0.0,
+        'pending_evaluations': 0,
+        'completion_rate': 0.0,
+        'pending_rate': 0.0,
+        
+        # 진행률 데이터
+        'contribution_progress': 0.0,
+        'expertise_progress': 0.0,
+        'impact_progress': 0.0,
+        
+        # 등급별 카운트
+        's_count': 0,
+        'a_count': 0,
+        'b_count': 0,
+        'c_count': 0,
+        
+        # 상위 평가자 리스트 (빈 리스트로 시작)
+        'top_performers': [],
     }
-    return render(request, 'evaluations/dashboard_simple.html', context)
+    
+    # 간단한 DB 쿼리로 일부 데이터 채우기
+    try:
+        # 직원 수 확인
+        context['total_employees'] = Employee.objects.filter(
+            employment_status='재직'
+        ).count()
+        
+        # 평가 기간 확인
+        active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+        if active_period:
+            # 기여방식 평가 진행률 계산
+            total_evals = ContributionEvaluation.objects.filter(
+                evaluation_period=active_period
+            ).count()
+            completed_evals = ContributionEvaluation.objects.filter(
+                evaluation_period=active_period,
+                status='completed'
+            ).count()
+            
+            if total_evals > 0:
+                context['contribution_progress'] = (completed_evals / total_evals) * 100
+                context['completed_evaluations'] = completed_evals
+                context['pending_evaluations'] = total_evals - completed_evals
+                context['completion_rate'] = context['contribution_progress']
+            
+            # 평균 점수 (더미 데이터)
+            context['avg_score'] = 3.7
+            
+        # 더미 데이터로 나머지 채우기
+        context['expertise_progress'] = 65.0
+        context['impact_progress'] = 50.0
+        context['s_count'] = 5
+        context['a_count'] = 25
+        context['b_count'] = 45
+        context['c_count'] = 20
+        
+        # 상위 평가자 더미 데이터
+        context['top_performers'] = [
+            {
+                'employee_id': 'EMP001',
+                'name': '홍길동',
+                'department': 'IT개발팀',
+                'position': '과장',
+                'total_score': 4.5,
+                'contribution_type': '균형형',
+                'contribution_type_color': 'primary',
+                'impact_level': '탁월',
+                'impact_level_color': 'success',
+                'grade': 'A'
+            },
+            {
+                'employee_id': 'EMP002',
+                'name': '김영희',
+                'department': '마케팅팀',
+                'position': '대리',
+                'total_score': 4.2,
+                'contribution_type': '성과형',
+                'contribution_type_color': 'success',
+                'impact_level': '달성',
+                'impact_level_color': 'primary',
+                'grade': 'B'
+            }
+        ]
+        
+    except Exception as e:
+        print(f"Dashboard query error: {str(e)}")
+        # 에러가 나도 기본값 유지
+    
+    # Revolutionary 템플릿으로 변경
+    return render(request, 'evaluations/dashboard_revolutionary.html', context)
 
 
 def evaluation_dashboard(request):

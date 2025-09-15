@@ -5,24 +5,44 @@
 
 {% block content %}
 <div class="container-fluid px-4">
-    <h1>평가 대시보드 - 테스트</h1>
+    <h1>평가 대시보드 - 점진적 테스트</h1>
     
     <div class="alert alert-info">
-        <p>이 페이지는 정상적으로 작동합니다.</p>
-        <p>Test value: {{ test }}</p>
+        <p><strong>상태:</strong> {{ test }}</p>
     </div>
     
-    {% if active_period %}
-        <p>활성 평가 기간: {{ active_period }}</p>
-    {% else %}
-        <p>활성화된 평가 기간이 없습니다.</p>
-    {% endif %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>1. 평가 기간 테스트</h5>
+            {% if active_period %}
+                <p class="text-success">✓ 활성 평가 기간: {{ active_period }}</p>
+            {% else %}
+                <p class="text-warning">✗ 활성화된 평가 기간이 없습니다.</p>
+            {% endif %}
+        </div>
+    </div>
     
-    {% if employee %}
-        <p>직원: {{ employee.name }}</p>
-    {% else %}
-        <p>직원 정보가 없습니다.</p>
-    {% endif %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>2. 직원 정보 테스트</h5>
+            {% if employee %}
+                <p class="text-success">✓ 직원: {{ employee.name }} (ID: {{ employee.id }})</p>
+            {% else %}
+                <p class="text-warning">✗ 직원 정보가 없습니다.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>3. 평가 데이터 테스트</h5>
+            {% if contribution_eval %}
+                <p class="text-success">✓ 기여도 평가 데이터 있음</p>
+            {% else %}
+                <p class="text-warning">✗ 기여도 평가 데이터 없음</p>
+            {% endif %}
+        </div>
+    </div>
     
     <div class="progress">
         <div class="progress-bar" style="width: {{ total_progress }}%">

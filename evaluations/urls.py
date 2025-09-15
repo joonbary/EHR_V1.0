@@ -8,8 +8,8 @@ app_name = 'evaluations'
 
 urlpatterns = [
     # 메인 대시보드
-    path('', views.evaluation_dashboard_simple, name='dashboard'),
-    path('full/', views.evaluation_dashboard, name='dashboard_full'),
+    path('', views.evaluation_dashboard, name='dashboard'),
+    path('simple/', views.evaluation_dashboard_simple, name='dashboard_simple'),
     
     # 3대 평가 관리 (기여도/전문성/영향력)
     path('contribution/', include([
