@@ -110,8 +110,12 @@
                 </a>
                 
                 <!-- 3대 평가 -->
-                <div class="nav-subsection">
-                    <div class="nav-subsection-title">기여도 평가</div>
+                <div class="nav-subsection expandable">
+                    <div class="nav-subsection-title" onclick="toggleSubsection(this)">
+                        기여도 평가
+                        <i class="fas fa-chevron-down subsection-arrow"></i>
+                    </div>
+                    <div class="nav-subsection-content">
                     <a href="{% url 'evaluations:contribution_guide' %}" class="nav-subitem">
                         <span class="nav-icon">📖</span>
                         <span class="nav-text">평가 가이드</span>
@@ -120,10 +124,15 @@
                         <span class="nav-icon">👥</span>
                         <span class="nav-text">직원별 평가</span>
                     </a>
+                    </div>
                 </div>
                 
-                <div class="nav-subsection">
-                    <div class="nav-subsection-title">전문성 평가</div>
+                <div class="nav-subsection expandable">
+                    <div class="nav-subsection-title" onclick="toggleSubsection(this)">
+                        전문성 평가
+                        <i class="fas fa-chevron-down subsection-arrow"></i>
+                    </div>
+                    <div class="nav-subsection-content">
                     <a href="{% url 'evaluations:expertise_guide' %}" class="nav-subitem">
                         <span class="nav-icon">📖</span>
                         <span class="nav-text">평가 가이드</span>
@@ -132,10 +141,15 @@
                         <span class="nav-icon">🎯</span>
                         <span class="nav-text">직원별 평가</span>
                     </a>
+                    </div>
                 </div>
                 
-                <div class="nav-subsection">
-                    <div class="nav-subsection-title">영향력 평가</div>
+                <div class="nav-subsection expandable">
+                    <div class="nav-subsection-title" onclick="toggleSubsection(this)">
+                        영향력 평가
+                        <i class="fas fa-chevron-down subsection-arrow"></i>
+                    </div>
+                    <div class="nav-subsection-content">
                     <a href="{% url 'evaluations:impact_guide' %}" class="nav-subitem">
                         <span class="nav-icon">📖</span>
                         <span class="nav-text">평가 가이드</span>
@@ -144,11 +158,16 @@
                         <span class="nav-icon">⚡</span>
                         <span class="nav-text">직원별 평가</span>
                     </a>
+                    </div>
                 </div>
                 
                 <!-- 종합 평가 -->
-                <div class="nav-subsection">
-                    <div class="nav-subsection-title">종합 평가</div>
+                <div class="nav-subsection expandable">
+                    <div class="nav-subsection-title" onclick="toggleSubsection(this)">
+                        종합 평가
+                        <i class="fas fa-chevron-down subsection-arrow"></i>
+                    </div>
+                    <div class="nav-subsection-content">
                     <a href="{% url 'evaluations:comprehensive_list' %}" class="nav-subitem">
                         <span class="nav-icon">📑</span>
                         <span class="nav-text">종합 평가 관리</span>
@@ -157,11 +176,16 @@
                         <span class="nav-icon">⚖️</span>
                         <span class="nav-text">캘리브레이션</span>
                     </a>
+                    </div>
                 </div>
                 
                 <!-- 평가자별 화면 -->
-                <div class="nav-subsection">
-                    <div class="nav-subsection-title">역할별 화면</div>
+                <div class="nav-subsection expandable">
+                    <div class="nav-subsection-title" onclick="toggleSubsection(this)">
+                        역할별 화면
+                        <i class="fas fa-chevron-down subsection-arrow"></i>
+                    </div>
+                    <div class="nav-subsection-content">
                     <a href="{% url 'evaluations:my_evaluations' %}" class="nav-subitem">
                         <span class="nav-icon">👤</span>
                         <span class="nav-text">내 평가</span>
@@ -174,6 +198,7 @@
                         <span class="nav-icon">⚙️</span>
                         <span class="nav-text">HR 관리자</span>
                     </a>
+                    </div>
                 </div>
                 
                 <!-- 분석 -->
@@ -220,16 +245,21 @@
                     <span class="nav-text">AI 면접</span>
                 </a>
                 
-                <div class="nav-subsection">
-                    <div class="nav-subsection-title">AI 어시스턴트</div>
-                    <a href="{% url 'ai_quickwin:chatbot' %}" class="nav-subitem">
-                        <span class="nav-icon">💬</span>
-                        <span class="nav-text">챗봇</span>
-                    </a>
-                    <a href="{% url 'ai_quickwin:leader_assistant' %}" class="nav-subitem">
-                        <span class="nav-icon">👑</span>
-                        <span class="nav-text">리더십 AI</span>
-                    </a>
+                <div class="nav-subsection expandable">
+                    <div class="nav-subsection-title" onclick="toggleSubsection(this)">
+                        AI 어시스턴트
+                        <i class="fas fa-chevron-down subsection-arrow"></i>
+                    </div>
+                    <div class="nav-subsection-content">
+                        <a href="{% url 'ai_quickwin:chatbot' %}" class="nav-subitem">
+                            <span class="nav-icon">💬</span>
+                            <span class="nav-text">챗봇</span>
+                        </a>
+                        <a href="{% url 'ai_quickwin:leader_assistant' %}" class="nav-subitem">
+                            <span class="nav-icon">👑</span>
+                            <span class="nav-text">리더십 AI</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -749,9 +779,10 @@ function toggleSubsection(element) {
     }
     
     // Save state to localStorage
-    const subsectionTitle = element.querySelector('.nav-text').textContent.trim();
+    // Get the text content, removing the arrow icon text
+    const titleText = element.textContent.replace(/\s+/g, ' ').trim();
     const isExpanded = subsection.classList.contains('expanded');
-    localStorage.setItem(`sidebar-subsection-${subsectionTitle}`, isExpanded);
+    localStorage.setItem(`sidebar-subsection-${titleText}`, isExpanded);
 }
 
 // Restore section states on page load
@@ -799,9 +830,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Restore expandable subsections state
     const subsections = document.querySelectorAll('.nav-subsection.expandable');
     subsections.forEach(subsection => {
-        const titleElement = subsection.querySelector('.nav-subsection-title .nav-text');
+        const titleElement = subsection.querySelector('.nav-subsection-title');
         if (titleElement) {
-            const title = titleElement.textContent.trim();
+            // Get the text content, removing the arrow icon text
+            const title = titleElement.textContent.replace(/\s+/g, ' ').trim();
             const isExpanded = localStorage.getItem(`sidebar-subsection-${title}`) === 'true';
             if (isExpanded) {
                 subsection.classList.add('expanded');
@@ -823,6 +855,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const parentSection = item.closest('.nav-section.expandable');
             if (parentSection && parentSection.classList.contains('collapsed')) {
                 parentSection.classList.remove('collapsed');
+            }
+            // Also expand parent subsection if it's collapsed
+            const parentSubsection = item.closest('.nav-subsection.expandable');
+            if (parentSubsection && !parentSubsection.classList.contains('expanded')) {
+                parentSubsection.classList.add('expanded');
+                const arrow = parentSubsection.querySelector('.subsection-arrow');
+                if (arrow) {
+                    arrow.style.transform = 'rotate(180deg)';
+                }
             }
         }
     });
