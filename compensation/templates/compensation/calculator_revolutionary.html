@@ -454,35 +454,95 @@
     color: #ffffff;
 }
 
-/* Simulation Result Styles */
+/* Simulation Result Styles - Enhanced Readability */
 .simulation-result-card {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 153, 255, 0.05) 100%);
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 153, 255, 0.08) 100%);
+    border: 2px solid rgba(0, 212, 255, 0.4);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-xl);
     margin-top: var(--spacing-md);
+    box-shadow: 0 10px 40px rgba(0, 212, 255, 0.15);
 }
 
 .simulation-metric {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-sm) 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.02);
+    margin-bottom: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.simulation-metric:hover {
+    background: rgba(0, 212, 255, 0.08);
+    transform: translateX(5px);
 }
 
 .simulation-metric:last-child {
     border-bottom: none;
 }
 
+/* 텍스트 가독성 개선 */
+.simulation-metric span:first-child {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+}
+
+.simulation-metric span:last-child {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 16px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.simulation-section-title {
+    color: #00d4ff;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0, 212, 255, 0.4);
+}
+
+.simulation-total {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 255, 136, 0.1) 100%);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+}
+
 .simulation-change-positive {
     color: #00ff88;
-    font-weight: 600;
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
 }
 
 .simulation-change-negative {
     color: #ff4757;
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.6);
+}
+
+.simulation-change-box {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 153, 255, 0.1) 100%);
+    border: 2px solid rgba(0, 212, 255, 0.5);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: inset 0 2px 10px rgba(0, 212, 255, 0.2);
+}
+
+.simulation-change-box h5 {
+    color: #ffffff;
     font-weight: 600;
+    margin-bottom: 16px;
+    font-size: 18px;
 }
 </style>
 
@@ -797,11 +857,15 @@ function displaySimulationResults(data) {
     
     resultsContainer.innerHTML = `
         <div class="simulation-result-card">
-            <h6 class="mb-3" style="color: var(--primary-color);">📊 시뮬레이션 결과</h6>
+            <h5 class="mb-4" style="color: #ffffff; font-weight: 700; font-size: 22px; text-shadow: 0 2px 10px rgba(0, 212, 255, 0.5);">
+                <i class="fas fa-chart-line" style="color: #00d4ff;"></i> 시뮬레이션 결과
+            </h5>
             
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <h6 class="text-muted mb-3">현재 보상</h6>
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <h6 class="simulation-section-title">
+                        <i class="fas fa-wallet"></i> 현재 보상
+                    </h6>
                     <div class="simulation-metric">
                         <span>기본급</span>
                         <span>₩${current.base_salary.toLocaleString()}</span>
@@ -822,51 +886,85 @@ function displaySimulationResults(data) {
                         <span>성과급</span>
                         <span>₩${current.pi_amount.toLocaleString()}</span>
                     </div>
-                    <div class="simulation-metric" style="border-top: 2px solid var(--primary-color); margin-top: 10px; padding-top: 10px;">
-                        <strong>총 보상</strong>
-                        <strong style="color: var(--text-primary);">₩${current.total_compensation.toLocaleString()}</strong>
+                    <div class="simulation-total">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong style="color: #ffffff; font-size: 16px;">총 보상</strong>
+                            <strong style="color: #00d4ff; font-size: 20px; text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);">
+                                ₩${current.total_compensation.toLocaleString()}
+                            </strong>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="col-md-6">
-                    <h6 class="text-muted mb-3">시뮬레이션 보상</h6>
+                <div class="col-md-6 mb-3">
+                    <h6 class="simulation-section-title">
+                        <i class="fas fa-rocket"></i> 예상 보상
+                    </h6>
                     <div class="simulation-metric">
                         <span>기본급</span>
-                        <span>₩${simulated.base_salary.toLocaleString()}</span>
+                        <span ${simulated.base_salary > current.base_salary ? 'style="color: #00ff88;"' : simulated.base_salary < current.base_salary ? 'style="color: #ff4757;"' : ''}>
+                            ₩${simulated.base_salary.toLocaleString()}
+                            ${simulated.base_salary > current.base_salary ? ' ↑' : simulated.base_salary < current.base_salary ? ' ↓' : ''}
+                        </span>
                     </div>
                     <div class="simulation-metric">
                         <span>고정 OT</span>
-                        <span>₩${simulated.fixed_ot.toLocaleString()}</span>
+                        <span ${simulated.fixed_ot > current.fixed_ot ? 'style="color: #00ff88;"' : simulated.fixed_ot < current.fixed_ot ? 'style="color: #ff4757;"' : ''}>
+                            ₩${simulated.fixed_ot.toLocaleString()}
+                            ${simulated.fixed_ot > current.fixed_ot ? ' ↑' : simulated.fixed_ot < current.fixed_ot ? ' ↓' : ''}
+                        </span>
                     </div>
                     <div class="simulation-metric">
                         <span>직책급</span>
-                        <span>₩${simulated.position_allowance.toLocaleString()}</span>
+                        <span ${simulated.position_allowance > current.position_allowance ? 'style="color: #00ff88;"' : simulated.position_allowance < current.position_allowance ? 'style="color: #ff4757;"' : ''}>
+                            ₩${simulated.position_allowance.toLocaleString()}
+                            ${simulated.position_allowance > current.position_allowance ? ' ↑' : simulated.position_allowance < current.position_allowance ? ' ↓' : ''}
+                        </span>
                     </div>
                     <div class="simulation-metric">
                         <span>역량급</span>
-                        <span>₩${simulated.competency_allowance.toLocaleString()}</span>
+                        <span ${simulated.competency_allowance > current.competency_allowance ? 'style="color: #00ff88;"' : simulated.competency_allowance < current.competency_allowance ? 'style="color: #ff4757;"' : ''}>
+                            ₩${simulated.competency_allowance.toLocaleString()}
+                            ${simulated.competency_allowance > current.competency_allowance ? ' ↑' : simulated.competency_allowance < current.competency_allowance ? ' ↓' : ''}
+                        </span>
                     </div>
                     <div class="simulation-metric">
                         <span>성과급</span>
-                        <span>₩${simulated.pi_amount.toLocaleString()}</span>
+                        <span ${simulated.pi_amount > current.pi_amount ? 'style="color: #00ff88;"' : simulated.pi_amount < current.pi_amount ? 'style="color: #ff4757;"' : ''}>
+                            ₩${simulated.pi_amount.toLocaleString()}
+                            ${simulated.pi_amount > current.pi_amount ? ' ↑' : simulated.pi_amount < current.pi_amount ? ' ↓' : ''}
+                        </span>
                     </div>
-                    <div class="simulation-metric" style="border-top: 2px solid var(--primary-color); margin-top: 10px; padding-top: 10px;">
-                        <strong>총 보상</strong>
-                        <strong style="color: var(--primary-color);">₩${simulated.total_compensation.toLocaleString()}</strong>
+                    <div class="simulation-total">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong style="color: #ffffff; font-size: 16px;">총 보상</strong>
+                            <strong style="color: #00ff88; font-size: 20px; text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);">
+                                ₩${simulated.total_compensation.toLocaleString()}
+                            </strong>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="text-center p-3" style="background: rgba(0, 212, 255, 0.1); border-radius: var(--radius-md);">
-                <h5 class="mb-2">보상 변화</h5>
+            <div class="simulation-change-box text-center">
+                <h5 style="color: #ffffff; font-weight: 600;">
+                    <i class="fas fa-exchange-alt" style="color: #00d4ff;"></i> 보상 변화량
+                </h5>
                 <div class="d-flex justify-content-center align-items-center gap-4">
-                    <span class="${difference >= 0 ? 'simulation-change-positive' : 'simulation-change-negative'}" style="font-size: 24px;">
-                        ${difference >= 0 ? '+' : ''}₩${Math.abs(difference).toLocaleString()}
+                    <span class="${difference >= 0 ? 'simulation-change-positive' : 'simulation-change-negative'}" style="font-size: 28px;">
+                        ${difference >= 0 ? '↑' : '↓'} ${difference >= 0 ? '+' : ''}₩${Math.abs(difference).toLocaleString()}
                     </span>
-                    <span class="${difference >= 0 ? 'simulation-change-positive' : 'simulation-change-negative'}" style="font-size: 20px;">
+                    <span class="${difference >= 0 ? 'simulation-change-positive' : 'simulation-change-negative'}" style="font-size: 24px;">
                         (${difference >= 0 ? '+' : ''}${percentChange}%)
                     </span>
                 </div>
+                ${difference !== 0 ? `
+                <div class="mt-3">
+                    <span style="color: rgba(255, 255, 255, 0.8); font-size: 14px;">
+                        ${difference > 0 ? '🎆 예상 보상이 증가합니다!' : '📉 예상 보상이 감소합니다.'}
+                    </span>
+                </div>
+                ` : ''}
             </div>
         </div>
     `;
