@@ -275,6 +275,23 @@ def impact_list(request):
     return redirect('evaluations:impact_guide')
 
 
+def evaluation_dashboard_simple(request):
+    """간단한 테스트용 대시보드"""
+    context = {
+        'test': 'working',
+        'active_period': None,
+        'employee': None,
+        'progress': {
+            'contribution': 0,
+            'expertise': 0,
+            'impact': 0,
+            'comprehensive': 0,
+        },
+        'total_progress': 0,
+    }
+    return render(request, 'evaluations/dashboard_simple.html', context)
+
+
 def evaluation_dashboard(request):
     """평가 대시보드 - 4단계 진행상황 표시"""
     try:
