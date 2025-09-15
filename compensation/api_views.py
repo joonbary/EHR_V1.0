@@ -570,3 +570,154 @@ def get_real_compensation_data(request):
                 'total_pi': 0
             }
         }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def compensation_simulation(request):
+    """
+    보상 시뮬레이션 API
+    POST /api/simulation/
+    {
+        "employee_id": 1,
+        "growth_level": "4",
+        "eval_grade": "A",
+        "position": "POS01",
+        "period": "2024-01"
+    }
+    """
+    try:
+        data = request.data
+        employee_id = data.get('employee_id')
+        growth_level = data.get('growth_level', '')
+        eval_grade = data.get('eval_grade', '')
+        position = data.get('position', '')
+        period = data.get('period', datetime.now().strftime('%Y-%m'))
+        
+        # 직원 정보 조회
+        try:
+            employee = Employee.objects.get(id=employee_id)
+        except Employee.DoesNotExist:
+            # 더미 데이터 사용
+            employee = None
+        
+        # 현재 보상 계산 (기본값 또는 실제 데이터)
+        if employee:
+            # 실제 직원 데이터 기반 계산
+            try:
+                # CompensationSnapshot에서 가져오기
+                snapshot = CompensationSnapshot.objects.filter(
+                    employee=employee,
+                    pay_period__startswith=period
+                ).first()
+                
+                if snapshot:
+                    current_compensation = {
+                        'base_salary': float(snapshot.base_salary or 0),
+                        'fixed_ot': float(snapshot.fixed_ot or 0),
+                        'position_allowance': float(snapshot.position_allowance or 0),
+                        'competency_allowance': float(snapshot.competency_allowance or 0),
+                        'pi_amount': float(snapshot.pi_amount or 0),
+                        'total_compensation': float(snapshot.total_compensation or 0)
+                    }
+                else:
+                    # 기본 계산 로직
+                    base_salary = 4500000
+                    current_compensation = {
+                        'base_salary': base_salary,
+                        'fixed_ot': base_salary * 0.12,
+                        'position_allowance': 500000,
+                        'competency_allowance': base_salary * 0.1,
+                        'pi_amount': base_salary * 0.15,
+                        'total_compensation': 0
+                    }
+                    current_compensation['total_compensation'] = sum(current_compensation.values())
+            except Exception as e:
+                logger.error(f"Error getting current compensation: {str(e)}")
+                # 기본값 사용
+                current_compensation = {
+                    'base_salary': 4500000,
+                    'fixed_ot': 540000,
+                    'position_allowance': 500000,
+                    'competency_allowance': 450000,
+                    'pi_amount': 675000,
+                    'total_compensation': 6665000
+                }
+        else:
+            # 더미 데이터
+            current_compensation = {
+                'base_salary': 4500000,
+                'fixed_ot': 540000,
+                'position_allowance': 500000,
+                'competency_allowance': 450000,
+                'pi_amount': 675000,
+                'total_compensation': 6665000
+            }
+        
+        # 시뮬레이션 계산
+        multiplier = 1.0
+        
+        # 성장레벨에 따른 조정
+        if growth_level:
+            level_multipliers = {
+                '1': 0.9, '2': 0.95, '3': 1.0,
+                '4': 1.05, '5': 1.1, '6': 1.15
+            }
+            multiplier *= level_multipliers.get(growth_level, 1.0)
+        
+        # 평가등급에 따른 조정
+        if eval_grade:
+            grade_multipliers = {
+                'S': 1.2, 'A+': 1.15, 'A': 1.1,
+                'B+': 1.05, 'B': 1.0, 'C': 0.95, 'D': 0.9
+            }
+            multiplier *= grade_multipliers.get(eval_grade, 1.0)
+        
+        # 시뮬레이션 결과 계산
+        simulated_compensation = {
+            'base_salary': current_compensation['base_salary'] * multiplier,
+            'fixed_ot': current_compensation['fixed_ot'] * multiplier,
+            'position_allowance': current_compensation['position_allowance'],
+            'competency_allowance': current_compensation['competency_allowance'] * multiplier,
+            'pi_amount': current_compensation['pi_amount'] * multiplier * 1.1,  # PI는 추가 10% 보너스
+            'total_compensation': 0
+        }
+        
+        # 직책에 따른 조정
+        if position:
+            position_bonuses = {
+                'POS01': 500000,   # 팀장
+                'POS02': 1000000,  # 부문장
+                'POS03': 2000000   # 본부장
+            }
+            simulated_compensation['position_allowance'] = position_bonuses.get(
+                position, 
+                current_compensation['position_allowance']
+            )
+        
+        # 총 보상 계산
+        simulated_compensation['total_compensation'] = (
+            simulated_compensation['base_salary'] +
+            simulated_compensation['fixed_ot'] +
+            simulated_compensation['position_allowance'] +
+            simulated_compensation['competency_allowance'] +
+            simulated_compensation['pi_amount']
+        )
+        
+        return Response({
+            'current': current_compensation,
+            'simulated': simulated_compensation,
+            'params': {
+                'growth_level': growth_level,
+                'eval_grade': eval_grade,
+                'position': position,
+                'period': period
+            }
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Simulation error: {str(e)}")
+        return Response({
+            'error': str(e),
+            'message': 'Simulation failed'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

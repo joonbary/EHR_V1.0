@@ -26,4 +26,7 @@ urlpatterns = [
     path('api/employees/<int:employee_id>/position/assign/', api_views.assign_employee_position, name='api_position_assign'),
     path('api/dashboard-new/', api_views.get_compensation_dashboard, name='api_dashboard_new'),
     path('api/real-data/', api_views.get_real_compensation_data, name='api_real_data'),
+    
+    # 시뮬레이션 API
+    path('api/simulation/', api_views.compensation_simulation, name='api_simulation'),
 ] 
