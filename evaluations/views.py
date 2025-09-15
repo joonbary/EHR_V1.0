@@ -277,12 +277,29 @@ def impact_list(request):
 
 def evaluation_dashboard(request):
     """평가 대시보드 - 4단계 진행상황 표시"""
+    # 기본 context 초기화
+    context = {
+        'active_period': None,
+        'employee': None,
+        'progress': {
+            'contribution': 0,
+            'expertise': 0,
+            'impact': 0,
+            'comprehensive': 0,
+        },
+        'total_progress': 0,
+        'contribution_eval': None,
+        'expertise_eval': None,
+        'impact_eval': None,
+        'comprehensive_eval': None,
+    }
+    
     # 활성화된 평가 기간
     active_period = EvaluationPeriod.objects.filter(is_active=True).first()
     
     if not active_period:
         messages.warning(request, "활성화된 평가 기간이 없습니다.")
-        return render(request, 'evaluations/dashboard_revolutionary.html')
+        return render(request, 'evaluations/dashboard_revolutionary.html', context)
     
     # 현재 사용자의 평가 진행상황
     # 임시로 첫 번째 직원 사용 (나중에 로그인 기능 구현 시 수정)
@@ -290,7 +307,7 @@ def evaluation_dashboard(request):
     
     if not employee:
         messages.error(request, "직원 정보를 찾을 수 없습니다.")
-        return render(request, 'evaluations/dashboard_revolutionary.html')
+        return render(request, 'evaluations/dashboard_revolutionary.html', context)
     
     # 각 평가 단계별 상태 확인
     contribution_eval = ContributionEvaluation.objects.filter(
@@ -319,7 +336,8 @@ def evaluation_dashboard(request):
     
     total_progress = sum(progress.values())
     
-    context = {
+    # context 업데이트
+    context.update({
         'active_period': active_period,
         'employee': employee,
         'progress': progress,
@@ -328,9 +346,9 @@ def evaluation_dashboard(request):
         'expertise_eval': expertise_eval,
         'impact_eval': impact_eval,
         'comprehensive_eval': comprehensive_eval,
-    }
+    })
     
-    return render(request, 'evaluations/dashboard_enhanced.html', context)
+    return render(request, 'evaluations/dashboard_revolutionary.html', context)
 
 
 def contribution_evaluation(request, employee_id):
