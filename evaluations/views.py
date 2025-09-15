@@ -277,78 +277,125 @@ def impact_list(request):
 
 def evaluation_dashboard(request):
     """평가 대시보드 - 4단계 진행상황 표시"""
-    # 기본 context 초기화
-    context = {
-        'active_period': None,
-        'employee': None,
-        'progress': {
-            'contribution': 0,
-            'expertise': 0,
-            'impact': 0,
-            'comprehensive': 0,
-        },
-        'total_progress': 0,
-        'contribution_eval': None,
-        'expertise_eval': None,
-        'impact_eval': None,
-        'comprehensive_eval': None,
-    }
-    
-    # 활성화된 평가 기간
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    if not active_period:
-        messages.warning(request, "활성화된 평가 기간이 없습니다.")
+    try:
+        # 기본 context 초기화
+        context = {
+            'active_period': None,
+            'employee': None,
+            'progress': {
+                'contribution': 0,
+                'expertise': 0,
+                'impact': 0,
+                'comprehensive': 0,
+            },
+            'total_progress': 0,
+            'contribution_eval': None,
+            'expertise_eval': None,
+            'impact_eval': None,
+            'comprehensive_eval': None,
+        }
+        
+        # 활성화된 평가 기간
+        try:
+            active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+        except Exception as e:
+            print(f"Error getting active period: {str(e)}")
+            active_period = None
+        
+        if not active_period:
+            messages.warning(request, "활성화된 평가 기간이 없습니다.")
+            return render(request, 'evaluations/dashboard_revolutionary.html', context)
+        
+        # 현재 사용자의 평가 진행상황
+        # 임시로 첫 번째 직원 사용 (나중에 로그인 기능 구현 시 수정)
+        try:
+            employee = Employee.objects.filter(employment_status='재직').first()
+        except Exception as e:
+            print(f"Error getting employee: {str(e)}")
+            employee = None
+        
+        if not employee:
+            messages.error(request, "직원 정보를 찾을 수 없습니다.")
+            return render(request, 'evaluations/dashboard_revolutionary.html', context)
+        
+        # 각 평가 단계별 상태 확인
+        try:
+            contribution_eval = ContributionEvaluation.objects.filter(
+                employee=employee, evaluation_period=active_period
+            ).first()
+        except Exception as e:
+            print(f"Error getting contribution eval: {str(e)}")
+            contribution_eval = None
+        
+        try:
+            expertise_eval = ExpertiseEvaluation.objects.filter(
+                employee=employee, evaluation_period=active_period
+            ).first()
+        except Exception as e:
+            print(f"Error getting expertise eval: {str(e)}")
+            expertise_eval = None
+        
+        try:
+            impact_eval = ImpactEvaluation.objects.filter(
+                employee=employee, evaluation_period=active_period
+            ).first()
+        except Exception as e:
+            print(f"Error getting impact eval: {str(e)}")
+            impact_eval = None
+        
+        try:
+            comprehensive_eval = ComprehensiveEvaluation.objects.filter(
+                employee=employee, evaluation_period=active_period
+            ).first()
+        except Exception as e:
+            print(f"Error getting comprehensive eval: {str(e)}")
+            comprehensive_eval = None
+        
+        # 진행률 계산
+        progress = {
+            'contribution': 25 if contribution_eval else 0,
+            'expertise': 25 if expertise_eval else 0,
+            'impact': 25 if impact_eval else 0,
+            'comprehensive': 25 if comprehensive_eval else 0,
+        }
+        
+        total_progress = sum(progress.values())
+        
+        # context 업데이트
+        context.update({
+            'active_period': active_period,
+            'employee': employee,
+            'progress': progress,
+            'total_progress': total_progress,
+            'contribution_eval': contribution_eval,
+            'expertise_eval': expertise_eval,
+            'impact_eval': impact_eval,
+            'comprehensive_eval': comprehensive_eval,
+        })
+        
         return render(request, 'evaluations/dashboard_revolutionary.html', context)
     
-    # 현재 사용자의 평가 진행상황
-    # 임시로 첫 번째 직원 사용 (나중에 로그인 기능 구현 시 수정)
-    employee = Employee.objects.filter(employment_status='재직').first()
-    
-    if not employee:
-        messages.error(request, "직원 정보를 찾을 수 없습니다.")
+    except Exception as e:
+        print(f"Unexpected error in evaluation_dashboard: {str(e)}")
+        # 에러 발생 시에도 기본 context로 페이지 렌더링
+        context = {
+            'active_period': None,
+            'employee': None,
+            'progress': {
+                'contribution': 0,
+                'expertise': 0,
+                'impact': 0,
+                'comprehensive': 0,
+            },
+            'total_progress': 0,
+            'contribution_eval': None,
+            'expertise_eval': None,
+            'impact_eval': None,
+            'comprehensive_eval': None,
+            'error_message': f"시스템 오류가 발생했습니다: {str(e)}"
+        }
+        messages.error(request, f"시스템 오류가 발생했습니다. 관리자에게 문의하세요.")
         return render(request, 'evaluations/dashboard_revolutionary.html', context)
-    
-    # 각 평가 단계별 상태 확인
-    contribution_eval = ContributionEvaluation.objects.filter(
-        employee=employee, evaluation_period=active_period
-    ).first()
-    
-    expertise_eval = ExpertiseEvaluation.objects.filter(
-        employee=employee, evaluation_period=active_period
-    ).first()
-    
-    impact_eval = ImpactEvaluation.objects.filter(
-        employee=employee, evaluation_period=active_period
-    ).first()
-    
-    comprehensive_eval = ComprehensiveEvaluation.objects.filter(
-        employee=employee, evaluation_period=active_period
-    ).first()
-    
-    # 진행률 계산
-    progress = {
-        'contribution': 25 if contribution_eval else 0,
-        'expertise': 25 if expertise_eval else 0,
-        'impact': 25 if impact_eval else 0,
-        'comprehensive': 25 if comprehensive_eval else 0,
-    }
-    
-    total_progress = sum(progress.values())
-    
-    # context 업데이트
-    context.update({
-        'active_period': active_period,
-        'employee': employee,
-        'progress': progress,
-        'total_progress': total_progress,
-        'contribution_eval': contribution_eval,
-        'expertise_eval': expertise_eval,
-        'impact_eval': impact_eval,
-        'comprehensive_eval': comprehensive_eval,
-    })
-    
-    return render(request, 'evaluations/dashboard_revolutionary.html', context)
 
 
 def contribution_evaluation(request, employee_id):
