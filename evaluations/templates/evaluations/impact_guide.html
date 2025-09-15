@@ -1,0 +1,108 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}영향력 평가 가이드{% endblock %}
+
+{% block content %}
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        <div class="page-header mb-4">
+            <h1 class="text-3xl font-bold text-white mb-2">영향력 평가 가이드</h1>
+            <p class="text-gray-400">조직과 동료에게 미치는 긍정적 영향력을 평가합니다</p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="feature-card">
+                    <h2 class="text-xl font-bold text-cyan-400 mb-3">평가 개요</h2>
+                    <p class="text-gray-300 mb-4">
+                        영향력 평가는 개인이 조직과 동료들에게 미치는 긍정적인 영향을 측정합니다.
+                        리더십, 멘토링, 조직 문화 기여, 혁신 주도 등 다양한 측면에서의 영향력을 종합적으로 평가합니다.
+                    </p>
+                    
+                    <h3 class="text-lg font-semibold text-white mb-2">평가 요소</h3>
+                    <ul class="list-disc list-inside text-gray-300 space-y-2">
+                        <li>리더십과 동기부여</li>
+                        <li>동료 성장 지원 및 멘토링</li>
+                        <li>조직 문화 개선 기여</li>
+                        <li>혁신과 변화 주도</li>
+                        <li>대내외 네트워킹과 협력</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="feature-card">
+                    <h3 class="text-lg font-semibold text-cyan-400 mb-3">영향력 수준</h3>
+                    <div class="space-y-3">
+                        <div class="border-l-4 border-yellow-400 pl-3">
+                            <h4 class="font-semibold text-white">탁월 (Outstanding)</h4>
+                            <p class="text-gray-400 text-sm">조직 전체에 긍정적 변화를 주도</p>
+                        </div>
+                        <div class="border-l-4 border-green-400 pl-3">
+                            <h4 class="font-semibold text-white">우수 (Excellent)</h4>
+                            <p class="text-gray-400 text-sm">부서/팀 차원의 긍정적 영향</p>
+                        </div>
+                        <div class="border-l-4 border-blue-400 pl-3">
+                            <h4 class="font-semibold text-white">양호 (Good)</h4>
+                            <p class="text-gray-400 text-sm">팀 내에서 긍정적 역할 수행</p>
+                        </div>
+                        <div class="border-l-4 border-orange-400 pl-3">
+                            <h4 class="font-semibold text-white">보통 (Average)</h4>
+                            <p class="text-gray-400 text-sm">개인 차원의 기여</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="feature-card">
+                    <h3 class="text-lg font-semibold text-cyan-400 mb-3">측정 지표</h3>
+                    <ul class="list-disc list-inside text-gray-300 space-y-2">
+                        <li>멘토링 제공 횟수 및 효과</li>
+                        <li>프로세스 개선 제안 건수</li>
+                        <li>지식 공유 활동 참여도</li>
+                        <li>팀 분위기 개선 기여도</li>
+                        <li>조직 목표 달성 기여도</li>
+                        <li>대외 활동 및 네트워킹</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="feature-card bg-gradient-to-r from-cyan-900 to-blue-900">
+                    <h3 class="text-lg font-semibold text-white mb-3">평가 시 고려사항</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <i class="fas fa-users text-4xl text-cyan-400 mb-2"></i>
+                            <h4 class="font-semibold text-white">팀워크</h4>
+                            <p class="text-gray-300 text-sm">협업과 소통 능력</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-lightbulb text-4xl text-yellow-400 mb-2"></i>
+                            <h4 class="font-semibold text-white">혁신</h4>
+                            <p class="text-gray-300 text-sm">창의적 문제 해결</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-chart-line text-4xl text-green-400 mb-2"></i>
+                            <h4 class="font-semibold text-white">성장</h4>
+                            <p class="text-gray-300 text-sm">지속적 개선 노력</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{% url 'evaluations:impact_employees' %}" class="btn-revolutionary btn-primary">
+                <i class="fas fa-users mr-2"></i>
+                직원별 평가 시작
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}기여도 평가 가이드{% endblock %}
+
+{% block content %}
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        <div class="page-header mb-4">
+            <h1 class="text-3xl font-bold text-white mb-2">기여도 평가 가이드</h1>
+            <p class="text-gray-400">개인의 성과와 팀에 대한 기여를 평가합니다</p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="feature-card">
+                    <h2 class="text-xl font-bold text-cyan-400 mb-3">평가 개요</h2>
+                    <p class="text-gray-300 mb-4">
+                        기여도 평가는 구성원이 조직의 목표 달성을 위해 얼마나 기여했는지를 측정하는 평가입니다.
+                        개인의 업무 성과뿐만 아니라 팀워크, 협업, 조직 문화 기여도 등을 종합적으로 평가합니다.
+                    </p>
+                    
+                    <h3 class="text-lg font-semibold text-white mb-2">평가 요소</h3>
+                    <ul class="list-disc list-inside text-gray-300 space-y-2">
+                        <li>업무 목표 달성도</li>
+                        <li>업무의 질과 효율성</li>
+                        <li>팀 협업 및 커뮤니케이션</li>
+                        <li>문제 해결 능력</li>
+                        <li>혁신과 개선 제안</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="feature-card">
+                    <h3 class="text-lg font-semibold text-cyan-400 mb-3">평가 프로세스</h3>
+                    <ol class="list-decimal list-inside text-gray-300 space-y-2">
+                        <li>목표 설정 및 합의</li>
+                        <li>중간 점검 및 피드백</li>
+                        <li>최종 평가 실시</li>
+                        <li>결과 피드백 및 개선 계획 수립</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="feature-card">
+                    <h3 class="text-lg font-semibold text-cyan-400 mb-3">평가 기준</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">탁월 (S)</span>
+                            <span class="text-yellow-400">95점 이상</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">우수 (A)</span>
+                            <span class="text-green-400">85-94점</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">양호 (B)</span>
+                            <span class="text-blue-400">75-84점</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">보통 (C)</span>
+                            <span class="text-orange-400">65-74점</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">미흡 (D)</span>
+                            <span class="text-red-400">65점 미만</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{% url 'evaluations:contribution_employees' %}" class="btn-revolutionary btn-primary">
+                <i class="fas fa-users mr-2"></i>
+                직원별 평가 시작
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

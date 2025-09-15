@@ -1,0 +1,93 @@
+{% extends 'base_revolutionary.html' %}
+{% load static %}
+
+{% block title %}전문성 평가 - 직원 목록{% endblock %}
+
+{% block content %}
+<div class="revolutionary-container">
+    <div class="container-fluid px-4">
+        <div class="page-header mb-4">
+            <h1 class="text-3xl font-bold text-white mb-2">전문성 평가 - 직원 목록</h1>
+            <p class="text-gray-400">평가 대상 직원을 선택하여 전문성을 평가합니다</p>
+        </div>
+
+        {% if active_period %}
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle mr-2"></i>
+            현재 평가 기간: {{ active_period.name }} ({{ active_period.start_date }} ~ {{ active_period.end_date }})
+        </div>
+        {% else %}
+        <div class="alert alert-warning mb-4">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            활성화된 평가 기간이 없습니다.
+        </div>
+        {% endif %}
+
+        <div class="feature-card">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>사번</th>
+                            <th>이름</th>
+                            <th>부서</th>
+                            <th>직급</th>
+                            <th>직무</th>
+                            <th>평가 상태</th>
+                            <th>전문성 레벨</th>
+                            <th>액션</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in employees_data %}
+                        <tr>
+                            <td>{{ data.employee.employee_id }}</td>
+                            <td>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-cyan-500 bg-opacity-20 rounded-full flex items-center justify-center mr-2">
+                                        <i class="fas fa-user text-cyan-400"></i>
+                                    </div>
+                                    {{ data.employee.name }}
+                                </div>
+                            </td>
+                            <td>{{ data.employee.department }}</td>
+                            <td>{{ data.employee.new_position }}</td>
+                            <td>{{ data.employee.job_role|default:"-" }}</td>
+                            <td>
+                                {% if data.status == 'completed' %}
+                                    <span class="badge bg-success">완료</span>
+                                {% elif data.status == 'in-progress' %}
+                                    <span class="badge bg-warning">진행중</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">미시작</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if data.expertise_level %}
+                                    <span class="text-cyan-400 font-bold">{{ data.expertise_level }}</span>
+                                {% else %}
+                                    <span class="text-gray-500">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'evaluations:expertise_evaluation' data.employee.id %}" 
+                                   class="btn-revolutionary btn-sm btn-primary">
+                                    <i class="fas fa-edit mr-1"></i>
+                                    평가하기
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-gray-500">
+                                평가 대상 직원이 없습니다.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
