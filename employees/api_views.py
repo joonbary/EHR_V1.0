@@ -54,28 +54,65 @@ class EmployeeListCreateAPIView(generics.ListCreateAPIView):
         return EmployeeListSerializer
     
     def get_queryset(self):
-        queryset = super().get_queryset()
-        
-        # 재직자만 조회 (쿼리 파라미터로 제어 가능)
-        if self.request.query_params.get('include_retired') != 'true':
-            queryset = queryset.filter(employment_status__in=['재직', '휴직', '파견'])
-        
-        # 부서별 필터링
-        department = self.request.query_params.get('department')
-        if department:
-            queryset = queryset.filter(department=department)
-        
-        # 직급별 필터링
-        position = self.request.query_params.get('position')
-        if position:
-            queryset = queryset.filter(new_position=position)
-        
-        # 관리자별 부하직원 조회
-        manager_id = self.request.query_params.get('manager_id')
-        if manager_id:
-            queryset = queryset.filter(manager_id=manager_id)
-        
-        return queryset
+        try:
+            queryset = super().get_queryset()
+            
+            # 재직자만 조회 (쿼리 파라미터로 제어 가능)
+            if self.request.query_params.get('include_retired') != 'true':
+                queryset = queryset.filter(employment_status__in=['재직', '휴직', '파견'])
+            
+            # 검색어 처리 (search 파라미터)
+            search = self.request.query_params.get('search')
+            if search:
+                queryset = queryset.filter(
+                    Q(name__icontains=search) |
+                    Q(email__icontains=search) |
+                    Q(employee_id__icontains=search) |
+                    Q(department__icontains=search)
+                )
+            
+            # 고용형태 필터링 (employment_type 파라미터)
+            employment_type = self.request.query_params.get('employment_type')
+            if employment_type and employment_type != '':
+                # Non-PL, PL 등의 값을 정확히 매칭
+                queryset = queryset.filter(employment_type__iexact=employment_type)
+            
+            # 부서별 필터링
+            department = self.request.query_params.get('department')
+            if department:
+                queryset = queryset.filter(department=department)
+            
+            # 직급별 필터링
+            position = self.request.query_params.get('position')
+            if position:
+                queryset = queryset.filter(new_position=position)
+            
+            # 관리자별 부하직원 조회
+            manager_id = self.request.query_params.get('manager_id')
+            if manager_id:
+                queryset = queryset.filter(manager_id=manager_id)
+            
+            return queryset
+        except Exception as e:
+            # 에러 발생 시 빈 쿼리셋 반환
+            print(f"Error in get_queryset: {str(e)}")
+            return Employee.objects.none()
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            # results 키로 감싸서 반환 (프론트엔드 호환성)
+            return Response({'results': serializer.data})
+        except Exception as e:
+            # 에러 발생 시 빈 결과 반환
+            print(f"Error in list: {str(e)}")
+            return Response({'results': [], 'error': str(e)}, status=status.HTTP_200_OK)
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
