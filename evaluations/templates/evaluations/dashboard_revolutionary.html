@@ -386,34 +386,43 @@
             <p class="text-sm text-gray-400 mb-6">2024년 상반기 평가 진행 현황</p>
             
             <div class="space-y-6">
-                <div>
+                <div class="border border-gray-700 rounded-lg p-4 hover:border-cyan-400 transition-all">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-sm font-medium text-white">기여방식 평가</span>
                         <span class="text-sm font-semibold text-cyan-400">{{ contribution_progress|floatformat:1 }}%</span>
                     </div>
-                    <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
                         <div class="bg-gradient-to-r from-cyan-400 to-cyan-300 h-3 rounded-full transition-all duration-300" style="width: {{ contribution_progress }}%"></div>
                     </div>
+                    <a href="{% url 'evaluations:contribution_guide' %}" class="btn-revolutionary btn-sm btn-primary">
+                        <i class="fas fa-arrow-right mr-1"></i>평가 시작
+                    </a>
                 </div>
                 
-                <div>
+                <div class="border border-gray-700 rounded-lg p-4 hover:border-green-400 transition-all">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-sm font-medium text-white">전문성 평가</span>
                         <span class="text-sm font-semibold text-cyan-400">{{ expertise_progress|floatformat:1 }}%</span>
                     </div>
-                    <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
                         <div class="bg-gradient-to-r from-green-400 to-green-300 h-3 rounded-full transition-all duration-300" style="width: {{ expertise_progress }}%"></div>
                     </div>
+                    <a href="{% url 'evaluations:expertise_guide' %}" class="btn-revolutionary btn-sm btn-success">
+                        <i class="fas fa-arrow-right mr-1"></i>평가 시작
+                    </a>
                 </div>
                 
-                <div>
+                <div class="border border-gray-700 rounded-lg p-4 hover:border-yellow-400 transition-all">
                     <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-white">기여수준 평가</span>
+                        <span class="text-sm font-medium text-white">영향력 평가</span>
                         <span class="text-sm font-semibold text-cyan-400">{{ impact_progress|floatformat:1 }}%</span>
                     </div>
-                    <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
                         <div class="bg-gradient-to-r from-yellow-400 to-yellow-300 h-3 rounded-full transition-all duration-300" style="width: {{ impact_progress }}%"></div>
                     </div>
+                    <a href="{% url 'evaluations:impact_guide' %}" class="btn-revolutionary btn-sm btn-warning">
+                        <i class="fas fa-arrow-right mr-1"></i>평가 시작
+                    </a>
                 </div>
             </div>
         </div>
@@ -486,22 +495,22 @@
                     <p class="text-sm text-gray-400 mb-6">기여방식 vs 기여수준 매트릭스</p>
                     
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="matrix-cell bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg p-6 text-white hover:shadow-lg transition-all cursor-pointer">
+                        <a href="{% url 'evaluations:comprehensive_list' %}" class="matrix-cell bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg p-6 text-white hover:shadow-lg transition-all cursor-pointer">
                             <h5 class="text-2xl font-bold mb-2">S급</h5>
                             <p class="text-3xl font-bold">{{ s_count }}명</p>
-                        </div>
-                        <div class="matrix-cell bg-gradient-to-br from-green-500 to-green-700 rounded-lg p-6 text-white hover:shadow-lg transition-all cursor-pointer">
+                        </a>
+                        <a href="{% url 'evaluations:comprehensive_list' %}" class="matrix-cell bg-gradient-to-br from-green-500 to-green-700 rounded-lg p-6 text-white hover:shadow-lg transition-all cursor-pointer">
                             <h5 class="text-2xl font-bold mb-2">A급</h5>
                             <p class="text-3xl font-bold">{{ a_count }}명</p>
-                        </div>
-                        <div class="matrix-cell bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg p-6 text-white hover:shadow-lg transition-all cursor-pointer">
+                        </a>
+                        <a href="{% url 'evaluations:comprehensive_list' %}" class="matrix-cell bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg p-6 text-white hover:shadow-lg transition-all cursor-pointer">
                             <h5 class="text-2xl font-bold mb-2">B급</h5>
                             <p class="text-3xl font-bold">{{ b_count }}명</p>
-                        </div>
-                        <div class="matrix-cell bg-gradient-to-br from-orange-500 to-orange-700 rounded-lg p-6 text-white hover:shadow-lg transition-all cursor-pointer">
+                        </a>
+                        <a href="{% url 'evaluations:comprehensive_list' %}" class="matrix-cell bg-gradient-to-br from-orange-500 to-orange-700 rounded-lg p-6 text-white hover:shadow-lg transition-all cursor-pointer">
                             <h5 class="text-2xl font-bold mb-2">C급</h5>
                             <p class="text-3xl font-bold">{{ c_count }}명</p>
-                        </div>
+                        </a>
                     </div>
                     
                     <div class="mt-6 flex gap-4 text-sm text-gray-400">
