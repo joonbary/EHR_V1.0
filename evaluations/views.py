@@ -17,12 +17,9 @@ from .models import (
 
 
 def contribution_list(request):
-    """기여도 평가 대상자 목록"""
-    active_period = EvaluationPeriod.objects.filter(is_active=True).first()
-    
-    if not active_period:
-        messages.warning(request, "활성화된 평가 기간이 없습니다.")
-        return redirect('evaluations:dashboard')
+    """기여도 평가 대상자 목록 - 가이드 페이지로 리다이렉트"""
+    # 이제 contribution_guide로 리다이렉트
+    return redirect('evaluations:contribution_guide')
     
     # 평가 대상 직원들 - N+1 쿼리 문제 해결
     from django.db.models import Prefetch, Count, Q
