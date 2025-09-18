@@ -385,6 +385,9 @@ def evaluation_dashboard(request):
     from .models import EvaluationPeriod, ContributionEvaluation, ExpertiseEvaluation, ImpactEvaluation, ComprehensiveEvaluation
     from employees.models import Employee
     
+    # 디버깅: 사용되는 템플릿 확인
+    print(f"[DEBUG] evaluation_dashboard called - using dashboard_revolutionary.html template (v2025-01-18)")
+    
     # Revolutionary 템플릿에 필요한 모든 변수 초기화
     context = {
         # 통계 카드 데이터
