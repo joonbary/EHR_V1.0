@@ -2,11 +2,15 @@ from django.urls import path, include
 from . import views
 from . import views_advanced
 from . import api_views
+from . import debug_template
 from core.views import under_construction
 
 app_name = 'evaluations'
 
 urlpatterns = [
+    # 디버그 URL (임시)
+    path('debug/urls/', debug_template.debug_urls, name='debug_urls'),
+    
     # 메인 대시보드
     path('', views.evaluation_dashboard, name='dashboard'),
     path('simple/', views.evaluation_dashboard_simple, name='dashboard_simple'),
