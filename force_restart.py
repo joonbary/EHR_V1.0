@@ -8,7 +8,7 @@ import sys
 import django
 
 # Django 설정 로드
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ehr_system.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ehr_evaluation.settings')
 django.setup()
 
 # URL 패턴 재로드

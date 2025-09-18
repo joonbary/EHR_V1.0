@@ -8,7 +8,7 @@ import django
 import traceback
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ehr_system.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ehr_evaluation.settings")
     
     print("[STARTUP] Initializing Django...")
     django.setup()
@@ -44,6 +44,32 @@ if __name__ == "__main__":
             'profiles': JobProfile.objects.count()
         }
         print(f"[STARTUP] Final stats: {final_stats}")
+        
+        # Check for active evaluation period
+        from evaluations.models import EvaluationPeriod
+        from datetime import date, timedelta
+        
+        active_period = EvaluationPeriod.objects.filter(is_active=True).first()
+        if not active_period:
+            print("[STARTUP] No active evaluation period found, creating one...")
+            try:
+                today = date.today()
+                start_date = today - timedelta(days=30)
+                end_date = today + timedelta(days=90)
+                
+                period = EvaluationPeriod.objects.create(
+                    year=today.year,
+                    period_type='H2' if today.month > 6 else 'H1',
+                    start_date=start_date,
+                    end_date=end_date,
+                    is_active=True,
+                    status='ONGOING',
+                )
+                print(f"[STARTUP] Created evaluation period: {period.year} {period.period_type}")
+            except Exception as e:
+                print(f"[STARTUP] Error creating evaluation period: {e}")
+        else:
+            print(f"[STARTUP] Active evaluation period exists: {active_period.year} {active_period.period_type}")
         
     except Exception as e:
         print(f"[STARTUP] Critical error: {e}")
