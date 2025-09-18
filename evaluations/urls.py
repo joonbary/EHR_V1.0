@@ -2,7 +2,7 @@ from django.urls import path, include
 from . import views
 from . import views_advanced
 from . import api_views
-from . import debug_template
+from . import debug_template, debug_views
 from core.views import under_construction
 
 app_name = 'evaluations'
@@ -10,6 +10,7 @@ app_name = 'evaluations'
 urlpatterns = [
     # 디버그 URL (임시)
     path('debug/urls/', debug_template.debug_urls, name='debug_urls'),
+    path('debug/template/', debug_views.debug_template_content, name='debug_template'),
     
     # 메인 대시보드
     path('', views.evaluation_dashboard, name='dashboard'),
