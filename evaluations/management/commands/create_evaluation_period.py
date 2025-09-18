@@ -1,19 +1,13 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import date, timedelta
-from evaluations.models import EvaluationPeriod
+from evaluations.models import EvaluationPeriod, PERIOD_TYPE_CHOICES
 
 
 class Command(BaseCommand):
     help = '활성 평가 기간을 생성합니다'
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--name',
-            type=str,
-            default='2024년 하반기 평가',
-            help='평가 기간 이름'
-        )
         parser.add_argument(
             '--days-before',
             type=int,
@@ -32,8 +26,9 @@ class Command(BaseCommand):
         active_period = EvaluationPeriod.objects.filter(is_active=True).first()
         
         if active_period:
+            period_name = f'{active_period.year}년 {dict(PERIOD_TYPE_CHOICES).get(active_period.period_type, active_period.period_type)}'
             self.stdout.write(
-                self.style.WARNING(f'이미 활성 평가 기간이 있습니다: {active_period.name}')
+                self.style.WARNING(f'이미 활성 평가 기간이 있습니다: {period_name}')
             )
             self.stdout.write(f'기간: {active_period.start_date} ~ {active_period.end_date}')
             return
@@ -44,7 +39,6 @@ class Command(BaseCommand):
         end_date = today + timedelta(days=options['days_after'])
         
         period = EvaluationPeriod.objects.create(
-            name=options['name'],
             year=today.year,
             period_type='H2' if today.month > 6 else 'H1',  # 하반기/상반기 자동 설정
             start_date=start_date,
@@ -53,8 +47,9 @@ class Command(BaseCommand):
             status='ONGOING',
         )
         
+        period_name = f'{period.year}년 {dict(PERIOD_TYPE_CHOICES).get(period.period_type, period.period_type)}'
         self.stdout.write(
-            self.style.SUCCESS(f'✅ 새 평가 기간이 생성되었습니다: {period.name}')
+            self.style.SUCCESS(f'✅ 새 평가 기간이 생성되었습니다: {period_name}')
         )
         self.stdout.write(f'기간: {period.start_date} ~ {period.end_date}')
         self.stdout.write(f'활성 상태: {"✓ 활성" if period.is_active else "비활성"}')
@@ -70,6 +65,7 @@ class Command(BaseCommand):
         self.stdout.write('\n📊 현재 평가 기간 목록:')
         for p in EvaluationPeriod.objects.all().order_by('-is_active', '-start_date'):
             status = '🟢 활성' if p.is_active else '⚪ 비활성'
+            p_name = f'{p.year}년 {dict(PERIOD_TYPE_CHOICES).get(p.period_type, p.period_type)}'
             self.stdout.write(
-                f'  {status} | {p.name} | {p.start_date} ~ {p.end_date}'
+                f'  {status} | {p_name} | {p.start_date} ~ {p.end_date}'
             )
