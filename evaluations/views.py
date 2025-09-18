@@ -18,6 +18,8 @@ from .models import (
 
 def contribution_list(request):
     """기여도 평가 대상자 목록 - 가이드 페이지로 리다이렉트"""
+    # 디버깅을 위한 로깅 추가
+    print(f"[DEBUG] contribution_list called - redirecting to contribution_guide")
     # 이제 contribution_guide로 리다이렉트
     return redirect('evaluations:contribution_guide')
     
@@ -176,6 +178,8 @@ def expertise_employees(request):
 
 def expertise_list(request):
     """전문성 평가 대상자 목록 (기존 - 리다이렉트)"""
+    # 디버깅을 위한 로깅 추가
+    print(f"[DEBUG] expertise_list called - redirecting to expertise_guide")
     # 새로운 가이드 페이지로 리다이렉트
     return redirect('evaluations:expertise_guide')
 
@@ -268,6 +272,8 @@ def impact_employees(request):
 
 def impact_list(request):
     """영향력 평가 대상자 목록 (기존 - 리다이렉트)"""
+    # 디버깅을 위한 로깅 추가
+    print(f"[DEBUG] impact_list called - redirecting to impact_guide")
     # 새로운 가이드 페이지로 리다이렉트
     return redirect('evaluations:impact_guide')
 
