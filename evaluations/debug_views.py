@@ -25,15 +25,32 @@ def debug_template_content(request):
         with open(template_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # 평가 시작 버튼 부분 찾기
+        # 평가 시작 버튼 부분 찾기 - 더 정확한 패턴
         import re
-        pattern = r'<a href="[^"]*"[^>]*>.*?평가 시작.*?</a>'
-        matches = re.findall(pattern, content, re.DOTALL)
         
-        response_text.append(f"\n평가 시작 버튼 개수: {len(matches)}")
-        for i, match in enumerate(matches, 1):
-            response_text.append(f"\n버튼 {i}:")
-            response_text.append(match[:200])  # 처음 200자만
+        # contribution_guide 찾기
+        contrib_pattern = r'contribution_guide'
+        contrib_matches = re.findall(contrib_pattern, content)
+        response_text.append(f"\n'contribution_guide' 텍스트 개수: {len(contrib_matches)}")
+        
+        # 각 평가 가이드 URL 찾기
+        for eval_type in ['contribution', 'expertise', 'impact']:
+            pattern = f'{eval_type}_guide'
+            matches = re.findall(pattern, content)
+            response_text.append(f"'{pattern}' 개수: {len(matches)}")
+        
+        # 평가 시작 버튼 찾기
+        button_pattern = r'평가 시작'
+        button_matches = re.findall(button_pattern, content)
+        response_text.append(f"\n'평가 시작' 텍스트 개수: {len(button_matches)}")
+        
+        # 버튼 주변 컨텍스트 확인 (앞뒤 100자)
+        for match in re.finditer(button_pattern, content):
+            start = max(0, match.start() - 100)
+            end = min(len(content), match.end() + 100)
+            context = content[start:end]
+            response_text.append(f"\n평가 시작 버튼 컨텍스트:")
+            response_text.append(context)
     
     # Django 템플릿 로더로 확인
     response_text.append("\n" + "=" * 60)
