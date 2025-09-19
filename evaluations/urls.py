@@ -2,16 +2,20 @@ from django.urls import path, include
 from . import views
 from . import views_advanced
 from . import api_views
-from . import debug_template, debug_views, debug_raw
 from core.views import under_construction
 
 app_name = 'evaluations'
 
+# Debug view import (임시)
+try:
+    from . import debug_dashboard
+    debug_view_available = True
+except ImportError:
+    debug_view_available = False
+
 urlpatterns = [
     # 디버그 URL (임시)
-    path('debug/urls/', debug_template.debug_urls, name='debug_urls'),
-    path('debug/template/', debug_views.debug_template_content, name='debug_template'),
-    path('debug/raw/', debug_raw.debug_raw_template, name='debug_raw'),
+    path('debug/dashboard/', debug_dashboard.debug_dashboard if debug_view_available else views.evaluation_dashboard, name='debug_dashboard'),
     
     # 메인 대시보드
     path('', views.evaluation_dashboard, name='dashboard'),

@@ -504,7 +504,7 @@ def evaluation_dashboard(request):
                 from django.db.models import Avg
                 avg_contribution = ContributionEvaluation.objects.filter(
                     evaluation_period=active_period
-                ).aggregate(Avg('total_score'))['total_score__avg'] or 0
+                ).aggregate(Avg('contribution_score'))['contribution_score__avg'] or 0
                 
                 avg_expertise = ExpertiseEvaluation.objects.filter(
                     evaluation_period=active_period
@@ -555,7 +555,7 @@ def evaluation_dashboard(request):
             try:
                 top_evaluations = top_evaluations_query.filter(
                     status='COMPLETED'
-                ).select_related('employee').order_by('-total_score')[:5]
+                ).select_related('employee').order_by('-overall_score')[:5]
             except:
                 # status 필드가 없는 경우
                 top_evaluations = top_evaluations_query.select_related(
@@ -574,7 +574,7 @@ def evaluation_dashboard(request):
                         'name': eval.employee.name,
                         'department': eval.employee.department,
                         'position': eval.employee.position,
-                        'total_score': round(eval.total_score, 1) if eval.total_score else 0,
+                        'total_score': round(eval.overall_score, 1) if eval.overall_score else 0,
                         'contribution_type': '성과형' if contribution_score and contribution_score > 4 else '균형형' if contribution_score and contribution_score > 3 else '지원형',
                         'contribution_type_color': 'success' if contribution_score and contribution_score > 4 else 'primary' if contribution_score and contribution_score > 3 else 'warning',
                         'impact_level': '탁월' if impact_score and impact_score > 4 else '달성' if impact_score and impact_score > 3 else '기대',
