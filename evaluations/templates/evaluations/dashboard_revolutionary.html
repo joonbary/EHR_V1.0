@@ -21,6 +21,48 @@
         margin-bottom: 3rem;
     }
     
+    /* 가독성 개선을 위한 텍스트 스타일 */
+    .text-white {
+        color: #ffffff !important;
+        font-weight: 500;
+    }
+    
+    .text-gray-400 {
+        color: #9ca3af !important;
+    }
+    
+    .text-cyan-400 {
+        color: #00d4ff !important;
+        font-weight: 600;
+    }
+    
+    /* 평가 카드 클릭 가능 스타일 */
+    .evaluation-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(30, 30, 40, 0.8);
+        backdrop-filter: blur(10px);
+    }
+    
+    .evaluation-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        background: rgba(40, 40, 50, 0.9);
+    }
+    
+    .evaluation-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+    }
+    
+    .evaluation-desc {
+        color: #9ca3af;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
     .charts-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -386,47 +428,59 @@
             <p class="text-sm text-gray-400 mb-6">2024년 상반기 평가 진행 현황</p>
             
             <div class="space-y-6">
-                <div class="border border-gray-700 rounded-lg p-4 hover:border-cyan-400 transition-all">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-white">기여방식 평가</span>
-                        <span class="text-sm font-semibold text-cyan-400">{{ contribution_progress|floatformat:1 }}%</span>
+                <!-- 기여도 평가 카드 -->
+                <a href="{% url 'evaluations:contribution_guide' %}" class="block text-decoration-none">
+                    <div class="evaluation-card border border-gray-700 rounded-lg p-4 hover:border-cyan-400 transition-all">
+                        <div class="evaluation-title">기여도 평가</div>
+                        <p class="evaluation-desc">업무 목표 달성 및 성과 기여도를 평가합니다</p>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-white">진행률</span>
+                            <span class="text-sm font-semibold text-cyan-400">{{ contribution_progress|floatformat:1 }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
+                            <div class="bg-gradient-to-r from-cyan-400 to-cyan-300 h-3 rounded-full transition-all duration-300" style="width: {{ contribution_progress }}%"></div>
+                        </div>
+                        <div class="btn-revolutionary btn-sm btn-primary inline-block">
+                            <i class="fas fa-arrow-right mr-1"></i>평가 진행하기
+                        </div>
                     </div>
-                    <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
-                        <div class="bg-gradient-to-r from-cyan-400 to-cyan-300 h-3 rounded-full transition-all duration-300" style="width: {{ contribution_progress }}%"></div>
-                    </div>
-                    <!-- Version: 2025-01-18 Fix redirect to guide -->
-                    <a href="{% url 'evaluations:contribution_guide' %}" class="btn-revolutionary btn-sm btn-primary">
-                        <i class="fas fa-arrow-right mr-1"></i>평가 시작
-                    </a>
-                </div>
+                </a>
                 
-                <div class="border border-gray-700 rounded-lg p-4 hover:border-green-400 transition-all">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-white">전문성 평가</span>
-                        <span class="text-sm font-semibold text-cyan-400">{{ expertise_progress|floatformat:1 }}%</span>
+                <!-- 전문성 평가 카드 -->
+                <a href="{% url 'evaluations:expertise_guide' %}" class="block text-decoration-none">
+                    <div class="evaluation-card border border-gray-700 rounded-lg p-4 hover:border-green-400 transition-all">
+                        <div class="evaluation-title">전문성 평가</div>
+                        <p class="evaluation-desc">역량 및 전문 지식 수준을 평가합니다</p>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-white">진행률</span>
+                            <span class="text-sm font-semibold text-cyan-400">{{ expertise_progress|floatformat:1 }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
+                            <div class="bg-gradient-to-r from-green-400 to-green-300 h-3 rounded-full transition-all duration-300" style="width: {{ expertise_progress }}%"></div>
+                        </div>
+                        <div class="btn-revolutionary btn-sm btn-success inline-block">
+                            <i class="fas fa-arrow-right mr-1"></i>평가 진행하기
+                        </div>
                     </div>
-                    <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
-                        <div class="bg-gradient-to-r from-green-400 to-green-300 h-3 rounded-full transition-all duration-300" style="width: {{ expertise_progress }}%"></div>
-                    </div>
-                    <!-- Version: 2025-01-18 Fix redirect to guide -->
-                    <a href="{% url 'evaluations:expertise_guide' %}" class="btn-revolutionary btn-sm btn-success">
-                        <i class="fas fa-arrow-right mr-1"></i>평가 시작
-                    </a>
-                </div>
+                </a>
                 
-                <div class="border border-gray-700 rounded-lg p-4 hover:border-yellow-400 transition-all">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-white">영향력 평가</span>
-                        <span class="text-sm font-semibold text-cyan-400">{{ impact_progress|floatformat:1 }}%</span>
+                <!-- 영향력 평가 카드 -->
+                <a href="{% url 'evaluations:impact_guide' %}" class="block text-decoration-none">
+                    <div class="evaluation-card border border-gray-700 rounded-lg p-4 hover:border-yellow-400 transition-all">
+                        <div class="evaluation-title">영향력 평가</div>
+                        <p class="evaluation-desc">조직 기여 및 협업 영향력을 평가합니다</p>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-white">진행률</span>
+                            <span class="text-sm font-semibold text-cyan-400">{{ impact_progress|floatformat:1 }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
+                            <div class="bg-gradient-to-r from-yellow-400 to-yellow-300 h-3 rounded-full transition-all duration-300" style="width: {{ impact_progress }}%"></div>
+                        </div>
+                        <div class="btn-revolutionary btn-sm btn-warning inline-block">
+                            <i class="fas fa-arrow-right mr-1"></i>평가 진행하기
+                        </div>
                     </div>
-                    <div class="w-full bg-gray-700 rounded-full h-3 mb-3">
-                        <div class="bg-gradient-to-r from-yellow-400 to-yellow-300 h-3 rounded-full transition-all duration-300" style="width: {{ impact_progress }}%"></div>
-                    </div>
-                    <!-- Version: 2025-01-18 Fix redirect to guide -->
-                    <a href="{% url 'evaluations:impact_guide' %}" class="btn-revolutionary btn-sm btn-warning">
-                        <i class="fas fa-arrow-right mr-1"></i>평가 시작
-                    </a>
-                </div>
+                </a>
             </div>
         </div>
     </div>

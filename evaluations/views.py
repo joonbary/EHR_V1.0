@@ -462,58 +462,109 @@ def evaluation_dashboard(request):
             except Exception as e:
                 print(f"Error calculating contribution progress: {str(e)}")
             
-            # 전문성/영향력 평가 진행률 (더미 데이터)
-            context['expertise_progress'] = 65.0
-            context['impact_progress'] = 50.0
+            # 전문성 평가 진행률 계산
+            try:
+                expertise_total = ExpertiseEvaluation.objects.filter(
+                    evaluation_period=active_period
+                ).count()
+                expertise_completed = ExpertiseEvaluation.objects.filter(
+                    evaluation_period=active_period,
+                    status='completed'
+                ).count()
+                
+                if expertise_total > 0:
+                    context['expertise_progress'] = (expertise_completed / expertise_total) * 100
+                else:
+                    context['expertise_progress'] = 0.0
+            except Exception as e:
+                print(f"Error calculating expertise progress: {str(e)}")
+                context['expertise_progress'] = 0.0
             
-            # 평균 점수 (더미 데이터)
-            context['avg_score'] = 3.7
+            # 영향력 평가 진행률 계산
+            try:
+                impact_total = ImpactEvaluation.objects.filter(
+                    evaluation_period=active_period
+                ).count()
+                impact_completed = ImpactEvaluation.objects.filter(
+                    evaluation_period=active_period,
+                    status='completed'  
+                ).count()
+                
+                if impact_total > 0:
+                    context['impact_progress'] = (impact_completed / impact_total) * 100
+                else:
+                    context['impact_progress'] = 0.0
+            except Exception as e:
+                print(f"Error calculating impact progress: {str(e)}")
+                context['impact_progress'] = 0.0
+            
+            # 평균 점수 계산
+            try:
+                from django.db.models import Avg
+                avg_contribution = ContributionEvaluation.objects.filter(
+                    evaluation_period=active_period
+                ).aggregate(Avg('total_score'))['total_score__avg'] or 0
+                
+                avg_expertise = ExpertiseEvaluation.objects.filter(
+                    evaluation_period=active_period
+                ).aggregate(Avg('total_score'))['total_score__avg'] or 0
+                
+                avg_impact = ImpactEvaluation.objects.filter(
+                    evaluation_period=active_period
+                ).aggregate(Avg('total_score'))['total_score__avg'] or 0
+                
+                # 전체 평균 계산
+                scores = [s for s in [avg_contribution, avg_expertise, avg_impact] if s > 0]
+                context['avg_score'] = round(sum(scores) / len(scores), 1) if scores else 0.0
+            except Exception as e:
+                print(f"Error calculating average score: {str(e)}")
+                context['avg_score'] = 0.0
         
-        # 등급별 카운트 (더미 데이터)
-        context['s_count'] = 5
-        context['a_count'] = 25
-        context['b_count'] = 45
-        context['c_count'] = 20
+        # 등급별 카운트 계산
+        try:
+            from django.db.models import Count
+            grade_counts = ComprehensiveEvaluation.objects.filter(
+                evaluation_period=active_period if active_period else None
+            ).values('grade').annotate(count=Count('id'))
+            
+            grade_dict = {item['grade']: item['count'] for item in grade_counts}
+            context['s_count'] = grade_dict.get('S', 0)
+            context['a_count'] = grade_dict.get('A', 0)
+            context['b_count'] = grade_dict.get('B', 0)
+            context['c_count'] = grade_dict.get('C', 0)
+        except Exception as e:
+            print(f"Error calculating grade counts: {str(e)}")
+            context['s_count'] = 0
+            context['a_count'] = 0
+            context['b_count'] = 0
+            context['c_count'] = 0
         
-        # 상위 평가자 더미 데이터
-        context['top_performers'] = [
-            {
-                'employee_id': 'EMP001',
-                'name': '홍길동',
-                'department': 'IT개발팀',
-                'position': '과장',
-                'total_score': 4.5,
-                'contribution_type': '균형형',
-                'contribution_type_color': 'primary',
-                'impact_level': '탁월',
-                'impact_level_color': 'success',
-                'grade': 'A'
-            },
-            {
-                'employee_id': 'EMP002',
-                'name': '김영희',
-                'department': '마케팅팀',
-                'position': '대리',
-                'total_score': 4.2,
-                'contribution_type': '성과형',
-                'contribution_type_color': 'success',
-                'impact_level': '달성',
-                'impact_level_color': 'primary',
-                'grade': 'B'
-            },
-            {
-                'employee_id': 'EMP003',
-                'name': '박철수',
-                'department': '영업팀',
-                'position': '사원',
-                'total_score': 3.8,
-                'contribution_type': '지원형',
-                'contribution_type_color': 'warning',
-                'impact_level': '기대',
-                'impact_level_color': 'warning',
-                'grade': 'C'
-            }
-        ]
+        # 상위 평가자 실제 데이터
+        try:
+            from django.db.models import Q
+            top_evaluations = ComprehensiveEvaluation.objects.filter(
+                evaluation_period=active_period if active_period else None,
+                status='completed'
+            ).select_related('employee').order_by('-total_score')[:5]
+            
+            context['top_performers'] = []
+            for eval in top_evaluations:
+                if eval.employee:
+                    context['top_performers'].append({
+                        'employee_id': eval.employee.employee_id,
+                        'name': eval.employee.name,
+                        'department': eval.employee.department,
+                        'position': eval.employee.position,
+                        'total_score': round(eval.total_score, 1) if eval.total_score else 0,
+                        'contribution_type': '성과형' if eval.contribution_score > 4 else '균형형' if eval.contribution_score > 3 else '지원형',
+                        'contribution_type_color': 'success' if eval.contribution_score > 4 else 'primary' if eval.contribution_score > 3 else 'warning',
+                        'impact_level': '탁월' if eval.impact_score > 4 else '달성' if eval.impact_score > 3 else '기대',
+                        'impact_level_color': 'success' if eval.impact_score > 4 else 'primary' if eval.impact_score > 3 else 'warning',
+                        'grade': eval.grade or 'B'
+                    })
+        except Exception as e:
+            print(f"Error getting top performers: {str(e)}")
+            context['top_performers'] = []
         
         # 현재 사용자 정보 (호환성 유지)
         try:
@@ -522,6 +573,30 @@ def evaluation_dashboard(request):
         except Exception as e:
             print(f"Error getting employee: {str(e)}")
             context['employee'] = None
+        
+        # 최근 평가 활동
+        try:
+            from django.utils import timezone
+            recent_activities = []
+            
+            # 최근 완료된 평가
+            recent_contributions = ContributionEvaluation.objects.filter(
+                status='completed'
+            ).select_related('employee').order_by('-updated_at')[:3]
+            
+            for eval in recent_contributions:
+                if eval.employee:
+                    recent_activities.append({
+                        'type': 'completed',
+                        'employee_name': eval.employee.name,
+                        'description': '기여도 평가 완료',
+                        'time': eval.updated_at
+                    })
+            
+            context['recent_activities'] = recent_activities
+        except Exception as e:
+            print(f"Error getting recent activities: {str(e)}")
+            context['recent_activities'] = []
         
     except Exception as e:
         print(f"Dashboard general error: {str(e)}")
