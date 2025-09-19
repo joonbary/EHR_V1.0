@@ -384,6 +384,7 @@ def evaluation_dashboard(request):
     """평가 대시보드 - Revolutionary 템플릿 사용"""
     from .models import EvaluationPeriod, ContributionEvaluation, ExpertiseEvaluation, ImpactEvaluation, ComprehensiveEvaluation
     from employees.models import Employee
+    import traceback
     
     # 디버깅: 사용되는 템플릿 확인
     print(f"[DEBUG] evaluation_dashboard called - using dashboard_revolutionary.html template (v2025-01-18)")
@@ -525,9 +526,9 @@ def evaluation_dashboard(request):
             from django.db.models import Count
             grade_counts = ComprehensiveEvaluation.objects.filter(
                 evaluation_period=active_period if active_period else None
-            ).values('grade').annotate(count=Count('id'))
+            ).values('final_grade').annotate(count=Count('id'))
             
-            grade_dict = {item['grade']: item['count'] for item in grade_counts}
+            grade_dict = {item['final_grade']: item['count'] for item in grade_counts if item['final_grade']}
             context['s_count'] = grade_dict.get('S', 0)
             context['a_count'] = grade_dict.get('A', 0)
             context['b_count'] = grade_dict.get('B', 0)
@@ -542,25 +543,43 @@ def evaluation_dashboard(request):
         # 상위 평가자 실제 데이터
         try:
             from django.db.models import Q
-            top_evaluations = ComprehensiveEvaluation.objects.filter(
-                evaluation_period=active_period if active_period else None,
-                status='completed'
-            ).select_related('employee').order_by('-total_score')[:5]
+            # status 필드가 있는지 확인하고 필터링
+            top_evaluations_query = ComprehensiveEvaluation.objects.all()
+            
+            if active_period:
+                top_evaluations_query = top_evaluations_query.filter(
+                    evaluation_period=active_period
+                )
+            
+            # status 필드가 있다면 필터링, 없으면 무시
+            try:
+                top_evaluations = top_evaluations_query.filter(
+                    status='COMPLETED'
+                ).select_related('employee').order_by('-total_score')[:5]
+            except:
+                # status 필드가 없는 경우
+                top_evaluations = top_evaluations_query.select_related(
+                    'employee'
+                ).order_by('-total_score')[:5]
             
             context['top_performers'] = []
             for eval in top_evaluations:
                 if eval.employee:
+                    # contribution_score와 impact_score가 None일 수 있으므로 안전하게 처리
+                    contribution_score = eval.contribution_score if eval.contribution_score else 0
+                    impact_score = eval.impact_score if eval.impact_score else 0
+                    
                     context['top_performers'].append({
                         'employee_id': eval.employee.employee_id,
                         'name': eval.employee.name,
                         'department': eval.employee.department,
                         'position': eval.employee.position,
                         'total_score': round(eval.total_score, 1) if eval.total_score else 0,
-                        'contribution_type': '성과형' if eval.contribution_score > 4 else '균형형' if eval.contribution_score > 3 else '지원형',
-                        'contribution_type_color': 'success' if eval.contribution_score > 4 else 'primary' if eval.contribution_score > 3 else 'warning',
-                        'impact_level': '탁월' if eval.impact_score > 4 else '달성' if eval.impact_score > 3 else '기대',
-                        'impact_level_color': 'success' if eval.impact_score > 4 else 'primary' if eval.impact_score > 3 else 'warning',
-                        'grade': eval.grade or 'B'
+                        'contribution_type': '성과형' if contribution_score and contribution_score > 4 else '균형형' if contribution_score and contribution_score > 3 else '지원형',
+                        'contribution_type_color': 'success' if contribution_score and contribution_score > 4 else 'primary' if contribution_score and contribution_score > 3 else 'warning',
+                        'impact_level': '탁월' if impact_score and impact_score > 4 else '달성' if impact_score and impact_score > 3 else '기대',
+                        'impact_level_color': 'success' if impact_score and impact_score > 4 else 'primary' if impact_score and impact_score > 3 else 'warning',
+                        'grade': eval.final_grade if eval.final_grade else (eval.manager_grade if eval.manager_grade else 'B')
                     })
         except Exception as e:
             print(f"Error getting top performers: {str(e)}")
@@ -580,9 +599,16 @@ def evaluation_dashboard(request):
             recent_activities = []
             
             # 최근 완료된 평가
-            recent_contributions = ContributionEvaluation.objects.filter(
-                status='completed'
-            ).select_related('employee').order_by('-updated_at')[:3]
+            # updated_at 필드 존재 여부 확인
+            try:
+                recent_contributions = ContributionEvaluation.objects.filter(
+                    status='completed'
+                ).select_related('employee').order_by('-updated_at')[:3]
+            except:
+                # updated_at 필드가 없으면 id로 정렬
+                recent_contributions = ContributionEvaluation.objects.filter(
+                    status='completed'
+                ).select_related('employee').order_by('-id')[:3]
             
             for eval in recent_contributions:
                 if eval.employee:
@@ -590,7 +616,7 @@ def evaluation_dashboard(request):
                         'type': 'completed',
                         'employee_name': eval.employee.name,
                         'description': '기여도 평가 완료',
-                        'time': eval.updated_at
+                        'time': getattr(eval, 'updated_at', eval.evaluation_period.end_date if eval.evaluation_period else None)
                     })
             
             context['recent_activities'] = recent_activities
@@ -600,7 +626,8 @@ def evaluation_dashboard(request):
         
     except Exception as e:
         print(f"Dashboard general error: {str(e)}")
-        messages.error(request, f"대시보드 로딩 중 오류가 발생했습니다.")
+        print(f"Traceback: {traceback.format_exc()}")
+        messages.error(request, f"대시보드 로딩 중 오류가 발생했습니다: {str(e)}")
     
     return render(request, 'evaluations/dashboard_revolutionary.html', context)
 
