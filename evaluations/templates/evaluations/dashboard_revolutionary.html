@@ -21,6 +21,115 @@
         margin-bottom: 3rem;
     }
     
+    /* 주요 통계 카드 개선 */
+    .stat-card {
+        background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(30, 30, 40, 0.9) 100%);
+        border: 1px solid rgba(0, 212, 255, 0.15);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15),
+                    0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+        animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 153, 255, 0.2) 100%);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #00d4ff;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover .stat-icon {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(0, 153, 255, 0.3) 100%);
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+    }
+    
+    .stat-trend {
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-trend.positive {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    .stat-trend.negative {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .stat-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        letter-spacing: -0.5px;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
     /* 가독성 개선을 위한 텍스트 스타일 */
     .text-white {
         color: #ffffff !important;
@@ -31,9 +140,27 @@
         color: #9ca3af !important;
     }
     
+    .text-gray-500 {
+        color: #6b7280 !important;
+    }
+    
     .text-cyan-400 {
         color: #00d4ff !important;
         font-weight: 600;
+    }
+    
+    .text-xs {
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+    
+    .stat-detail {
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+    
+    .stat-card:hover .stat-detail {
+        opacity: 1;
     }
     
     /* 평가 카드 클릭 가능 스타일 */
@@ -68,6 +195,29 @@
         grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
         gap: 2rem;
         margin-bottom: 3rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-left: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .section-title::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(180deg, #00d4ff, #0099ff);
+        border-radius: 2px;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
     }
     
     .chart-header {
@@ -365,6 +515,9 @@
                 <div class="stat-content">
                     <h3 class="stat-value">{{ total_employees|floatformat:0 }}</h3>
                     <p class="stat-label">평가 대상자</p>
+                    <div class="stat-detail text-xs text-gray-500 mt-2">
+                        <span>전체 직원 수</span>
+                    </div>
                 </div>
             </div>
             
@@ -382,6 +535,9 @@
                 <div class="stat-content">
                     <h3 class="stat-value">{{ completed_evaluations|floatformat:0 }}</h3>
                     <p class="stat-label">평가 완료</p>
+                    <div class="stat-detail text-xs text-gray-500 mt-2">
+                        <span>완료율 {{ completion_rate|floatformat:1 }}%</span>
+                    </div>
                 </div>
             </div>
             
@@ -399,6 +555,9 @@
                 <div class="stat-content">
                     <h3 class="stat-value">{{ avg_score|floatformat:1 }}</h3>
                     <p class="stat-label">평균 점수</p>
+                    <div class="stat-detail text-xs text-gray-500 mt-2">
+                        <span>100점 만점</span>
+                    </div>
                 </div>
             </div>
             
@@ -416,6 +575,9 @@
                 <div class="stat-content">
                     <h3 class="stat-value">{{ pending_evaluations|floatformat:0 }}</h3>
                     <p class="stat-label">평가 대기</p>
+                    <div class="stat-detail text-xs text-gray-500 mt-2">
+                        <span>미완료 {{ pending_rate|floatformat:1 }}%</span>
+                    </div>
                 </div>
             </div>
         </div>
