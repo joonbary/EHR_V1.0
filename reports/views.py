@@ -125,20 +125,24 @@ class EmployeeListReportView(View):
                   '입사일', '전화번호', '이메일']
         generator.add_headers(headers)
         
-        # 데이터
+        # 데이터 - 안전하게 속성 접근
         for emp in employees:
-            generator.add_data_row([
-                emp.employee_id,
-                emp.name,
-                emp.department,
-                emp.team,
-                emp.position,
-                emp.growth_level,
-                emp.job_type,
-                emp.hire_date.strftime('%Y-%m-%d') if emp.hire_date else '',
-                emp.phone,
-                emp.email
-            ])
+            try:
+                generator.add_data_row([
+                    getattr(emp, 'employee_id', ''),
+                    getattr(emp, 'name', ''),
+                    getattr(emp, 'department', ''),
+                    getattr(emp, 'team', ''),
+                    getattr(emp, 'position', ''),
+                    getattr(emp, 'growth_level', ''),
+                    getattr(emp, 'job_type', ''),
+                    emp.hire_date.strftime('%Y-%m-%d') if hasattr(emp, 'hire_date') and emp.hire_date else '',
+                    getattr(emp, 'phone', ''),
+                    getattr(emp, 'email', '')
+                ])
+            except Exception as e:
+                logger.warning(f"Error processing employee {emp.id}: {e}")
+                continue
             
         # 요약 정보
         generator.current_row += 1
@@ -300,32 +304,38 @@ class CompensationAnalysisReportView(View):
         level_totals = {}
         
         for comp in compensations:
-            emp = comp.employee
-            total = comp.total_compensation
-            
-            generator.add_data_row([
-                emp.employee_id,
-                emp.name,
-                emp.department,
-                emp.growth_level,
-                comp.base_salary,
-                comp.competency_pay,
-                comp.position_allowance or 0,
-                comp.pi_amount,
-                total
-            ])
-            
-            # 부서별 집계
-            if emp.department not in dept_totals:
-                dept_totals[emp.department] = {'count': 0, 'total': 0}
-            dept_totals[emp.department]['count'] += 1
-            dept_totals[emp.department]['total'] += total
-            
-            # 레벨별 집계
-            if emp.growth_level not in level_totals:
-                level_totals[emp.growth_level] = {'count': 0, 'total': 0}
-            level_totals[emp.growth_level]['count'] += 1
-            level_totals[emp.growth_level]['total'] += total
+            try:
+                emp = comp.employee
+                total = getattr(comp, 'total_compensation', 0)
+                
+                generator.add_data_row([
+                    getattr(emp, 'employee_id', ''),
+                    getattr(emp, 'name', ''),
+                    getattr(emp, 'department', ''),
+                    getattr(emp, 'growth_level', ''),
+                    getattr(comp, 'base_salary', 0),
+                    getattr(comp, 'competency_pay', 0),
+                    getattr(comp, 'position_allowance', 0) or 0,
+                    getattr(comp, 'pi_amount', 0),
+                    total
+                ])
+                
+                # 부서별 집계
+                dept = getattr(emp, 'department', 'Unknown')
+                if dept not in dept_totals:
+                    dept_totals[dept] = {'count': 0, 'total': 0}
+                dept_totals[dept]['count'] += 1
+                dept_totals[dept]['total'] += total
+                
+                # 레벨별 집계
+                level = getattr(emp, 'growth_level', 'Unknown')
+                if level not in level_totals:
+                    level_totals[level] = {'count': 0, 'total': 0}
+                level_totals[level]['count'] += 1
+                level_totals[level]['total'] += total
+            except Exception as e:
+                logger.warning(f"Error processing compensation for employee: {e}")
+                continue
             
         # 부서별 평균 보상
         generator.current_row += 2
@@ -367,19 +377,23 @@ class PromotionCandidatesReportView(View):
         
         # 데이터
         for candidate in candidates:
-            emp = candidate.employee
-            generator.add_data_row([
-                emp.employee_id,
-                emp.name,
-                emp.department,
-                emp.position,
-                candidate.current_level,
-                candidate.target_level,
-                f"{candidate.years_of_service}년",
-                f"{candidate.consecutive_a_grades}회",
-                f"{candidate.average_performance_score}점",
-                candidate.get_status_display()
-            ])
+            try:
+                emp = candidate.employee
+                generator.add_data_row([
+                    getattr(emp, 'employee_id', ''),
+                    getattr(emp, 'name', ''),
+                    getattr(emp, 'department', ''),
+                    getattr(emp, 'position', ''),
+                    getattr(candidate, 'current_level', ''),
+                    getattr(candidate, 'target_level', ''),
+                    f"{getattr(candidate, 'years_of_service', 0)}년",
+                    f"{getattr(candidate, 'consecutive_a_grades', 0)}회",
+                    f"{getattr(candidate, 'average_performance_score', 0)}점",
+                    candidate.get_status_display() if hasattr(candidate, 'get_status_display') else ''
+                ])
+            except Exception as e:
+                logger.warning(f"Error processing promotion candidate: {e}")
+                continue
             
         return generator.save_to_response(f"승진대상자_{datetime.now().strftime('%Y%m%d')}.xlsx")
 
@@ -399,13 +413,24 @@ class DepartmentStatisticsReportView(View):
         # 부서별 인원 현황
         dept_stats = {}
         for emp in employees:
-            if emp.department not in dept_stats:
-                dept_stats[emp.department] = {
-                    'total': 0, 'Level_1': 0, 'Level_2': 0, 
-                    'Level_3': 0, 'Level_4': 0
-                }
-            dept_stats[emp.department]['total'] += 1
-            dept_stats[emp.department][emp.growth_level] += 1
+            try:
+                dept = getattr(emp, 'department', 'Unknown')
+                level = getattr(emp, 'growth_level', 'Unknown')
+                
+                if dept not in dept_stats:
+                    dept_stats[dept] = {
+                        'total': 0, 'Level_1': 0, 'Level_2': 0, 
+                        'Level_3': 0, 'Level_4': 0, 'Unknown': 0
+                    }
+                dept_stats[dept]['total'] += 1
+                
+                if level in dept_stats[dept]:
+                    dept_stats[dept][level] += 1
+                else:
+                    dept_stats[dept]['Unknown'] += 1
+            except Exception as e:
+                logger.warning(f"Error processing employee for department stats: {e}")
+                continue
         
         # 헤더
         headers = ['부서', '총 인원', 'Level 1', 'Level 2', 'Level 3', 'Level 4']
