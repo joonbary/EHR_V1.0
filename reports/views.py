@@ -9,7 +9,7 @@ from promotions.models import PromotionRequest
 from .utils import ExcelReportGenerator
 from .models import ReportTemplate, ReportGeneration
 from datetime import datetime
-from utils.file_manager import FileManager, ExcelFileHandler
+# from utils.file_manager import FileManager, ExcelFileHandler  # Not needed for simple Excel export
 from utils.airiss_api_service import AIRISSAPIService
 import os
 from django.conf import settings
@@ -39,7 +39,7 @@ class EmployeeListReportView(View):
         department = request.GET.get('department')
         position = request.GET.get('position')
         growth_level = request.GET.get('growth_level')
-        format_type = request.GET.get('format', 'json')  # 기본값을 json으로 변경
+        format_type = request.GET.get('format', 'excel')  # 기본값을 excel로 설정
         
         # 데이터 조회
         try:
@@ -154,18 +154,30 @@ class EmployeeListReportView(View):
         )
         
         # 파일 매니저를 통해 exports 폴더에 저장
-        file_manager = FileManager()
-        filename = f"직원명부_{datetime.now().strftime('%Y%m%d')}.xlsx"
-        export_path = os.path.join(settings.MEDIA_ROOT, 'exports', filename)
-        
-        # 임시 파일로 저장 후 exports 폴더로 이동
-        response = generator.save_to_response(filename)
-        
-        # exports 폴더에 복사본 저장 (선택적)
-        with open(export_path, 'wb') as f:
-            f.write(response.content)
-        
-        return response
+        try:
+            filename = f"직원명부_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            
+            # Excel response 생성
+            response = generator.save_to_response(filename)
+            
+            # exports 폴더에 복사본 저장 (선택적)
+            try:
+                export_path = os.path.join(settings.MEDIA_ROOT, 'exports', filename)
+                os.makedirs(os.path.dirname(export_path), exist_ok=True)
+                
+                with open(export_path, 'wb') as f:
+                    f.write(response.content)
+            except Exception as e:
+                logger.warning(f"Failed to save copy to exports: {e}")
+            
+            return response
+        except Exception as e:
+            logger.error(f"Error generating employee list Excel: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e),
+                'message': '직원 명부 Excel 생성 중 오류가 발생했습니다.'
+            }, status=500)
 
 class EvaluationSummaryReportView(View):
     """평가 결과 요약 리포트"""

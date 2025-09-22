@@ -483,8 +483,8 @@
 <script>
 function generateReport(type) {
     console.log('Generating report:', type);
-    // 보고서 생성 로직
-    window.location.href = `/reports/generate/${type}/`;
+    // 보고서 생성 로직 - Excel 형식으로 다운로드
+    window.location.href = `/reports/generate/${type}/?format=excel`;
 }
 
 function createCustomReport() {
