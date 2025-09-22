@@ -173,8 +173,10 @@ class EvaluationSummaryReportView(View):
     def get(self, request):
         year = request.GET.get('year', datetime.now().year)
         
-        # 평가 데이터 조회
-        evaluations = ComprehensiveEvaluation.objects.filter(year=year).select_related('employee')
+        # 평가 데이터 조회 - evaluation_period의 year 필드 사용
+        evaluations = ComprehensiveEvaluation.objects.filter(
+            evaluation_period__year=year
+        ).select_related('employee', 'evaluation_period')
         
         # Excel 생성
         generator = ExcelReportGenerator("평가 결과")
@@ -192,22 +194,25 @@ class EvaluationSummaryReportView(View):
         
         for eval in evaluations:
             emp = eval.employee
-            pi_rate = self.get_pi_rate(emp.growth_level, eval.final_grade)
+            # growth_level 필드 안전하게 처리
+            growth_level = getattr(emp, 'growth_level', 'Level_1')
+            final_grade = eval.final_grade if eval.final_grade else 'B'
+            pi_rate = self.get_pi_rate(growth_level, final_grade)
             
             generator.add_data_row([
-                emp.employee_id,
-                emp.name,
-                emp.department,
-                emp.position,
-                emp.growth_level,
-                f"{eval.contribution_score}점",
-                f"{eval.expertise_score}점",
-                f"{eval.impact_score}점",
-                eval.final_grade,
+                getattr(emp, 'employee_id', ''),
+                getattr(emp, 'name', ''),
+                getattr(emp, 'department', ''),
+                getattr(emp, 'position', ''),
+                growth_level,
+                f"{eval.contribution_score if eval.contribution_score else 0}점",
+                f"{eval.expertise_score if eval.expertise_score else 0}점",
+                f"{eval.impact_score if eval.impact_score else 0}점",
+                final_grade,
                 f"{pi_rate}%"
             ])
             
-            if eval.final_grade in grade_counts:
+            if eval.final_grade and eval.final_grade in grade_counts:
                 grade_counts[eval.final_grade] += 1
                 
         # 통계 섹션
@@ -220,17 +225,32 @@ class EvaluationSummaryReportView(View):
             generator.add_data_row([grade, count, f"{ratio:.1f}%"])
             
         # 파일 매니저를 통해 exports 폴더에 저장
-        file_manager = FileManager()
-        filename = f"평가결과_{year}년.xlsx"
-        export_path = os.path.join(settings.MEDIA_ROOT, 'exports', filename)
-        
-        response = generator.save_to_response(filename)
-        
-        # exports 폴더에 복사본 저장
-        with open(export_path, 'wb') as f:
-            f.write(response.content)
-        
-        return response
+        try:
+            file_manager = FileManager()
+            filename = f"평가결과_{year}년.xlsx"
+            export_path = os.path.join(settings.MEDIA_ROOT, 'exports', filename)
+            
+            # exports 폴더가 없으면 생성
+            os.makedirs(os.path.dirname(export_path), exist_ok=True)
+            
+            response = generator.save_to_response(filename)
+            
+            # exports 폴더에 복사본 저장 (선택적)
+            try:
+                with open(export_path, 'wb') as f:
+                    f.write(response.content)
+            except Exception as e:
+                logger.warning(f"Failed to save copy to exports: {e}")
+            
+            return response
+        except Exception as e:
+            logger.error(f"Error generating evaluation report: {e}")
+            # 에러 발생 시 JSON 응답 반환
+            return JsonResponse({
+                'success': False,
+                'error': str(e),
+                'message': '평가 리포트 생성 중 오류가 발생했습니다.'
+            }, status=500)
     
     def get_pi_rate(self, level, grade):
         """PI 지급률 조회"""
